@@ -46,13 +46,13 @@ This repository contains code examples and implementations developed for a unive
 
 | Type | Contents |
 |:----:|:---------|
-|Textbook|"Applied Numerical Methods with Python for Engineers and Scientists" (2021, McGraw Hill)|
+|Textbook|"Applied Numerical Methods with Python for Engineers and Scientists" by Steven Chapra and David Clough (2022, McGraw Hill)|
 |Lecture Notes|Slides provided by instructor|
 
 <br><a name="prerequisites"></a>
 ## ✅ Prerequisites
 
-- Understanding of calculus and linear algebra
+- Understanding of linear algebra and discrete mathematics
 - Python interpreter installed
 - Familiarity with scientific computing libraries (NumPy, SciPy)
 

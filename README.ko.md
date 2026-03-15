@@ -46,13 +46,13 @@
 
 | 유형 | 내용 |
 |:----:|:---------|
-|교재|"Applied Numerical Methods with Python for Engineers and Scientists" (2021, McGraw Hill)|
+|교재|"Applied Numerical Methods with Python for Engineers and Scientists" by Steven Chapra and David Clough (2022, McGraw Hill)|
 |강의자료|교수자 제공 슬라이드|
 
 <br><a name="prerequisites"></a>
 ## ✅ 사전 요구사항
 
-- 미적분학 및 선형대수에 대한 이해
+- 선형대수 및 이산수학에 대한 이해
 - Python 인터프리터 설치
 - 과학 계산 라이브러리 숙지 (NumPy, SciPy)
 
