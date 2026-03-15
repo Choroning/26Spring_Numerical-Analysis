@@ -28,10 +28,6 @@
 - 과제 솔루션
 - 추가적인 연습 문제
 
-> **🤖 AI 에이전트 활용**
-> 본 과목은 AI 에이전트 사용을 권장합니다.
-> 수업 전반에 걸쳐 [Claude Code](https://claude.ai/download)와 [Gemini CLI](https://github.com/google-gemini/gemini-cli)를 코딩 어시스턴트로 활용하였습니다.
-
 <br><a name="course-information"></a>
 ## 📚 강의 정보
 
@@ -47,7 +43,7 @@
 | 유형 | 내용 |
 |:----:|:---------|
 |교재|"Applied Numerical Methods with Python for Engineers and Scientists" by Steven Chapra and David Clough (2022, McGraw Hill)|
-|강의자료|교수자 제공 슬라이드|
+|강의자료|교수자 제공 슬라이드 및 온라인 영상|
 
 <br><a name="prerequisites"></a>
 ## ✅ 사전 요구사항

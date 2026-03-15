@@ -28,10 +28,6 @@ This repository contains code examples and implementations developed for a unive
 - Assignment solutions
 - Additional practice exercises
 
-> **🤖 AI-Assisted Development**
-> This course encourages the use of AI agents.
-> [Claude Code](https://claude.ai/download) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) were used as coding assistants throughout the course.
-
 <br><a name="course-information"></a>
 ## 📚 Course Information
 
@@ -47,12 +43,12 @@ This repository contains code examples and implementations developed for a unive
 | Type | Contents |
 |:----:|:---------|
 |Textbook|"Applied Numerical Methods with Python for Engineers and Scientists" by Steven Chapra and David Clough (2022, McGraw Hill)|
-|Lecture Notes|Slides provided by instructor|
+|Lecture Notes|Slides and online video lectures provided by instructor|
 
 <br><a name="prerequisites"></a>
 ## ✅ Prerequisites
 
-- Understanding of linear algebra and discrete mathematics
+- Understanding of Linear Algebra and Discrete Mathematics
 - Python interpreter installed
 - Familiarity with scientific computing libraries (NumPy, SciPy)
 
