@@ -13,6 +13,7 @@
 - [레포지토리 소개](#about-this-repository)
 - [강의 정보](#course-information)
 - [사전 요구사항](#prerequisites)
+- [주차별 일정](#weekly-schedule)
 - [레포지토리 구조](#repository-structure)
 - [라이선스](#license)
 
@@ -22,11 +23,15 @@
 <br><a name="about-this-repository"></a>
 ## 📝 레포지토리 소개
 
-이 레포지토리에는 대학 수준의 수치해석 과목을 위해 Python으로 작성된 코드가 포함되어 있습니다:
+이 레포지토리에는 대학 수준의 수치해석 과목을 위해 작성된 이중 언어 학습 자료와 코드가 포함되어 있습니다:
 
-- 강의에서 소개한 코드
-- 과제 솔루션
-- 추가적인 연습 문제
+- 매 강의 및 실습 세션별 이중 언어 개념 정리 노트 (한국어 `.ko.md` + 영어 `.md`)
+- 교재 기반 수치 알고리즘의 Python 구현
+- Chapra & Canale 전체 커리큘럼을 다루는 Part/Chapter 디렉토리 구조
+
+> **🤖 AI 에이전트 활용**
+> 본 과목은 AI 에이전트 사용을 권장합니다.
+> 수업 전반에 걸쳐 [Claude Code](https://claude.ai/download)와 [Gemini CLI](https://github.com/google-gemini/gemini-cli)를 코딩 어시스턴트로 활용하였습니다.
 
 <br><a name="course-information"></a>
 ## 📚 강의 정보
@@ -36,13 +41,13 @@
 
 |학수번호      |강의명    |이수구분|교수자|개설학과|
 |:----------:|:-------|:----:|:------:|:----------------|
-|`DCSS305-00`|수치해석|전공선택|강신후 교수|컴퓨터소프트웨어학과|
+|`DCSS305-00`|수치해석(영강)|전공선택|강신후 교수|컴퓨터소프트웨어학과|
 
 - **📖 참고 자료**
 
 | 유형 | 내용 |
 |:----:|:---------|
-|교재|"Applied Numerical Methods with Python for Engineers and Scientists" by Steven Chapra and David Clough (2022, McGraw Hill)|
+|교재|"Numerical Methods for Engineers" by Steven C. Chapra and Raymond P. Canale (8th Edition, McGraw Hill)|
 |강의자료|교수자 제공 슬라이드 및 온라인 영상|
 
 <br><a name="prerequisites"></a>
@@ -50,24 +55,79 @@
 
 - 선형대수 및 이산수학에 대한 이해
 - Python 인터프리터 설치
-- 과학 계산 라이브러리 숙지 (NumPy, SciPy)
+- 과학 계산 라이브러리 숙지
 
 - **💻 개발 환경**
 
 | 도구 | 회사 |  운영체제  | 비고 |
 |:-----|:-------:|:----:|:------|
-|Visual Studio Code|Microsoft|macOS|    |
+|Python 3|Python Software Foundation|macOS|    |
+|NumPy|NumFOCUS|macOS|수치 연산|
+|SciPy|NumFOCUS|macOS|과학 연산|
+|Matplotlib|NumFOCUS|macOS|시각화|
+|JupyterLab|Project Jupyter|macOS|대화형 노트북|
+
+<br><a name="weekly-schedule"></a>
+## 📅 주차별 일정
+
+| 주차 | 강의 자료 | Part / Chapter | 주제 |
+|:---:|:---|:---|:---|
+| 1 | N00-N03 | Part1: Ch01, Ch02, Ch03 | 모델링, Python, 반올림 오차 |
+| 2 | N04 | Part1: Ch04 | 절단 오차 |
+| 3 | N05-N06 | Part3: Ch08, Ch09 | 선형 시스템, 가우스 소거법 |
+| 4 | N07-N08 | Part3: Ch10, Ch11 | LU 분해, 역행렬 및 조건수 |
+| 5 | N09-N10 | Part3: Ch12, Ch13 | 고유값 |
+| 6 | N11-N12 | Part2: Ch05, Ch06 | 근 탐색 |
+| 7 | N13-N14 | Part2: Ch07 | 최적화 |
+| 8 | 중간고사 | — | — |
+| 9 | N15-N16 | Part4: Ch14, Ch15 | 회귀분석 |
+| 10 | N17-N18 | Part4: Ch16 | 푸리에 해석 |
+| 11 | N19-N20 | Part4: Ch17, Ch18 | 보간법, 스플라인 |
+| 12 | N21-N22 | Part5: Ch19, Ch20 | 수치 적분 |
+| 13 | N23-N24 | Part5: Ch21 / Part6: Ch22 | 수치 미분, 초기값 문제 |
+| 14 | N25-N26 | Part6: Ch22 | 초기값 문제 (계속) |
+| 15 | N27-N28 | Part6: Ch23, Ch24 | 강성 ODE, 경계값 문제 |
+| 16 | 기말고사 | — | — |
 
 <br><a name="repository-structure"></a>
 ## 🗂 레포지토리 구조
 
 ```plaintext
 26Spring_Numerical-Analysis
+├── Part1_Modeling-Computers-and-Error-Analysis
+│   ├── Chapter01_Mathematical-Modeling
+│   ├── Chapter02_Programming-and-Software
+│   ├── Chapter03_Approximations-and-Round-Off-Errors
+│   └── Chapter04_Truncation-Errors
+├── Part2_Roots-and-Optimization
+│   ├── Chapter05_Roots-Bracketing-Methods
+│   ├── Chapter06_Roots-Open-Methods
+│   └── Chapter07_Optimization
+├── Part3_Linear-Algebraic-Equations
+│   ├── Chapter08_Linear-Algebraic-Equations
+│   ├── Chapter09_Gauss-Elimination
+│   ├── Chapter10_LU-Factorization
+│   ├── Chapter11_Matrix-Inverse-and-Condition
+│   ├── Chapter12_Eigenvalues-Power-Method
+│   └── Chapter13_Eigenvalues-Symmetric-Matrices
+├── Part4_Curve-Fitting
+│   ├── Chapter14_Linear-Regression
+│   ├── Chapter15_Nonlinear-Regression
+│   ├── Chapter16_Fourier-Analysis
+│   ├── Chapter17_Interpolation
+│   └── Chapter18_Splines
+├── Part5_Integration-and-Differentiation
+│   ├── Chapter19_Numerical-Integration-Formulas
+│   ├── Chapter20_Numerical-Integration-of-Equations
+│   └── Chapter21_Numerical-Differentiation
+├── Part6_Ordinary-Differential-Equations
+│   ├── Chapter22_Initial-Value-Problems
+│   ├── Chapter23_Stiff-ODEs
+│   └── Chapter24_Boundary-Value-Problems
+├── images
 ├── LICENSE
 ├── README.ko.md
 └── README.md
-
-0개의 디렉토리, 3개의 파일
 ```
 
 <br><a name="license"></a>
