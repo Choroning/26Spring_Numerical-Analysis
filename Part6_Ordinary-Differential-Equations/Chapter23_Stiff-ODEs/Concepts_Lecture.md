@@ -1,6 +1,15 @@
 # Chapter 23 Lecture — Stiff ODEs and Adaptive Methods
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 23
+
+> **Prerequisites**: [Calculus] ODE solvers (Ch 22).
+>
+> **Learning Objectives**:
+> 1. Identify stiff differential equations
+> 2. Apply implicit methods for stiff systems
+> 3. Compare explicit and implicit solver performance
 
 ---
 

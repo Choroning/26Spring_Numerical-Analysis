@@ -1,6 +1,15 @@
 # Chapter 6 Lecture — Roots: Open Methods
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 6
+
+> **Prerequisites**: [Calculus] Derivatives (Ch 1-5).
+>
+> **Learning Objectives**:
+> 1. Apply Newton-Raphson method for root finding
+> 2. Implement secant and modified Newton methods
+> 3. Compare convergence of open vs bracketing methods
 
 ---
 
@@ -47,6 +56,8 @@
 
 ---
 
+<br>
+
 ## 1. Objectives
 
 - Understand the **fixed-point iteration**
@@ -60,6 +71,8 @@
 <br>
 
 ---
+
+<br>
 
 ## 2. Open Methods vs Bracketing Methods
 
@@ -77,6 +90,8 @@ Unlike **bracketing methods** (bisection, false position), open methods do **not
 <br>
 
 ---
+
+<br>
 
 ## 3. Fixed-Point Iteration
 
@@ -236,6 +251,8 @@ The iteration **cycles between two points** $x_0$ and $x_1$ indefinitely, never 
 
 ---
 
+<br>
+
 ## 4. The Wegstein Method
 
 ### 4.1 Motivation from False Position
@@ -300,6 +317,8 @@ def wegstein(g, x0, x1, tol=1e-6, max_iter=100):
 <br>
 
 ---
+
+<br>
 
 ## 5. Newton-Raphson Method
 
@@ -442,6 +461,8 @@ This is a **slowly converging function** because the slope is nearly zero for $x
 
 ---
 
+<br>
+
 ## 6. Secant Method
 
 ### 6.1 Standard Secant Method
@@ -524,6 +545,8 @@ def modified_secant(f, x0, delta=1e-4, tol=1e-6, max_iter=100):
 
 ---
 
+<br>
+
 ## 7. Inverse Quadratic Interpolation
 
 ### 7.1 Concept
@@ -568,6 +591,8 @@ The next root estimate is $x_{i+1} = g(0)$, i.e., we set $y = 0$ in the formula 
 <br>
 
 ---
+
+<br>
 
 ## 8. Brent's Method
 
@@ -614,6 +639,8 @@ print(root)  # 1.0
 <br>
 
 ---
+
+<br>
 
 ## 9. Summary Table
 

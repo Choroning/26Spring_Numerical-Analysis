@@ -1,6 +1,15 @@
 # Chapter 9 Lab — Pivoting, Condition Number, and Tridiagonal Systems
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 9
+
+> **Prerequisites**: [Programming Language] MATLAB/Python. [Linear Algebra] Matrix operations (Ch 8).
+>
+> **Learning Objectives**:
+> 1. Perform Gaussian elimination with partial pivoting
+> 2. Analyze computational complexity of elimination
+> 3. Implement back substitution algorithms
 
 ---
 

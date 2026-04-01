@@ -1,6 +1,15 @@
 # Chapter 18 Lecture --- Splines and Piecewise Interpolation
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 18
+
+> **Prerequisites**: [Calculus] Interpolation (Ch 17).
+>
+> **Learning Objectives**:
+> 1. Construct cubic spline interpolants
+> 2. Compare natural and clamped spline boundary conditions
+> 3. Apply splines for smooth data fitting
 
 ---
 

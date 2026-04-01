@@ -1,6 +1,15 @@
 # Chapter 4 Lecture — Truncation Errors and the Taylor Series
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 4
+
+> **Prerequisites**: [Calculus] Taylor series expansion (Ch 3).
+>
+> **Learning Objectives**:
+> 1. Estimate truncation errors using Taylor series
+> 2. Apply the remainder term for error bounds
+> 3. Analyze the order of approximation methods
 
 ---
 

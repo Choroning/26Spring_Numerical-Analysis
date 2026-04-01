@@ -1,6 +1,15 @@
 # Chapter 13 Lecture — Eigenvalue Methods: Symmetric Matrices
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 13
+
+> **Prerequisites**: [Linear Algebra] Eigenvalues basics (Ch 12).
+>
+> **Learning Objectives**:
+> 1. Apply Jacobi method for symmetric eigenvalue problems
+> 2. Implement QR algorithm for eigenvalue computation
+> 3. Analyze special properties of symmetric matrices
 
 ---
 

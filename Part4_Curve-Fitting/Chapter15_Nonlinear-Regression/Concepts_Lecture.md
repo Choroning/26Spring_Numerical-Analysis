@@ -1,6 +1,15 @@
 # Chapter 15 Lecture -- Nonlinear Regression
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 15
+
+> **Prerequisites**: [Statistics] Linear regression (Ch 14).
+>
+> **Learning Objectives**:
+> 1. Apply polynomial and multiple linear regression
+> 2. Implement Gauss-Newton method for nonlinear regression
+> 3. Compare model selection criteria
 
 ---
 

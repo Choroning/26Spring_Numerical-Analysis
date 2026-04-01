@@ -1,6 +1,15 @@
 # Chapter 8 Lecture — Solving Linear Algebraic Equations
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 8
+
+> **Prerequisites**: [Linear Algebra] Matrix operations. [Calculus] Linear systems (Ch 1-7).
+>
+> **Learning Objectives**:
+> 1. Formulate engineering problems as linear algebraic equations
+> 2. Identify solution existence and uniqueness conditions
+> 3. Apply graphical interpretation of linear systems
 
 ---
 
