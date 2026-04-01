@@ -1,6 +1,15 @@
 # Chapter 10 Lecture — LU Factorization
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 10
+
+> **Prerequisites**: [Linear Algebra] Gaussian elimination (Ch 8-9).
+>
+> **Learning Objectives**:
+> 1. Decompose matrices into L and U factors
+> 2. Apply LU factorization for efficient multiple solves
+> 3. Implement Cholesky decomposition for symmetric matrices
 
 ---
 

@@ -1,6 +1,15 @@
 # Chapter 20 Lecture --- Numerical Integration of Equations
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 20
+
+> **Prerequisites**: [Calculus] Numerical integration formulas (Ch 19).
+>
+> **Learning Objectives**:
+> 1. Apply numerical integration to engineering equations
+> 2. Handle improper integrals numerically
+> 3. Implement adaptive quadrature methods
 
 ---
 
@@ -30,6 +39,8 @@
 
 ---
 
+<br>
+
 ## 1. Goal
 
 This chapter covers two advanced numerical integration techniques:
@@ -40,6 +51,8 @@ This chapter covers two advanced numerical integration techniques:
 <br>
 
 ---
+
+<br>
 
 ## 2. Romberg Integration
 
@@ -271,6 +284,8 @@ Stop when $|\varepsilon_a| < \varepsilon_s$ (a prescribed tolerance).
 <br>
 
 ---
+
+<br>
 
 ## 3. Gauss Quadrature
 
@@ -532,6 +547,8 @@ $$\int_{-1}^{1} f(x) \, dx \approx \frac{1}{3} f(-1) + \frac{4}{3} f(0) + \frac{
 <br>
 
 ---
+
+<br>
 
 ## 4. Summary Table
 

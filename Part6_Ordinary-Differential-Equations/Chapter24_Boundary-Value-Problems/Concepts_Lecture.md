@@ -1,6 +1,15 @@
 # Chapter 24 Lecture — Boundary-Value Problems
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 24
+
+> **Prerequisites**: [Calculus] ODE methods (Ch 22-23). [Linear Algebra] Systems of equations.
+>
+> **Learning Objectives**:
+> 1. Formulate boundary value problems for ODEs
+> 2. Apply shooting method and finite difference method
+> 3. Analyze convergence of BVP solvers
 
 ---
 

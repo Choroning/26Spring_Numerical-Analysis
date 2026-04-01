@@ -1,6 +1,15 @@
 # Chapter 17 Lecture -- Polynomial Interpolation
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 17
+
+> **Prerequisites**: [Calculus] Polynomials (Ch 14-16).
+>
+> **Learning Objectives**:
+> 1. Apply Newton and Lagrange interpolation polynomials
+> 2. Analyze interpolation error and Runge's phenomenon
+> 3. Implement inverse interpolation for root finding
 
 ---
 

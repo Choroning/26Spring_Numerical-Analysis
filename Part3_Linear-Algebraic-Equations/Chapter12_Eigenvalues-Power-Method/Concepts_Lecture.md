@@ -1,6 +1,15 @@
 # Chapter 12 Lecture — Iterative Methods for Linear Systems
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 12
+
+> **Prerequisites**: [Linear Algebra] Matrix operations (Ch 8-11).
+>
+> **Learning Objectives**:
+> 1. Apply the power method for dominant eigenvalue computation
+> 2. Implement inverse power method with shifting
+> 3. Analyze convergence of eigenvalue algorithms
 
 ---
 

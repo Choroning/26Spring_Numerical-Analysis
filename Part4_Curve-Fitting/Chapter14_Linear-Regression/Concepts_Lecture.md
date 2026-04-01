@@ -1,6 +1,15 @@
 # Chapter 14 Lecture -- Linear Regression
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 14
+
+> **Prerequisites**: [Statistics] Basic statistics. [Calculus] Least squares concepts (Ch 1-13).
+>
+> **Learning Objectives**:
+> 1. Derive and apply simple linear regression
+> 2. Assess regression quality using R-squared and standard error
+> 3. Apply linearization for nonlinear models
 
 ---
 
@@ -37,6 +46,8 @@
 
 ---
 
+<br>
+
 ## 1. Overview
 
 Linear regression is a fundamental technique in **curve fitting** (Part IV of numerical methods). The goal is to derive a **best-fit straight line** through a set of data points using the **least-squares** criterion.
@@ -50,6 +61,8 @@ Linear regression is a fundamental technique in **curve fitting** (Part IV of nu
 <br>
 
 ---
+
+<br>
 
 ## 2. Statistics Review
 
@@ -139,6 +152,8 @@ $$MAD = \text{median}(|y_i - \tilde{y}|)$$
 <br>
 
 ---
+
+<br>
 
 ## 3. Normal Distribution
 
@@ -235,6 +250,8 @@ $$f(x) = F'(x) = \varphi\left(\frac{x - \mu}{\sigma}\right) \cdot \frac{1}{\sigm
 <br>
 
 ---
+
+<br>
 
 ## 4. Straight Line Least Square Regression
 
@@ -357,6 +374,8 @@ $$\boxed{a_0 = \bar{y} - \bar{x} \cdot a_1} \quad (\ast\ast)$$
 
 ---
 
+<br>
+
 ## 5. Quantifying the Fit Quality
 
 ### 5.1 SST, SSE, and SSR Decomposition
@@ -455,6 +474,8 @@ The standard error $s_{y/x}$ quantifies the typical size of a residual. A smalle
 <br>
 
 ---
+
+<br>
 
 ## 6. Summary Table
 

@@ -1,6 +1,15 @@
 # Chapter 22 Lecture — Initial-Value Problems for ODEs
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 22
+
+> **Prerequisites**: [Calculus] ODEs, derivatives (Ch 1-21).
+>
+> **Learning Objectives**:
+> 1. Apply Euler's method for initial value problems
+> 2. Implement Runge-Kutta methods (RK2, RK4)
+> 3. Analyze stability and accuracy of ODE solvers
 
 ---
 

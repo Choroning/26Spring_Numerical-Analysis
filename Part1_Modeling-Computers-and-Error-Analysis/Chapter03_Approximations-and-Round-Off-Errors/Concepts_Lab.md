@@ -1,6 +1,15 @@
 # Chapter 3 Lab — Sources of Numerical Errors
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 3
+
+> **Prerequisites**: [Programming Language] MATLAB/Python. [Calculus] Taylor series. [Programming Language] Basic programming (Ch 1-2).
+>
+> **Learning Objectives**:
+> 1. Distinguish significant digits and accuracy
+> 2. Analyze round-off errors in floating-point arithmetic
+> 3. Apply IEEE 754 floating-point representation
 
 ---
 

@@ -1,6 +1,15 @@
 # Chapter 5 Lecture -- Roots: Bracketing Methods
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 5
+
+> **Prerequisites**: [Calculus] Continuity, intermediate value theorem (Ch 1-4).
+>
+> **Learning Objectives**:
+> 1. Apply bisection method for root finding
+> 2. Implement false position method
+> 3. Analyze convergence rates of bracketing methods
 
 ---
 

@@ -1,6 +1,15 @@
 # Chapter 1 Lab — Python Fundamentals for Scientific Computing
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 1
+
+> **Prerequisites**: [Programming Language] MATLAB/Python. No prior numerical analysis knowledge required. [Calculus] Basic derivatives and integrals.
+>
+> **Learning Objectives**:
+> 1. Explain the role of mathematical modeling in engineering
+> 2. Identify sources of error in numerical computations
+> 3. Describe the trade-off between model complexity and accuracy
 
 ---
 

@@ -1,6 +1,15 @@
 # Chapter 11 Lab — Matrix Inverse and Condition Number
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 11
+
+> **Prerequisites**: [Programming Language] MATLAB/Python. [Linear Algebra] LU factorization (Ch 8-10).
+>
+> **Learning Objectives**:
+> 1. Compute matrix inverses numerically
+> 2. Calculate and interpret condition numbers
+> 3. Assess solution sensitivity to input perturbations
 
 ---
 

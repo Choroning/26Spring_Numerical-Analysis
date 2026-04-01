@@ -1,6 +1,15 @@
 # Chapter 2 Lab — Python Programming
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 2
+
+> **Prerequisites**: [Programming Language] MATLAB/Python. [Programming Language] Basic programming. [Calculus] Derivatives.
+>
+> **Learning Objectives**:
+> 1. Write structured programs for numerical computation
+> 2. Apply modular programming principles
+> 3. Debug and test numerical algorithms
 
 ---
 

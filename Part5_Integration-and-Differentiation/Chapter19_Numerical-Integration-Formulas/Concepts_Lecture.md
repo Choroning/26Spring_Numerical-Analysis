@@ -1,6 +1,15 @@
 # Chapter 19 Lecture — Numerical Integration Formulas
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 19
+
+> **Prerequisites**: [Calculus] Integration (Ch 1-18).
+>
+> **Learning Objectives**:
+> 1. Apply trapezoidal rule and Simpson's rules
+> 2. Derive error estimates for numerical integration
+> 3. Implement Romberg integration and Gauss quadrature
 
 ---
 

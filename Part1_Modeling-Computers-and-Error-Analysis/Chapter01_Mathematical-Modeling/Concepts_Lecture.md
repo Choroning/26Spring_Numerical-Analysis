@@ -1,6 +1,15 @@
 # Chapter 1 Lecture — Mathematical Modeling and Engineering Problem Solving
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 1
+
+> **Prerequisites**: No prior numerical analysis knowledge required. [Calculus] Basic derivatives and integrals.
+>
+> **Learning Objectives**:
+> 1. Explain the role of mathematical modeling in engineering
+> 2. Identify sources of error in numerical computations
+> 3. Describe the trade-off between model complexity and accuracy
 
 ---
 

@@ -1,6 +1,15 @@
 # Chapter 7 Lecture — Optimization
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 7
+
+> **Prerequisites**: [Calculus] Multivariable derivatives (Ch 1-6).
+>
+> **Learning Objectives**:
+> 1. Apply golden-section search for 1D optimization
+> 2. Use Newton's method for multivariable optimization
+> 3. Implement gradient descent algorithms
 
 ---
 

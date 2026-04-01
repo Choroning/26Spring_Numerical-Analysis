@@ -1,6 +1,15 @@
 # 제9장 실습 — 피봇팅, 조건수, 삼중대각 시스템(Pivoting, Condition Number, and Tridiagonal Systems)
 
-> **최종 수정일:** 2026-03-26
+> **최종 수정일:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 9
+
+> **선수 지식**: [프로그래밍언어] MATLAB/Python. [선형대수학] 행렬 연산 (제8장).
+>
+> **학습 목표**:
+> 1. 부분 피봇팅을 포함한 가우스 소거법을 수행할 수 있다
+> 2. 소거법의 계산 복잡도를 분석할 수 있다
+> 3. 후진 대입 알고리즘을 구현할 수 있다
 
 ---
 

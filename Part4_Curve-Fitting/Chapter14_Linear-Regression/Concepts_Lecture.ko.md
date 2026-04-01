@@ -1,6 +1,15 @@
 # 제14장 강의 — 선형 회귀(Linear Regression)
 
-> **최종 수정일:** 2026-03-26
+> **최종 수정일:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 14
+
+> **선수 지식**: [통계학] 기초 통계. [미적분학] 최소자승 개념 (제1-13장).
+>
+> **학습 목표**:
+> 1. 단순 선형 회귀를 유도하고 적용할 수 있다
+> 2. R-제곱과 표준 오차를 사용하여 회귀 품질을 평가할 수 있다
+> 3. 비선형 모델의 선형화를 적용할 수 있다
 
 ---
 
@@ -37,6 +46,8 @@
 
 ---
 
+<br>
+
 ## 1. 개요
 
 선형 회귀(Linear Regression)는 **곡선 맞춤(Curve Fitting)**(수치 해석 Part IV)의 근본적인 기법이다. 목표는 **최소제곱(Least-Squares)** 기준을 사용하여 데이터 점들을 관통하는 **최적 직선(Best-Fit Straight Line)**을 유도하는 것이다.
@@ -50,6 +61,8 @@
 <br>
 
 ---
+
+<br>
 
 ## 2. 통계 복습
 
@@ -139,6 +152,8 @@ $$MAD = \text{median}(|y_i - \tilde{y}|)$$
 <br>
 
 ---
+
+<br>
 
 ## 3. 정규 분포(Normal Distribution)
 
@@ -235,6 +250,8 @@ $$f(x) = F'(x) = \varphi\left(\frac{x - \mu}{\sigma}\right) \cdot \frac{1}{\sigm
 <br>
 
 ---
+
+<br>
 
 ## 4. 직선 최소제곱 회귀(Straight Line Least Square Regression)
 
@@ -357,6 +374,8 @@ $$\boxed{a_0 = \bar{y} - \bar{x} \cdot a_1} \quad (\ast\ast)$$
 
 ---
 
+<br>
+
 ## 5. 적합도 정량화
 
 ### 5.1 SST, SSE, SSR 분해
@@ -455,6 +474,8 @@ $$s_{y/x} = \sqrt{\frac{SSE}{n - 2}}$$
 <br>
 
 ---
+
+<br>
 
 ## 6. 요약 표
 

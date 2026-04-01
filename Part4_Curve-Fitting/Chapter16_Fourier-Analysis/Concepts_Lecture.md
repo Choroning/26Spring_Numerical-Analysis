@@ -1,6 +1,15 @@
 # Chapter 16 Lecture -- Fourier Analysis
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 16
+
+> **Prerequisites**: [Calculus] Trigonometric functions, integrals (Ch 1-15).
+>
+> **Learning Objectives**:
+> 1. Apply discrete Fourier transform (DFT) for signal analysis
+> 2. Implement Fast Fourier Transform (FFT) algorithm
+> 3. Interpret frequency spectra and power spectral density
 
 ---
 

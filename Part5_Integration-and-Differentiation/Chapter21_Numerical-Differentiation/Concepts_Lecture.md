@@ -1,6 +1,15 @@
 # Chapter 21 Lecture — Numerical Differentiation
 
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 21
+
+> **Prerequisites**: [Calculus] Derivatives, Taylor series (Ch 1-20).
+>
+> **Learning Objectives**:
+> 1. Apply finite difference formulas for differentiation
+> 2. Analyze truncation error in numerical derivatives
+> 3. Implement Richardson extrapolation for improved accuracy
 
 ---
 

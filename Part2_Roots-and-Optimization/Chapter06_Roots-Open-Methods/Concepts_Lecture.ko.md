@@ -1,6 +1,15 @@
 # 제6장 강의 — 근: 개방법(Open Methods)
 
-> **최종 수정일:** 2026-03-26
+> **최종 수정일:** 2026-04-01
+>
+> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 6
+
+> **선수 지식**: [미적분학] 미분 (제1-5장).
+>
+> **학습 목표**:
+> 1. 근 구하기를 위해 뉴턴-랩슨 방법을 적용할 수 있다
+> 2. 시컨트 방법과 수정 뉴턴 방법을 구현할 수 있다
+> 3. 개방형 vs 브래킷 방법의 수렴을 비교할 수 있다
 
 ---
 
@@ -47,6 +56,8 @@
 
 ---
 
+<br>
+
 ## 1. 목표
 
 - **고정점 반복(Fixed-point iteration)**을 이해한다
@@ -60,6 +71,8 @@
 <br>
 
 ---
+
+<br>
 
 ## 2. 개방법 vs 구간법
 
@@ -77,6 +90,8 @@
 <br>
 
 ---
+
+<br>
 
 ## 3. 고정점 반복(Fixed-Point Iteration)
 
@@ -236,6 +251,8 @@ $g(x) = \dfrac{1}{x}$에서 $x_0 = 4$인 경우를 고려:
 
 ---
 
+<br>
+
 ## 4. Wegstein 방법
 
 ### 4.1 가위치법에서의 동기
@@ -300,6 +317,8 @@ def wegstein(g, x0, x1, tol=1e-6, max_iter=100):
 <br>
 
 ---
+
+<br>
 
 ## 5. 뉴턴-랩슨법(Newton-Raphson Method)
 
@@ -442,6 +461,8 @@ def newton_raphson(f, df, x0, tol=1e-6, max_iter=100):
 
 ---
 
+<br>
+
 ## 6. 할선법(Secant Method)
 
 ### 6.1 표준 할선법
@@ -524,6 +545,8 @@ def modified_secant(f, x0, delta=1e-4, tol=1e-6, max_iter=100):
 
 ---
 
+<br>
+
 ## 7. 역 이차 보간(Inverse Quadratic Interpolation)
 
 ### 7.1 개념
@@ -568,6 +591,8 @@ $$g(y) = \ell_{i-2}(y) \cdot x_{i-2} + \ell_{i-1}(y) \cdot x_{i-1} + \ell_i(y) \
 <br>
 
 ---
+
+<br>
 
 ## 8. 브렌트 방법(Brent's Method)
 
@@ -614,6 +639,8 @@ print(root)  # 1.0
 <br>
 
 ---
+
+<br>
 
 ## 9. 요약 표
 
