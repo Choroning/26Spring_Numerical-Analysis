@@ -70,7 +70,7 @@
 
 ### 1.1 최적화란?
 
-**최적화(Optimization)**는 모든 **실행 가능한 해** 중에서 **최선**을 찾는 방법론이다. **최적해(optimal solution)**는 최선의 목적 함수 값을 산출하는 실행 가능한 해이다.
+**최적화(Optimization)** 는 모든 **실행 가능한 해** 중에서 **최선** 을 찾는 방법론이다. **최적해(optimal solution)** 는 최선의 목적 함수 값을 산출하는 실행 가능한 해이다.
 
 함수 $f(x)$는 여러 유형의 극값점을 가질 수 있다:
 
@@ -91,7 +91,7 @@ $$\text{Surface Area} = \frac{\pi d^2}{2} + \pi d h$$
 
 부피와 겉넓이 모두 지름 $d$와 높이 $h$의 함수이다.
 
-**목표:** 다음 조건을 만족하면서 **가능한 한 최소한의 알루미늄**을 사용하는 캔을 설계 (겉넓이 최소화):
+**목표:** 다음 조건을 만족하면서 **가능한 한 최소한의 알루미늄** 을 사용하는 캔을 설계 (겉넓이 최소화):
 
 1. 높이는 지름의 50% 이상이어야 한다: $h \geq \frac{3}{2}d \iff \frac{3}{2}d - h \leq 0$
 2. 높이는 지름의 두 배를 넘을 수 없다: $h \leq 2d \iff -2d + h \leq 0$
@@ -138,7 +138,7 @@ $$\max_{x \in \mathbb{X}} (-f(x))$$
 
 ### 1.5 실행 가능 영역과 제약 조건
 
-실행 가능 영역 $\mathbb{X}$는 **제약 조건(constraints)**의 집합으로 기술된다:
+실행 가능 영역 $\mathbb{X}$는 **제약 조건(constraints)** 의 집합으로 기술된다:
 
 - **등식 제약 조건(Equality constraints):** $h_i(x) = 0$, 여기서 $h_i : \mathbb{R}^n \to \mathbb{R}$, $i \in \mathcal{E}_i$ (인덱스 집합)
 - **부등식 제약 조건(Inequality constraints):** $g_j(x) \leq 0$, 여기서 $g_j : \mathbb{R}^n \to \mathbb{R}$, $j \in \mathcal{E}_j$ (인덱스 집합)
@@ -157,7 +157,7 @@ $$\mathbb{X} = \{x \in \mathbb{R}^2 : x_1^2 + x_2^2 \leq 1, \; (x_1 - 1)^2 + x_2
 
 ### 2.1 내부점(Interior Points)
 
-**정의.** 점 $\hat{x} \in \mathbb{X}$가 $\mathbb{X}$의 **내부점(interior point)**이란 $\varepsilon > 0$이 존재하여 $\hat{x}$를 중심으로 한 $\varepsilon$-공이 $\mathbb{X}$에 포함되는 것을 말한다:
+**정의.** 점 $\hat{x} \in \mathbb{X}$가 $\mathbb{X}$의 **내부점(interior point)** 이란 $\varepsilon > 0$이 존재하여 $\hat{x}$를 중심으로 한 $\varepsilon$-공이 $\mathbb{X}$에 포함되는 것을 말한다:
 
 $$B(\hat{x}, \varepsilon) \subset \mathbb{X}$$
 
@@ -165,7 +165,7 @@ $$B(\hat{x}, \varepsilon) \subset \mathbb{X}$$
 
 ### 2.2 경계점(Boundary Points)
 
-**정의.** 점 $\bar{x}$가 $\mathbb{X}$의 **경계점(boundary point)**이란:
+**정의.** 점 $\bar{x}$가 $\mathbb{X}$의 **경계점(boundary point)** 이란:
 
 $$\bar{x} \in \mathbb{X} \quad \text{and} \quad \bar{x} \notin \text{int}(\mathbb{X})$$
 
@@ -173,7 +173,7 @@ $$\bar{x} \in \mathbb{X} \quad \text{and} \quad \bar{x} \notin \text{int}(\mathb
 
 ### 2.3 실행 가능 방향(Feasible Directions)
 
-**정의.** 벡터 $d \in \mathbb{R}^n$이 $\bar{x} \in \mathbb{X}$에서 집합 $\mathbb{X} \subseteq \mathbb{R}^n$에 대한 **실행 가능 방향(feasible direction)**이란 $\delta > 0$이 존재하여:
+**정의.** 벡터 $d \in \mathbb{R}^n$이 $\bar{x} \in \mathbb{X}$에서 집합 $\mathbb{X} \subseteq \mathbb{R}^n$에 대한 **실행 가능 방향(feasible direction)** 이란 $\delta > 0$이 존재하여:
 
 $$\bar{x} + \alpha d \in \mathbb{X} \quad \text{for any } \alpha \leq \delta$$
 
@@ -197,7 +197,7 @@ $$\text{minimize} \quad f(x) \quad \text{subject to} \quad x \in \mathbb{X}$$
 
 $$f(x^*) \leq f(x) \quad \forall \; x \in \mathbb{X}$$
 
-전역 최소화자 $x^*$가 **순 전역 최소화자(strict global minimizer)**이란:
+전역 최소화자 $x^*$가 **순 전역 최소화자(strict global minimizer)** 이란:
 
 $$f(x^*) < f(x) \quad \forall \; x \in \mathbb{X} \setminus \{x^*\}$$
 
@@ -210,8 +210,8 @@ $$f(x^*) < f(x) \quad \forall \; x \in \mathbb{X} \setminus \{x^*\}$$
 
 **정의 (하한, 상한).** 함수 $f : \mathbb{X} \to \mathbb{R}$에 대해:
 
-- **최대 하한**을 **하한(infimum)**이라 한다: $\inf_{x \in \mathbb{X}} f(x)$
-- **최소 상한**을 **상한(supremum)**이라 한다: $\sup_{x \in \mathbb{X}} f(x)$
+- **최대 하한** 을 **하한(infimum)** 이라 한다: $\inf_{x \in \mathbb{X}} f(x)$
+- **최소 상한** 을 **상한(supremum)** 이라 한다: $\sup_{x \in \mathbb{X}} f(x)$
 
 **예시:**
 
@@ -228,7 +228,7 @@ $$f(x) \geq f(x^*) \quad \forall \; x \in \mathbb{X} \text{ with } \|x - x^*\| \
 
 ### 3.4 순 국소 최솟값(Strict Local Minimum)
 
-국소 최소화자 $x^*$가 **순 국소 최소화자(strict local minimizer)**이란 $\varepsilon > 0$이 존재하여:
+국소 최소화자 $x^*$가 **순 국소 최소화자(strict local minimizer)** 이란 $\varepsilon > 0$이 존재하여:
 
 $$f(x) > f(x^*) \quad \forall \; x \in \mathbb{X} \setminus \{x^*\} \text{ with } \|x - x^*\| \leq \varepsilon$$
 
@@ -244,19 +244,19 @@ $$f(x) > f(x^*) \quad \forall \; x \in \mathbb{X} \setminus \{x^*\} \text{ with 
 
 ### 4.1 바이어슈트라스 정리(Weierstrass Theorem)
 
-**정리 (바이어슈트라스).** $\mathbb{X} \subset \mathbb{R}^n$이 **콤팩트 집합**(닫히고 유계)이고 $f : \mathbb{X} \to \mathbb{R}$이 **연속 함수**일 때, 문제 $\min_{x \in \mathbb{X}} f(x)$와 $\max_{x \in \mathbb{X}} f(x)$는 **전역 최적해**를 가진다.
+**정리 (바이어슈트라스).** $\mathbb{X} \subset \mathbb{R}^n$이 **콤팩트 집합**(닫히고 유계)이고 $f : \mathbb{X} \to \mathbb{R}$이 **연속 함수** 일 때, 문제 $\min_{x \in \mathbb{X}} f(x)$와 $\max_{x \in \mathbb{X}} f(x)$는 **전역 최적해** 를 가진다.
 
 > **[위상수학]** $\mathbb{R}^n$에서의 콤팩트 집합은 닫힘(모든 경계점을 포함)과 유계(유한 반지름의 공 안에 들어감) 조건을 모두 만족하는 집합이다. 바이어슈트라스 정리는 연속 함수가 콤팩트 집합에서 극값을 달성함을 보장한다.
 
 ### 4.2 강제 함수(Coercive Functions)
 
-**정의 (강제 함수).** 함수 $f : \mathbb{R}^n \to \mathbb{R}$이 **강제(coercive)**이란:
+**정의 (강제 함수).** 함수 $f : \mathbb{R}^n \to \mathbb{R}$이 **강제(coercive)** 이란:
 
 $$\lim_{\|x\| \to \infty} f(x) = +\infty$$
 
 $x$가 원점에서 임의로 멀어지면 함수 값 $f(x)$가 무한대로 증가한다. 예를 들어 $f(x) = x^2$ (강제)와 $f(x) = \sin(x)$ (비강제).
 
-**정리.** 모든 연속 강제 함수 $f : \mathbb{R}^n \to \mathbb{R}$은 $\mathbb{R}^n$에서 **전역 최소화자**를 가진다.
+**정리.** 모든 연속 강제 함수 $f : \mathbb{R}^n \to \mathbb{R}$은 $\mathbb{R}^n$에서 **전역 최소화자** 를 가진다.
 
 ### 4.3 강제 함수에 대한 증명 개요
 
@@ -280,7 +280,7 @@ $x$가 원점에서 임의로 멀어지면 함수 값 $f(x)$가 무한대로 증
 - 1차원 및 다차원 최적화를 이해한다
 - 전역 최적과 국소 최적을 구별한다
 - 최대화 문제를 최소화 문제로 변환한다
-- **황금 분할 탐색(Golden-section search)**과 **포물선 보간(Parabolic interpolation)** 방법을 학습한다
+- **황금 분할 탐색(Golden-section search)** 과 **포물선 보간(Parabolic interpolation)** 방법을 학습한다
 
 ---
 
@@ -296,7 +296,7 @@ $x$가 원점에서 임의로 멀어지면 함수 값 $f(x)$가 무한대로 증
 
 $$\frac{l_1 + l_2}{l_1} = \frac{l_1}{l_2} =: \phi \quad \text{(황금비)}$$
 
-**전체 선분** 대 **큰 부분**의 비가 **큰 부분** 대 **작은 부분**의 비와 같다.
+**전체 선분** 대 **큰 부분** 의 비가 **큰 부분** 대 **작은 부분** 의 비와 같다.
 
 **유도:** 정의 관계식으로부터:
 
@@ -345,7 +345,7 @@ $$x_2^{(2)} = x_u - d_{\text{new}} = x_1^{(1)}$$
 
 이는 $\phi^2 = \phi + 1$ 성질을 사용하여 대수적으로 확인할 수 있다. 따라서 $x_2^{(2)}$에서의 함수 평가를 **다시 계산할 필요가 없다**. 이는 $f(x_1^{(1)})$과 같기 때문이다.
 
-> **[효율성]** 황금 분할 탐색의 각 반복은 (두 번이 아닌) **한 번의 새로운 함수 평가**만 필요하므로 매우 효율적이다. 구간은 매 단계마다 $\frac{1}{\phi} \approx 0.61803$의 일정한 비율로 축소된다.
+> **[효율성]** 황금 분할 탐색의 각 반복은 (두 번이 아닌) **한 번의 새로운 함수 평가** 만 필요하므로 매우 효율적이다. 구간은 매 단계마다 $\frac{1}{\phi} \approx 0.61803$의 일정한 비율로 축소된다.
 
 ### 6.4 오차 분석
 
@@ -359,7 +359,7 @@ $$\Delta x_a = x_1 - x_2 = (2\phi - 3)(x_u - x_l) \approx 0.2361 \cdot (x_u - x_
 
 $$\Delta x_b = x_u - x_1 = (2 - \phi)(x_u - x_l) \approx 0.3820 \cdot (x_u - x_l)$$
 
-**상대 오차(relative error)**는 다음으로 정의된다:
+**상대 오차(relative error)** 는 다음으로 정의된다:
 
 $$\varepsilon_a = (2 - \phi) \left| \frac{x_u - x_l}{x_{\text{opt}}} \right|$$
 
@@ -383,7 +383,7 @@ $$y = ax^2 + bx + c$$
 
 $$\begin{bmatrix} y_1 \\ y_2 \\ y_3 \end{bmatrix} = \begin{bmatrix} x_1^2 & x_1 & 1 \\ x_2^2 & x_2 & 1 \\ x_3^2 & x_3 & 1 \end{bmatrix} \begin{bmatrix} a \\ b \\ c \end{bmatrix}$$
 
-**크래머 법칙(Cramer's rule)**을 사용하여 $D = \begin{vmatrix} x_1^2 & x_1 & 1 \\ x_2^2 & x_2 & 1 \\ x_3^2 & x_3 & 1 \end{vmatrix}$이라 하면:
+**크래머 법칙(Cramer's rule)** 을 사용하여 $D = \begin{vmatrix} x_1^2 & x_1 & 1 \\ x_2^2 & x_2 & 1 \\ x_3^2 & x_3 & 1 \end{vmatrix}$이라 하면:
 
 $$a = \frac{1}{D}\begin{vmatrix} y_1 & x_1 & 1 \\ y_2 & x_2 & 1 \\ y_3 & x_3 & 1 \end{vmatrix}, \quad b = \frac{1}{D}\begin{vmatrix} x_1^2 & y_1 & 1 \\ x_2^2 & y_2 & 1 \\ x_3^2 & y_3 & 1 \end{vmatrix}, \quad c = \frac{1}{D}\begin{vmatrix} x_1^2 & x_1 & y_1 \\ x_2^2 & x_2 & y_2 \\ x_3^2 & x_3 & y_3 \end{vmatrix}$$
 
@@ -431,9 +431,9 @@ $x_4$를 계산한 후, 다음 반복을 위한 새로운 세 점 $(x_1, x_2, x_
 
 **정의 (등고선).** 함수 $f : \mathbb{R}^n \to \mathbb{R}$과 상수 $c$에 대해:
 
-- 집합 $\{x \in \mathbb{R}^n : f(x) = c\}$를 수준 $c$에서의 $f$의 **등고선(level set)**이라 한다
-- 집합 $\{x \in \mathbb{R}^n : f(x) \leq c\}$를 $c$에서의 $f$의 **하위 등고선(lower level set)**이라 한다
-- 집합 $\{x \in \mathbb{R}^n : f(x) \geq c\}$를 $c$에서의 $f$의 **상위 등고선(upper level set)**이라 한다
+- 집합 $\{x \in \mathbb{R}^n : f(x) = c\}$를 수준 $c$에서의 $f$의 **등고선(level set)** 이라 한다
+- 집합 $\{x \in \mathbb{R}^n : f(x) \leq c\}$를 $c$에서의 $f$의 **하위 등고선(lower level set)** 이라 한다
+- 집합 $\{x \in \mathbb{R}^n : f(x) \geq c\}$를 $c$에서의 $f$의 **상위 등고선(upper level set)** 이라 한다
 
 **예시:** $f(x_1, x_2) = x_1^2 + x_2^2$에 대해, $c = 1$에서의 등고선은 단위원 $x_1^2 + x_2^2 = 1$이다. 하위 등고선 $f(x,y) \leq 1$은 단위 원판이고, 상위 등고선 $f(x,y) \geq 1$은 단위 원판의 외부이다.
 
@@ -475,11 +475,11 @@ $$\nabla f = \begin{bmatrix} 2x_1 \\ 2x_2 \end{bmatrix} = 2\begin{bmatrix} x_1 \
 
 $$\sum_{i=1}^m \alpha_i x_i$$
 
-을 이 점들의 **볼록 결합(convex combination)**이라 한다.
+을 이 점들의 **볼록 결합(convex combination)** 이라 한다.
 
 ### 9.2 볼록 집합(Convex Set)
 
-**정의 (볼록 집합).** 집합 $\mathbb{X} \subseteq \mathbb{R}^n$이 **볼록(convex)**이란:
+**정의 (볼록 집합).** 집합 $\mathbb{X} \subseteq \mathbb{R}^n$이 **볼록(convex)** 이란:
 
 $$\alpha x + (1 - \alpha)y \in \mathbb{X}$$
 
@@ -505,7 +505,7 @@ $$\mathbb{H} = \{x \in \mathbb{R}^n : c^T x = b\}$$
 
 여기서 $c \in \mathbb{R}^n \setminus \{0\}$이고 $b \in \mathbb{R}$.
 
-초평면은 두 **반공간(half-spaces)**의 교집합이다:
+초평면은 두 **반공간(half-spaces)** 의 교집합이다:
 
 $$\mathbb{H}_+ = \{x \in \mathbb{R}^n : c^T x \geq b\}, \quad \mathbb{H}_- = \{x \in \mathbb{R}^n : c^T x \leq b\}$$
 
@@ -519,28 +519,28 @@ $$c^T z = \alpha c^T x + (1 - \alpha) c^T y = \alpha b + (1 - \alpha)b = b$$
 
 ### 9.4 꼭짓점(Extreme Point)
 
-**정의 (꼭짓점).** 볼록 집합 $\mathbb{X}$가 주어질 때, 점 $x \in \mathbb{X}$가 $\mathbb{X}$의 **꼭짓점(extreme point)**이란, $\mathbb{X}$ 내의 두 **서로 다른** 점의 볼록 결합으로 표현될 수 없는 것이다. 즉, $x = \alpha x' + (1 - \alpha) x''$인 서로 다른 점 $x', x'' \in \mathbb{X}$와 $\alpha \in (0, 1)$이 존재하지 않는다.
+**정의 (꼭짓점).** 볼록 집합 $\mathbb{X}$가 주어질 때, 점 $x \in \mathbb{X}$가 $\mathbb{X}$의 **꼭짓점(extreme point)** 이란, $\mathbb{X}$ 내의 두 **서로 다른** 점의 볼록 결합으로 표현될 수 없는 것이다. 즉, $x = \alpha x' + (1 - \alpha) x''$인 서로 다른 점 $x', x'' \in \mathbb{X}$와 $\alpha \in (0, 1)$이 존재하지 않는다.
 
 **예시:**
 
 - 원(원판)의 경우, 경계 위의 모든 점이 꼭짓점이다
-- 직사각형의 경우, 네 **꼭지점(모서리)**만이 꼭짓점이다. 변 위의 점(꼭지점은 제외)은 두 끝점의 볼록 결합으로 쓸 수 있으므로 꼭짓점이 아니다
+- 직사각형의 경우, 네 **꼭지점(모서리)** 만이 꼭짓점이다. 변 위의 점(꼭지점은 제외)은 두 끝점의 볼록 결합으로 쓸 수 있으므로 꼭짓점이 아니다
 
 볼록 실행 가능 영역과 선형 목적 함수의 경우, (존재하면) 최적해는 꼭짓점에서 발생한다. 따라서 최적성을 확인하기 위해 꼭짓점만 검사하면 된다.
 
 ### 9.5 볼록 함수(Convex Function)
 
-**정의 (볼록 함수).** 집합 $\mathbb{X} \subseteq \mathbb{R}^n$이 주어질 때, 함수 $f : \mathbb{X} \to \mathbb{R}$이 **볼록(convex)**이란:
+**정의 (볼록 함수).** 집합 $\mathbb{X} \subseteq \mathbb{R}^n$이 주어질 때, 함수 $f : \mathbb{X} \to \mathbb{R}$이 **볼록(convex)** 이란:
 
 $$f(\alpha x + (1 - \alpha)y) \leq \alpha f(x) + (1 - \alpha) f(y) \quad \forall \; x, y \in \mathbb{X}, \; \alpha \in (0, 1)$$
 
-$f$가 **순볼록(strictly convex)**이란:
+$f$가 **순볼록(strictly convex)** 이란:
 
 $$f(\alpha x + (1 - \alpha)y) < \alpha f(x) + (1 - \alpha) f(y) \quad \forall \; x, y \in \mathbb{X}, \; x \neq y, \; \alpha \in (0, 1)$$
 
 기하학적으로, 함수 그래프 위의 임의의 두 점을 연결하는 선분이 그래프 위(또는 위에)에 놓이면 그 함수는 볼록하다.
 
-**오목 함수(Concave functions):** 함수 $f$가 **오목(concave)**이란 $-f$가 볼록인 것이다.
+**오목 함수(Concave functions):** 함수 $f$가 **오목(concave)** 이란 $-f$가 볼록인 것이다.
 
 **예시:**
 
@@ -553,7 +553,7 @@ $$f(\alpha x + (1 - \alpha)y) < \alpha f(x) + (1 - \alpha) f(y) \quad \forall \;
 
 **볼록 함수의 성질:**
 
-- 볼록 함수는 내부 $\text{int}(\mathbb{X})$에서 **연속**이다
+- 볼록 함수는 내부 $\text{int}(\mathbb{X})$에서 **연속** 이다
 - 볼록 함수는 $\text{int}(\mathbb{X})$에서 **반드시 미분 가능한 것은 아니다**
   - 예시: $\mathbb{X} = \mathbb{R}$, $f(x) = |x|$는 볼록이지만 $x = 0$에서 미분 불가능
 
@@ -573,13 +573,13 @@ $$\min_{x \in \mathbb{R}^n} f(x)$$
 
 여기서 $f$는 연속 미분 가능 함수이다.
 
-$x^{(0)} \in \mathbb{R}^n$과 방향 $d \in \mathbb{R}^n$이 주어지면, $x^{(0)}$에서 방향 $d$로의 $f$의 **방향 도함수(directional derivative)**는:
+$x^{(0)} \in \mathbb{R}^n$과 방향 $d \in \mathbb{R}^n$이 주어지면, $x^{(0)}$에서 방향 $d$로의 $f$의 **방향 도함수(directional derivative)** 는:
 
 $$\nabla f\big|_{x=x^{(0)}}^T d$$
 
 $\|d\| = 1$이면, 이것은 방향 $d$에서의 $x^{(0)}$에서의 $f$의 증가율이다.
 
-**코시-슈바르츠 부등식(Cauchy-Schwarz inequality)**에 의해:
+**코시-슈바르츠 부등식(Cauchy-Schwarz inequality)** 에 의해:
 
 $$\nabla f^T d \leq \|\nabla f\| \cdot \|d\|$$
 
@@ -587,9 +587,9 @@ $\alpha > 0$에 대해 $d = \alpha \nabla f$를 선택하면:
 
 $$\alpha \nabla f^T \nabla f = \alpha \|\nabla f\| \cdot \|\nabla f\|$$
 
-이는 코시-슈바르츠에서 등호를 달성하므로, $\alpha \nabla f$는 $f$의 **최대 증가율 방향**이다.
+이는 코시-슈바르츠에서 등호를 달성하므로, $\alpha \nabla f$는 $f$의 **최대 증가율 방향** 이다.
 
-마찬가지로, **최대 감소율 방향**에는 $d = -\alpha \nabla f$를 선택:
+마찬가지로, **최대 감소율 방향** 에는 $d = -\alpha \nabla f$를 선택:
 
 $$-\nabla f^T d \leq \|\nabla f\| \cdot \|d\|$$
 
@@ -597,7 +597,7 @@ $$\nabla f^T d \geq -\|\nabla f\| \cdot \|d\|$$
 
 $d = -\alpha \nabla f$를 선택하면: $-\alpha \nabla f^T \nabla f = -\alpha \|\nabla f\| \cdot \|\nabla f\|$로, 하한을 달성한다.
 
-따라서 $-\nabla f$는 **최소화 방법에서 취할 최선의 방향**이다.
+따라서 $-\nabla f$는 **최소화 방법에서 취할 최선의 방향** 이다.
 
 ### 10.2 최급 하강 갱신 규칙
 
@@ -656,11 +656,11 @@ $$\nabla f(x^*) = 0$$
 
 $$\frac{d\phi_k}{d\alpha} = \frac{df(x^{(k+1)})}{dx^{(k+1)}} \cdot \frac{dx^{(k+1)}}{d\alpha} = -\nabla f_{k+1}^T \nabla f_k = 0$$
 
-이로부터 **직교성 성질(orthogonality property)**이 도출된다:
+이로부터 **직교성 성질(orthogonality property)** 이 도출된다:
 
 $$\nabla f_{k+1}^T \nabla f_k = 0, \quad k \geq 0$$
 
-최급 하강법으로 생성된 **연속 두 점**에서의 $f$의 기울기는 **서로 직교**한다.
+최급 하강법으로 생성된 **연속 두 점** 에서의 $f$의 기울기는 **서로 직교** 한다.
 
 $k \to \infty$로 극한을 취하면: $\nabla f\big|_{x^*}^T \nabla f\big|_{x^*} = \|\nabla f(x^*)\|^2 = 0$.
 

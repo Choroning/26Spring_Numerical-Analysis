@@ -61,13 +61,13 @@
 
 ### 1.1 번지 점프 — 인라인 스크립트
 
-제1장의 번지 점프 문제를 **이차 항력 모델(Quadratic Drag Model)**로 다시 살펴본다. 지배 ODE는 다음과 같다:
+제1장의 번지 점프 문제를 **이차 항력 모델(Quadratic Drag Model)** 로 다시 살펴본다. 지배 ODE는 다음과 같다:
 
 $$\frac{dv}{dt} = g - \frac{c_d}{m}v^2$$
 
 여기서 $c_d$는 항력 계수(kg/m), $m$은 질량(kg), $g$는 중력 가속도(m/s$^2$)이다.
 
-초기 조건 $v(0) = 0$에 대한 이 ODE의 **해석해(Analytical Solution)**는 다음과 같다:
+초기 조건 $v(0) = 0$에 대한 이 ODE의 **해석해(Analytical Solution)** 는 다음과 같다:
 
 $$v(t) = \sqrt{\frac{mg}{c_d}} \tanh\left(\sqrt{\frac{c_d g}{m}} \cdot t\right)$$
 
@@ -88,7 +88,7 @@ print(f'velocity = {v:.4f} m/s')  # velocity = 51.6938 m/s
 
 ### 1.2 함수로 리팩토링
 
-위의 인라인 스크립트는 재사용이 불가능하다. 계산을 **함수(Function)**로 감싸면, 다른 매개변수로 반복적으로 호출할 수 있다:
+위의 인라인 스크립트는 재사용이 불가능하다. 계산을 **함수(Function)** 로 감싸면, 다른 매개변수로 반복적으로 호출할 수 있다:
 
 ```python
 def freefall(t, m, cd):
@@ -122,7 +122,7 @@ print(freefall(0, 68.1, 0.25))    # 0.0 (at t=0, velocity is zero)
 
 ### 1.3 다중 반환값
 
-Python 함수는 **튜플(Tuple)**을 사용하여 여러 값을 반환할 수 있다. 이는 함수가 여러 관련 양을 계산하는 경우가 많은 과학 계산에서 매우 편리하다:
+Python 함수는 **튜플(Tuple)** 을 사용하여 여러 값을 반환할 수 있다. 이는 함수가 여러 관련 양을 계산하는 경우가 많은 과학 계산에서 매우 편리하다:
 
 ```python
 def stats(x):
@@ -150,7 +150,7 @@ print(f'n={count}, mean={mean:.2f}, std={std:.2f}')
 
 ## 2. 변수 스코프 — LEGB 규칙
 
-Python은 **LEGB 규칙**을 사용하여 변수 이름을 해석하며, 이는 스코프가 검색되는 순서를 정의한다:
+Python은 **LEGB 규칙** 을 사용하여 변수 이름을 해석하며, 이는 스코프가 검색되는 순서를 정의한다:
 
 | 스코프 | 설명 | 수명 |
 |:------|:-----------|:---------|
@@ -175,7 +175,7 @@ func()
 # print(s)  # NameError! s is local to func, not visible here
 ```
 
-함수는 외부 스코프의 변수를 **읽을** 수 있지만, 명시적 선언 없이 **수정할** 수는 없다. 함수 내에서 변수에 값을 대입하면, Python은 동일한 이름의 전역 변수가 존재하더라도 이를 **새로운 지역 변수**로 취급한다:
+함수는 외부 스코프의 변수를 **읽을** 수 있지만, 명시적 선언 없이 **수정할** 수는 없다. 함수 내에서 변수에 값을 대입하면, Python은 동일한 이름의 전역 변수가 존재하더라도 이를 **새로운 지역 변수** 로 취급한다:
 
 ```python
 x = 88
@@ -205,7 +205,7 @@ fun1()
 # fun2()  # NameError — fun2 only exists inside fun1
 ```
 
-둘러싸는 스코프는 **클로저(Closure)**에 중요하다 — 클로저는 둘러싸는 함수가 실행을 마친 후에도 둘러싸는 스코프의 변수를 캡처하고 기억하는 함수이다.
+둘러싸는 스코프는 **클로저(Closure)** 에 중요하다 — 클로저는 둘러싸는 함수가 실행을 마친 후에도 둘러싸는 스코프의 변수를 캡처하고 기억하는 함수이다.
 
 ### 2.3 global 키워드
 
@@ -252,7 +252,7 @@ Python은 단순한 위치 매개변수를 넘어서는 유연한 인수 전달 
 
 ### 3.1 키워드 인수와 기본값
 
-함수는 매개변수에 **기본값(Default Values)**을 가질 수 있다. 기본값이 있는 매개변수는 함수 호출 시 선택 사항이다:
+함수는 매개변수에 **기본값(Default Values)** 을 가질 수 있다. 기본값이 있는 매개변수는 함수 호출 시 선택 사항이다:
 
 ```python
 def func_keyword(a, print_input=False):
@@ -412,7 +412,7 @@ print(classify_temp(5))   # Cold
 
 ### 5.2 For 및 While 반복문
 
-**For 반복문**은 시퀀스를 순회한다:
+**For 반복문** 은 시퀀스를 순회한다:
 
 ```python
 # Sum of integers 1 through 10
@@ -422,7 +422,7 @@ for i in range(1, 11):
 print(total)  # 55
 ```
 
-**`break`**는 반복문을 즉시 종료한다; **`continue`**는 다음 반복으로 건너뛴다:
+**`break`** 는 반복문을 즉시 종료한다; **`continue`** 는 다음 반복으로 건너뛴다:
 
 ```python
 # Find the first multiple of 7 greater than 0
@@ -432,7 +432,7 @@ for i in range(100):
         break
 ```
 
-**While 반복문**은 조건이 `False`가 될 때까지 반복한다:
+**While 반복문** 은 조건이 `False`가 될 때까지 반복한다:
 
 ```python
 count = 10
@@ -442,7 +442,7 @@ while count > 0:
 # 10 9 8 7 6 5 4 3 2 1
 ```
 
-While 반복문은 수치 해법에서 오차가 허용 범위 아래로 떨어질 때까지 반복하는 **반복 수렴(Iterative Convergence)**에 특히 유용하다:
+While 반복문은 수치 해법에서 오차가 허용 범위 아래로 떨어질 때까지 반복하는 **반복 수렴(Iterative Convergence)** 에 특히 유용하다:
 
 ```python
 # Example: iterate until convergence
@@ -458,7 +458,7 @@ print(f'sqrt(2) ≈ {x_new:.10f}')  # 1.4142135624
 
 ### 5.3 벡터화 vs. 반복문
 
-이것은 과학 Python에서 가장 중요한 성능 개념이다. **벡터화(Vectorization)**란 명시적인 Python 루프를 컴파일된 C 코드로 실행되는 NumPy 배열 연산으로 대체하는 것을 의미한다:
+이것은 과학 Python에서 가장 중요한 성능 개념이다. **벡터화(Vectorization)** 란 명시적인 Python 루프를 컴파일된 C 코드로 실행되는 NumPy 배열 연산으로 대체하는 것을 의미한다:
 
 ```python
 import numpy as np
@@ -486,7 +486,7 @@ print(f'Speedup: {loop_time / vec_time:.0f}x')
 
 > **[Python]** 벡터화는 과학 Python에서 가장 중요한 최적화 기법이다. Python에서 요소를 반복하는 대신(느린 인터프리터), 벡터화 연산은 루프를 C(빠른 컴파일 코드)로 내린다. 항상 명시적 루프보다 NumPy 벡터화 연산을 선호하라.
 
-루프가 왜 그렇게 느린가? Python은 **인터프리터 언어(Interpreted Language)**이므로, 루프의 각 반복은 타입 검사, 함수 디스패치, 기타 오버헤드를 수반한다. NumPy의 벡터화 연산은 전체 배열에 대해 하나의 최적화된 C 루틴을 실행하여 이를 우회한다.
+루프가 왜 그렇게 느린가? Python은 **인터프리터 언어(Interpreted Language)** 이므로, 루프의 각 반복은 타입 검사, 함수 디스패치, 기타 오버헤드를 수반한다. NumPy의 벡터화 연산은 전체 배열에 대해 하나의 최적화된 C 루틴을 실행하여 이를 우회한다.
 
 **경험 규칙:** 배열 요소를 하나씩 처리하는 `for` 반복문을 작성하고 있다면, 거의 확실히 훨씬 더 빠른 벡터화된 NumPy 대안이 존재한다.
 
@@ -496,11 +496,11 @@ print(f'Speedup: {loop_time / vec_time:.0f}x')
 
 ## 6. 일급 객체로서의 함수
 
-Python에서 함수는 **일급 객체(First-Class Objects)**이다 — 변수에 대입하고, 인수로 전달하고, 다른 함수에서 반환하고, 데이터 구조에 저장할 수 있다. 이는 강력한 함수형 프로그래밍 패턴을 가능하게 한다.
+Python에서 함수는 **일급 객체(First-Class Objects)** 이다 — 변수에 대입하고, 인수로 전달하고, 다른 함수에서 반환하고, 데이터 구조에 저장할 수 있다. 이는 강력한 함수형 프로그래밍 패턴을 가능하게 한다.
 
 ### 6.1 람다 함수
 
-**람다 함수(Lambda Functions)**는 익명의 단일 표현식 함수이다:
+**람다 함수(Lambda Functions)** 는 익명의 단일 표현식 함수이다:
 
 ```python
 f1 = lambda x, y: x ** 2 + y ** 2
@@ -517,7 +517,7 @@ print(sorted_data)  # [(3, 'a'), (1, 'b'), (2, 'c')]
 
 ### 6.2 클로저와 고차 함수
 
-**클로저(Closure)**는 둘러싸는 스코프의 변수를 캡처하는 함수이다. **고차 함수(Higher-Order Function)**는 다른 함수를 인수로 받거나 함수를 반환하는 함수이다:
+**클로저(Closure)** 는 둘러싸는 스코프의 변수를 캡처하는 함수이다. **고차 함수(Higher-Order Function)** 는 다른 함수를 인수로 받거나 함수를 반환하는 함수이다:
 
 ```python
 # Return a function (closure)
@@ -568,7 +568,7 @@ print(cube(5))    # 125
 
 ### 6.4 zip, filter, 컴프리헨션
 
-**`zip`**은 여러 이터러블의 요소를 쌍으로 묶는다:
+**`zip`** 은 여러 이터러블의 요소를 쌍으로 묶는다:
 
 ```python
 names = ['Alice', 'Bob']
@@ -580,7 +580,7 @@ for name, score in zip(names, scores):
 # Bob: 87
 ```
 
-**`filter`**는 조건을 만족하는 요소를 선택한다:
+**`filter`** 는 조건을 만족하는 요소를 선택한다:
 
 ```python
 def even(x):
@@ -589,7 +589,7 @@ def even(x):
 print(list(filter(even, range(10))))  # [0, 2, 4, 6, 8]
 ```
 
-**컴프리헨션(Comprehensions)**은 `map`과 `filter`의 간결하고 파이썬다운 대안이다:
+**컴프리헨션(Comprehensions)** 은 `map`과 `filter`의 간결하고 파이썬다운 대안이다:
 
 ```python
 # List comprehension (replaces map + filter)
@@ -667,7 +667,7 @@ finally:
 
 ## 8. 데코레이터
 
-**데코레이터(Decorator)**는 다른 함수를 받아 동작을 확장하고 수정된 함수를 반환하는 함수이다. 데코레이터는 `@` 구문을 사용한다:
+**데코레이터(Decorator)** 는 다른 함수를 받아 동작을 확장하고 수정된 함수를 반환하는 함수이다. 데코레이터는 `@` 구문을 사용한다:
 
 ```python
 def simple_decorator(func):
@@ -888,7 +888,7 @@ print(sys.getsizeof(gen_expr))   # ~200 bytes (!)
 
 ### 11.2 yield를 사용한 제너레이터 함수
 
-`yield` 키워드는 일반 함수를 **제너레이터 함수(Generator Function)**로 변환한다. `yield`를 만날 때마다 함수는 실행을 일시 중지하고 값을 반환한다. 다음 반복에서 중단된 곳에서 다시 시작한다:
+`yield` 키워드는 일반 함수를 **제너레이터 함수(Generator Function)** 로 변환한다. `yield`를 만날 때마다 함수는 실행을 일시 중지하고 값을 반환한다. 다음 반복에서 중단된 곳에서 다시 시작한다:
 
 ```python
 def countdown(n):

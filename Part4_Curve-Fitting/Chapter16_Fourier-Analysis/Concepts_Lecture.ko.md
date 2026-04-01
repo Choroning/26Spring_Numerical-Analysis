@@ -87,21 +87,21 @@
 
 ### 2.1 우함수(Even Functions)
 
-함수 $f(x)$가 **우함수(Even Function)**인 조건:
+함수 $f(x)$가 **우함수(Even Function)** 인 조건:
 
 $$f(-x) = f(x)$$
 
-$f(x)$의 그래프는 $x = 0$(y축)에 대해 **대칭**이다.
+$f(x)$의 그래프는 $x = 0$(y축)에 대해 **대칭** 이다.
 
 **예:** $\cos(x)$, $x^2$, $|x|$
 
 ### 2.2 기함수(Odd Functions)
 
-함수 $f(x)$가 **기함수(Odd Function)**인 조건:
+함수 $f(x)$가 **기함수(Odd Function)** 인 조건:
 
 $$f(-x) = -f(x)$$
 
-$f(x)$의 그래프는 $x = 0$(원점)에 대해 **반대칭**이다.
+$f(x)$의 그래프는 $x = 0$(원점)에 대해 **반대칭** 이다.
 
 **예:** $\sin(x)$, $x^3$, $x$
 
@@ -123,7 +123,7 @@ $$= \underbrace{\frac{1}{2}\bigl[f(x) + f(-x)\bigr]}_{\text{우함수 부분}} +
 
 ### 3.1 정의
 
-함수 $f(x)$가 주기 $T$를 갖는 **주기 함수(Periodic Function)**인 조건:
+함수 $f(x)$가 주기 $T$를 갖는 **주기 함수(Periodic Function)** 인 조건:
 
 $$f(x) = f(x + T) \quad \forall x$$
 
@@ -151,7 +151,7 @@ $$f(x) = \begin{cases} 0, & -\pi < x \le 0 \\ 1, & 0 < x \le \pi \end{cases}$$
 
 ### 4.1 푸리에의 주장
 
-**푸리에(Fourier, 1768--1830)**는 $[-\pi, \pi]$에서 정의된 임의의 함수가 다음 형태로 표현될 수 있다고 주장했다:
+**푸리에(Fourier, 1768--1830)** 는 $[-\pi, \pi]$에서 정의된 임의의 함수가 다음 형태로 표현될 수 있다고 주장했다:
 
 $$f(x) = \sum_{n=0}^{\infty} (a_n \cos nx + b_n \sin nx)$$
 
@@ -185,7 +185,7 @@ $$\int_{-\pi}^{\pi} f(x)\sin mx\,dx = \underbrace{\int_{-\pi}^{\pi} \frac{a_0}{2
 
 ### 4.3 직교성 관계(Orthogonality Relations)
 
-계수 유도의 핵심은 삼각 함수의 **직교성(Orthogonality)**에 의존한다.
+계수 유도의 핵심은 삼각 함수의 **직교성(Orthogonality)** 에 의존한다.
 
 **곱을 합으로 바꾸는 항등식(Product-to-Sum Identities):**
 
@@ -237,7 +237,7 @@ $$= -\frac{1}{n\pi}(\cos n\pi - 1) = \begin{cases} \frac{2}{n\pi} & \text{for od
 
 $$f(x) = \frac{1}{2} + \sum_{\substack{n=1,3,5,\ldots}} \frac{2}{n\pi} \sin nx = \frac{1}{2} + \frac{2}{\pi} \sum_{n=1}^{\infty} \frac{\sin(2n-1)x}{2n-1}$$
 
-$n \to \infty$일 때 $\frac{1}{n} \to 0$이므로, 푸리에 급수는 **수렴**한다.
+$n \to \infty$일 때 $\frac{1}{n} \to 0$이므로, 푸리에 급수는 **수렴** 한다.
 
 ---
 
@@ -299,7 +299,7 @@ $$\boxed{f(x) = \int_0^{\infty} \bigl[a(\omega)\cos\omega x + b(\omega)\sin\omeg
 
 $$f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\infty}^{\infty} f(\xi) e^{-i\omega\xi}\,d\xi}_{\hat{f}(\omega)}\,d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} \hat{f}(\omega)\,e^{i\omega x}\,d\omega$$
 
-**푸리에 변환**과 그 **역변환**:
+**푸리에 변환** 과 그 **역변환**:
 
 $$\boxed{\hat{f}(\omega) = \mathcal{F}\{f(x)\} = \int_{-\infty}^{\infty} f(\xi)\,e^{-i\omega\xi}\,d\xi}$$
 
@@ -333,7 +333,7 @@ $$\mathcal{F}\left\{\frac{d^n}{dx^n}f(x)\right\} = (i\omega)^n\,\mathcal{F}\{f\}
 
 $$f * g := \int_{-\infty}^{\infty} f(x - \xi)\,g(\xi)\,d\xi = \mathcal{F}^{-1}\{\hat{g}(\omega)\,\hat{f}(\omega)\}$$
 
-즉, **공간 영역에서의 합성곱**은 **주파수 영역에서의 곱셈**에 대응한다.
+즉, **공간 영역에서의 합성곱** 은 **주파수 영역에서의 곱셈** 에 대응한다.
 
 **4) $x$-이동(공간 이동, Spatial Shift):**
 
@@ -357,7 +357,7 @@ $$\mathcal{F}^{-1}\{\hat{f}(\omega - a)\} = e^{iax}\,f(x)$$
 
 주기 함수 $f(t) = f(t + T)$를 고려하자. 여기서 $T$는 상수(주기)이다.
 
-**정현파 함수(Sinusoidal Function)**는 사인 또는 코사인으로 기술할 수 있는 임의의 파형이다:
+**정현파 함수(Sinusoidal Function)** 는 사인 또는 코사인으로 기술할 수 있는 임의의 파형이다:
 
 $$f(t) = A_0 + C_1 \cos(\omega_0 t + \theta)$$
 
@@ -374,7 +374,7 @@ $$f(t) = A_0 + C_1 \cos(\omega_0 t + \theta)$$
 
 $$\omega_0 = 2\pi f, \qquad f = \frac{1}{T}$$
 
-여기서 $f$는 사이클/시간 $[\text{Hz}]$ 단위의 **보통 주파수(Ordinary Frequency)**이다.
+여기서 $f$는 사이클/시간 $[\text{Hz}]$ 단위의 **보통 주파수(Ordinary Frequency)** 이다.
 
 ### 9.2 위상각(Phase Angle)
 
@@ -494,7 +494,7 @@ $$A_j = \frac{2}{n}\sum y_i \cos(j\omega_0 t_i), \quad j = 1, 2, \ldots, m$$
 
 $$B_j = \frac{2}{n}\sum y_i \sin(j\omega_0 t_i), \quad j = 1, 2, \ldots, m$$
 
-> **[회귀 vs 배치]** $n > 2m + 1$(데이터 점이 계수보다 많은 경우), 계수를 **회귀(Regression)**(최소제곱) 의미로 계산한다. $n = 2m + 1$(데이터 점 수가 푸리에 계수 수와 같은 경우), 이를 **배치(Collocation)**라 하며 — 푸리에 급수가 데이터를 정확히 보간한다.
+> **[회귀 vs 배치]** $n > 2m + 1$(데이터 점이 계수보다 많은 경우), 계수를 **회귀(Regression)**(최소제곱) 의미로 계산한다. $n = 2m + 1$(데이터 점 수가 푸리에 계수 수와 같은 경우), 이를 **배치(Collocation)** 라 하며 — 푸리에 급수가 데이터를 정확히 보간한다.
 
 ### 11.2 오일러 공식과 복소 형태
 
@@ -502,7 +502,7 @@ $$B_j = \frac{2}{n}\sum y_i \sin(j\omega_0 t_i), \quad j = 1, 2, \ldots, m$$
 
 $$e^{i\theta} = \cos\theta + i\sin\theta$$
 
-이를 통해 푸리에 급수를 **복소 지수 형태**로 표현할 수 있다:
+이를 통해 푸리에 급수를 **복소 지수 형태** 로 표현할 수 있다:
 
 $$f(t) = a_0 + \sum_{k=1}^{\infty}\bigl(a_k\cos(k\omega_0 t) + b_k\sin(k\omega_0 t)\bigr) = \sum_{k=-\infty}^{\infty} \tilde{C}_k\,e^{ik\omega_0 t}$$
 
@@ -516,7 +516,7 @@ $$\tilde{C}_k = \frac{1}{T}\int_{-T/2}^{T/2} f(t)\,e^{-ik\omega_0 t}\,dt$$
 
 ## 12. 주파수 영역과 시간 영역
 
-**주파수 영역(Frequency Domain)**은 진동하는 함수의 동작을 특성화하기 위한 대안적 관점을 제공한다.
+**주파수 영역(Frequency Domain)** 은 진동하는 함수의 동작을 특성화하기 위한 대안적 관점을 제공한다.
 
 - **시간 영역(Time Domain)**: 일반적인 표현 $f(t)$ — 진폭 대 시간
 - **주파수 영역(Frequency Domain)**: 푸리에 계수 $\hat{f}(\omega)$ — 진폭 대 주파수
@@ -545,7 +545,7 @@ $$F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt$$
 
 ## 14. 이산 푸리에 변환(DFT)
 
-**유한 개수**의 함수값을 수집한다. $0$에서 $T$까지의 구간을 $n$개의 등간격 부분 구간으로 나누며 $\Delta t = \frac{T}{n}$이다.
+**유한 개수** 의 함수값을 수집한다. $0$에서 $T$까지의 구간을 $n$개의 등간격 부분 구간으로 나누며 $\Delta t = \frac{T}{n}$이다.
 
 이산 표본: $f_j = f(t = t_j)$, 여기서 $t_j = t_0 + j\,\Delta t$.
 
@@ -589,7 +589,7 @@ def idft(F):
 
 ## 15. 나이퀴스트 주파수(Nyquist Frequency)
 
-**나이퀴스트 주파수**는 신호에서 측정할 수 있는 최대 주파수이다. 이는 **표본 추출 주파수의 절반**과 같다:
+**나이퀴스트 주파수** 는 신호에서 측정할 수 있는 최대 주파수이다. 이는 **표본 추출 주파수의 절반** 과 같다:
 
 $$f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}$$
 
@@ -600,7 +600,7 @@ $$f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}$$
 - **나이퀴스트 주파수:** $f_{\max} = \frac{1}{2}f_s = 500$ Hz
 - **검출 가능한 최저 주파수:** $f_{\min} = \frac{1}{T} = \frac{1}{n\,\Delta t} = 10$ Hz
 
-> **[앨리어싱(Aliasing)]** 신호에 나이퀴스트 주파수를 초과하는 주파수가 포함되면, 해당 주파수가 더 낮은 주파수로 잘못 표현되는 현상이 발생한다 — 이를 **앨리어싱(Aliasing)**이라 한다. 이를 방지하려면, 표본 추출률이 신호에 존재하는 최대 주파수의 최소 2배여야 한다(**나이퀴스트-섀넌 표본화 정리, Nyquist-Shannon Sampling Theorem**).
+> **[앨리어싱(Aliasing)]** 신호에 나이퀴스트 주파수를 초과하는 주파수가 포함되면, 해당 주파수가 더 낮은 주파수로 잘못 표현되는 현상이 발생한다 — 이를 **앨리어싱(Aliasing)** 이라 한다. 이를 방지하려면, 표본 추출률이 신호에 존재하는 최대 주파수의 최소 2배여야 한다(**나이퀴스트-섀넌 표본화 정리, Nyquist-Shannon Sampling Theorem**).
 
 ---
 
@@ -608,15 +608,15 @@ $$f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}$$
 
 ## 16. 고속 푸리에 변환(FFT)
 
-**고속 푸리에 변환(Fast Fourier Transform)**은 다음을 활용하여 계산 비용을 $O(n^2)$ (DFT)에서 $O(n \log n)$으로 줄인다:
+**고속 푸리에 변환(Fast Fourier Transform)** 은 다음을 활용하여 계산 비용을 $O(n^2)$ (DFT)에서 $O(n \log n)$으로 줄인다:
 
 1. 삼각 함수의 **대칭성**
 2. 복소 지수의 **주기성**
 
 FFT의 핵심 성질:
 
-- FFT는 입력을 **짝수 인덱스와 홀수 인덱스**로 재귀적으로 분할한다
-- FFT는 DFT 공식의 **대칭성과 주기성**을 활용한다
+- FFT는 입력을 **짝수 인덱스와 홀수 인덱스** 로 재귀적으로 분할한다
+- FFT는 DFT 공식의 **대칭성과 주기성** 을 활용한다
 - FFT는 반복 계산을 극적으로 **줄인다**
 
 ```python
@@ -644,7 +644,7 @@ recovered = np.fft.ifft(F)
 
 ## 17. 파워 스펙트럼(Power Spectrum)
 
-**파워 스펙트럼**은 신호의 전력이 서로 다른 주파수에 어떻게 분포되어 있는지를 보여준다.
+**파워 스펙트럼** 은 신호의 전력이 서로 다른 주파수에 어떻게 분포되어 있는지를 보여준다.
 
 **이산의 경우** (이산 주파수 $k\omega_0$에서의 전력):
 
