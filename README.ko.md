@@ -145,9 +145,13 @@
 │   │   ├── Concepts_Lecture.ko.md
 │   │   └── Concepts_Lecture.md
 │   ├── Chapter12_Eigenvalues-Power-Method
+│   │   ├── Concepts_Lab.ko.md
+│   │   ├── Concepts_Lab.md
 │   │   ├── Concepts_Lecture.ko.md
 │   │   └── Concepts_Lecture.md
 │   └── Chapter13_Eigenvalues-Symmetric-Matrices
+│       ├── Concepts_Lab.ko.md
+│       ├── Concepts_Lab.md
 │       ├── Concepts_Lecture.ko.md
 │       └── Concepts_Lecture.md
 ├── Part4_Curve-Fitting
