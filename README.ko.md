@@ -95,102 +95,77 @@
 ```plaintext
 26Spring_Numerical-Analysis
 ├── Part1_Modeling-Computers-and-Error-Analysis
-│   ├── Chapter01_Mathematical-Modeling
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter02_Programming-and-Software
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter03_Approximations-and-Round-Off-Errors
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   └── Chapter04_Truncation-Errors
-│       ├── Concepts_Lecture.ko.md
-│       └── Concepts_Lecture.md
+│   ├── Chapter01_Mathematical-Modeling_Concepts_Lab.ko.md
+│   ├── Chapter01_Mathematical-Modeling_Concepts_Lab.md
+│   ├── Chapter01_Mathematical-Modeling_Concepts_Lecture.ko.md
+│   ├── Chapter01_Mathematical-Modeling_Concepts_Lecture.md
+│   ├── Chapter02_Programming-and-Software_Concepts_Lab.ko.md
+│   ├── Chapter02_Programming-and-Software_Concepts_Lab.md
+│   ├── Chapter02_Programming-and-Software_Concepts_Lecture.ko.md
+│   ├── Chapter02_Programming-and-Software_Concepts_Lecture.md
+│   ├── Chapter03_Approximations-and-Round-Off-Errors_Concepts_Lab.ko.md
+│   ├── Chapter03_Approximations-and-Round-Off-Errors_Concepts_Lab.md
+│   ├── Chapter03_Approximations-and-Round-Off-Errors_Concepts_Lecture.ko.md
+│   ├── Chapter03_Approximations-and-Round-Off-Errors_Concepts_Lecture.md
+│   ├── Chapter04_Truncation-Errors_Concepts_Lecture.ko.md
+│   └── Chapter04_Truncation-Errors_Concepts_Lecture.md
 ├── Part2_Roots-and-Optimization
-│   ├── Chapter05_Roots-Bracketing-Methods
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter06_Roots-Open-Methods
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   └── Chapter07_Optimization
-│       ├── Concepts_Lecture.ko.md
-│       └── Concepts_Lecture.md
+│   ├── Chapter05_Roots-Bracketing-Methods_Concepts_Lecture.ko.md
+│   ├── Chapter05_Roots-Bracketing-Methods_Concepts_Lecture.md
+│   ├── Chapter06_Roots-Open-Methods_Concepts_Lecture.ko.md
+│   ├── Chapter06_Roots-Open-Methods_Concepts_Lecture.md
+│   ├── Chapter07_Optimization_Concepts_Lecture.ko.md
+│   └── Chapter07_Optimization_Concepts_Lecture.md
 ├── Part3_Linear-Algebraic-Equations
-│   ├── Chapter08_Linear-Algebraic-Equations
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter09_Gauss-Elimination
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter10_LU-Factorization
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter11_Matrix-Inverse-and-Condition
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter12_Eigenvalues-Power-Method
-│   │   ├── Concepts_Lab.ko.md
-│   │   ├── Concepts_Lab.md
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   └── Chapter13_Eigenvalues-Symmetric-Matrices
-│       ├── Concepts_Lab.ko.md
-│       ├── Concepts_Lab.md
-│       ├── Concepts_Lecture.ko.md
-│       └── Concepts_Lecture.md
+│   ├── Chapter08_Linear-Algebraic-Equations_Concepts_Lab.ko.md
+│   ├── Chapter08_Linear-Algebraic-Equations_Concepts_Lab.md
+│   ├── Chapter08_Linear-Algebraic-Equations_Concepts_Lecture.ko.md
+│   ├── Chapter08_Linear-Algebraic-Equations_Concepts_Lecture.md
+│   ├── Chapter09_Gauss-Elimination_Concepts_Lab.ko.md
+│   ├── Chapter09_Gauss-Elimination_Concepts_Lab.md
+│   ├── Chapter09_Gauss-Elimination_Concepts_Lecture.ko.md
+│   ├── Chapter09_Gauss-Elimination_Concepts_Lecture.md
+│   ├── Chapter10_LU-Factorization_Concepts_Lab.ko.md
+│   ├── Chapter10_LU-Factorization_Concepts_Lab.md
+│   ├── Chapter10_LU-Factorization_Concepts_Lecture.ko.md
+│   ├── Chapter10_LU-Factorization_Concepts_Lecture.md
+│   ├── Chapter11_Matrix-Inverse-and-Condition_Concepts_Lab.ko.md
+│   ├── Chapter11_Matrix-Inverse-and-Condition_Concepts_Lab.md
+│   ├── Chapter11_Matrix-Inverse-and-Condition_Concepts_Lecture.ko.md
+│   ├── Chapter11_Matrix-Inverse-and-Condition_Concepts_Lecture.md
+│   ├── Chapter12_Eigenvalues-Power-Method_Concepts_Lab.ko.md
+│   ├── Chapter12_Eigenvalues-Power-Method_Concepts_Lab.md
+│   ├── Chapter12_Eigenvalues-Power-Method_Concepts_Lecture.ko.md
+│   ├── Chapter12_Eigenvalues-Power-Method_Concepts_Lecture.md
+│   ├── Chapter13_Eigenvalues-Symmetric-Matrices_Concepts_Lab.ko.md
+│   ├── Chapter13_Eigenvalues-Symmetric-Matrices_Concepts_Lab.md
+│   ├── Chapter13_Eigenvalues-Symmetric-Matrices_Concepts_Lecture.ko.md
+│   └── Chapter13_Eigenvalues-Symmetric-Matrices_Concepts_Lecture.md
 ├── Part4_Curve-Fitting
-│   ├── Chapter14_Linear-Regression
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter15_Nonlinear-Regression
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter16_Fourier-Analysis
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter17_Interpolation
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   └── Chapter18_Splines
-│       ├── Concepts_Lecture.ko.md
-│       └── Concepts_Lecture.md
+│   ├── Chapter14_Linear-Regression_Concepts_Lecture.ko.md
+│   ├── Chapter14_Linear-Regression_Concepts_Lecture.md
+│   ├── Chapter15_Nonlinear-Regression_Concepts_Lecture.ko.md
+│   ├── Chapter15_Nonlinear-Regression_Concepts_Lecture.md
+│   ├── Chapter16_Fourier-Analysis_Concepts_Lecture.ko.md
+│   ├── Chapter16_Fourier-Analysis_Concepts_Lecture.md
+│   ├── Chapter17_Interpolation_Concepts_Lecture.ko.md
+│   ├── Chapter17_Interpolation_Concepts_Lecture.md
+│   ├── Chapter18_Splines_Concepts_Lecture.ko.md
+│   └── Chapter18_Splines_Concepts_Lecture.md
 ├── Part5_Integration-and-Differentiation
-│   ├── Chapter19_Numerical-Integration-Formulas
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter20_Numerical-Integration-of-Equations
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   └── Chapter21_Numerical-Differentiation
-│       ├── Concepts_Lecture.ko.md
-│       └── Concepts_Lecture.md
+│   ├── Chapter19_Numerical-Integration-Formulas_Concepts_Lecture.ko.md
+│   ├── Chapter19_Numerical-Integration-Formulas_Concepts_Lecture.md
+│   ├── Chapter20_Numerical-Integration-of-Equations_Concepts_Lecture.ko.md
+│   ├── Chapter20_Numerical-Integration-of-Equations_Concepts_Lecture.md
+│   ├── Chapter21_Numerical-Differentiation_Concepts_Lecture.ko.md
+│   └── Chapter21_Numerical-Differentiation_Concepts_Lecture.md
 ├── Part6_Ordinary-Differential-Equations
-│   ├── Chapter22_Initial-Value-Problems
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   ├── Chapter23_Stiff-ODEs
-│   │   ├── Concepts_Lecture.ko.md
-│   │   └── Concepts_Lecture.md
-│   └── Chapter24_Boundary-Value-Problems
-│       ├── Concepts_Lecture.ko.md
-│       └── Concepts_Lecture.md
-├── images/
+│   ├── Chapter22_Initial-Value-Problems_Concepts_Lecture.ko.md
+│   ├── Chapter22_Initial-Value-Problems_Concepts_Lecture.md
+│   ├── Chapter23_Stiff-ODEs_Concepts_Lecture.ko.md
+│   ├── Chapter23_Stiff-ODEs_Concepts_Lecture.md
+│   ├── Chapter24_Boundary-Value-Problems_Concepts_Lecture.ko.md
+│   └── Chapter24_Boundary-Value-Problems_Concepts_Lecture.md
 ├── .gitignore
 ├── LICENSE
 ├── README.ko.md
