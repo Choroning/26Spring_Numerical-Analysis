@@ -1,8 +1,8 @@
 # 제16장 강의 — 푸리에 해석(Fourier Analysis)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 16
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 16
 
 > **선수 지식**: [미적분학] 삼각함수, 적분 (제1-15장).
 >

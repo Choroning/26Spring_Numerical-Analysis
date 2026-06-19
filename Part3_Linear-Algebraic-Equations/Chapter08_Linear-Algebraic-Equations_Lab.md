@@ -1,8 +1,8 @@
 # Chapter 8 Lab — Linear Systems and Gaussian Elimination
 
-> **Last Updated:** 2026-04-01
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 8
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 8
 
 > **Prerequisites**: [Programming Language] MATLAB/Python. [Linear Algebra] Matrix operations. [Calculus] Linear systems (Ch 1-7).
 >

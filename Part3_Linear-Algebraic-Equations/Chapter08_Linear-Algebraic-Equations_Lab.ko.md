@@ -1,8 +1,8 @@
 # 제8장 실습 — 연립방정식과 가우스 소거법(Linear Systems and Gaussian Elimination)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 8
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 8
 
 > **선수 지식**: [프로그래밍언어] MATLAB/Python. [선형대수학] 행렬 연산. [미적분학] 선형 시스템 (제1-7장).
 >

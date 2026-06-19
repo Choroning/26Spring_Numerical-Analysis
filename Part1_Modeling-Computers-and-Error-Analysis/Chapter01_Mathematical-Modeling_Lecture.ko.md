@@ -1,8 +1,8 @@
 # 제1장 강의 — 수학적 모델링과 공학 문제 해결
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 1
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 1
 
 > **선수 지식**: 수치해석 사전 지식 불필요. [미적분학] 기본 미분과 적분.
 >

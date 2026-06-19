@@ -1,8 +1,8 @@
 # Chapter 5 Lecture -- Roots: Bracketing Methods
 
-> **Last Updated:** 2026-04-01
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 5
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 5
 
 > **Prerequisites**: [Calculus] Continuity, intermediate value theorem (Ch 1-4).
 >

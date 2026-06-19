@@ -1,8 +1,8 @@
 # 제21장 강의 — 수치 미분(Numerical Differentiation)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 21
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 21
 
 > **선수 지식**: [미적분학] 미분, 테일러 급수 (제1-20장).
 >

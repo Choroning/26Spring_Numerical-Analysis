@@ -1,8 +1,8 @@
 # Chapter 4 Lecture — Truncation Errors and the Taylor Series
 
-> **Last Updated:** 2026-04-01
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 4
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 4
 
 > **Prerequisites**: [Calculus] Taylor series expansion (Ch 3).
 >

@@ -1,8 +1,8 @@
 # 제18장 강의 — 스플라인과 구간별 보간(Splines and Piecewise Interpolation)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 18
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 18
 
 > **선수 지식**: [미적분학] 보간법 (제17장).
 >

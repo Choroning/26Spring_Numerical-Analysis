@@ -1,8 +1,8 @@
 # 제12장 실습 — 고유값 계산을 위한 거듭제곱법
 
-> **최종 수정일:** 2026-04-14
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 13 (Power Method)
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 13 (Power Method)
 
 > **선수 지식**: [프로그래밍언어] Python, NumPy, SciPy. [선형대수학] 고유값 / 고유벡터, LU 분해 (제10장).
 >

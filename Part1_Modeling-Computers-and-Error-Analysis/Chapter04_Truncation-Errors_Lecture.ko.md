@@ -1,8 +1,8 @@
 # 제4장 강의 — 절단 오차와 테일러 급수(Taylor Series)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 4
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 4
 
 > **선수 지식**: [미적분학] 테일러 급수 전개 (제3장).
 >

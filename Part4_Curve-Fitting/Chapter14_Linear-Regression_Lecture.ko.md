@@ -1,8 +1,8 @@
 # 제14장 강의 — 선형 회귀(Linear Regression)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 14
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 14
 
 > **선수 지식**: [통계학] 기초 통계. [미적분학] 최소자승 개념 (제1-13장).
 >

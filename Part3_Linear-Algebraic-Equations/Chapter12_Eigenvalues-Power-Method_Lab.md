@@ -1,8 +1,8 @@
 # Chapter 12 Lab — Power Method for Eigenvalue Computation
 
-> **Last Updated:** 2026-04-14
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 13 (Power Method)
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 13 (Power Method)
 
 > **Prerequisites**: [Programming Language] Python, NumPy, SciPy. [Linear Algebra] Eigenvalues / eigenvectors, LU factorization (Ch 10).
 >

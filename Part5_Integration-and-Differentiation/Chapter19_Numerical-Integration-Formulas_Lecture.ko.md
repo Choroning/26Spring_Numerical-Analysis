@@ -1,8 +1,8 @@
 # 제19장 강의 — 수치 적분 공식(Numerical Integration Formulas)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 19
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 19
 
 > **선수 지식**: [미적분학] 적분 (제1-18장).
 >

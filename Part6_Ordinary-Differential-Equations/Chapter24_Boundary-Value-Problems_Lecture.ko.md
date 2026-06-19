@@ -1,8 +1,8 @@
 # 제24장 강의 — 경계값 문제(Boundary-Value Problems)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 24
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 24
 
 > **선수 지식**: [미적분학] ODE 방법 (제22-23장). [선형대수학] 연립방정식.
 >
