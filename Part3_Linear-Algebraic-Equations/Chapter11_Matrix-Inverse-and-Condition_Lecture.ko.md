@@ -1,8 +1,8 @@
 # 제11장 강의 — 역행렬과 조건수
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 11
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 11
 
 > **선수 지식**: [선형대수학] LU 분해 (제8-10장).
 >

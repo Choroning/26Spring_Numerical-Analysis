@@ -1,8 +1,8 @@
 # 제13장 실습 — 대칭 고유값 문제와 응용
 
-> **최종 수정일:** 2026-04-14
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 13
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 13
 
 > **선수 지식**: [프로그래밍언어] Python, NumPy, SciPy, Matplotlib. [선형대수학] 거듭제곱법 (제12장 실습), 고유분해(eigen-decomposition) 기초.
 >

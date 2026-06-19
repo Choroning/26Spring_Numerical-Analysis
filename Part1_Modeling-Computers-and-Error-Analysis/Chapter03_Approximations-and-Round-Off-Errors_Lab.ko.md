@@ -1,8 +1,8 @@
 # 제3장 실습 — 수치 오차의 원인
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 3
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 3
 
 > **선수 지식**: [프로그래밍언어] MATLAB/Python. [미적분학] 테일러 급수. [프로그래밍언어] 기본 프로그래밍 (제1-2장).
 >

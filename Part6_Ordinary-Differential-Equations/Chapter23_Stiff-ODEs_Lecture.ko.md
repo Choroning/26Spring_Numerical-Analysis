@@ -1,8 +1,8 @@
 # 제23장 강의 — 강성 ODE와 적응적 방법
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 23
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 23
 
 > **선수 지식**: [미적분학] ODE 풀이 (제22장).
 >

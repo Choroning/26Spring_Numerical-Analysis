@@ -1,8 +1,8 @@
 # Chapter 11 Lab — Matrix Inverse and Condition Number
 
-> **Last Updated:** 2026-04-01
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 11
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 11
 
 > **Prerequisites**: [Programming Language] MATLAB/Python. [Linear Algebra] LU factorization (Ch 8-10).
 >

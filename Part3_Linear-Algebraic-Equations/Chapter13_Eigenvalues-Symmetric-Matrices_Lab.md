@@ -1,8 +1,8 @@
 # Chapter 13 Lab — Symmetric Eigenproblems and Applications
 
-> **Last Updated:** 2026-04-14
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 13
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 13
 
 > **Prerequisites**: [Programming Language] Python, NumPy, SciPy, Matplotlib. [Linear Algebra] Power Method (Ch 12 Lab), eigen-decomposition basics.
 >

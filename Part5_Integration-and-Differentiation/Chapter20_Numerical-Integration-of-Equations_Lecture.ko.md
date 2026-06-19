@@ -1,8 +1,8 @@
 # 제20장 강의 --- 방정식의 수치 적분(Numerical Integration of Equations)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 20
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 20
 
 > **선수 지식**: [미적분학] 수치 적분 공식 (제19장).
 >

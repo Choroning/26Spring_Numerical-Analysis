@@ -1,8 +1,8 @@
 # 제5장 강의 — 근: 구간 방법(Bracketing Methods)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 5
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 5
 
 > **선수 지식**: [미적분학] 연속성, 중간값 정리 (제1-4장).
 >

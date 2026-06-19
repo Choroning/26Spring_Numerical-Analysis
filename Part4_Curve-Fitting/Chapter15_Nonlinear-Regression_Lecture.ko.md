@@ -1,8 +1,8 @@
 # 제15장 강의 — 비선형 회귀(Nonlinear Regression)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 15
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 15
 
 > **선수 지식**: [통계학] 선형 회귀 (제14장).
 >

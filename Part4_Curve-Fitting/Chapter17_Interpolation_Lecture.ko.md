@@ -1,8 +1,8 @@
 # 제17장 강의 — 다항식 보간(Polynomial Interpolation)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 17
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 17
 
 > **선수 지식**: [미적분학] 다항식 (제14-16장).
 >

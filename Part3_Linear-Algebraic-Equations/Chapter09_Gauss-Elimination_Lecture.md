@@ -1,8 +1,8 @@
 # Chapter 9 Lecture — Gauss Elimination: Improved Methods
 
-> **Last Updated:** 2026-04-01
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 9
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 9
 
 > **Prerequisites**: [Linear Algebra] Matrix operations (Ch 8).
 >

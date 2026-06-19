@@ -1,8 +1,8 @@
 # Chapter 17 Lecture -- Polynomial Interpolation
 
-> **Last Updated:** 2026-04-01
+> **Last Updated:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 17
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 17
 
 > **Prerequisites**: [Calculus] Polynomials (Ch 14-16).
 >

@@ -1,8 +1,8 @@
 # 제10장 실습 — LU 분해와 촐레스키(LU Factorization and Cholesky)
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 10
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 10
 
 > **선수 지식**: [프로그래밍언어] MATLAB/Python. [선형대수학] 가우스 소거법 (제8-9장).
 >

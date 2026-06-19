@@ -1,8 +1,8 @@
 # 제13장 강의 — 고유값 방법: 대칭 행렬
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 13
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 13
 
 > **선수 지식**: [선형대수학] 고유값 기초 (제12장).
 >

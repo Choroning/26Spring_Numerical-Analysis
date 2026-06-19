@@ -1,8 +1,8 @@
 # 제22장 강의 — 상미분방정식의 초기값 문제
 
-> **최종 수정일:** 2026-04-01
+> **최종 수정일:** 2026-06-19
 >
-> Chapra & Canale, Numerical Methods for Engineers 8th Ed. Ch 22
+> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 22
 
 > **선수 지식**: [미적분학] 상미분방정식, 미분 (제1-21장).
 >
