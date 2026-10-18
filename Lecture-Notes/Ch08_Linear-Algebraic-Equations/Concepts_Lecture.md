@@ -1,15 +1,16 @@
-# Chapter 8 Lecture — Solving Linear Algebraic Equations
+# Chapter 8 — Solving Linear Algebraic Equations
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 8
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Linear Algebra] Matrix operations. [Calculus] Linear systems (Ch 1-7).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8
+
+> **Learning Objectives:**
 > 1. Formulate engineering problems as linear algebraic equations
 > 2. Identify solution existence and uniqueness conditions
 > 3. Apply graphical interpretation of linear systems
+> 4. Solve linear systems with naive Gauss elimination and analyze its computational cost
 
 ---
 
@@ -34,11 +35,12 @@
 - [6. Computational Cost](#6-computational-cost)
 - [7. Example: 3x3 System (Complete Step-by-Step)](#7-example-3x3-system-complete-step-by-step)
   - [7.1 Problem Setup](#71-problem-setup)
-  - [7.2 Forward Elimination — Step 1](#72-forward-elimination--step-1)
-  - [7.3 Forward Elimination — Step 2](#73-forward-elimination--step-2)
+  - [7.2 Forward Elimination: Step 1](#72-forward-elimination-step-1)
+  - [7.3 Forward Elimination: Step 2](#73-forward-elimination-step-2)
   - [7.4 Back Substitution](#74-back-substitution)
 - [8. Pitfalls of Naive Gauss Elimination](#8-pitfalls-of-naive-gauss-elimination)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -60,7 +62,7 @@ These systems arise naturally across a wide range of disciplines:
 - **Structural truss analysis**: Equilibrium of forces at each joint of a truss structure yields linear equations relating member forces to applied loads.
 - **Circuit analysis**: Kirchhoff's current and voltage laws applied to electrical networks produce linear systems relating currents and voltages through resistances.
 
-> **[Physics]** In a mass-spring system, Hooke's law ($`F = kx`$) for each spring combined with force equilibrium at each mass yields a system of linear equations. The stiffness matrix $`[K]`$ encodes the spring constants and connectivity.
+> **Note:** **Physical background.** In a mass-spring system, Hooke's law ($`F = kx`$) for each spring combined with force equilibrium at each mass yields a system of linear equations. The stiffness matrix $`[K]`$ encodes the spring constants and connectivity.
 
 The size of these systems can range from a handful of equations (simple textbook problems) to millions of equations (finite element models of aircraft structures or computational fluid dynamics simulations). Efficient and reliable methods for solving such systems are therefore essential tools in the engineer's toolkit.
 
@@ -72,7 +74,7 @@ The size of these systems can range from a handful of equations (simple textbook
 
 ### 2.1 Two Equations as Two Lines
 
-For a system of two equations in two unknowns:
+Consider a system of two equations in two unknowns:
 
 ```math
 a_{11}x_1 + a_{12}x_2 = b_1
@@ -81,17 +83,17 @@ a_{11}x_1 + a_{12}x_2 = b_1
 a_{21}x_1 + a_{22}x_2 = b_2
 ```
 
-each equation represents a straight line in the $`x_1`$-$`x_2`$ plane. Solving the system means finding the point(s) where both lines are simultaneously satisfied.
+Each equation represents a straight line in the $`x_1`$-$`x_2`$ plane. Solving the system means finding the point(s) that satisfy both line equations simultaneously.
 
 ### 2.2 Three Possibilities
 
 There are exactly three possible geometric configurations for two lines in 2D:
 
-1. **Unique solution** — The two lines intersect at exactly one point. The system has a single solution $`(x_1, x_2)`$. This is the typical case when the equations are independent and the determinant is nonzero.
+1. **Unique solution**: The two lines intersect at exactly one point. The system has a single solution $`(x_1, x_2)`$. This is the typical case when the equations are independent and the determinant is nonzero.
 
-2. **No solution** — The two lines are parallel (same slope, different intercepts). The system is **inconsistent**: no point satisfies both equations simultaneously. This occurs when the rows of $`[A]`$ are proportional but $`\{b\}`$ is not similarly proportional.
+2. **No solution**: The two lines are parallel (same slope, different intercepts). The system is **inconsistent**: no point satisfies both equations simultaneously. This occurs when the rows of $`[A]`$ are proportional but $`\{b\}`$ is not similarly proportional.
 
-3. **Infinite solutions** — The two lines are identical (one equation is a scalar multiple of the other). Every point on the line is a solution. The system is **dependent**: the equations carry redundant information.
+3. **Infinite solutions**: The two lines are identical (one equation is a scalar multiple of the other). Every point on the line is a solution. The system is **dependent**: the equations carry redundant information.
 
 These three cases correspond precisely to the rank conditions of the augmented matrix $`[A|b]`$. In the unique-solution case, $`\text{rank}([A]) = \text{rank}([A|b]) = n`$. When the system is inconsistent, $`\text{rank}([A]) < \text{rank}([A|b])`$. When the system is dependent, $`\text{rank}([A]) = \text{rank}([A|b]) < n`$.
 
@@ -119,13 +121,13 @@ The determinant provides a single scalar that characterizes the solvability of t
 
 ### 3.2 Singular and Ill-Conditioned Systems
 
-- **$`D = 0`$**: The system is **singular** — no unique solution exists. The rows of $`[A]`$ are linearly dependent (one row is a scalar multiple of the other), and the system is either inconsistent or dependent.
+- **$`D = 0`$**: The system is **singular**, and no unique solution exists. The rows of $`[A]`$ are linearly dependent (one row is a scalar multiple of the other), and the system is either inconsistent or dependent.
 
-- **$`D`$ very small relative to the coefficients**: The system is **ill-conditioned**. A unique solution technically exists, but it is extremely sensitive to small perturbations in the coefficients or the right-hand side. Tiny round-off errors in the input data or during computation can produce wildly inaccurate results.
+- **$`D`$ very small relative to the coefficients**: The system is **ill-conditioned**. A unique solution technically exists, but it is extremely sensitive to small perturbations in the coefficients or the right-hand side. Tiny round-off errors in the input data or during computation can produce wildly inaccurate results. Because the magnitude of the determinant changes when an equation is merely multiplied by a constant, the comparison is meaningful only after each equation is normalized.
 
-> **[Linear Algebra]** The determinant measures the "volume" of the parallelogram/parallelepiped formed by the row (or column) vectors. Zero determinant means the vectors are linearly dependent — the system of equations is redundant.
+> **[Linear Algebra]** The absolute value of the determinant is the area of the parallelogram (2D) or the volume of the parallelepiped (3D) formed by the row (or column) vectors. A zero determinant means the vectors are linearly dependent, so the rows of the coefficient matrix are redundant.
 
-Geometrically, ill-conditioning for a $`2 \times 2`$ system means the two lines intersect at a very shallow angle. In such cases, small changes in the coefficients (shifting a line slightly) can move the intersection point dramatically. The ratio of the largest to smallest singular value of $`[A]`$ — the **condition number** — quantifies this sensitivity and will be discussed further in Chapter 11.
+Geometrically, ill-conditioning for a $`2 \times 2`$ system means the two lines intersect at a very shallow angle. In such cases, small changes in the coefficients (shifting a line slightly) can move the intersection point dramatically. This sensitivity is quantified by the **condition number**, which in the 2-norm is the ratio of the largest to the smallest singular value of $`[A]`$. The condition number is discussed further in Chapter 11.
 
 ---
 
@@ -174,7 +176,7 @@ x_2 = \frac{a_{11}b_2 - a_{21}b_1}{a_{11}a_{22} - a_{12}a_{21}}
 
 ### 4.2 General Form
 
-In compact notation using determinants:
+Written together, the two solutions are as follows, where each numerator and denominator is a $`2 \times 2`$ determinant:
 
 ```math
 x_1 = \frac{a_{22}b_1 - a_{12}b_2}{a_{11}a_{22} - a_{12}a_{21}}, \quad x_2 = \frac{a_{11}b_2 - a_{21}b_1}{a_{11}a_{22} - a_{12}a_{21}}
@@ -196,7 +198,7 @@ x_1 = \frac{\det\begin{bmatrix} b_1 & a_{12} & a_{13} \\ b_2 & a_{22} & a_{23} \
 
 ### 4.3 Limitation
 
-Cramer's rule requires evaluating $`n + 1`$ determinants, each of which involves $`O(n!)`$ operations when computed by cofactor expansion. The total cost is therefore $`O((n+1) \cdot n!) \approx O(n!)`$, which grows astronomically fast:
+Cramer's rule requires evaluating $`n + 1`$ determinants, and computing each one by cofactor expansion takes about $`n!`$ operations. The total cost is therefore about $`(n+1) \cdot n! = (n+1)!`$ operations, which grows factorially, that is, astronomically fast. The table below lists the operation count for one determinant:
 
 | $`n`$ | $`n!`$ operations |
 |:----|:----------------|
@@ -205,7 +207,9 @@ Cramer's rule requires evaluating $`n + 1`$ determinants, each of which involves
 | 10 | 3,628,800 |
 | 20 | $`\approx 2.4 \times 10^{18}`$ |
 
-For $`n > 3`$, Cramer's rule is computationally impractical. A computer performing $`10^9`$ operations per second would need approximately **77 years** to solve a $`20 \times 20`$ system using Cramer's rule. This motivates the development of more efficient algorithms.
+*Table 1. Operation count for one determinant by cofactor expansion*
+
+For $`n > 3`$, Cramer's rule is computationally impractical. Even a computer performing $`10^9`$ operations per second would need approximately **77 years** to evaluate a single $`20 \times 20`$ determinant ($`20! \approx 2.4 \times 10^{18}`$ operations), and Cramer's rule needs 21 such determinants. This motivates the development of more efficient algorithms.
 
 ---
 
@@ -213,7 +217,7 @@ For $`n > 3`$, Cramer's rule is computationally impractical. A computer performi
 
 ## 5. Naive Gauss Elimination
 
-Gauss elimination is the workhorse algorithm for solving linear systems. The method consists of two phases: **forward elimination** (reduce the system to upper triangular form) and **back substitution** (solve the triangular system from bottom to top).
+Gauss elimination is the workhorse algorithm for solving linear systems. The method consists of two phases. **Forward elimination** reduces the system to upper triangular form, and **back substitution** solves the triangular system from bottom to top.
 
 ### 5.1 Forward Elimination
 
@@ -221,7 +225,7 @@ Gauss elimination is the workhorse algorithm for solving linear systems. The met
 
 The procedure works column by column from left to right:
 
-**Step 1 — Pivot on row 1:** Use $`a_{11}`$ as the **pivot element**. For each row $`j = 2, 3, \ldots, n`$ below the pivot:
+**Step 1 (pivot on row 1):** Use $`a_{11}`$ as the **pivot element**. For each row $`j = 2, 3, \ldots, n`$ below the pivot:
 
 ```math
 \text{factor} = \frac{a_{j1}}{a_{11}}
@@ -233,13 +237,21 @@ The procedure works column by column from left to right:
 
 This zeros out all entries in column 1 below the diagonal.
 
-**Step 2 — Pivot on row 2:** Use $`a_{22}^{(1)}`$ (the updated entry after Step 1) as the pivot element. Eliminate entries in column 2 from rows $`3, 4, \ldots, n`$.
+**Step 2 (pivot on row 2):** Use $`a_{22}^{(1)}`$ (the updated entry after Step 1) as the pivot element. Eliminate entries in column 2 from rows $`3, 4, \ldots, n`$.
 
-**Continue** through column $`n-1`$: At each step $`i`$, use $`a_{ii}^{(i-1)}`$ as the pivot element and eliminate all entries below it.
+**Continue through column $`n-1`$:** At each step $`i`$, use $`a_{ii}^{(i-1)}`$ as the pivot element and eliminate all entries below it. For a $`3 \times 3`$ augmented matrix, the process proceeds as in Figure 1.
+
+```text
+[ * * * | * ]       [ * * * | * ]       [ * * * | * ]
+[ * * * | * ]  -->  [ 0 * * | * ]  -->  [ 0 * * | * ]
+[ * * * | * ]       [ 0 * * | * ]       [ 0 0 * | * ]
+```
+
+*Figure 1. A 3x3 augmented matrix reaching upper triangular form through the two steps of forward elimination*
 
 **Pseudocode:**
 
-```
+```text
 for i = 1 to n-1:          // pivot column
     for j = i+1 to n:       // rows below pivot
         factor = a[j][i] / a[i][i]
@@ -272,11 +284,11 @@ For each remaining unknown, working upward from $`i = n-1`$ to $`i = 1`$:
 x_i = \frac{b_i^{(i-1)} - \sum_{j=i+1}^{n} a_{ij}^{(i-1)} x_j}{a_{ii}^{(i-1)}}, \quad i = n-1, n-2, \ldots, 1
 ```
 
-The idea is straightforward: since all the $`x_j`$ values for $`j > i`$ have already been computed, we substitute them in and solve for $`x_i`$.
+Since all the $`x_j`$ values for $`j > i`$ have already been computed, we substitute them in and solve for $`x_i`$.
 
 **Pseudocode:**
 
-```
+```text
 x[n] = b[n] / a[n][n]
 for i = n-1 down to 1:
     sum = 0
@@ -291,17 +303,27 @@ for i = n-1 down to 1:
 
 ## 6. Computational Cost
 
-The efficiency of Gauss elimination can be quantified by counting the number of floating-point multiplications and divisions (which dominate the cost):
+The efficiency of Gauss elimination can be quantified by counting the number of floating-point operations (multiplications and divisions, additions and subtractions).
 
 **Forward elimination:**
 
-The number of multiplications/divisions in the forward elimination phase is:
+At step $`k`$, each row below the pivot uses one division for the factor, $`n - k`$ multiplications to update the coefficient matrix, and one multiplication to update the right-hand side, so the number of multiplications/divisions is:
 
 ```math
-\sum_{k=1}^{n-1} \sum_{i=k+1}^{n} (n - k + 1) = \frac{2n^3 + 3n^2 - 5n}{6} \approx \frac{2}{3}n^3 + O(n^2)
+\sum_{k=1}^{n-1} \sum_{i=k+1}^{n} (n - k + 2) = \frac{2n^3 + 3n^2 - 5n}{6} \approx \frac{1}{3}n^3 + O(n^2)
 ```
 
+Each row also needs $`n - k + 1`$ additions/subtractions, so their number is:
+
+```math
+\sum_{k=1}^{n-1} \sum_{i=k+1}^{n} (n - k + 1) = \frac{n^3 - n}{3} \approx \frac{1}{3}n^3 + O(n^2)
+```
+
+Forward elimination therefore needs about $`\frac{2}{3}n^3 + O(n^2)`$ operations in total.
+
 **Back substitution:**
+
+The number of multiplications/divisions is given below, and there are $`\sum_{i=1}^{n-1} (n - i) = \frac{n^2 - n}{2}`$ additions/subtractions, so back substitution takes $`n^2`$ operations in total:
 
 ```math
 \sum_{i=1}^{n-1} (n - i) + n = \frac{n^2 + n}{2} \approx \frac{1}{2}n^2 + O(n)
@@ -310,20 +332,23 @@ The number of multiplications/divisions in the forward elimination phase is:
 **Total cost:**
 
 ```math
-\text{Total} = \frac{2}{3}n^3 + O(n^2) + \frac{1}{2}n^2 + O(n)
+\text{Total} = \frac{2}{3}n^3 + O(n^2) + n^2 + O(n) \approx \frac{2}{3}n^3
 ```
 
 For large $`n`$, the total cost is **dominated by the $`(2/3)n^3`$ term** from forward elimination. Back substitution contributes only an $`O(n^2)`$ term, which is negligible for large systems.
 
-| Phase | Dominant Term | Growth |
+| Phase | Dominant Term (total operations) | Growth |
 |:------|:-------------|:-------|
 | Forward Elimination | $`(2/3)n^3`$ | Cubic |
-| Back Substitution | $`(1/2)n^2`$ | Quadratic |
+| Back Substitution | $`n^2`$ | Quadratic |
 | **Total** | **$`(2/3)n^3`$** | **Cubic** |
 
-This is a dramatic improvement over Cramer's rule ($`O(n!)`$). For $`n = 20`$:
-- Cramer's rule: $`\approx 2.4 \times 10^{18}`$ operations
-- Gauss elimination: $`\approx (2/3)(20)^3 = 5333`$ operations
+*Table 2. Dominant terms of the operation count in each phase of Gauss elimination*
+
+This is a dramatic improvement over Cramer's rule. For $`n = 20`$:
+
+- Cramer's rule: about $`2.4 \times 10^{18}`$ operations for just one determinant.
+- Gauss elimination: about $`(2/3)(20)^3 = 5333`$ operations.
 
 ---
 
@@ -351,7 +376,7 @@ The augmented matrix is:
 [A|b] = \left[\begin{array}{ccc|c} 3 & -0.1 & -0.2 & 7.85 \\ 0.1 & 7 & -0.3 & -19.3 \\ 0.3 & -0.2 & 10 & 71.4 \end{array}\right]
 ```
 
-### 7.2 Forward Elimination — Step 1
+### 7.2 Forward Elimination: Step 1
 
 **Pivot element:** $`a_{11} = 3`$
 
@@ -383,13 +408,13 @@ The augmented matrix is:
 - $`a_{33}^{(1)} = 10 - 0.1(-0.2) = 10.02`$
 - $`b_3^{(1)} = 71.4 - 0.1(7.85) = 70.615`$
 
-After Step 1:
+After Step 1, the augmented matrix is:
 
 ```math
 \left[\begin{array}{ccc|c} 3 & -0.1 & -0.2 & 7.85 \\ 0 & 7.00333 & -0.29333 & -19.5617 \\ 0 & -0.19 & 10.02 & 70.615 \end{array}\right]
 ```
 
-### 7.3 Forward Elimination — Step 2
+### 7.3 Forward Elimination: Step 2
 
 **Pivot element:** $`a_{22}^{(1)} = 7.00333\overline{3}`$
 
@@ -403,13 +428,13 @@ After Step 1:
 \text{Row}_3 \leftarrow \text{Row}_3 - (-0.027130) \times \text{Row}_2
 ```
 
-- $`a_{33}^{(2)} = 10.02 - (-0.027130)(-0.29333) = 10.02 - 0.007960 = 10.0120`$
-- $`b_3^{(2)} = 70.615 - (-0.027130)(-19.5617) = 70.615 - 0.530786 = 70.0842`$
+- $`a_{33}^{(2)} = 10.02 - (-0.027130)(-0.29333) = 10.02 - 0.007958 = 10.0120`$
+- $`b_3^{(2)} = 70.615 - (-0.027130)(-19.5617) = 70.615 - 0.530709 = 70.0843`$
 
-After Step 2 (upper triangular form):
+After Step 2 (upper triangular form), the augmented matrix is:
 
 ```math
-\left[\begin{array}{ccc|c} 3 & -0.1 & -0.2 & 7.85 \\ 0 & 7.00333 & -0.29333 & -19.5617 \\ 0 & 0 & 10.0120 & 70.0842 \end{array}\right]
+\left[\begin{array}{ccc|c} 3 & -0.1 & -0.2 & 7.85 \\ 0 & 7.00333 & -0.29333 & -19.5617 \\ 0 & 0 & 10.0120 & 70.0843 \end{array}\right]
 ```
 
 ### 7.4 Back Substitution
@@ -417,28 +442,28 @@ After Step 2 (upper triangular form):
 **Solve for $`x_3`$:**
 
 ```math
-x_3 = \frac{b_3^{(2)}}{a_{33}^{(2)}} = \frac{70.0842}{10.0120} = 7.0003
+x_3 = \frac{b_3^{(2)}}{a_{33}^{(2)}} = \frac{70.0843}{10.0120} = 7.00003
 ```
 
 **Solve for $`x_2`$:**
 
 ```math
-x_2 = \frac{b_2^{(1)} - a_{23}^{(1)}x_3}{a_{22}^{(1)}} = \frac{-19.5617 - (-0.29333)(7.0003)}{7.00333} = \frac{-19.5617 + 2.05343}{7.00333} = \frac{-17.5083}{7.00333} = -2.5000
+x_2 = \frac{b_2^{(1)} - a_{23}^{(1)}x_3}{a_{22}^{(1)}} = \frac{-19.5617 - (-0.293333)(7.00003)}{7.00333} = -2.50000
 ```
 
 **Solve for $`x_1`$:**
 
 ```math
-x_1 = \frac{b_1 - a_{12}x_2 - a_{13}x_3}{a_{11}} = \frac{7.85 - (-0.1)(-2.5) - (-0.2)(7.0003)}{3} = \frac{7.85 - 0.25 + 1.40006}{3} = \frac{9.00006}{3} = 3.0000
+x_1 = \frac{b_1 - a_{12}x_2 - a_{13}x_3}{a_{11}} = \frac{7.85 - (-0.1)(-2.50000) - (-0.2)(7.00003)}{3} = \frac{7.85 - 0.25 + 1.40001}{3} = \frac{9.00001}{3} = 3.00000
 ```
 
 **Final solution:**
 
 ```math
-x_1 = 3, \quad x_2 = -2.5, \quad x_3 = 7.0003
+x_1 = 3.00000, \quad x_2 = -2.50000, \quad x_3 = 7.00003
 ```
 
-> **Note:** The slight deviation of $`x_3`$ from $`7.0`$ is due to round-off error accumulated during the elimination process. The exact solution (to more decimal places) is $`x_3 \approx 7.00003`$, which is very close to the exact value of $`7`$.
+> **Note:** $`x_3`$ comes out as 7.00003 instead of the exact value 7 because of round-off error accumulated by rounding to six significant digits at each step. The exact solution of this system is $`x_1 = 3`$, $`x_2 = -2.5`$, $`x_3 = 7`$, and the computed solution is very close to it.
 
 ---
 
@@ -450,9 +475,9 @@ The term "naive" refers to the fact that this basic algorithm has no safeguards 
 
 **1. Division by zero if the pivot element is zero:**
 
-If $`a_{ii}^{(i-1)} = 0`$ at any step, the algorithm fails because it attempts to divide by zero when computing the factor. This can happen even when the system has a perfectly valid unique solution — it just means the equations are ordered in an unfavorable way.
+If $`a_{ii}^{(i-1)} = 0`$ at any step, the algorithm fails because it attempts to divide by zero when computing the factor. This can happen even when the system has a perfectly valid unique solution; it just means the equations are ordered in an unfavorable way.
 
-**Example:** Consider the system where $`a_{11} = 0`$:
+**Example:** Consider the following system where $`a_{11} = 0`$:
 
 ```math
 0 \cdot x_1 + 2x_2 = 4
@@ -469,9 +494,9 @@ When a pivot element is very small but nonzero, the computed factor $`a_{ji}/a_{
 
 **3. Large factor values magnify errors:**
 
-Related to the previous point, when the factor is much larger than 1, the subtraction $`\text{Row}_j - \text{factor} \times \text{Row}_i`$ involves subtracting a large multiple of one row from another. This can lead to catastrophic cancellation and significant loss of significant digits.
+Related to the previous point, when the factor is much larger than 1, the operation $`\text{Row}_j - \text{factor} \times \text{Row}_i`$ subtracts a large multiple of one row from another. This can lead to catastrophic cancellation and significant loss of significant digits.
 
-These three pitfalls all stem from the same root cause: **the pivot element is too small relative to other entries in the column**. The remedy is **partial pivoting** — at each step, swap rows so that the largest available entry in the current column becomes the pivot. This strategy, covered in Chapter 9, effectively eliminates all three problems and is used in all production-quality implementations of Gauss elimination.
+These three pitfalls all stem from the same root cause: **the pivot element is too small relative to other entries in the column**. The remedy is **partial pivoting**. At each step, swap rows so that the available entry with the largest absolute value in the current column becomes the pivot. This strategy, covered in Chapter 9, effectively mitigates all three problems and is used in virtually all production-quality implementations of Gauss elimination.
 
 ---
 
@@ -479,16 +504,56 @@ These three pitfalls all stem from the same root cause: **the pivot element is t
 
 ## Summary
 
-| Topic | Key Point |
+| Concept | Key Summary |
 |:------|:----------|
-| System form | $`[A]\{x\} = \{b\}`$; arises in springs, trusses, circuits |
-| Graphical (2x2) | Unique, no solution (parallel), or infinite solutions (same line) |
-| Determinant | $`D = a_{11}a_{22} - a_{12}a_{21}`$; $`D = 0`$ means singular |
-| Cramer's Rule | $`x_i = \det(A_i)/\det(A)`$; $`O(n!)`$ — impractical for $`n > 3`$ |
-| Forward Elimination | Zero out below-diagonal entries column by column |
-| Back Substitution | Solve from $`x_n`$ upward using upper triangular form |
-| Computational Cost | $`(2/3)n^3`$ total (dominated by forward elimination) |
-| Pitfalls | Zero/small pivots → division by zero or error amplification |
-| Remedy | Partial pivoting (Chapter 9) |
+| System form | It has the form $`[A]\{x\} = \{b\}`$ and arises in spring, truss, and circuit analysis. |
+| Graphical (2x2) | Two lines meeting at one point give a unique solution, parallel lines give no solution, and identical lines give infinitely many solutions. |
+| Determinant | It is $`D = a_{11}a_{22} - a_{12}a_{21}`$, and $`D = 0`$ means the system is singular. |
+| Cramer's Rule | It computes $`x_i = \det(A_i)/\det(A)`$, but its cost grows as $`O((n+1)!)`$, making it impractical for $`n > 3`$. |
+| Forward Elimination | It zeros out the below-diagonal entries column by column to reach upper triangular form. |
+| Back Substitution | It solves from $`x_n`$ upward using the upper triangular form. |
+| Computational Cost | The total operation count is about $`(2/3)n^3`$, dominated by forward elimination. |
+| Pitfalls | A zero or small pivot causes division by zero or error amplification. |
+| Remedy | Partial pivoting swaps rows to avoid small pivots and is covered in Chapter 9. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **Cramer's rule:** Solve $`2x_1 + x_2 = 5`$, $`x_1 - x_2 = 1`$ by Cramer's rule.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`D = (2)(-1) - (1)(1) = -3`$. Then $`x_1 = \frac{a_{22}b_1 - a_{12}b_2}{D} = \frac{(-1)(5) - (1)(1)}{-3} = 2`$ and $`x_2 = \frac{a_{11}b_2 - a_{21}b_1}{D} = \frac{(2)(1) - (1)(5)}{-3} = 1`$. The two lines meet at the point $`(2, 1)`$.
+
+   </details>
+
+2. **Solvability:** Find the determinant of $`x_1 + 2x_2 = 3`$, $`2x_1 + 4x_2 = 7`$ and decide how many solutions the system has. What happens if the right-hand side of the second equation is 6?
+
+   <details>
+   <summary>Answer</summary>
+
+   $`D = (1)(4) - (2)(2) = 0`$, so the system is singular. The coefficient rows are proportional (by a factor of 2), but $`7 \neq 2 \times 3`$, so the lines are parallel and there is no solution (inconsistent). If the right-hand side is 6, the second equation is twice the first, the lines coincide, and there are infinitely many solutions (dependent).
+
+   </details>
+
+3. **Naive Gauss elimination:** Solve the following system by naive Gauss elimination: $`2x_1 + x_2 - x_3 = 8`$, $`-3x_1 - x_2 + 2x_3 = -11`$, $`-2x_1 + x_2 + 2x_3 = -3`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   Eliminating column 1 with factors $`-3/2 = -1.5`$ and $`-2/2 = -1`$ turns row 2 into $`0.5x_2 + 0.5x_3 = 1`$ and row 3 into $`2x_2 + x_3 = 5`$. Eliminating column 2 with the factor $`2/0.5 = 4`$ turns row 3 into $`-x_3 = 1`$. Back substitution gives $`x_3 = -1`$, $`x_2 = (1 - 0.5(-1))/0.5 = 3`$, and $`x_1 = (8 - x_2 + x_3)/2 = (8 - 3 - 1)/2 = 2`$.
+
+   </details>
+
+4. **Growth of the cost:** If $`n`$ grows tenfold from 100 to 1000, by roughly what factor does the operation count of Gauss elimination grow? Also give the operation count in each case.
+
+   <details>
+   <summary>Answer</summary>
+
+   The operation count is about $`(2/3)n^3`$, so it is about $`6.7 \times 10^5`$ for $`n = 100`$ and about $`6.7 \times 10^8`$ for $`n = 1000`$. A tenfold increase in $`n`$ multiplies the cost by $`10^3 = 1000`$. The $`n^2`$ term of back substitution, $`10^4`$ and $`10^6`$ respectively, is small compared with forward elimination.
+
+   </details>

@@ -1,15 +1,17 @@
-# Chapter 18 Lecture --- Splines and Piecewise Interpolation
+# Chapter 18 — Splines and Piecewise Interpolation
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 18
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] Interpolation (Ch 17).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 18
+
+> **Learning Objectives:**
 > 1. Construct cubic spline interpolants
-> 2. Compare natural and clamped spline boundary conditions
-> 3. Apply splines for smooth data fitting
+> 2. Compare natural, clamped, and not-a-knot end conditions
+> 3. Apply splines for smooth data interpolation
+> 4. Explain the continuity conditions and equation counts of linear, quadratic, and cubic splines
+> 5. Interpolate values on a two-dimensional grid with bilinear interpolation
 
 ---
 
@@ -17,21 +19,28 @@
 
 ## Table of Contents
 
-1. [Introduction and Motivation](#1-introduction-and-motivation)
-2. [Continuity Conditions](#2-continuity-conditions)
-3. [Linear Spline](#3-linear-spline)
-4. [Quadratic Spline](#4-quadratic-spline)
-   - 4.1 [General Form](#41-general-form)
-   - 4.2 [Deriving the Conditions](#42-deriving-the-conditions)
-   - 4.3 [Example 18.2 --- Quadratic Spline](#43-example-182----quadratic-spline)
-5. [Cubic Spline](#5-cubic-spline)
-   - 5.1 [General Form](#51-general-form)
-   - 5.2 [Deriving the Conditions (i -- iv)](#52-deriving-the-conditions-i----iv)
-   - 5.3 [Eliminating Unknowns --- The Tridiagonal System for $`c_i`$](#53-eliminating-unknowns----the-tridiagonal-system-for-c_i)
-   - 5.4 [End Conditions (Section 18.4.2)](#54-end-conditions-section-1842)
-   - 5.5 [Example 18.3 --- Cubic Spline](#55-example-183----cubic-spline)
-6. [Bilinear Interpolation](#6-bilinear-interpolation)
-7. [Summary Table](#7-summary-table)
+- [1. Introduction and Motivation](#1-introduction-and-motivation)
+- [2. Continuity Conditions](#2-continuity-conditions)
+- [3. Linear Spline](#3-linear-spline)
+  - [3.1 Setup](#31-setup)
+  - [3.2 Formula](#32-formula)
+  - [3.3 Properties](#33-properties)
+- [4. Quadratic Spline](#4-quadratic-spline)
+  - [4.1 General Form](#41-general-form)
+  - [4.2 Deriving the Conditions](#42-deriving-the-conditions)
+  - [4.3 Example 18.2: Quadratic Spline](#43-example-182-quadratic-spline)
+- [5. Cubic Spline](#5-cubic-spline)
+  - [5.1 General Form](#51-general-form)
+  - [5.2 Deriving the Conditions (i-iv)](#52-deriving-the-conditions-i-iv)
+  - [5.3 Eliminating Unknowns: The Tridiagonal System for $`c_i`$](#53-eliminating-unknowns-the-tridiagonal-system-for-c_i)
+  - [5.4 End Conditions (Textbook Section 18.4.2)](#54-end-conditions-textbook-section-1842)
+  - [5.5 Example 18.3: Cubic Spline](#55-example-183-cubic-spline)
+- [6. Bilinear Interpolation](#6-bilinear-interpolation)
+  - [6.1 Setup](#61-setup)
+  - [6.2 Formula](#62-formula)
+- [7. Comparison of Spline Types](#7-comparison-of-spline-types)
+- [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -39,11 +48,11 @@
 
 ## 1. Introduction and Motivation
 
-A **spline** is originally a physical drafting tool --- a long flexible strip fixed at a few control points whose tension creates a smooth curve passing through those points.
+A **spline** is originally a physical drafting tool: a long flexible strip fixed at a few control points whose tension creates a smooth curve passing through those points.
 
 In numerical analysis, splines minimize oscillations by fitting **low-order polynomials** to data in a **piecewise** manner, rather than using a single high-order polynomial that can oscillate wildly between data points (Runge's phenomenon).
 
-> **Key Insight:** A simple linear spline (connecting data points with straight line segments) can provide a **better approximation** than a single high-order polynomial, especially near the boundaries of the data range (Fig. 18.1).
+> **Key Point:** A simple linear spline (connecting data points with straight line segments) can provide a **better approximation** than a single high-order polynomial, especially near the boundaries of the data range (Figure 18.1 of the textbook).
 
 The fundamental trade-off:
 
@@ -51,6 +60,8 @@ The fundamental trade-off:
 |---|---|---|
 | Single high-order polynomial | Globally smooth | Oscillation (Runge's phenomenon) |
 | Piecewise low-order splines | No oscillation, local control | Smoothness at knots must be enforced |
+
+*Table 1. Single high-order polynomial versus piecewise low-order splines*
 
 ---
 
@@ -80,10 +91,10 @@ f_1 = f_2, \quad f_1' = f_2', \quad f_1'' = f_2''
 
 - **$`C^n`$ continuity:** The 0th, 1st, 2nd, ..., $`n`$-th derivatives are all continuous at the knot.
 
-> **Visual Interpretation:**
+> **Note:** **Visual interpretation.**
 > - $`C^0`$: The curve is connected but may have sharp corners (kinks).
-> - $`C^1`$: The curve is connected and tangent directions match --- no visible corners, but curvature may change abruptly.
-> - $`C^2`$: The curve is connected, tangent directions match, and curvature is also continuous --- visually very smooth.
+> - $`C^1`$: The curve is connected and tangent directions match, so there are no visible corners, but curvature may change abruptly.
+> - $`C^2`$: The curve is connected, tangent directions match, and curvature is also continuous, so the curve looks very smooth.
 
 ---
 
@@ -93,14 +104,21 @@ f_1 = f_2, \quad f_1' = f_2', \quad f_1'' = f_2''
 
 **Requires:** $`C^0`$ Continuity
 
-### Setup
+### 3.1 Setup
 
 Consider $`n`$ data points: $`(x_1, f_1), (x_2, f_2), \dots, (x_n, f_n)`$.
 
 - There are $`n - 1`$ intervals.
 - Each interval $`i`$ has its own spline function $`S_i(x)`$.
 
-### Formula
+```text
+       S_1          S_2                  S_{n-1}
+x_1 -------- x_2 -------- x_3   . . .   x_{n-1} -------- x_n
+```
+
+*Figure 1. n data points and the spline functions of the n-1 intervals*
+
+### 3.2 Formula
 
 For the $`i`$-th interval $`[x_i,\; x_{i+1}]`$:
 
@@ -110,12 +128,12 @@ S_i(x) = f_i + \frac{f_{i+1} - f_i}{x_{i+1} - x_i}(x - x_i)
 
 This is simply **linear interpolation** between consecutive data points.
 
-### Properties
+### 3.3 Properties
 
 - Satisfies $`C^0`$ continuity automatically (the segments share endpoints).
-- **Not smooth at knots** --- the first derivative is generally discontinuous where two segments meet.
+- **Not smooth at knots**: the first derivative is generally discontinuous where two segments meet.
 
-> **Limitation:** The lack of smoothness at knots motivates the use of higher-order polynomial splines (quadratic and cubic) to ensure smoothness.
+> **Note:** **Limitation.** The lack of smoothness at knots motivates the use of higher-order polynomial splines (quadratic and cubic) to ensure smoothness.
 
 ---
 
@@ -143,7 +161,7 @@ We need $`3(n-1)`$ equations to determine all unknowns.
 
 ---
 
-**Condition (i) --- Function values at left endpoints:**
+**Condition (i): Function values at left endpoints**
 
 ```math
 S_i(x_i) = a_i = f_i, \quad \text{for } i = 1, 2, \dots, n-1
@@ -153,7 +171,7 @@ This gives $`n - 1`$ equations and immediately determines $`a_i = f_i`$.
 
 ---
 
-**Condition (ii) --- $`C^0`$ continuity at interior knots $`x_{i+1}`$:**
+**Condition (ii): $`C^0`$ continuity at interior knots $`x_{i+1}`$**
 
 ```math
 S_i(x_{i+1}) = S_{i+1}(x_{i+1}) = f_{i+1}
@@ -169,7 +187,7 @@ This gives $`n - 1`$ equations.
 
 ---
 
-**Condition (iii) --- $`C^1`$ continuity at $`(n-2)`$ interior knots:**
+**Condition (iii): $`C^1`$ continuity at $`(n-2)`$ interior knots**
 
 The derivative of each segment is:
 
@@ -200,11 +218,13 @@ This gives $`n - 2`$ equations.
 | (iii) $`C^1`$ continuity | $`n - 2`$ |
 | **Total** | $`3(n-1) - 1`$ |
 
+*Table 2. Number of equations from each condition of the quadratic spline*
+
 We are **one equation short**. Therefore, an additional condition is needed.
 
 ---
 
-**Condition (iv) --- Extra condition:**
+**Condition (iv): Extra condition**
 
 Choose $`c_1 = 0`$, which means the first segment becomes a **linear approximation**:
 
@@ -214,7 +234,7 @@ S_1(x) = f_1 + b_1(x - x_1)
 
 This closes the system and allows sequential computation of all coefficients.
 
-### 4.3 Example 18.2 --- Quadratic Spline
+### 4.3 Example 18.2: Quadratic Spline
 
 **Given:** 4 data points $`(x_1, f_1),\, (x_2, f_2),\, (x_3, f_3),\, (x_4, f_4)`$
 
@@ -299,25 +319,25 @@ Key properties of cubic splines:
 
 - Cubic curves are **popular in computer graphics**.
 - Piecewise cubic polynomials allow for **$`C^2`$ continuity**.
-- Nice **tradeoff** between computational cost and smoothness.
+- They offer a good **trade-off** between computational cost and smoothness.
 
-### 5.2 Deriving the Conditions (i -- iv)
+### 5.2 Deriving the Conditions (i-iv)
 
 Let $`h_i := x_{i+1} - x_i`$.
 
 ---
 
-**Condition (i) --- Function values at left endpoints:**
+**Condition (i): Function values at left endpoints**
 
 ```math
 S_i(x_i) = a_i = f_i, \quad \text{for } i = 1, 2, \dots, n-1
 ```
 
-Gives $`n - 1`$ equations. Immediately: $`a_i = f_i`$.
+This gives $`n - 1`$ equations and immediately $`a_i = f_i`$.
 
 ---
 
-**Condition (ii) --- $`C^0`$ continuity at knots:**
+**Condition (ii): $`C^0`$ continuity at knots**
 
 ```math
 S_i(x_{i+1}) = f_{i+1}
@@ -327,11 +347,11 @@ S_i(x_{i+1}) = f_{i+1}
 f_i + b_i h_i + c_i h_i^2 + d_i h_i^3 = f_{i+1}, \quad \text{for } i = 1, 2, \dots, n-1 \quad \cdots (**)
 ```
 
-Gives $`n - 1`$ equations.
+This gives $`n - 1`$ equations.
 
 ---
 
-**Condition (iii) --- $`C^1`$ continuity at interior knots:**
+**Condition (iii): $`C^1`$ continuity at interior knots**
 
 ```math
 S_i'(x) = b_i + 2c_i(x - x_i) + 3d_i(x - x_i)^2
@@ -347,11 +367,11 @@ S_i'(x_{i+1}) = b_i + 2c_i h_i + 3d_i h_i^2 = S_{i+1}'(x_{i+1}) = b_{i+1}
 \therefore \quad b_i + 2c_i h_i + 3d_i h_i^2 = b_{i+1}, \quad \text{for } i = 1, 2, \dots, n-2 \quad \cdots (*)
 ```
 
-Gives $`n - 2`$ equations.
+This gives $`n - 2`$ equations.
 
 ---
 
-**Condition (iv) --- $`C^2`$ continuity at interior knots:**
+**Condition (iv): $`C^2`$ continuity at interior knots**
 
 ```math
 S_i''(x) = 2c_i + 6d_i(x - x_i)
@@ -371,7 +391,7 @@ S_i''(x_{i+1}) = 2c_i + 6d_i h_i = S_{i+1}''(x_{i+1}) = 2c_{i+1}
 \Longrightarrow \quad d_i = \frac{c_{i+1} - c_i}{3 h_i}
 ```
 
-Gives $`n - 2`$ equations.
+This gives $`n - 2`$ equations.
 
 ---
 
@@ -385,11 +405,13 @@ Gives $`n - 2`$ equations.
 | (iv) $`C^2`$ continuity | $`n - 2`$ |
 | **Total** | $`4n - 6`$ |
 
+*Table 3. Number of equations from each condition of the cubic spline*
+
 Unknowns: $`4(n-1) = 4n - 4`$.
 
 We need **2 more equations** (the end conditions).
 
-### 5.3 Eliminating Unknowns --- The Tridiagonal System for $`c_i`$
+### 5.3 Eliminating Unknowns: The Tridiagonal System for $`c_i`$
 
 The key strategy is to express all unknowns in terms of $`c_i`$ alone, then solve a tridiagonal system.
 
@@ -461,7 +483,7 @@ This gives $`n - 3`$ equations for the unknowns $`c_1, c_2, \dots, c_{n-1}`$ (wh
 \begin{pmatrix} 0 \\ 3(f[x_3,x_2] - f[x_2,x_1]) \\ 3(f[x_4,x_3] - f[x_3,x_2]) \\ \vdots \\ 3(f[x_n,x_{n-1}] - f[x_{n-1},x_{n-2}]) \\ 0 \end{pmatrix} = \begin{pmatrix} 1 & & & & \\ h_1 & 2(h_1+h_2) & h_2 & & \\ & h_2 & 2(h_2+h_3) & h_3 & \\ & & \ddots & \ddots & \ddots \\ & & & h_{n-2} & 2(h_{n-2}+h_{n-1}) & h_{n-1} \\ & & & & & 1 \end{pmatrix} \begin{pmatrix} c_1 \\ c_2 \\ c_3 \\ \vdots \\ c_{n-1} \\ c_n \end{pmatrix}
 ```
 
-> **Important:** The coefficient matrix is **tridiagonal** and **diagonally dominant**, so it can be solved very efficiently using the **Thomas algorithm** in $`O(n)`$ operations.
+> **Key Point:** The coefficient matrix is **tridiagonal** and **diagonally dominant**, so it can be solved very efficiently using the **Thomas algorithm** in $`O(n)`$ operations.
 
 **After solving for $`c_i`$, recover the other coefficients:**
 
@@ -473,7 +495,20 @@ d_i = \frac{c_{i+1} - c_i}{3h_i}, \quad i = 1, 2, \dots, n-1
 b_i = \frac{f_{i+1} - f_i}{h_i} - \frac{h_i}{3}(2c_i + c_{i+1}), \quad i = 1, 2, \dots, n-1
 ```
 
-### 5.4 End Conditions (Section 18.4.2)
+The computation can be summarized as follows.
+
+```mermaid
+flowchart LR
+    A["Data points (x_i, f_i)"] --> B["Compute h_i = x_{i+1} - x_i"]
+    B --> C["Build the tridiagonal<br>system with end conditions"]
+    C --> D["Solve for c_i<br>(Thomas algorithm)"]
+    D --> E["Recover d_i, b_i"]
+    E --> F["Evaluate S_i(x)"]
+```
+
+*Figure 2. Procedure for computing the cubic spline coefficients*
+
+### 5.4 End Conditions (Textbook Section 18.4.2)
 
 Since the tridiagonal system has $`n - 1`$ unknowns ($`c_1, \dots, c_{n-1}`$) but only $`n - 3`$ interior equations, **2 additional boundary (end) conditions** are required:
 
@@ -483,7 +518,9 @@ Since the tridiagonal system has $`n - 1`$ unknowns ($`c_1, \dots, c_{n-1}`$) bu
 | **Clamped** | First derivatives $`f_1'`$ and $`f_n'`$ are specified at the endpoints | Modifies the first and last rows of the tridiagonal system |
 | **Not-a-knot** | Continuity of the **3rd derivative** at the second and second-to-last knots | $`S_1 = S_2`$ (same cubic) and $`S_{n-2} = S_{n-1}`$ (same cubic) |
 
-> **Natural spline** is the most common default choice. Setting $`S_1''(x_1) = 0`$ yields $`c_1 = 0`$, and setting $`S_{n-1}''(x_n) = 0`$ yields (via $`(***)`$) $`c_n = 0`$.
+*Table 4. End conditions of the cubic spline*
+
+> **Note:** The **natural spline** is the most common default choice. Setting $`S_1''(x_1) = 0`$ yields $`c_1 = 0`$, and setting $`S_{n-1}''(x_n) = 0`$ yields (via $`(***)`$) $`c_n = 0`$.
 >
 > It is **convenient to introduce** $`c_n`$ as an additional variable (even though the last segment is $`S_{n-1}`$) to make the matrix system uniform in size $`n \times n`$.
 
@@ -503,7 +540,7 @@ S_{n-1}''(x_n) = 2c_{n-1} + 6d_{n-1}h_{n-1} = 0
 
 Using $`c_{i+1} = c_i + 3d_i h_i`$ (condition $`(***)`$), this implies $`c_n = 0`$.
 
-### 5.5 Example 18.3 --- Cubic Spline
+### 5.5 Example 18.3: Cubic Spline
 
 **Given:** 4 data points $`(x_1, f_1),\, (x_2, f_2),\, (x_3, f_3),\, (x_4, f_4)`$
 
@@ -549,6 +586,8 @@ b_i = \frac{f_{i+1} - f_i}{h_i} - \frac{h_i}{3}(2c_i + c_{i+1}), \quad i = 1, 2,
 ```math
 d_i = \frac{c_{i+1} - c_i}{3h_i}, \quad i = 1, 2, 3
 ```
+
+The following Python code computes the natural cubic spline coefficients and applies them to the data of Example 18.3, $`x = (3, 4.5, 7, 9)`$ and $`f = (2.5, 1, 2.5, 0.5)`$.
 
 ```python
 import numpy as np
@@ -639,6 +678,19 @@ if __name__ == "__main__":
     print(f"\nS(5.0) = {y_test[0]:.6f}")
 ```
 
+The output is as follows.
+
+```text
+Spline coefficients:
+  S_1(x): a=2.500000, b=-1.419772, c=0.000000, d=0.186565
+  S_2(x): a=1.000000, b=-0.160456, c=0.839544, d=-0.214144
+  S_3(x): a=2.500000, b=0.022053, c=-0.766540, d=0.127757
+
+S(5.0) = 1.102890
+```
+
+The natural end condition gives $`c_1 = 0`$, and solving the tridiagonal system gives $`c_2 \approx 0.839544`$ and $`c_3 \approx -0.766540`$. Since $`x = 5`$ lies in the second interval $`[4.5, 7]`$, $`S(5) = S_2(5) \approx 1.102890`$.
+
 ---
 
 <br>
@@ -647,14 +699,14 @@ if __name__ == "__main__":
 
 Bilinear interpolation extends piecewise interpolation to **two dimensions**. Given function values at the four corners of a rectangle, we can interpolate the value at any interior point $`(x_i, y_i)`$.
 
-### Setup
+### 6.1 Setup
 
 Consider a rectangular cell with corners at $`(x_1, y_1)`$, $`(x_2, y_1)`$, $`(x_1, y_2)`$, $`(x_2, y_2)`$ with known function values $`f(x_1, y_1)`$, $`f(x_2, y_1)`$, $`f(x_1, y_2)`$, $`f(x_2, y_2)`$.
 
-### Formula
+### 6.2 Formula
 
 ```math
-f(x_i, y_i) = N_1(x_i, y_i)\,f(x_1, y_1) + N_2(x_i, y_i)\,f(x_2, y_2) + N_3(x_i, y_i)\,f(x_1, y_2) + N_4(x_i, y_i)\,f(x_2, y_1)
+f(x_i, y_i) = N_1(x_i, y_i)\,f(x_1, y_1) + N_2(x_i, y_i)\,f(x_2, y_1) + N_3(x_i, y_i)\,f(x_1, y_2) + N_4(x_i, y_i)\,f(x_2, y_2)
 ```
 
 where the **bilinear basis functions** are:
@@ -675,7 +727,7 @@ N_3(x, y) = \frac{x - x_2}{x_1 - x_2} \cdot \frac{y - y_1}{y_2 - y_1}
 N_4(x, y) = \frac{x - x_1}{x_2 - x_1} \cdot \frac{y - y_1}{y_2 - y_1}
 ```
 
-> **Interpretation:** Each $`N_k`$ is a product of two 1D linear interpolation weights. $`N_k`$ equals 1 at its associated corner and 0 at all other corners.
+> **Note:** **Interpretation.** Each $`N_k`$ is a product of two 1D linear interpolation weights. $`N_k`$ equals 1 at its associated corner and 0 at all other corners.
 
 ```python
 def bilinear_interpolation(x1, x2, y1, y2, f11, f21, f12, f22, xi, yi):
@@ -697,7 +749,7 @@ def bilinear_interpolation(x1, x2, y1, y2, f11, f21, f12, f22, xi, yi):
 
 <br>
 
-## 7. Summary Table
+## 7. Comparison of Spline Types
 
 | Spline Type | Polynomial Order | Continuity | Unknowns per Segment | Extra Conditions Needed | Key Equation |
 |---|---|---|---|---|---|
@@ -705,9 +757,81 @@ def bilinear_interpolation(x1, x2, y1, y2, f11, f21, f12, f22, xi, yi):
 | **Quadratic** | 2 | $`C^1`$ | 3 ($`a_i, b_i, c_i`$) | 1 (set $`c_1=0`$) | $`S_i(x) = a_i + b_i(x-x_i) + c_i(x-x_i)^2`$ |
 | **Cubic** | 3 | $`C^2`$ | 4 ($`a_i, b_i, c_i, d_i`$) | 2 (end conditions) | $`S_i(x) = a_i + b_i(x-x_i) + c_i(x-x_i)^2 + d_i(x-x_i)^3`$ |
 
+*Table 5. Order, continuity, unknowns, and key equation of each spline type*
+
 | Property | Linear | Quadratic | Cubic |
 |---|---|---|---|
 | Smoothness at knots | Not smooth | 1st deriv. continuous | 1st & 2nd deriv. continuous |
 | System to solve | None (direct formula) | Linear system | Tridiagonal system |
 | Computational cost | $`O(n)`$ | $`O(n)`$ | $`O(n)`$ via Thomas algorithm |
 | Typical application | Simple interpolation | Moderate smoothness | Computer graphics, engineering |
+
+*Table 6. Properties of each spline type*
+
+---
+
+<br>
+
+## Summary
+
+| Concept | Key Summary |
+|---------|-------------|
+| Spline | It fits low-order polynomials piecewise between data points to avoid the oscillation (Runge's phenomenon) of a single high-order polynomial. |
+| $`C^k`$ continuity | It requires the derivatives of orders 0 through $`k`$ to be continuous at a knot, and a larger $`k`$ gives a smoother connection. |
+| Linear spline | It joins consecutive data points with straight lines and satisfies only $`C^0`$ continuity, so it can have corners at knots. |
+| Quadratic spline | It has coefficients $`a_i, b_i, c_i`$ per interval and satisfies $`C^1`$ continuity, and the missing equation is supplied by $`c_1 = 0`$. |
+| Cubic spline | It has four coefficients per interval and satisfies $`C^2`$ continuity, and eliminating the other coefficients in favor of $`c_i`$ yields a tridiagonal system. |
+| End conditions | They are the two extra conditions a cubic spline needs, and the natural, clamped, and not-a-knot conditions are the typical choices. |
+| Thomas algorithm | It solves a system with a tridiagonal, diagonally dominant coefficient matrix in $`O(n)`$ operations. |
+| Bilinear interpolation | It combines the values at the four corners of a rectangle with weights $`N_k`$, each a product of two 1D linear interpolation weights, to obtain the value at an interior point. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Equation count of a quadratic spline:** For 5 data points, find the number of unknowns of a quadratic spline and the number of equations given by conditions (i), (ii), and (iii), and state how the missing equation is supplied.
+
+   <details>
+   <summary>Answer</summary>
+
+   There are 4 intervals, so there are $`3 \times 4 = 12`$ unknowns. Condition (i) gives 4 equations, condition (ii) gives 4, and condition (iii) gives 3 at the 3 interior knots, for 11 equations in total. One equation is missing, so condition (iv) sets $`c_1 = 0`$, which makes the first interval a straight line.
+
+   </details>
+
+2. **Linear spline:** Find the value at $`x = 5`$ of the linear spline built from the data (3, 2.5), (4.5, 1), (7, 2.5), (9, 0.5).
+
+   <details>
+   <summary>Answer</summary>
+
+   Since $`x = 5`$ lies in the interval $`[4.5, 7]`$, $`S_2(5) = 1 + \frac{2.5 - 1}{7 - 4.5}(5 - 4.5) = 1 + 0.6 \times 0.5 = 1.3`$.
+
+   </details>
+
+3. **Natural cubic spline:** For a natural cubic spline through the same data as in Question 2, find $`c_2`$, $`c_3`$, and $`S(5)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   Here $`h_1 = 1.5`$, $`h_2 = 2.5`$, $`h_3 = 2`$, and $`c_1 = c_4 = 0`$. The interior equations are $`8c_2 + 2.5c_3 = 3(0.6 - (-1)) = 4.8`$ and $`2.5c_2 + 9c_3 = 3(-1 - 0.6) = -4.8`$. Solving them gives $`c_2 \approx 0.839544`$ and $`c_3 \approx -0.766540`$. The recovery formulas give $`b_2 \approx -0.160456`$ and $`d_2 \approx -0.214144`$, so $`S(5) = 1 + b_2(0.5) + c_2(0.5)^2 + d_2(0.5)^3 \approx 1.102890`$.
+
+   </details>
+
+4. **End conditions:** State what the not-a-knot end condition means and why $`c_n`$ is introduced as an extra variable with the natural end condition.
+
+   <details>
+   <summary>Answer</summary>
+
+   The not-a-knot condition makes the third derivative continuous at the second knot and at the second-to-last knot. The first two intervals and the last two intervals then each use the same cubic, so those two points no longer act as knots. Although $`c_n`$ is not a coefficient of the last segment $`S_{n-1}`$, introducing it lets the system be written uniformly as an $`n \times n`$ system that includes $`c_1 = 0`$ and $`c_n = 0`$.
+
+   </details>
+
+5. **Bilinear interpolation:** With $`x_1 = 0`$, $`x_2 = 1`$, $`y_1 = 0`$, $`y_2 = 1`$ and $`f(0, 0) = 1`$, $`f(1, 0) = 2`$, $`f(0, 1) = 3`$, $`f(1, 1) = 4`$, find the interpolated value at $`(0.25, 0.75)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`N_1 = 0.75 \times 0.25 = 0.1875`$, $`N_2 = 0.25 \times 0.25 = 0.0625`$, $`N_3 = 0.75 \times 0.75 = 0.5625`$, and $`N_4 = 0.25 \times 0.75 = 0.1875`$. The interpolated value is therefore $`0.1875(1) + 0.0625(2) + 0.5625(3) + 0.1875(4) = 2.75`$. The four corner values agree with $`f = 1 + x + 2y`$, so this value equals the exact value.
+
+   </details>

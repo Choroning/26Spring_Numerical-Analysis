@@ -1,27 +1,27 @@
-# 제2장 실습 — Python 프로그래밍
+# 2장 실습 — Python 프로그래밍
 
-> **최종 수정일:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 2
+[레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **선수 지식**: [프로그래밍언어] MATLAB/Python. [프로그래밍언어] 기본 프로그래밍. [미적분학] 미분.
+> **최종 수정일:** 2026-10-18
 >
-> **학습 목표**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
+
+> **학습 목표:**
 > 1. 수치 계산을 위한 구조화된 프로그램을 작성할 수 있다
 > 2. 모듈화 프로그래밍 원칙을 적용할 수 있다
 > 3. 수치 알고리즘을 디버그하고 테스트할 수 있다
+> 4. LEGB 규칙에 따라 변수 이름이 어느 스코프에서 해석되는지 판단할 수 있다
+> 5. 명시적 반복문을 NumPy 벡터화 연산으로 바꿀 수 있다
 
 ---
-
-<br>
 
 ## 목차
 
 - [1. 스크립트 파일과 함수](#1-스크립트-파일과-함수)
-  - [1.1 번지 점프 — 인라인 스크립트](#11-번지-점프--인라인-스크립트)
+  - [1.1 번지 점프: 인라인 스크립트](#11-번지-점프-인라인-스크립트)
   - [1.2 함수로 리팩토링](#12-함수로-리팩토링)
   - [1.3 다중 반환값](#13-다중-반환값)
-- [2. 변수 스코프 — LEGB 규칙](#2-변수-스코프--legb-규칙)
+- [2. 변수 스코프: LEGB 규칙](#2-변수-스코프-legb-규칙)
   - [2.1 지역 스코프와 전역 스코프](#21-지역-스코프와-전역-스코프)
   - [2.2 둘러싸는 스코프 (중첩 함수)](#22-둘러싸는-스코프-중첩-함수)
   - [2.3 global 키워드](#23-global-키워드)
@@ -44,7 +44,7 @@
 - [7. 예외 처리](#7-예외-처리)
 - [8. 데코레이터](#8-데코레이터)
 - [9. OOP 기초](#9-oop-기초)
-  - [9.1 __init__, __repr__, __str__을 가진 클래스](#91-__init__-__repr__-__str__을-가진-클래스)
+  - [9.1 `__init__`, `__repr__`, `__str__`을 가진 클래스](#91-__init__-__repr__-__str__을-가진-클래스)
   - [9.2 데이터클래스](#92-데이터클래스)
 - [10. 타입 힌트](#10-타입-힌트)
 - [11. 제너레이터](#11-제너레이터)
@@ -52,6 +52,7 @@
   - [11.2 yield를 사용한 제너레이터 함수](#112-yield를-사용한-제너레이터-함수)
   - [11.3 대용량 데이터를 위한 배치 제너레이터](#113-대용량-데이터를-위한-배치-제너레이터)
 - [요약](#요약)
+- [점검 문제](#점검-문제)
 
 ---
 
@@ -59,9 +60,9 @@
 
 ## 1. 스크립트 파일과 함수
 
-### 1.1 번지 점프 — 인라인 스크립트
+### 1.1 번지 점프: 인라인 스크립트
 
-제1장의 번지 점프 문제를 **이차 항력 모델(Quadratic Drag Model)** 로 다시 살펴본다. 지배 ODE는 다음과 같다:
+1장의 번지 점프 문제를 **이차 항력 모델(Quadratic Drag Model)** 로 다시 살펴본다. 지배 ODE는 다음과 같다:
 
 ```math
 \frac{dv}{dt} = g - \frac{c_d}{m}v^2
@@ -85,10 +86,10 @@ t, m, cd = 4, 68.1, 0.25
 g = pc.g  # 9.80665 m/s^2 (standard gravity from scipy.constants)
 
 v = math.sqrt(m * g / cd) * math.tanh(math.sqrt(cd * g / m) * t)
-print(f'velocity = {v:.4f} m/s')  # velocity = 51.6938 m/s
+print(f'velocity = {v:.4f} m/s')  # velocity = 33.1022 m/s
 ```
 
-> **[Python]** `scipy.constants`는 완전한 정밀도의 물리 상수를 제공한다. `pc.g`는 표준 중력 가속도($`9.80665`$ m/s$`^2`$)를 제공하며, 이는 일반적으로 사용되는 근사값 $`9.81`$ m/s$`^2`$와 약간 다르다.
+> **[컴퓨터프로그래밍]** `scipy.constants`는 완전한 정밀도의 물리 상수를 제공한다. `pc.g`는 표준 중력 가속도($`9.80665`$ m/s$`^2`$)를 제공하며, 이는 일반적으로 사용되는 근사값 $`9.81`$ m/s$`^2`$와 약간 다르다.
 
 ### 1.2 함수로 리팩토링
 
@@ -112,17 +113,17 @@ def freefall(t, m, cd):
 이제 이 함수를 어떤 매개변수 집합으로든 호출할 수 있다:
 
 ```python
-print(freefall(4, 68.1, 0.25))    # 51.6938...
+print(freefall(4, 68.1, 0.25))    # 33.1022...
 print(freefall(10, 80.0, 0.30))   # different jumper
 print(freefall(0, 68.1, 0.25))    # 0.0 (at t=0, velocity is zero)
 ```
 
 함수의 주요 이점은 다음과 같다:
 
-1. **재사용성(Reusability)** — 다른 입력으로 여러 번 호출 가능
-2. **가독성(Readability)** — 함수 이름이 코드가 무엇을 하는지 문서화
-3. **테스트 용이성(Testability)** — 알려진 값을 확인하여 정확성을 쉽게 검증
-4. **모듈성(Modularity)** — 복잡한 프로그램을 단순하고 잘 테스트된 함수들로 구축
+1. **재사용성(Reusability)**: 다른 입력으로 여러 번 호출할 수 있다.
+2. **가독성(Readability)**: 함수 이름이 코드가 무엇을 하는지 문서화한다.
+3. **테스트 용이성(Testability)**: 알려진 값을 확인하여 정확성을 쉽게 검증할 수 있다.
+4. **모듈성(Modularity)**: 복잡한 프로그램을 단순하고 잘 테스트된 함수들로 구축할 수 있다.
 
 ### 1.3 다중 반환값
 
@@ -143,18 +144,18 @@ def stats(x):
 data = [2.3, 4.5, 1.2, 3.8, 5.1]
 count, mean, std = stats(data)
 print(f'n={count}, mean={mean:.2f}, std={std:.2f}')
-# n=5, mean=3.38, std=1.54
+# n=5, mean=3.38, std=1.61
 ```
 
-> **참고:** 표준편차 공식에서 분모에 $`n-1`$을 사용하는 것(베셀 보정, Bessel's Correction)은 모집단 표준편차가 아닌 **표본(Sample)** 표준편차를 계산하기 때문이다. 이는 실제 모집단 평균 대신 표본 평균을 사용함으로써 발생하는 편향을 보정한다.
+> **참고:** 표준편차 공식의 분모에 $`n-1`$을 사용하는 것(베셀 보정, Bessel's Correction)은 모집단 표준편차가 아닌 **표본(Sample)** 표준편차를 계산하기 때문이다. 실제 모집단 평균 대신 표본 평균을 사용하면 편차의 제곱합이 작게 나오는데, $`n-1`$로 나누면 분산 추정의 이 편향이 보정되어 표본 분산이 불편 추정량이 된다. 그 제곱근인 표본 표준편차에는 작은 편향이 남는다.
 
 ---
 
 <br>
 
-## 2. 변수 스코프 — LEGB 규칙
+## 2. 변수 스코프: LEGB 규칙
 
-Python은 **LEGB 규칙** 을 사용하여 변수 이름을 해석하며, 이는 스코프가 검색되는 순서를 정의한다:
+Python은 **LEGB 규칙**을 사용하여 변수 이름을 해석하며, 이는 스코프가 검색되는 순서를 정의한다:
 
 | 스코프 | 설명 | 수명 |
 |:------|:-----------|:---------|
@@ -163,7 +164,19 @@ Python은 **LEGB 규칙** 을 사용하여 변수 이름을 해석하며, 이는
 | **G**lobal (전역) | 모듈(파일) 수준에서 정의된 변수 | 전체 프로그램 동안 존재 |
 | **B**uilt-in (내장) | Python의 내장 이름 (`print`, `len`, `range` 등) | 항상 사용 가능 |
 
-Python이 변수 이름을 만나면, 이 스코프를 **순서대로** 검색한다: 지역 먼저, 그다음 둘러싸는, 전역, 내장 순이다. 처음 발견된 것을 사용한다.
+*표 1. LEGB 규칙의 네 스코프*
+
+Python이 변수 이름을 만나면, 이 스코프를 **순서대로** 검색한다: 지역 먼저, 그다음 둘러싸는, 전역, 내장 순이다. 처음 발견된 것을 사용하며, 네 스코프 어디에도 없으면 `NameError`가 발생한다.
+
+```mermaid
+flowchart LR
+    L[Local] -->|없으면| E[Enclosing]
+    E -->|없으면| G[Global]
+    G -->|없으면| B[Built-in]
+    B -->|없으면| X[NameError 발생]
+```
+
+*그림 1. LEGB 규칙의 이름 검색 순서*
 
 ### 2.1 지역 스코프와 전역 스코프
 
@@ -179,7 +192,7 @@ func()
 # print(s)  # NameError! s is local to func, not visible here
 ```
 
-함수는 외부 스코프의 변수를 **읽을** 수 있지만, 명시적 선언 없이 **수정할** 수는 없다. 함수 내에서 변수에 값을 대입하면, Python은 동일한 이름의 전역 변수가 존재하더라도 이를 **새로운 지역 변수** 로 취급한다:
+함수는 외부 스코프의 변수를 **읽을** 수 있지만, 명시적 선언 없이 그 이름에 값을 다시 대입하여 **수정할** 수는 없다. 함수 내에서 변수에 값을 대입하면, Python은 동일한 이름의 전역 변수가 존재하더라도 이를 **새로운 지역 변수**로 취급한다. 단, 전역 리스트에 `append`를 호출하는 것처럼 변수가 가리키는 가변 객체의 내용을 바꾸는 것은 대입이 아니므로 선언 없이도 가능하다:
 
 ```python
 x = 88
@@ -209,7 +222,7 @@ fun1()
 # fun2()  # NameError — fun2 only exists inside fun1
 ```
 
-둘러싸는 스코프는 **클로저(Closure)** 에 중요하다 — 클로저는 둘러싸는 함수가 실행을 마친 후에도 둘러싸는 스코프의 변수를 캡처하고 기억하는 함수이다.
+둘러싸는 스코프는 **클로저(Closure)** 에서 중요하다. 클로저는 둘러싸는 함수가 실행을 마친 후에도 둘러싸는 스코프의 변수를 캡처하고 기억하는 함수이다.
 
 ### 2.3 global 키워드
 
@@ -225,7 +238,7 @@ modify_global()
 print(x)  # 99 — global x was modified
 ```
 
-> **[프로그래밍 언어]** LEGB 규칙은 Python의 어휘적(정적) 스코핑 구현이다. 대부분의 현대 언어는 유사한 스코핑 규칙을 사용한다. 핵심 통찰: 함수는 외부 스코프의 변수를 읽을 수 있지만, 명시적인 `global` 또는 `nonlocal` 키워드를 사용해야만 수정할 수 있다.
+> **[프로그래밍언어]** LEGB 규칙은 Python의 어휘적(정적) 스코핑 구현이다. 대부분의 현대 언어는 유사한 스코핑 규칙을 사용한다. 요점은 함수가 외부 스코프의 변수를 읽을 수는 있지만, 그 이름에 다시 대입하려면 명시적인 `global` 또는 `nonlocal` 키워드를 사용해야 한다는 것이다.
 
 마찬가지로, `nonlocal` 키워드는 둘러싸는(전역이 아닌) 스코프의 변수 수정을 허용한다:
 
@@ -317,7 +330,7 @@ show_kwargs(name='Alice', age=30, major='CSE')
 # major = CSE
 ```
 
-단일 함수 정의에서 모든 인수 타입을 결합할 수 있다. 순서는: 위치, `*args`, 기본값이 있는 키워드, `**kwargs`여야 한다:
+단일 함수 정의에서 모든 인수 타입을 결합할 수 있다. 순서는 위치 인수, `*args`, 기본값이 있는 키워드 인수, `**kwargs`여야 한다:
 
 ```python
 def combined(a, b, *args, option=True, **kwargs):
@@ -347,6 +360,8 @@ combined(1, 2, 3, 4, option=False, x=10, y=20)
 | `.npy` (단일 배열) | `np.save` | `np.load` | 빠른 바이너리, 단일 배열 |
 | `.npz` (다중 배열) | `np.savez` | `np.load` | 빠른 바이너리, 이름 있는 다중 배열 |
 
+*표 2. 파일 형식별 NumPy 입출력 함수*
+
 ### 4.1 텍스트 파일 (CSV/TXT)
 
 `np.loadtxt`는 텍스트 파일에서 열 형식의 수치 데이터를 읽는다. 헤더, 구분자, 열 선택을 처리한다:
@@ -359,13 +374,13 @@ import numpy as np
 _, t, temp = np.loadtxt('./data/awsdata.txt', skiprows=2, unpack=True)
 ```
 
-매개변수 상세:
+매개변수의 의미는 다음과 같다:
 
-- `skiprows=2` — 처음 2행(헤더 행) 건너뛰기
-- `unpack=True` — 데이터를 전치하여 각 열이 별도의 1D 배열이 되도록 함
-- `_` 변수는 버리려는 값(여기서는 관측소 ID 열)에 대한 Python 관례이다
+- `skiprows=2`: 처음 2행(헤더 행)을 건너뛴다.
+- `unpack=True`: 데이터를 전치하여 각 열이 별도의 1D 배열이 되게 한다.
+- `_` 변수는 버리려는 값(여기서는 관측소 ID 열)에 대한 Python 관례이다.
 
-텍스트 파일로 데이터를 저장하려면:
+텍스트 파일로 데이터를 저장하려면 다음과 같이 한다:
 
 ```python
 data = np.column_stack([t, temp])
@@ -416,7 +431,7 @@ print(classify_temp(5))   # Cold
 
 ### 5.2 For 및 While 반복문
 
-**For 반복문** 은 시퀀스를 순회한다:
+**For 반복문**은 시퀀스를 순회한다:
 
 ```python
 # Sum of integers 1 through 10
@@ -426,7 +441,7 @@ for i in range(1, 11):
 print(total)  # 55
 ```
 
-**`break`** 는 반복문을 즉시 종료한다; **`continue`** 는 다음 반복으로 건너뛴다:
+**`break`** 는 반복문을 즉시 종료하고, **`continue`** 는 남은 본문을 건너뛰고 다음 반복으로 넘어간다:
 
 ```python
 # Find the first multiple of 7 greater than 0
@@ -436,7 +451,7 @@ for i in range(100):
         break
 ```
 
-**While 반복문** 은 조건이 `False`가 될 때까지 반복한다:
+**While 반복문**은 조건이 `False`가 될 때까지 반복한다:
 
 ```python
 count = 10
@@ -446,7 +461,7 @@ while count > 0:
 # 10 9 8 7 6 5 4 3 2 1
 ```
 
-While 반복문은 수치 해법에서 오차가 허용 범위 아래로 떨어질 때까지 반복하는 **반복 수렴(Iterative Convergence)** 에 특히 유용하다:
+조건이 만족될 때까지 반복하는 구조는 수치 해법에서 오차가 허용 범위 아래로 떨어질 때까지 반복하는 **반복 수렴(Iterative Convergence)** 에 특히 유용하다. 아래 예는 수렴하지 않을 때 무한 반복을 막기 위해 `while` 대신 최대 반복 횟수를 둔 `for` 반복문과 `break`를 사용한다:
 
 ```python
 # Example: iterate until convergence
@@ -488,11 +503,11 @@ print(f'Speedup: {loop_time / vec_time:.0f}x')
 # Vectorized is typically 10-100x faster!
 ```
 
-> **[Python]** 벡터화는 과학 Python에서 가장 중요한 최적화 기법이다. Python에서 요소를 반복하는 대신(느린 인터프리터), 벡터화 연산은 루프를 C(빠른 컴파일 코드)로 내린다. 항상 명시적 루프보다 NumPy 벡터화 연산을 선호하라.
+> **[컴퓨터프로그래밍]** 벡터화는 과학 Python에서 가장 중요한 최적화 기법이다. Python에서 요소를 반복하는 대신(느린 인터프리터), 벡터화 연산은 루프를 C(빠른 컴파일 코드)로 내린다. 가능한 경우에는 명시적 루프보다 NumPy 벡터화 연산을 선호하라.
 
 루프가 왜 그렇게 느린가? Python은 **인터프리터 언어(Interpreted Language)** 이므로, 루프의 각 반복은 타입 검사, 함수 디스패치, 기타 오버헤드를 수반한다. NumPy의 벡터화 연산은 전체 배열에 대해 하나의 최적화된 C 루틴을 실행하여 이를 우회한다.
 
-**경험 규칙:** 배열 요소를 하나씩 처리하는 `for` 반복문을 작성하고 있다면, 거의 확실히 훨씬 더 빠른 벡터화된 NumPy 대안이 존재한다.
+> **참고:** **경험 규칙.** 배열 요소를 하나씩 독립적으로 처리하는 `for` 반복문을 작성하고 있다면, 거의 확실히 훨씬 더 빠른 벡터화된 NumPy 대안이 존재한다. 단, 오일러 방법처럼 각 단계가 앞 단계의 결과에 의존하는 계산은 그대로 벡터화할 수 없다.
 
 ---
 
@@ -500,7 +515,7 @@ print(f'Speedup: {loop_time / vec_time:.0f}x')
 
 ## 6. 일급 객체로서의 함수
 
-Python에서 함수는 **일급 객체(First-Class Objects)** 이다 — 변수에 대입하고, 인수로 전달하고, 다른 함수에서 반환하고, 데이터 구조에 저장할 수 있다. 이는 강력한 함수형 프로그래밍 패턴을 가능하게 한다.
+Python에서 함수는 **일급 객체(First-Class Objects)** 이다. 즉, 함수를 변수에 대입하고, 인수로 전달하고, 다른 함수에서 반환하고, 데이터 구조에 저장할 수 있다. 이는 강력한 함수형 프로그래밍 패턴을 가능하게 한다.
 
 ### 6.1 람다 함수
 
@@ -534,9 +549,9 @@ print(square(5))  # 25
 print(cube(5))    # 125
 ```
 
-여기서 `make_power`는 둘러싸는 스코프에서 `n`의 값을 "기억하는" 람다를 반환하며, `make_power`의 실행이 끝난 후에도 그렇다. 이것이 클로저의 본질이다.
+여기서 `make_power`는 둘러싸는 스코프에서 `n`의 값을 기억하는 람다를 반환하며, `make_power`의 실행이 끝난 후에도 그렇다. 이것이 클로저의 본질이다.
 
-함수를 인수로 전달하기:
+함수를 인수로 전달하는 예는 다음과 같다:
 
 ```python
 def f_at_midpoint(func, a, b):
@@ -549,7 +564,7 @@ print(f_at_midpoint(np.cos, 0, 10))  # cos(5) = 0.2837...
 print(f_at_midpoint(np.sin, 0, 10))  # sin(5) = -0.9589...
 ```
 
-이 패턴은 수치 해법의 기본이다 — 많은 알고리즘이 함수를 입력으로 받는다(예: 근 찾기, 적분기, 최적화기).
+이 패턴은 수치 해법의 기본이다. 근 찾기, 적분기, 최적화기처럼 많은 알고리즘이 함수를 입력으로 받는다.
 
 ### 6.3 functools.partial
 
@@ -612,7 +627,7 @@ unique_remainders = {x % 3 for x in range(10)}
 # {0, 1, 2}
 ```
 
-> **참고:** 현대 Python에서는 `map`과 `filter`보다 컴프리헨션이 일반적으로 선호되는데, 가독성이 더 높기 때문이다. 그러나 매우 단순한 연산의 경우 람다와 함께 `map`이 약간 더 빠를 수 있다.
+> **참고:** 현대 Python에서는 `map`과 `filter`보다 컴프리헨션이 일반적으로 선호되는데, 가독성이 더 높기 때문이다. 다만 `map(str, data)`처럼 내장 함수를 적용할 때는 `map`이 약간 더 빠를 수 있고, 람다를 넘기면 함수 호출 비용 때문에 대체로 컴프리헨션보다 느리다.
 
 ---
 
@@ -638,7 +653,7 @@ print(safe_divide(10, 0))    # Division by zero! → None
 print(safe_divide('a', 2))   # Invalid types! → None
 ```
 
-실용적인 응용 — 비수치 값이 포함될 수 있는 노이즈 데이터 정제:
+실용적인 응용으로, 비수치 값이 포함될 수 있는 노이즈 데이터를 정제하는 예는 다음과 같다:
 
 ```python
 raw = ['1.5', '2.3', 'N/A', '4.1', '-']
@@ -699,9 +714,9 @@ greet('Alice')
 greet = simple_decorator(greet)
 ```
 
-> **[프로그래밍 언어]** 데코레이터는 고차 함수의 문법적 설탕(Syntactic Sugar)이다. 함수 정의 위의 `@decorator`는 `func = decorator(func)`와 동일하다. 웹 프레임워크(Flask 라우트), 테스팅, 로깅 등에서 널리 사용된다.
+> **[프로그래밍언어]** 데코레이터는 고차 함수의 문법적 설탕(Syntactic Sugar)이다. 함수 정의 위의 `@decorator`는 `func = decorator(func)`와 동일하다. 웹 프레임워크(Flask 라우트), 테스팅, 로깅 등에서 널리 사용된다.
 
-실용적인 예시 — 실행 시간을 측정하는 데코레이터:
+실용적인 예시로, 실행 시간을 측정하는 데코레이터는 다음과 같다:
 
 ```python
 import time
@@ -729,7 +744,7 @@ slow_function()  # slow_function took 1.00XXs
 
 ## 9. OOP 기초
 
-### 9.1 \_\_init\_\_, \_\_repr\_\_, \_\_str\_\_을 가진 클래스
+### 9.1 `__init__`, `__repr__`, `__str__`을 가진 클래스
 
 객체 지향 프로그래밍(OOP)은 데이터(속성)와 동작(메서드)을 묶는 **객체(Object)** 중심으로 코드를 구성한다:
 
@@ -750,7 +765,7 @@ print(repr(s))  # MyStudent(Alice, [95, 88, 92])
 print(str(s))   # Alice: avg=91.7
 ```
 
-주요 특수 메서드(던더 메서드):
+주요 특수 메서드(던더 메서드)는 다음과 같다:
 
 | 메서드 | 목적 | 호출 시점 |
 |:-------|:--------|:---------|
@@ -758,9 +773,11 @@ print(str(s))   # Alice: avg=91.7
 | `__repr__` | 명확한 문자열 표현 (개발자용) | `repr(obj)`, REPL |
 | `__str__` | 사람이 읽기 쉬운 문자열 표현 | `print(obj)`, `str(obj)` |
 
+*표 3. 주요 특수 메서드와 호출 시점*
+
 ### 9.2 데이터클래스
 
-`@dataclass` 데코레이터(Python 3.7+)는 `__init__`, `__repr__`, 비교 메서드를 자동으로 생성하여 보일러플레이트를 제거한다:
+`@dataclass` 데코레이터(Python 3.7+)는 `__init__`, `__repr__`, 동등 비교 메서드 `__eq__`를 자동으로 생성하여 보일러플레이트를 제거한다. 대소 비교 메서드는 `@dataclass(order=True)`로 지정해야 생성된다:
 
 ```python
 from dataclasses import dataclass
@@ -844,7 +861,7 @@ def train_test_split_idx(
     return indices[:split], indices[split:]
 ```
 
-사용법:
+사용법은 다음과 같다:
 
 ```python
 train_idx, test_idx = train_test_split_idx(100, train_ratio=0.7, seed=42)
@@ -852,7 +869,7 @@ print(f'Train: {len(train_idx)} samples, Test: {len(test_idx)} samples')
 # Train: 70 samples, Test: 30 samples
 ```
 
-주요 타입 힌트:
+주요 타입 힌트는 다음과 같다:
 
 | 힌트 | 의미 |
 |:-----|:--------|
@@ -863,7 +880,9 @@ print(f'Train: {len(train_idx)} samples, Test: {len(test_idx)} samples')
 | `Dict[str, float]` | 문자열 키와 실수 값의 딕셔너리 |
 | `Callable[[int], float]` | `int`를 받아 `float`를 반환하는 함수 |
 
-> **참고:** Python 3.9+부터는 `typing`에서 임포트하는 대신 내장 타입을 직접 사용할 수 있다 (`list[int]`, `tuple[int, float]`). Python 3.10+부터는 `X | None`이 `Optional[X]`를 대체한다.
+*표 4. 주요 타입 힌트와 의미*
+
+> **참고:** Python 3.9+부터는 `typing`에서 임포트하는 대신 내장 타입을 직접 사용할 수 있다(`list[int]`, `tuple[int, float]`). Python 3.10+부터는 `X | None`이 `Optional[X]`를 대체한다.
 
 ---
 
@@ -873,7 +892,7 @@ print(f'Train: {len(train_idx)} samples, Test: {len(test_idx)} samples')
 
 ### 11.1 메모리 효율성
 
-제너레이터(Generator)는 모든 값을 메모리에 한꺼번에 저장하는 대신 **지연 평가(Lazily)** — 필요할 때 하나씩 — 값을 생성한다. 이는 대용량 데이터셋을 다룰 때 매우 중요하다:
+제너레이터(Generator)는 모든 값을 메모리에 한꺼번에 저장하지 않고, 필요할 때 하나씩 **지연 평가(Lazy Evaluation)** 방식으로 값을 생성한다. 이는 대용량 데이터셋을 다룰 때 매우 중요하다:
 
 ```python
 import sys
@@ -884,11 +903,11 @@ list_comp = [x ** 2 for x in range(10000)]
 # Generator expression: stores only the formula, computes on demand
 gen_expr = (x ** 2 for x in range(10000))
 
-print(sys.getsizeof(list_comp))  # ~800,000 bytes
+print(sys.getsizeof(list_comp))  # ~85,000 bytes
 print(sys.getsizeof(gen_expr))   # ~200 bytes (!)
 ```
 
-차이는 극적이다: 리스트는 10,000개의 정수를 저장하고, 제너레이터는 다음 값을 생성하는 데 필요한 상태만 저장한다.
+차이는 극적이다: 리스트는 10,000개의 정수에 대한 참조를 저장하고, 제너레이터는 다음 값을 생성하는 데 필요한 상태만 저장한다. `sys.getsizeof`는 리스트가 가진 참조 배열의 크기만 재며, 정수 객체 자체가 차지하는 메모리는 포함하지 않는다. 구체적인 바이트 수는 Python 버전에 따라 조금씩 다르다.
 
 ### 11.2 yield를 사용한 제너레이터 함수
 
@@ -904,12 +923,12 @@ for val in countdown(5):
     print(val, end=' ')  # 5 4 3 2 1
 ```
 
-실행 흐름:
-1. `countdown(5)` 호출 — 제너레이터 객체를 반환 (본문을 아직 실행하지 않음)
-2. 첫 번째 `next()` — `yield 5`까지 실행, 일시 중지, `5` 반환
-3. 두 번째 `next()` — `yield` 이후부터 재개, `n`이 `4`가 됨, `yield 4`에 도달, `4` 반환
-4. ... `while` 조건이 `False`가 될 때까지 계속
-5. 함수가 (암묵적으로) 반환하면, `StopIteration`이 발생하여 루프 종료
+실행 흐름은 다음과 같다:
+1. `countdown(5)`를 호출하면 제너레이터 객체가 반환되며, 본문은 아직 실행되지 않는다.
+2. 첫 번째 `next()`는 `yield 5`까지 실행한 뒤 일시 중지하고 `5`를 반환한다.
+3. 두 번째 `next()`는 `yield` 다음부터 재개하여 `n`을 `4`로 줄이고, `yield 4`에 도달하면 `4`를 반환한다.
+4. 같은 과정이 `while` 조건이 `False`가 될 때까지 계속된다.
+5. 함수가 (암묵적으로) 반환하면 `StopIteration`이 발생하여 루프가 종료된다.
 
 ### 11.3 대용량 데이터를 위한 배치 제너레이터
 
@@ -932,9 +951,9 @@ for batch in batch_generator(data, 30):
 # Batch size: 10
 ```
 
-> **[Python]** 제너레이터는 지연 평가를 사용한다 — 값이 메모리에 저장되지 않고 필요할 때 계산된다. 이는 사용 가능한 RAM보다 큰 데이터셋을 다룰 때 필수적이다. `yield` 키워드는 함수 실행을 일시 중지하고 다음 호출에서 중단된 곳에서 재개한다.
+> **[컴퓨터프로그래밍]** 제너레이터는 지연 평가를 사용하므로, 값을 메모리에 저장하지 않고 필요할 때 계산한다. 이는 사용 가능한 RAM보다 큰 데이터셋을 다룰 때 필수적이다. `yield` 키워드는 함수 실행을 일시 중지하고 다음 호출에서 중단된 곳에서 재개한다.
 
-또 다른 실용적인 예시 — 대용량 파일을 전체를 메모리에 로드하지 않고 한 줄씩 읽기:
+또 다른 실용적인 예시로, 대용량 파일 전체를 메모리에 로드하지 않고 한 줄씩 읽는 제너레이터는 다음과 같다:
 
 ```python
 def read_large_file(filepath):
@@ -954,18 +973,67 @@ def read_large_file(filepath):
 
 ## 요약
 
-| 주제 | 핵심 개념 |
+| 개념 | 핵심 요약 |
 |:------|:------------|
-| 함수 | `def`, 독스트링(Docstrings), 다중 반환, `*args`/`**kwargs` |
-| 스코프 | LEGB 규칙, `global`, `nonlocal`, 클로저 |
-| 파일 입출력 | `np.loadtxt`, `np.save`/`np.load`, `np.savez` |
-| 제어 흐름 | `if`/`elif`/`else`, `for`, `while`, `break`/`continue` |
-| 벡터화 | NumPy 벡터화 연산 >> Python 루프 (10-100배 빠름) |
-| 함수형 | `lambda`, `partial`, 고차 함수, 컴프리헨션 |
-| 예외 | `try`/`except`/`else`/`finally`로 오류 처리 |
-| 데코레이터 | `@decorator` = `func = decorator(func)`의 문법적 설탕 |
-| OOP | `__init__`, `@dataclass`, `@property` |
-| 타입 힌트 | `int`, `List[int]`, `Optional[...]`, `Tuple[...]`로 문서화 |
-| 제너레이터 | `yield`, 지연 평가, 메모리 효율적인 반복 |
+| 함수 | `def`로 정의하고 독스트링(Docstrings)으로 문서화하며, 다중 반환과 `*args`/`**kwargs`를 지원한다. |
+| 스코프 | 이름은 LEGB 규칙으로 해석되며, `global`과 `nonlocal`로 바깥 스코프의 이름에 대입하고 클로저는 바깥 변수를 기억한다. |
+| 파일 입출력 | 텍스트 파일은 `np.loadtxt`로, 바이너리 파일은 `np.save`/`np.load`와 `np.savez`로 다룬다. |
+| 제어 흐름 | `if`/`elif`/`else`, `for`, `while`, `break`/`continue`로 분기와 반복을 제어한다. |
+| 벡터화 | NumPy 벡터화 연산은 Python 루프보다 일반적으로 10~100배 빠르다. |
+| 함수형 | `lambda`, `partial`, 고차 함수, 컴프리헨션으로 함수를 값처럼 다룬다. |
+| 예외 | `try`/`except`/`else`/`finally`로 오류를 처리한다. |
+| 데코레이터 | `@decorator`는 `func = decorator(func)`의 문법적 설탕이다. |
+| OOP | `__init__`으로 객체를 초기화하고, `@dataclass`와 `@property`로 보일러플레이트를 줄인다. |
+| 타입 힌트 | `int`, `List[int]`, `Optional[...]`, `Tuple[...]`로 예상 타입을 문서화하며, 실행 시점에 강제되지는 않는다. |
+| 제너레이터 | `yield`를 사용한 지연 평가로 메모리 효율적인 반복을 제공한다. |
 
 ---
+
+<br>
+
+## 점검 문제
+
+1. **LEGB 규칙:** 전역에 `x = 'global'`이 있고, 함수 `outer` 안에 `x = 'enclosing'`과 중첩 함수 `inner`가 있다. `inner`가 `print(x)`만 실행할 때 `outer()`를 호출하면 무엇이 출력되는가?
+
+   <details>
+   <summary>정답</summary>
+
+   `'enclosing'`이 출력된다. `inner`에는 지역 변수 `x`가 없으므로 다음 순서인 둘러싸는 스코프(`outer`)에서 `x`를 찾고, 거기서 찾았으므로 전역 스코프까지 가지 않는다.
+
+   </details>
+
+2. **지역 변수와 전역 변수:** 전역에 `count = 0`이 있고 함수 `f`가 `global` 선언 없이 `count = 5`를 실행한다. `f()`를 호출한 뒤 `print(count)`의 출력은 무엇인가?
+
+   <details>
+   <summary>정답</summary>
+
+   `0`이 출력된다. 함수 안에서 대입한 `count`는 새로운 지역 변수가 되어 전역 `count`를 바꾸지 않는다. 전역 변수를 바꾸려면 `global count`를 선언해야 한다.
+
+   </details>
+
+3. **다중 반환값과 베셀 보정:** 1.3절의 `stats` 함수에 `[2, 4, 6]`을 전달하면 반환되는 튜플은 무엇인가?
+
+   <details>
+   <summary>정답</summary>
+
+   `(3, 4.0, 2.0)`이다. 평균은 12/3 = 4.0이고, 편차의 제곱합은 4 + 0 + 4 = 8이다. 이를 $`n - 1 = 2`$로 나누면 4이고, 그 제곱근인 표본 표준편차는 2.0이다.
+
+   </details>
+
+4. **인수의 결합:** 3.3절의 `combined` 함수를 `combined(1, 2, 3, option=False, z=0)`로 호출하면 `args`, `option`, `kwargs`는 각각 무엇인가?
+
+   <details>
+   <summary>정답</summary>
+
+   `a=1`, `b=2`를 채우고 남은 위치 인수 3이 `args`에 들어가므로 `args=(3,)`이다. `option=False`이고, 매개변수 이름과 맞지 않는 키워드 인수 `z=0`은 `kwargs={'z': 0}`에 들어간다.
+
+   </details>
+
+5. **배치 제너레이터:** 11.3절의 `batch_generator(np.arange(10), 4)`가 생성하는 배치의 크기를 순서대로 쓰라.
+
+   <details>
+   <summary>정답</summary>
+
+   4, 4, 2이다. 시작 인덱스가 0, 4, 8이므로 `data[0:4]`, `data[4:8]`, `data[8:12]`가 생성되며, 마지막 슬라이스는 배열 끝에서 잘려 원소가 2개이다.
+
+   </details>

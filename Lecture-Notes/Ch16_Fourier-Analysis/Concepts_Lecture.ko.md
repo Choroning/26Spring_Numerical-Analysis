@@ -1,15 +1,17 @@
-# 제16장 강의 — 푸리에 해석(Fourier Analysis)
+# 16장 — 푸리에 해석(Fourier Analysis)
 
-> **최종 수정일:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 16
+[레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **선수 지식**: [미적분학] 삼각함수, 적분 (제1-15장).
+> **최종 수정일:** 2026-10-18
 >
-> **학습 목표**:
-> 1. 신호 분석을 위해 이산 푸리에 변환(DFT)을 적용할 수 있다
-> 2. 고속 푸리에 변환(FFT) 알고리즘을 구현할 수 있다
-> 3. 주파수 스펙트럼과 파워 스펙트럼 밀도를 해석할 수 있다
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
+
+> **학습 목표:**
+> 1. 삼각 함수의 직교성을 이용하여 푸리에 급수의 계수를 유도하고 계산할 수 있다
+> 2. 비주기 함수에 대한 푸리에 적분과 푸리에 변환의 정의와 성질을 설명할 수 있다
+> 3. 최소제곱 회귀로 데이터에 정현파를 적합하고 등간격 점에서의 닫힌 형태 해를 사용할 수 있다
+> 4. 신호 분석을 위해 이산 푸리에 변환(DFT)을 적용하고 나이퀴스트 주파수를 계산할 수 있다
+> 5. 고속 푸리에 변환(FFT)의 원리를 설명하고 파워 스펙트럼을 해석할 수 있다
 
 ---
 
@@ -27,7 +29,7 @@
   - [3.2 예제: 구형파(Square Wave)](#32-예제-구형파square-wave)
 - [4. 푸리에 급수(주기 $`2\pi`$)](#4-푸리에-급수주기-2pi)
   - [4.1 푸리에의 주장](#41-푸리에의-주장)
-  - [4.2 푸리에 계수 — 유도](#42-푸리에-계수--유도)
+  - [4.2 푸리에 계수의 유도](#42-푸리에-계수의-유도)
   - [4.3 직교성 관계(Orthogonality Relations)](#43-직교성-관계orthogonality-relations)
   - [4.4 계수 공식](#44-계수-공식)
 - [5. 구형파의 푸리에 급수](#5-구형파의-푸리에-급수)
@@ -54,7 +56,8 @@
 - [15. 나이퀴스트 주파수(Nyquist Frequency)](#15-나이퀴스트-주파수nyquist-frequency)
 - [16. 고속 푸리에 변환(FFT)](#16-고속-푸리에-변환fft)
 - [17. 파워 스펙트럼(Power Spectrum)](#17-파워-스펙트럼power-spectrum)
-- [18. 요약 표](#18-요약-표)
+- [요약](#요약)
+- [점검 문제](#점검-문제)
 
 ---
 
@@ -62,22 +65,11 @@
 
 ## 1. 개요 및 목표
 
-**N17 (푸리에 급수)에서:**
+이 장의 앞부분(2~8절)은 푸리에 급수와 푸리에 적분을 다룬다.
 
-- 푸리에 급수와 푸리에 적분 이해
+뒷부분(9~17절)은 정현파(사인파와 코사인파)를 이해하고 최소제곱 회귀로 데이터에 정현파를 적합한 뒤, 오일러 공식(Euler's Formula), 주파수 영역에서의 신호 분석, 이산 푸리에 변환(Discrete Fourier Transform), 나이퀴스트 주파수(Nyquist Frequency), 고속 푸리에 변환(Fast Fourier Transform), 파워 스펙트럼(Power Spectrum)을 다룬다.
 
-**N18 (푸리에 해석)에서:**
-
-- 정현파(사인파 및 코사인파) 이해
-- 최소제곱 회귀를 사용하여 데이터에 정현파 적합
-- 오일러 공식(Euler's Formula) 이해
-- 주파수 영역에서의 신호 분석
-- 이산 푸리에 변환(Discrete Fourier Transform)
-- 나이퀴스트 주파수(Nyquist Frequency)
-- 고속 푸리에 변환(Fast Fourier Transform)
-- 파워 스펙트럼(Power Spectrum)
-
-> **[맥락]** 푸리에 해석은 수치 해석에서 가장 강력한 도구 중 하나이다. 임의의 주기(또는 비주기) 함수를 단순한 정현파 성분의 합으로 분해할 수 있게 해준다. 신호 처리, 이미지 압축, 미분 방정식 풀이 등에 응용된다.
+> **참고:** **맥락.** 푸리에 해석은 수치 해석에서 가장 강력한 도구 중 하나이다. 적절한 조건을 만족하는 주기 함수(또는 비주기 함수)를 단순한 정현파 성분의 합으로 분해할 수 있게 해 준다. 신호 처리, 이미지 압축, 미분 방정식 풀이 등에 응용된다.
 
 ---
 
@@ -93,7 +85,7 @@
 f(-x) = f(x)
 ```
 
-$`f(x)`$의 그래프는 $`x = 0`$(y축)에 대해 **대칭** 이다.
+$`f(x)`$의 그래프는 $`x = 0`$(y축)에 대해 **대칭**이다.
 
 **예:** $`\cos(x)`$, $`x^2`$, $`|x|`$
 
@@ -105,13 +97,13 @@ $`f(x)`$의 그래프는 $`x = 0`$(y축)에 대해 **대칭** 이다.
 f(-x) = -f(x)
 ```
 
-$`f(x)`$의 그래프는 $`x = 0`$(원점)에 대해 **반대칭** 이다.
+$`f(x)`$의 그래프는 원점에 대해 **대칭**(점대칭)이다.
 
 **예:** $`\sin(x)`$, $`x^3`$, $`x`$
 
 ### 2.3 임의 함수의 분해
 
-임의의 함수는 우함수와 기함수의 합으로 분해할 수 있다:
+원점에 대해 대칭인 구간에서 정의된 임의의 함수는 우함수와 기함수의 합으로 분해할 수 있다:
 
 ```math
 f(x) = \frac{1}{2}f(x) + \frac{1}{2}f(x)
@@ -121,7 +113,7 @@ f(x) = \frac{1}{2}f(x) + \frac{1}{2}f(x)
 = \underbrace{\frac{1}{2}\bigl[f(x) + f(-x)\bigr]}_{\text{우함수 부분}} + \underbrace{\frac{1}{2}\bigl[f(x) - f(-x)\bigr]}_{\text{기함수 부분}}
 ```
 
-> **[핵심 아이디어]** 이 분해는 푸리에 급수를 이해하는 데 근본적이다. 코사인 항은 함수의 우함수 부분을, 사인 항은 기함수 부분을 포착한다.
+> **핵심:** 이 분해는 푸리에 급수를 이해하는 데 근본적이다. 코사인 항은 함수의 우함수 부분을, 사인 항은 기함수 부분을 포착한다.
 
 ---
 
@@ -149,7 +141,7 @@ $`\sin(x) = \sin(x + 2\pi) = \sin(x + 4\pi) = \cdots`$이지만, 기본 주기�
 
 ### 3.2 예제: 구형파(Square Wave)
 
-주기 $`2\pi`$인 구형파를 고려하자:
+주기 $`2\pi`$인 구형파를 고려한다:
 
 ```math
 f(x) = \begin{cases} 0, & -\pi < x \le 0 \\ 1, & 0 < x \le \pi \end{cases}
@@ -165,7 +157,7 @@ f(x) = \begin{cases} 0, & -\pi < x \le 0 \\ 1, & 0 < x \le \pi \end{cases}
 
 ### 4.1 푸리에의 주장
 
-**푸리에(Fourier, 1768--1830)** 는 $`[-\pi, \pi]`$에서 정의된 임의의 함수가 다음 형태로 표현될 수 있다고 주장했다:
+**푸리에(Fourier, 1768~1830)** 는 $`[-\pi, \pi]`$에서 정의된 임의의 함수가 다음 형태로 표현될 수 있다고 주장했다:
 
 ```math
 f(x) = \sum_{n=0}^{\infty} (a_n \cos nx + b_n \sin nx)
@@ -177,15 +169,15 @@ f(x) = \sum_{n=0}^{\infty} (a_n \cos nx + b_n \sin nx)
 f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
 ```
 
-> **[왜 $`a_0/2`$인가?]** $`n = 0`$일 때, $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$이다. $`a_0`$의 공식이 $`n \ge 1`$인 $`a_n`$과 같은 형태를 갖도록 편의상 $`\frac{1}{2}`$ 인자를 도입한다.
+> **참고:** **왜 $`a_0/2`$인가?** $`n = 0`$일 때, $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$이다. $`a_0`$의 공식이 $`n \ge 1`$인 $`a_n`$과 같은 형태를 갖도록 편의상 $`\frac{1}{2}`$ 인자를 도입한다.
 
-구조에 주목하자:
+이 식은 다음과 같은 구조를 갖는다:
 
 ```math
 f(x) = \underbrace{\left(\frac{a_0}{2} + \sum_{n=1}^{\infty} a_n \cos nx \right)}_{\text{우함수 부분}} + \underbrace{\left(\sum_{n=1}^{\infty} b_n \sin nx \right)}_{\text{기함수 부분}}
 ```
 
-### 4.2 푸리에 계수 — 유도
+### 4.2 푸리에 계수의 유도
 
 **$`a_0`$ 구하기:** 양변을 $`[-\pi, \pi]`$에서 적분한다:
 
@@ -215,7 +207,7 @@ f(x) = \underbrace{\left(\frac{a_0}{2} + \sum_{n=1}^{\infty} a_n \cos nx \right)
 
 ### 4.3 직교성 관계(Orthogonality Relations)
 
-계수 유도의 핵심은 삼각 함수의 **직교성(Orthogonality)** 에 의존한다.
+계수 유도는 삼각 함수의 **직교성(Orthogonality)** 에 의존한다.
 
 **곱을 합으로 바꾸는 항등식(Product-to-Sum Identities):**
 
@@ -293,7 +285,7 @@ b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin nx\,dx = \frac{1}{\pi} \int_0^{\p
 f(x) = \frac{1}{2} + \sum_{\substack{n=1,3,5,\ldots}} \frac{2}{n\pi} \sin nx = \frac{1}{2} + \frac{2}{\pi} \sum_{n=1}^{\infty} \frac{\sin(2n-1)x}{2n-1}
 ```
 
-$`n \to \infty`$일 때 $`\frac{1}{n} \to 0`$이므로, 푸리에 급수는 **수렴** 한다.
+$`n \to \infty`$일 때 계수 $`\frac{2}{n\pi}`$는 0으로 줄어든다. 계수가 0으로 가는 것만으로 수렴이 보장되지는 않지만, 이 급수는 구간별로 매끄러운 함수의 푸리에 급수에 관한 수렴 정리(디리클레 조건)에 의해 **수렴** 한다. $`f`$가 연속인 점에서는 $`f(x)`$로, 불연속점 $`x = 0, \pm\pi`$에서는 좌우 극한의 평균 $`\frac{1}{2}`$로 수렴한다.
 
 ---
 
@@ -331,7 +323,7 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 
 **질문:** $`f(x) = e^{-x^2}`$를 푸리에 급수로 전개할 수 있는가?
 
-**답:** 아니다 — $`f(x)`$는 주기 함수가 아니다(NOT periodic).
+**답:** 실수 전체에서는 전개할 수 없다. $`f(x)`$는 주기 함수가 아니기 때문이다.
 
 **해결:** $`\ell \to \infty`$로 취한다. $`\ell`$이 증가하면, 주파수 스펙트럼 $`\frac{n\pi}{\ell}`$은 점점 더 조밀해져서 **연속** 스펙트럼에 수렴한다.
 
@@ -340,6 +332,8 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 | $`\pi`$ | $`1, 2, 3, 4, \ldots`$ |
 | $`2\pi`$ | $`\frac{1}{2}, 1, \frac{3}{2}, 2, \ldots`$ |
 | $`10\pi`$ | $`0.1, 0.2, 0.3, 0.4, \ldots`$ |
+
+*표 1. 반주기 $`\ell`$에 따른 주파수 $`n\pi/\ell`$의 간격*
 
 극한에서, 이산 합은 연속 적분이 된다:
 
@@ -371,7 +365,7 @@ f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
 f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\infty}^{\infty} f(\xi) e^{-i\omega\xi}\,d\xi}_{\hat{f}(\omega)}\,d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} \hat{f}(\omega)\,e^{i\omega x}\,d\omega
 ```
 
-**푸리에 변환** 과 그 **역변환**:
+**푸리에 변환**과 그 **역변환**:
 
 ```math
 \boxed{\hat{f}(\omega) = \mathcal{F}\{f(x)\} = \int_{-\infty}^{\infty} f(\xi)\,e^{-i\omega\xi}\,d\xi}
@@ -399,7 +393,7 @@ f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\
 \mathcal{F}\left\{\frac{d}{dx}f(x)\right\} = i\omega\,\mathcal{F}\{f\}
 ```
 
-단, $`f(x) \to 0`$ as $`x \to \pm\infty`$.
+단, $`x \to \pm\infty`$일 때 $`f(x) \to 0`$이어야 한다.
 
 *증명 (부분 적분에 의해):*
 
@@ -413,7 +407,7 @@ f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\
 \mathcal{F}\left\{\frac{d^n}{dx^n}f(x)\right\} = (i\omega)^n\,\mathcal{F}\{f\}
 ```
 
-> **[중요성]** 미분 성질은 공간/시간 영역에서의 미분을 주파수 영역에서의 곱셈으로 변환한다. 이것이 푸리에 변환이 미분 방정식을 풀 때 매우 유용한 이유이다.
+> **참고:** **중요성.** 미분 성질은 공간/시간 영역에서의 미분을 주파수 영역에서의 곱셈으로 변환한다. 이것이 푸리에 변환이 미분 방정식을 풀 때 매우 유용한 이유이다.
 
 **3) 합성곱(Convolution):**
 
@@ -421,7 +415,7 @@ f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\
 f * g := \int_{-\infty}^{\infty} f(x - \xi)\,g(\xi)\,d\xi = \mathcal{F}^{-1}\{\hat{g}(\omega)\,\hat{f}(\omega)\}
 ```
 
-즉, **공간 영역에서의 합성곱** 은 **주파수 영역에서의 곱셈** 에 대응한다.
+즉, **공간 영역에서의 합성곱**은 **주파수 영역에서의 곱셈**에 대응한다.
 
 **4) $`x`$-이동(공간 이동, Spatial Shift):**
 
@@ -447,7 +441,7 @@ f * g := \int_{-\infty}^{\infty} f(x - \xi)\,g(\xi)\,d\xi = \mathcal{F}^{-1}\{\h
 
 ### 9.1 정현파 함수의 매개변수
 
-주기 함수 $`f(t) = f(t + T)`$를 고려하자. 여기서 $`T`$는 상수(주기)이다.
+주기 함수 $`f(t) = f(t + T)`$를 고려한다. 여기서 $`T`$는 상수(주기)이다.
 
 **정현파 함수(Sinusoidal Function)** 는 사인 또는 코사인으로 기술할 수 있는 임의의 파형이다:
 
@@ -463,6 +457,8 @@ f(t) = A_0 + C_1 \cos(\omega_0 t + \theta)
 | $`C_1`$ | **진폭(Amplitude)**(진동의 높이) |
 | $`\omega_0`$ | **각주파수(Angular Frequency)**(라디안/시간) |
 | $`\theta`$ | **위상각(Phase Angle)**(라디안) |
+
+*표 2. 정현파 함수의 매개변수와 의미*
 
 주파수 양들 간의 관계:
 
@@ -481,7 +477,7 @@ $`\theta > 0`$일 때:
 - $`\cos(\omega_0 t - \theta)`$: **지연(Lagging)** 위상각 (오른쪽 이동)
 - $`\cos(\omega_0 t + \theta)`$: **선행(Leading)** 위상각 (왼쪽 이동)
 
-또한 사인과 코사인의 관계에 주목하자:
+사인과 코사인 사이에는 다음 관계도 성립한다:
 
 ```math
 \sin(t + \pi/2) = \cos(t), \qquad \cos(t - \pi/2) = \sin(t)
@@ -521,6 +517,8 @@ A_1 = C_1\cos\theta, \qquad B_1 = -C_1\sin\theta
 \theta = \arctan\left(-\frac{B_1}{A_1}\right), \qquad C_1 = \sqrt{A_1^2 + B_1^2}
 ```
 
+$`\arctan`$의 값은 $`(-\pi/2, \pi/2)`$에 있으므로, $`A_1 < 0`$이면 $`\theta`$에 $`\pi`$를 더한다.
+
 ---
 
 <br>
@@ -535,7 +533,7 @@ A_1 = C_1\cos\theta, \qquad B_1 = -C_1\sin\theta
 y = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t) = \hat{y}(t)
 ```
 
-기저 함수를 이용한 선형 회귀 문제로 해석한다:
+기저 함수를 이용한 선형 회귀 문제로 해석한다($`\beta_0 = A_0`$, $`\beta_1 = A_1`$, $`\beta_2 = B_1`$):
 
 ```math
 f_0 = 1, \quad f_1 = \cos(\omega_0 t), \quad f_2 = \sin(\omega_0 t)
@@ -569,7 +567,7 @@ SSE = \sum (y_i - A_0 - A_1\cos(\omega_0 t_i) - B_1\sin(\omega_0 t_i))^2
 
 한 주기 $`T`$ 내에서 등간격으로 $`n`$개의 관측값을 수집한다: $`T = n\,\Delta t`$.
 
-**등간격** 점의 경우, 다음 직교성 성질이 성립한다:
+**등간격** 점의 경우($`n \ge 3`$), 다음 직교성 성질이 성립한다:
 
 ```math
 \sum_{i=1}^{n} \sin(\omega_0 t_i) = 0, \qquad \sum_{i=1}^{n} \cos(\omega_0 t_i) = 0
@@ -603,7 +601,7 @@ SSE = \sum (y_i - A_0 - A_1\cos(\omega_0 t_i) - B_1\sin(\omega_0 t_i))^2
 \boxed{B_1 = \frac{2}{n}\sum y_i \sin(\omega_0 t_i)}
 ```
 
-> **[핵심 통찰]** 등간격 데이터 점에서는 정규 방정식이 완전히 분리되어, 푸리에 계수에 대한 단순한 닫힌 형태의 표현식을 제공한다. 이것은 큰 계산적 이점이다.
+> **핵심:** 등간격 데이터 점에서는 정규 방정식이 완전히 분리되어, 푸리에 계수에 대한 단순한 닫힌 형태의 표현식을 제공한다. 이것은 큰 계산적 이점이다.
 
 ---
 
@@ -613,7 +611,7 @@ SSE = \sum (y_i - A_0 - A_1\cos(\omega_0 t_i) - B_1\sin(\omega_0 t_i))^2
 
 ### 11.1 일반 푸리에 급수
 
-$`m`$개의 고조파(Harmonics)($`2m + 1`$개의 계수)를 갖는 일반 모델로 확장:
+기본 주파수의 정수 배 성분을 모두 포함하는 일반 모델로 확장한다. 데이터 적합에서는 이 급수를 $`m`$번째 고조파(Harmonics)까지 잘라 $`2m + 1`$개의 계수를 사용한다:
 
 ```math
 f(t) = a_0 + \sum_{k=1}^{\infty} \bigl(a_k \cos(k\omega_0 t) + b_k \sin(k\omega_0 t)\bigr)
@@ -621,8 +619,8 @@ f(t) = a_0 + \sum_{k=1}^{\infty} \bigl(a_k \cos(k\omega_0 t) + b_k \sin(k\omega_
 
 여기서:
 
-- $`\omega_0 = \frac{2\pi}{T}`$는 **기본 주파수(Fundamental Frequency)**
-- $`2\omega_0, 3\omega_0, \ldots, m\omega_0, \ldots`$는 **고조파(Harmonics)**($`\omega_0`$의 정수 배)
+- $`\omega_0 = \frac{2\pi}{T}`$는 **기본 주파수(Fundamental Frequency)** 이다.
+- $`2\omega_0, 3\omega_0, \ldots, m\omega_0, \ldots`$는 **고조파(Harmonics)**($`\omega_0`$의 정수 배)이다.
 
 일반 모델의 계수:
 
@@ -638,7 +636,7 @@ A_j = \frac{2}{n}\sum y_i \cos(j\omega_0 t_i), \quad j = 1, 2, \ldots, m
 B_j = \frac{2}{n}\sum y_i \sin(j\omega_0 t_i), \quad j = 1, 2, \ldots, m
 ```
 
-> **[회귀 vs 배치]** $`n > 2m + 1`$(데이터 점이 계수보다 많은 경우), 계수를 **회귀(Regression)**(최소제곱) 의미로 계산한다. $`n = 2m + 1`$(데이터 점 수가 푸리에 계수 수와 같은 경우), 이를 **배치(Collocation)** 라 하며 — 푸리에 급수가 데이터를 정확히 보간한다.
+> **참고:** **회귀와 배치.** $`n > 2m + 1`$(데이터 점이 계수보다 많은 경우)이면 계수를 **회귀(Regression)**(최소제곱) 의미로 계산한다. $`n = 2m + 1`$(데이터 점 수가 푸리에 계수 수와 같은 경우)이면 이를 **배치(Collocation)** 라 하며, 푸리에 급수가 데이터를 정확히 보간한다.
 
 ### 11.2 오일러 공식과 복소 형태
 
@@ -648,7 +646,7 @@ B_j = \frac{2}{n}\sum y_i \sin(j\omega_0 t_i), \quad j = 1, 2, \ldots, m
 e^{i\theta} = \cos\theta + i\sin\theta
 ```
 
-이를 통해 푸리에 급수를 **복소 지수 형태** 로 표현할 수 있다:
+이를 통해 푸리에 급수를 **복소 지수 형태**로 표현할 수 있다:
 
 ```math
 f(t) = a_0 + \sum_{k=1}^{\infty}\bigl(a_k\cos(k\omega_0 t) + b_k\sin(k\omega_0 t)\bigr) = \sum_{k=-\infty}^{\infty} \tilde{C}_k\,e^{ik\omega_0 t}
@@ -668,8 +666,8 @@ f(t) = a_0 + \sum_{k=1}^{\infty}\bigl(a_k\cos(k\omega_0 t) + b_k\sin(k\omega_0 t
 
 **주파수 영역(Frequency Domain)** 은 진동하는 함수의 동작을 특성화하기 위한 대안적 관점을 제공한다.
 
-- **시간 영역(Time Domain)**: 일반적인 표현 $`f(t)`$ — 진폭 대 시간
-- **주파수 영역(Frequency Domain)**: 푸리에 계수 $`\hat{f}(\omega)`$ — 진폭 대 주파수
+- **시간 영역(Time Domain)**: 일반적인 표현 $`f(t)`$로, 시간에 따른 진폭을 나타낸다.
+- **주파수 영역(Frequency Domain)**: 푸리에 계수 $`\hat{f}(\omega)`$로, 주파수에 따른 진폭을 나타낸다.
 
 푸리에 해석은 신호를 시간 영역에서 주파수 영역으로 변환하여, 어떤 주파수가 존재하고 그 상대적 강도가 어떠한지를 드러낸다.
 
@@ -679,7 +677,7 @@ f(t) = a_0 + \sum_{k=1}^{\infty}\bigl(a_k\cos(k\omega_0 t) + b_k\sin(k\omega_0 t
 
 ## 13. 푸리에 적분과 푸리에 변환(재방문)
 
-$`T \to \infty`$를 취하여 주기 함수에서 비주기 함수로 전환:
+$`T \to \infty`$를 취하여 주기 함수에서 비주기 함수로 전환한다.
 
 **푸리에 적분(역변환):**
 
@@ -699,9 +697,9 @@ F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt
 
 ## 14. 이산 푸리에 변환(DFT)
 
-**유한 개수** 의 함수값을 수집한다. $`0`$에서 $`T`$까지의 구간을 $`n`$개의 등간격 부분 구간으로 나누며 $`\Delta t = \frac{T}{n}`$이다.
+**유한 개수**의 함수값을 수집한다. $`0`$에서 $`T`$까지의 구간을 $`n`$개의 등간격 부분 구간으로 나누며 $`\Delta t = \frac{T}{n}`$이다.
 
-이산 표본: $`f_j = f(t = t_j)`$, 여기서 $`t_j = t_0 + j\,\Delta t`$.
+이산 표본은 $`f_j = f(t = t_j)`$이며, 여기서 $`t_j = t_0 + j\,\Delta t`$이다.
 
 **DFT (순방향):**
 
@@ -715,7 +713,7 @@ F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt
 f_j = \mathcal{F}^{-1}\{\hat{f}\}_j \approx \frac{1}{n}\sum_{k=0}^{n-1} \hat{f}_k\,e^{ik\omega_0 j}, \quad j = 0, 1, 2, \ldots, n-1
 ```
 
-여기서 $`\omega_0 = \frac{2\pi}{n}`$.
+여기서 $`\omega_0 = \frac{2\pi}{n}`$이다.
 
 ```python
 import numpy as np
@@ -739,7 +737,7 @@ def idft(F):
     return f / n
 ```
 
-> **[복잡도]** 단순 DFT의 시간 복잡도는 $`O(n^2)`$이다. 이는 $`n`$개의 출력값 각각이 $`n`$개의 입력값에 대한 합을 필요로 하기 때문이다.
+> **참고:** **복잡도.** 단순 DFT의 시간 복잡도는 $`O(n^2)`$이다. 이는 $`n`$개의 출력값 각각이 $`n`$개의 입력값에 대한 합을 필요로 하기 때문이다.
 
 ---
 
@@ -747,20 +745,20 @@ def idft(F):
 
 ## 15. 나이퀴스트 주파수(Nyquist Frequency)
 
-**나이퀴스트 주파수** 는 신호에서 측정할 수 있는 최대 주파수이다. 이는 **표본 추출 주파수의 절반** 과 같다:
+**나이퀴스트 주파수**는 신호에서 측정할 수 있는 최대 주파수이다. 이는 **표본 추출 주파수의 절반**과 같다:
 
 ```math
 f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}
 ```
 
-**예제:** 표본 추출 주파수 $`f_s = 1000`$ Hz로 100개의 표본($`n = 100`$)을 수집:
+**예제:** 표본 추출 주파수 $`f_s = 1000`$ Hz로 100개의 표본($`n = 100`$)을 수집하는 경우는 다음과 같다.
 
 - 표본 추출 간격: $`\Delta t = \frac{1}{f_s} = \frac{1}{1000} = 10^{-3}`$ sec/sample
 - 총 시간: $`T = n \cdot \Delta t = 100 \times 10^{-3} = 0.1`$ s
 - **나이퀴스트 주파수:** $`f_{\max} = \frac{1}{2}f_s = 500`$ Hz
 - **검출 가능한 최저 주파수:** $`f_{\min} = \frac{1}{T} = \frac{1}{n\,\Delta t} = 10`$ Hz
 
-> **[앨리어싱(Aliasing)]** 신호에 나이퀴스트 주파수를 초과하는 주파수가 포함되면, 해당 주파수가 더 낮은 주파수로 잘못 표현되는 현상이 발생한다 — 이를 **앨리어싱(Aliasing)** 이라 한다. 이를 방지하려면, 표본 추출률이 신호에 존재하는 최대 주파수의 최소 2배여야 한다(**나이퀴스트-섀넌 표본화 정리, Nyquist-Shannon Sampling Theorem**).
+> **주의:** **앨리어싱(Aliasing).** 신호에 나이퀴스트 주파수를 초과하는 주파수가 포함되면, 해당 주파수가 더 낮은 주파수로 잘못 표현되는 현상이 발생한다. 이를 **앨리어싱(Aliasing)** 이라 한다. 이를 방지하려면 표본 추출률이 신호에 존재하는 최대 주파수의 2배보다 커야 한다(**나이퀴스트-섀넌 표본화 정리, Nyquist-Shannon Sampling Theorem**).
 
 ---
 
@@ -775,8 +773,8 @@ f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}
 
 FFT의 핵심 성질:
 
-- FFT는 입력을 **짝수 인덱스와 홀수 인덱스** 로 재귀적으로 분할한다
-- FFT는 DFT 공식의 **대칭성과 주기성** 을 활용한다
+- FFT는 입력을 **짝수 인덱스와 홀수 인덱스**로 재귀적으로 분할한다
+- FFT는 DFT 공식의 **대칭성과 주기성**을 활용한다
 - FFT는 반복 계산을 극적으로 **줄인다**
 
 ```python
@@ -796,7 +794,7 @@ freqs = np.fft.fftfreq(len(t), d=t[1] - t[0])
 recovered = np.fft.ifft(F)
 ```
 
-> **[왜 $`n = 2^p`$인가?]** 쿨리-튜키(Cooley-Tukey) FFT 알고리즘은 $`n`$이 2의 거듭제곱일 때 가장 효율적으로 작동한다. 반으로의 재귀적 분할이 $`\log_2 n`$번 균등하게 수행될 수 있기 때문이다.
+> **참고:** **왜 $`n = 2^p`$인가?** 기수 2(radix-2) 쿨리-튜키(Cooley-Tukey) FFT 알고리즘은 $`n`$이 2의 거듭제곱일 때 가장 효율적으로 작동한다. 반으로의 재귀적 분할이 $`\log_2 n`$번 균등하게 수행될 수 있기 때문이다.
 
 ---
 
@@ -804,7 +802,7 @@ recovered = np.fft.ifft(F)
 
 ## 17. 파워 스펙트럼(Power Spectrum)
 
-**파워 스펙트럼** 은 신호의 전력이 서로 다른 주파수에 어떻게 분포되어 있는지를 보여준다.
+**파워 스펙트럼**은 신호의 전력이 서로 다른 주파수에 어떻게 분포되어 있는지를 보여준다.
 
 **이산의 경우** (이산 주파수 $`k\omega_0`$에서의 전력):
 
@@ -846,26 +844,77 @@ plt.show()
 
 <br>
 
-## 18. 요약 표
+## 요약
 
-| 주제 | 핵심 수식 | 비고 |
-|:---|:---|:---|
-| **푸리에 급수** ($`2\pi`$ 주기) | $`f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty}(a_n\cos nx + b_n\sin nx)`$ | $`[-\pi,\pi]`$에서의 주기 함수 |
-| **계수** ($`2\pi`$ 주기) | $`a_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\cos nx\,dx`$, $`b_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\sin nx\,dx`$ | 직교성으로부터 유도 |
-| **일반 주기** $`2\ell`$ | $`f(x) = \frac{a_0}{2} + \sum a_n\cos\frac{n\pi}{\ell}x + \sum b_n\sin\frac{n\pi}{\ell}x`$ | 변수 치환 $`x' = \frac{\pi x}{\ell}`$ |
-| **푸리에 적분** | $`f(x) = \int_0^{\infty}[a(\omega)\cos\omega x + b(\omega)\sin\omega x]\,d\omega`$ | 비주기; $`\ell \to \infty`$ |
-| **푸리에 변환** | $`\hat{f}(\omega) = \int_{-\infty}^{\infty}f(\xi)e^{-i\omega\xi}\,d\xi`$ | 복소 지수 형태 |
-| **역 푸리에 변환** | $`f(x) = \frac{1}{2\pi}\int_{-\infty}^{\infty}\hat{f}(\omega)e^{i\omega x}\,d\omega`$ | 원래 함수 복원 |
-| **정현파 적합** | $`f(t) = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t)`$ | $`C_1 = \sqrt{A_1^2+B_1^2}`$, $`\theta = \arctan(-B_1/A_1)`$ |
-| **이산 계수** | $`A_0 = \bar{y}`$, $`A_j = \frac{2}{n}\sum y_i\cos(j\omega_0 t_i)`$, $`B_j = \frac{2}{n}\sum y_i\sin(j\omega_0 t_i)`$ | 등간격 데이터 |
-| **오일러 공식** | $`e^{i\theta} = \cos\theta + i\sin\theta`$ | 삼각함수와 지수함수 연결 |
-| **복소 푸리에 급수** | $`f(t) = \sum_{k=-\infty}^{\infty}\tilde{C}_k e^{ik\omega_0 t}`$ | $`\tilde{C}_k = \frac{1}{T}\int_{-T/2}^{T/2}f(t)e^{-ik\omega_0 t}\,dt`$ |
-| **DFT** | $`\hat{f}_k = \sum_{j=0}^{n-1}f_j e^{-ik\omega_0 j}`$ | $`O(n^2)`$ 복잡도 |
-| **FFT** | DFT와 같은 결과 | $`O(n\log n)`$ 복잡도 |
-| **나이퀴스트 주파수** | $`f_{\max} = \frac{1}{2}f_s = \frac{1}{2\Delta t}`$ | 검출 가능한 최대 주파수 |
-| **파워 스펙트럼** | $`P_k = \lvert\tilde{C}_k\rvert^2`$, $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$ | 주파수별 에너지 분포 |
-| **FT 선형성** | $`\mathcal{F}\{\alpha f + \beta g\} = \alpha\mathcal{F}\{f\} + \beta\mathcal{F}\{g\}`$ | 선형 연산자 |
-| **FT 미분** | $`\mathcal{F}\{f^{(n)}\} = (i\omega)^n\mathcal{F}\{f\}`$ | 미분이 곱셈으로 변환 |
-| **FT 합성곱** | $`\mathcal{F}\{f*g\} = \hat{f}(\omega)\cdot\hat{g}(\omega)`$ | 합성곱이 곱으로 변환 |
-| **FT $`x`$-이동** | $`\mathcal{F}^{-1}\{e^{-ia\omega}\hat{f}(\omega)\} = f(x-a)`$ | 공간 이동 |
-| **FT $`\omega`$-이동** | $`\mathcal{F}^{-1}\{\hat{f}(\omega-a)\} = e^{iax}f(x)`$ | 주파수 변조 |
+| 개념 | 핵심 요약 |
+|------|-----------|
+| 푸리에 급수 ($`2\pi`$ 주기) | $`[-\pi,\pi]`$에서의 주기 함수는 $`f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty}(a_n\cos nx + b_n\sin nx)`$로 전개한다. |
+| 계수 ($`2\pi`$ 주기) | 직교성으로부터 $`a_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\cos nx\,dx`$, $`b_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\sin nx\,dx`$를 얻는다. |
+| 일반 주기 $`2\ell`$ | 변수 치환 $`x' = \frac{\pi x}{\ell}`$로 $`f(x) = \frac{a_0}{2} + \sum a_n\cos\frac{n\pi}{\ell}x + \sum b_n\sin\frac{n\pi}{\ell}x`$를 얻는다. |
+| 푸리에 적분 | 비주기 함수는 $`\ell \to \infty`$의 극한에서 $`f(x) = \int_0^{\infty}[a(\omega)\cos\omega x + b(\omega)\sin\omega x]\,d\omega`$로 나타낸다. |
+| 푸리에 변환 | 복소 지수 형태의 변환은 $`\hat{f}(\omega) = \int_{-\infty}^{\infty}f(\xi)e^{-i\omega\xi}\,d\xi`$이다. |
+| 역 푸리에 변환 | 원래 함수는 $`f(x) = \frac{1}{2\pi}\int_{-\infty}^{\infty}\hat{f}(\omega)e^{i\omega x}\,d\omega`$로 복원한다. |
+| 정현파 적합 | 모델 $`f(t) = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t)`$의 진폭과 위상각은 $`C_1 = \sqrt{A_1^2+B_1^2}`$, $`\theta = \arctan(-B_1/A_1)`$이다($`A_1 < 0`$이면 $`\theta`$에 $`\pi`$를 더한다). |
+| 이산 계수 | 등간격 데이터에서는 $`A_0 = \bar{y}`$, $`A_j = \frac{2}{n}\sum y_i\cos(j\omega_0 t_i)`$, $`B_j = \frac{2}{n}\sum y_i\sin(j\omega_0 t_i)`$이다. |
+| 오일러 공식 | $`e^{i\theta} = \cos\theta + i\sin\theta`$는 삼각함수와 지수함수를 연결한다. |
+| 복소 푸리에 급수 | $`f(t) = \sum_{k=-\infty}^{\infty}\tilde{C}_k e^{ik\omega_0 t}`$이고 계수는 $`\tilde{C}_k = \frac{1}{T}\int_{-T/2}^{T/2}f(t)e^{-ik\omega_0 t}\,dt`$이다. |
+| DFT | $`\hat{f}_k = \sum_{j=0}^{n-1}f_j e^{-ik\omega_0 j}`$이며 계산 복잡도는 $`O(n^2)`$이다. |
+| FFT | DFT와 같은 결과를 $`O(n\log n)`$ 복잡도로 계산한다. |
+| 나이퀴스트 주파수 | 검출 가능한 최대 주파수는 $`f_{\max} = \frac{1}{2}f_s = \frac{1}{2\Delta t}`$이다. |
+| 파워 스펙트럼 | 주파수별 에너지 분포는 $`P_k = \lvert\tilde{C}_k\rvert^2`$, $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$로 나타낸다. |
+| FT 선형성 | 푸리에 변환은 $`\mathcal{F}\{\alpha f + \beta g\} = \alpha\mathcal{F}\{f\} + \beta\mathcal{F}\{g\}`$를 만족하는 선형 연산자이다. |
+| FT 미분 | $`\mathcal{F}\{f^{(n)}\} = (i\omega)^n\mathcal{F}\{f\}`$이므로 미분이 곱셈으로 변환된다. |
+| FT 합성곱 | $`\mathcal{F}\{f*g\} = \hat{f}(\omega)\cdot\hat{g}(\omega)`$이므로 합성곱이 곱으로 변환된다. |
+| FT $`x`$-이동 | 공간 이동은 $`\mathcal{F}^{-1}\{e^{-ia\omega}\hat{f}(\omega)\} = f(x-a)`$로 나타난다. |
+| FT $`\omega`$-이동 | 주파수 변조는 $`\mathcal{F}^{-1}\{\hat{f}(\omega-a)\} = e^{iax}f(x)`$로 나타난다. |
+
+---
+
+<br>
+
+## 점검 문제
+
+1. **우함수와 기함수 분해:** $`f(x) = e^x`$를 우함수 부분과 기함수 부분으로 분해하라.
+
+   <details>
+   <summary>정답</summary>
+
+   우함수 부분은 $`\frac{1}{2}(e^x + e^{-x}) = \cosh x`$이고, 기함수 부분은 $`\frac{1}{2}(e^x - e^{-x}) = \sinh x`$이다. $`\cosh(-x) = \cosh x`$, $`\sinh(-x) = -\sinh x`$이며 두 부분의 합은 $`e^x`$이다.
+
+   </details>
+
+2. **푸리에 계수:** 구간 $`[-\pi, \pi]`$에서 $`f(x) = x`$의 푸리에 계수 $`a_n`$, $`b_n`$을 구하라.
+
+   <details>
+   <summary>정답</summary>
+
+   $`f`$가 기함수이므로 $`f(x)\cos nx`$도 기함수이고 모든 $`n`$에 대해 $`a_n = 0`$이다. $`b_n = \frac{2}{\pi}\int_0^{\pi} x \sin nx\,dx`$이고, 부분 적분으로 $`\int_0^{\pi} x\sin nx\,dx = -\frac{\pi\cos n\pi}{n}`$이므로 $`b_n = -\frac{2\cos n\pi}{n} = \frac{2(-1)^{n+1}}{n}`$이다. 따라서 $`b_1 = 2`$, $`b_2 = -1`$, $`b_3 = \frac{2}{3}`$이고, $`x = 2\left(\sin x - \frac{\sin 2x}{2} + \frac{\sin 3x}{3} - \cdots\right)`$이다.
+
+   </details>
+
+3. **구형파 급수의 활용:** 5절의 구형파 급수를 $`x = \pi/2`$에서 계산하여 $`1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \cdots`$의 값을 구하라.
+
+   <details>
+   <summary>정답</summary>
+
+   $`x = \pi/2`$는 $`f`$가 연속인 점이고 $`f(\pi/2) = 1`$이다. $`\sin((2n-1)\pi/2) = (-1)^{n+1}`$이므로 $`1 = \frac{1}{2} + \frac{2}{\pi}\left(1 - \frac{1}{3} + \frac{1}{5} - \cdots\right)`$이다. 따라서 $`1 - \frac{1}{3} + \frac{1}{5} - \cdots = \frac{\pi}{4} \approx 0.7854`$이다.
+
+   </details>
+
+4. **정현파의 최소제곱 적합:** 주기 $`T = 1`$($`\omega_0 = 2\pi`$) 동안 등간격 시각 $`t = 0, 0.25, 0.5, 0.75`$에서 $`y = 3, 5, 1, -1`$을 얻었다. $`y = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t)`$의 계수와 진폭 $`C_1`$, 위상각 $`\theta`$를 구하라.
+
+   <details>
+   <summary>정답</summary>
+
+   $`\cos(\omega_0 t_i) = 1, 0, -1, 0`$이고 $`\sin(\omega_0 t_i) = 0, 1, 0, -1`$이다. $`A_0 = \bar{y} = 8/4 = 2`$, $`A_1 = \frac{2}{4}(3 - 1) = 1`$, $`B_1 = \frac{2}{4}(5 + 1) = 3`$이다. $`C_1 = \sqrt{1^2 + 3^2} = \sqrt{10} \approx 3.162`$이고, $`A_1 > 0`$이므로 $`\theta = \arctan(-3/1) \approx -1.249`$ rad이다. 이 데이터에서는 적합식이 네 점을 모두 정확히 지난다.
+
+   </details>
+
+5. **나이퀴스트 주파수와 앨리어싱:** 표본 추출 주파수 $`f_s = 100`$ Hz로 200개의 표본을 얻었다. 표본 추출 간격, 총 시간, 나이퀴스트 주파수, 검출 가능한 최저 주파수를 구하고, 70 Hz 정현파가 어떤 주파수로 나타나는지 쓰라.
+
+   <details>
+   <summary>정답</summary>
+
+   $`\Delta t = 1/100 = 0.01`$ s, $`T = 200 \times 0.01 = 2`$ s, $`f_{\max} = 50`$ Hz, $`f_{\min} = 1/T = 0.5`$ Hz이다. 70 Hz는 나이퀴스트 주파수 50 Hz를 넘으므로 앨리어싱이 일어나며, $`\lvert 70 - 100 \rvert = 30`$ Hz 성분으로 나타난다.
+
+   </details>

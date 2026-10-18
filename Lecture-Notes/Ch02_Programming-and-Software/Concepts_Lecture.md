@@ -1,19 +1,17 @@
-# Chapter 2 Lecture — Python Fundamentals
+# Chapter 2 — Python Fundamentals
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 2
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Programming Language] Basic programming. [Calculus] Derivatives.
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
+
+> **Learning Objectives:**
 > 1. Write structured programs for numerical computation
 > 2. Apply modular programming principles
 > 3. Debug and test numerical algorithms
 
 ---
-
-<br>
 
 ## Table of Contents
 
@@ -37,6 +35,7 @@
   - [8.2 Plotting Numerical vs. Analytical Solution](#82-plotting-numerical-vs-analytical-solution)
   - [8.3 Using scipy.integrate.solve_ivp](#83-using-scipyintegratesolve_ivp)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -46,9 +45,9 @@
 
 This course uses **Python** as the primary programming language, together with the scientific computing ecosystem:
 
-- **NumPy** — numerical arrays, linear algebra, and mathematical functions
-- **SciPy** — advanced scientific computing (ODE solvers, optimization, interpolation, etc.)
-- **Matplotlib** — 2D/3D plotting and visualization
+- **NumPy**: provides numerical arrays, linear algebra, and mathematical functions.
+- **SciPy**: provides advanced scientific computing (ODE solvers, optimization, interpolation, etc.).
+- **Matplotlib**: provides 2D/3D plotting and visualization.
 
 | Feature | MATLAB | Python |
 |:--------|:-------|:-------|
@@ -58,7 +57,9 @@ This course uses **Python** as the primary programming language, together with t
 | Syntax style | 1-indexed, end keyword | 0-indexed, indentation-based |
 | Community | Engineering/academia | Broad (data science, web, ML, etc.) |
 
-> **Note:** Most textbooks on numerical methods were historically written for MATLAB. The concepts and algorithms are identical regardless of the programming language — only the syntax differs. This course follows the Python edition.
+*Table 1. Comparison of MATLAB and Python*
+
+> **Note:** Most textbooks on numerical methods were historically written for MATLAB. The concepts and algorithms are identical regardless of the programming language; only the syntax differs. This course follows the Python edition of the textbook.
 
 ---
 
@@ -68,7 +69,7 @@ This course uses **Python** as the primary programming language, together with t
 
 ### 2.1 Variables and Assignment
 
-In Python, variables are created by simple assignment. There is no need to declare types explicitly — Python infers the type from the assigned value:
+In Python, variables are created by simple assignment. There is no need to declare types explicitly; Python infers the type from the assigned value:
 
 ```python
 x = 5        # int
@@ -90,6 +91,8 @@ Python provides several built-in data types relevant to scientific computing:
 | `list` | `[1, 2, 3]` | Mutable ordered sequence |
 | `tuple` | `(1, 2, 3)` | Immutable ordered sequence |
 | `dict` | `{'a': 1}` | Key-value mapping |
+
+*Table 2. Python built-in data types relevant to scientific computing*
 
 For numerical work, Python's built-in `list` is insufficient because it does not support vectorized arithmetic. This is why we use **NumPy arrays**.
 
@@ -114,7 +117,7 @@ print(A)
 print(A.shape) # (2, 2)
 ```
 
-Key differences between Python lists and NumPy arrays:
+The key differences between Python lists and NumPy arrays are:
 
 | Feature | Python `list` | NumPy `ndarray` |
 |:--------|:-------------|:----------------|
@@ -122,6 +125,8 @@ Key differences between Python lists and NumPy arrays:
 | Arithmetic | Concatenation (`+`) | Element-wise addition |
 | Performance | Slow (interpreted loop) | Fast (compiled C backend) |
 | Memory | Higher overhead | Compact, contiguous |
+
+*Table 3. Differences between Python lists and NumPy arrays*
 
 ---
 
@@ -164,7 +169,7 @@ print(A.T)
 #  [2 4]]
 ```
 
-> **Note:** Be careful to distinguish between `*` (element-wise multiplication) and `@` (matrix multiplication). This is one of the most common sources of bugs in numerical Python code.
+> **Caution:** Distinguish carefully between `*` (element-wise multiplication) and `@` (matrix multiplication). This is one of the most common sources of bugs in numerical Python code.
 
 ---
 
@@ -172,7 +177,7 @@ print(A.T)
 
 ## 4. Useful NumPy/SciPy Functions
 
-The following functions are used frequently throughout this course:
+The following functions are used frequently throughout this course.
 
 **Array creation:**
 
@@ -184,6 +189,8 @@ The following functions are used frequently throughout this course:
 | `np.ones(n)` | Array of ones | `np.ones(3)` $`\to`$ `[1, 1, 1]` |
 | `np.eye(n)` | $`n \times n`$ identity matrix | `np.eye(3)` $`\to`$ $`I_3`$ |
 
+*Table 4. NumPy array creation functions*
+
 **Linear algebra (`np.linalg`):**
 
 | Function | Description |
@@ -194,6 +201,8 @@ The following functions are used frequently throughout this course:
 | `np.linalg.norm(x)` | Compute vector/matrix norm |
 | `np.linalg.eig(A)` | Compute eigenvalues and eigenvectors |
 
+*Table 5. Linear algebra functions in np.linalg*
+
 ```python
 A = np.array([[2, 1],
               [5, 3]])
@@ -202,9 +211,11 @@ b = np.array([4, 7])
 x = np.linalg.solve(A, b)  # Solve Ax = b
 print(x)                    # [5. -6.]
 
-print(np.linalg.det(A))    # 1.0
+print(np.linalg.det(A))    # 1.0000000000000002
 print(np.linalg.inv(A))    # [[ 3. -1.] [-5.  2.]]
 ```
+
+The determinant of this matrix is exactly $`2 \times 3 - 1 \times 5 = 1`$, but `np.linalg.det` computes it in floating point through an LU factorization, so a round-off error appears in the last digit, as in 1.0000000000000002. Round-off error is covered in Chapter 3.
 
 ---
 
@@ -262,7 +273,7 @@ for i in range(1, 11):
 print(total)  # 55
 ```
 
-`range(start, stop, step)` generates integers from `start` up to (but not including) `stop`.
+`range(start, stop, step)` generates integers from `start` in increments of `step` up to (but not including) `stop`.
 
 ### 6.2 While Loop
 
@@ -341,13 +352,13 @@ This section implements the bungee jumper problem from Chapter 1 in Python, demo
 
 ### 8.1 Implementing Euler's Method
 
-Recall the ODE for a bungee jumper with linear drag:
+The ODE for a bungee jumper with linear drag is:
 
 ```math
 \frac{dv}{dt} = g - \frac{c}{m}v
 ```
 
-Euler's method approximation:
+Applying Euler's method gives:
 
 ```math
 v(t_{i+1}) = v(t_i) + \left(g - \frac{c}{m}v(t_i)\right) \cdot h
@@ -378,9 +389,11 @@ for ti, vi in zip(t, v):
     print(f'{ti:5.1f}  |  {vi:.4f}')
 ```
 
+This code prints the same values as the hand calculation in Section 3.2 of Chapter 1; the last line gives 50.0102 m/s at $`t = 12`$ s.
+
 ### 8.2 Plotting Numerical vs. Analytical Solution
 
-The analytical solution (from Chapter 1) is:
+The analytical solution derived in Chapter 1 is:
 
 ```math
 v(t) = \frac{gm}{c}\left(1 - e^{-(c/m)t}\right)
@@ -406,7 +419,7 @@ plt.show()
 
 ### 8.3 Using scipy.integrate.solve_ivp
 
-For more accurate ODE solving, SciPy provides `solve_ivp` which uses adaptive step-size methods:
+For more accurate ODE solving, SciPy provides `solve_ivp`, which uses adaptive step-size methods:
 
 ```python
 from scipy.integrate import solve_ivp
@@ -429,7 +442,7 @@ plt.grid(True)
 plt.show()
 ```
 
-> **[Python]** `scipy.integrate.solve_ivp` uses adaptive Runge-Kutta methods by default, which are much more accurate than Euler's method. We'll study these methods in detail in Chapter 22.
+> **Note:** `scipy.integrate.solve_ivp` uses an adaptive Runge-Kutta method (RK45) by default, which is much more accurate than Euler's method. Runge-Kutta methods are covered in detail in Chapter 22, and adaptive step-size control in Chapter 23.
 
 ---
 
@@ -437,17 +450,66 @@ plt.show()
 
 ## Summary
 
-| Topic | Key Point |
+| Concept | Key Summary |
 |:------|:----------|
-| Programming Environment | Python + NumPy + SciPy + Matplotlib (free, open-source alternative to MATLAB) |
-| Variables & Types | Dynamic typing; `int`, `float`, `str`, `list`, NumPy `ndarray` |
-| NumPy Arrays | `np.array(...)` for vectors and matrices; homogeneous, fast, memory-efficient |
-| Element-wise Operations | `+`, `-`, `*`, `/` act element-wise on arrays |
-| Matrix Operations | `A @ B` for matrix multiply; `A.T` for transpose |
-| Key Functions | `np.linspace`, `np.zeros`, `np.ones`, `np.eye`, `np.linalg.solve` |
-| Plotting | `plt.plot(x, y)`, `plt.xlabel(...)`, `plt.title(...)`, `plt.show()` |
-| Control Structures | `for`, `while`, `if`/`elif`/`else` |
-| Functions | `def func(args): return result`; multiple return values via tuples |
-| ODE Solving | Euler's method (manual) vs. `scipy.integrate.solve_ivp` (adaptive, accurate) |
+| Programming Environment | Python is used with NumPy, SciPy, and Matplotlib, a free, open-source alternative to MATLAB. |
+| Variables & Types | Python uses dynamic typing, and `int`, `float`, `str`, `list`, and NumPy `ndarray` are the main types. |
+| NumPy Arrays | `np.array(...)` creates vectors and matrices that hold elements of one type, which makes them fast and memory-efficient. |
+| Element-wise Operations | `+`, `-`, `*`, and `/` act element-wise on arrays. |
+| Matrix Operations | `A @ B` computes the matrix product, and `A.T` computes the transpose. |
+| Key Functions | `np.linspace`, `np.zeros`, `np.ones`, `np.eye`, and `np.linalg.solve` are used frequently. |
+| Plotting | `plt.plot(x, y)` draws a plot, `plt.xlabel(...)` and `plt.title(...)` annotate it, and `plt.show()` displays it. |
+| Control Structures | `for`, `while`, and `if`/`elif`/`else` control repetition and branching. |
+| Functions | Functions are defined as `def func(args): return result` and can return multiple values as a tuple. |
+| ODE Solving | Euler's method is a simple method implemented by hand, while `scipy.integrate.solve_ivp` gives a more accurate solution with adaptive steps. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **linspace and arange:** Write the results of `np.linspace(0, 2, 5)` and `np.arange(0, 2, 0.5)`.
+
+   <details>
+   <summary>Answer</summary>
+
+   `np.linspace(0, 2, 5)` produces five points including the endpoint 2, `[0, 0.5, 1, 1.5, 2]`. `np.arange(0, 2, 0.5)` excludes the `stop` value 2, giving `[0, 0.5, 1, 1.5]`.
+
+   </details>
+
+2. **`+` on lists and arrays:** Write the results of `[1, 2] + [3, 4]` and `np.array([1, 2]) + np.array([3, 4])`.
+
+   <details>
+   <summary>Answer</summary>
+
+   `+` on lists concatenates them, giving `[1, 2, 3, 4]`. `+` on NumPy arrays adds element-wise, giving `[4 6]`.
+
+   </details>
+
+3. **Element-wise and matrix multiplication:** For `A` and `B` in Section 3.2, find `A * B` and `A @ B`.
+
+   <details>
+   <summary>Answer</summary>
+
+   `A * B` is the element-wise product `[[5, 12], [21, 32]]`. `A @ B` is the matrix product; from 1×5 + 2×7 = 19, 1×6 + 2×8 = 22, 3×5 + 4×7 = 43, and 3×6 + 4×8 = 50, it is `[[19, 22], [43, 50]]`.
+
+   </details>
+
+4. **Solving a linear system:** Write the inputs and the result when solving $`3x_1 + 2x_2 = 7`$, $`x_1 + 2x_2 = 5`$ with `np.linalg.solve`.
+
+   <details>
+   <summary>Answer</summary>
+
+   With `A = np.array([[3, 2], [1, 2]])` and `b = np.array([7, 5])`, calling `np.linalg.solve(A, b)` returns `[1. 2.]`. That is, $`x_1 = 1`$ and $`x_2 = 2`$, which can be checked by $`3 + 4 = 7`$ and $`1 + 4 = 5`$.
+
+   </details>
+
+5. **Tracing the Euler code:** Find the velocities that the code in Section 8.1 prints at $`t = 2`$ s and $`t = 4`$ s.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`v_1 = 0 + (9.81 - 0) \times 2 = 19.62`$. $`v_2 = 19.62 + (9.81 - (12.5/68.1) \times 19.62) \times 2 = 19.62 + 6.2087 \times 2 \approx 32.0374`$. The printed values are therefore 19.6200 and 32.0374.
+
+   </details>

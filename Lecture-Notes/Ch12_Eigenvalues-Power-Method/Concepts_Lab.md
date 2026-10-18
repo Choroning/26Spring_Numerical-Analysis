@@ -1,17 +1,17 @@
 # Chapter 12 Lab — Power Method for Eigenvalue Computation
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 13 (Power Method)
+[Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Prerequisites**: [Programming Language] Python, NumPy, SciPy. [Linear Algebra] Eigenvalues / eigenvectors, LU factorization (Ch 10).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Compute eigenpairs with `numpy.linalg.eig` and verify the trace / determinant identities
-> 2. Implement the Power Method to find the dominant eigenvalue of a matrix
-> 3. Apply the Inverse Power Method to find the smallest eigenvalue
-> 4. Use the Shifted Power Method to find an eigenvalue near any target value
-> 5. Analyze convergence rate as a function of the spectral gap $`|\lambda_2 / \lambda_1|`$
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
+
+> **Learning Objectives:**
+> 1. Compute eigenpairs with `numpy.linalg.eig` and verify them with the trace and determinant identities
+> 2. Implement the power method to find the dominant eigenvalue of a matrix
+> 3. Apply the inverse power method to find the smallest eigenvalue
+> 4. Use the shifted power method to find an eigenvalue near any target value
+> 5. Analyze the convergence rate as a function of the eigenvalue ratio $`|\lambda_2 / \lambda_1|`$
 
 ---
 
@@ -29,11 +29,16 @@
   - [2.3 Python Implementation](#23-python-implementation)
   - [2.4 Convergence Analysis](#24-convergence-analysis)
 - [3. Inverse and Shifted Power Methods](#3-inverse-and-shifted-power-methods)
-  - [3.1 Inverse Power Method — Smallest Eigenvalue](#31-inverse-power-method--smallest-eigenvalue)
-  - [3.2 Shifted Power Method — Any Eigenvalue](#32-shifted-power-method--any-eigenvalue)
+  - [3.1 Inverse Power Method for the Smallest Eigenvalue](#31-inverse-power-method-for-the-smallest-eigenvalue)
+  - [3.2 Shifted Power Method for Any Eigenvalue](#32-shifted-power-method-for-any-eigenvalue)
   - [3.3 Python Implementation](#33-python-implementation)
   - [3.4 Finding All Eigenvalues with Different Shifts](#34-finding-all-eigenvalues-with-different-shifts)
+- [4. Method Comparison and Practical Guidelines](#4-method-comparison-and-practical-guidelines)
+  - [4.1 Method Comparison](#41-method-comparison)
+  - [4.2 Key Formulas](#42-key-formulas)
+  - [4.3 Practical Tips](#43-practical-tips)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -55,9 +60,11 @@ For an $`n \times n`$ matrix this is a degree-$`n`$ polynomial in $`\lambda`$, y
 |:---------|:--------|
 | Trace identity | $`\text{tr}(A) = \sum_i a_{ii} = \sum_i \lambda_i`$ |
 | Determinant identity | $`\det(A) = \prod_i \lambda_i`$ |
-| Rank | equals the number of nonzero eigenvalues |
+| Rank | For a diagonalizable matrix (e.g., a symmetric matrix), equals the number of nonzero eigenvalues (counting multiplicity) |
 
-For a symmetric matrix, the eigenvectors returned by NumPy are orthonormal: $`V^T V = I`$.
+*Table 1. Algebraic identities for verifying eigenvalues*
+
+For a symmetric matrix with distinct eigenvalues, the unit eigenvectors returned by `eig` are orthonormal: $`V^T V = I`$. To obtain orthonormal eigenvectors even when eigenvalues repeat, use `eigh` (Chapter 13 Lab).
 
 ---
 
@@ -65,7 +72,7 @@ For a symmetric matrix, the eigenvectors returned by NumPy are orthonormal: $`V^
 
 ### 1.2 Geometric Interpretation
 
-For most vectors $`\mathbf{u}`$, the image $`A\mathbf{u}`$ points in a different direction from $`\mathbf{u}`$. An eigenvector is special: $`A\mathbf{v}`$ is exactly parallel to $`\mathbf{v}`$ and only scaled by $`\lambda`$. Geometrically, the map $`\mathbf{x} \mapsto A\mathbf{x}`$ transforms the unit circle into an ellipse whose axes are aligned with the eigenvectors:
+For most vectors $`\mathbf{u}`$, the image $`A\mathbf{u}`$ points in a different direction from $`\mathbf{u}`$. An eigenvector is special: $`A\mathbf{v}`$ is exactly parallel to $`\mathbf{v}`$ and only scaled by $`\lambda`$. Geometrically, for a symmetric matrix $`A`$, the map $`\mathbf{x} \mapsto A\mathbf{x}`$ transforms the unit circle into an ellipse whose axes are aligned with the eigenvectors (for a general matrix, the axes follow the singular vectors):
 
 ```python
 import numpy as np
@@ -104,7 +111,7 @@ plt.show()
 print(f'Eigenvalues: {eigvals_geo}')
 ```
 
-The eigenvectors $`\mathbf{v}_1, \mathbf{v}_2`$ are the only directions along which the transformation acts as a pure scaling. Every other direction gets rotated.
+In this example, the eigenvectors $`\mathbf{v}_1, \mathbf{v}_2`$ are the only directions along which the transformation acts as a pure scaling, and every other direction gets rotated. The code prints the eigenvalues 4 and 2.
 
 ---
 
@@ -136,7 +143,7 @@ for i in range(len(eigvals)):
     print(f'  lambda_{i+1}: {np.max(np.abs(res)):.2e}')
 ```
 
-After computing eigenpairs you should always verify the trace and determinant identities as a sanity check:
+Running it gives the eigenvalues $`21.72915618`$, $`13.18232626`$, and $`6.08851756`$. After computing eigenpairs, it is good practice to verify the result with the trace and determinant identities as a sanity check:
 
 ```python
 print('=== Key Properties ===')
@@ -151,7 +158,7 @@ print('\nV^T V (= I for symmetric A):')
 print(np.round(VTV, 8))
 ```
 
-If `trace ≠ sum(lambda)` or `det ≠ prod(lambda)`, something has gone wrong — either the matrix was entered incorrectly or a numerical issue has arisen.
+If `trace ≠ sum(lambda)` or `det ≠ prod(lambda)`, something has gone wrong: either the matrix was entered incorrectly or a numerical issue has arisen. For this matrix, the trace 41 and the determinant 1744 match the sum and the product of the eigenvalues.
 
 ---
 
@@ -161,9 +168,9 @@ If `trace ≠ sum(lambda)` or `det ≠ prod(lambda)`, something has gone wrong �
 
 ### 2.1 Algorithm
 
-`np.linalg.eig` computes all $`n`$ eigenpairs — an $`O(n^3)`$ operation. For large matrices, only the **dominant** eigenvalue (the one with the largest $`|\lambda|`$) is often needed. The **Power Method** finds it in $`O(n^2)`$ per iteration using only matrix–vector products.
+`np.linalg.eig` computes all $`n`$ eigenpairs, an $`O(n^3)`$ operation. For large matrices, only the **dominant** eigenvalue (the one with the largest $`|\lambda|`$) is often needed. The **power method** finds it in $`O(n^2)`$ per iteration using only matrix-vector products.
 
-**Why does it work?** Expand the starting vector in the eigenbasis:
+**Why does it work?** Assume that $`A`$ has $`n`$ linearly independent eigenvectors and expand the starting vector in the eigenbasis:
 
 ```math
 \mathbf{x}^{(0)} = c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + \cdots + c_n\mathbf{v}_n
@@ -175,13 +182,13 @@ Then after $`k`$ multiplications by $`A`$:
 A^k\mathbf{x}^{(0)} = \lambda_1^k\!\left[c_1\mathbf{v}_1 + c_2\!\left(\frac{\lambda_2}{\lambda_1}\right)^{\!k}\mathbf{v}_2 + \cdots\right]
 ```
 
-If $`|\lambda_1| > |\lambda_2| \ge \cdots \ge |\lambda_n|`$, the ratio $`(\lambda_2 / \lambda_1)^k \to 0`$ and $`A^k\mathbf{x}^{(0)}`$ aligns with $`\mathbf{v}_1`$. The convergence rate per iteration is approximately $`|\lambda_2 / \lambda_1|`$.
+If $`|\lambda_1| > |\lambda_2| \ge \cdots \ge |\lambda_n|`$ and $`c_1 \neq 0`$, the ratio $`(\lambda_2 / \lambda_1)^k \to 0`$ and the direction of $`A^k\mathbf{x}^{(0)}`$ aligns with $`\mathbf{v}_1`$. The convergence rate per iteration is approximately $`|\lambda_2 / \lambda_1|`$.
 
-**Algorithm** (normalize by the $`\infty`$-norm to prevent overflow). Given $`\mathbf{x}^{(0)} = \mathbf{1}`$, for $`k = 1, 2, \ldots`$:
+**Algorithm** (normalize by the $`\infty`$-norm to prevent overflow). Given $`\mathbf{x}^{(0)} = \mathbf{1}`$, repeat the following for $`k = 1, 2, \ldots`$:
 
-1. $`\mathbf{y}^{(k)} = A\,\mathbf{x}^{(k-1)}`$
-2. $`\lambda^{(k)} = y^{(k)}_{i^*}`$ where $`i^* = \arg\max_i |y_i^{(k)}|`$ — eigenvalue estimate
-3. $`\mathbf{x}^{(k)} = \mathbf{y}^{(k)} / \lambda^{(k)}`$ — normalize so that $`\|\mathbf{x}^{(k)}\|_\infty = 1`$
+1. Compute $`\mathbf{y}^{(k)} = A\,\mathbf{x}^{(k-1)}`$.
+2. Take the eigenvalue estimate $`\lambda^{(k)} = y^{(k)}_{i^*}`$, where $`i^* = \arg\max_i |y_i^{(k)}|`$.
+3. Normalize with $`\mathbf{x}^{(k)} = \mathbf{y}^{(k)} / \lambda^{(k)}`$ so that $`\|\mathbf{x}^{(k)}\|_\infty = 1`$.
 
 ---
 
@@ -204,7 +211,7 @@ for k in range(1, 8):
 print(f'\nTrue dominant lambda (numpy): {np.max(np.abs(eigvals)):.6f}')
 ```
 
-Within a handful of iterations, `lambda est` settles near the true dominant eigenvalue and the normalized vector `x_k` approaches the corresponding eigenvector (with $`\|\mathbf{x}\|_\infty = 1`$).
+Within a handful of iterations, `lambda est` approaches the true dominant eigenvalue and the normalized vector `x_k` approaches the corresponding eigenvector (with $`\|\mathbf{x}\|_\infty = 1`$). The estimate at iteration 7 is 21.838011, about 0.11 away from the true value 21.729156.
 
 ---
 
@@ -244,7 +251,7 @@ def power_method(A, x0=None, tol=1e-8, max_iter=500):
     return float(lam), x, lam_hist
 ```
 
-> **Note:** Normalizing by the element of largest absolute value (the $`\infty`$-norm) prevents overflow and keeps `lam` the eigenvalue estimate itself — no separate Rayleigh quotient is needed.
+> **Note:** Normalizing by the element of largest absolute value (the $`\infty`$-norm) prevents overflow and keeps `lam` the eigenvalue estimate itself, so no separate Rayleigh quotient is needed.
 
 ---
 
@@ -252,7 +259,7 @@ def power_method(A, x0=None, tol=1e-8, max_iter=500):
 
 ### 2.4 Convergence Analysis
 
-The theoretical convergence rate of the Power Method is $`|\lambda_2 / \lambda_1|`$: the closer this ratio is to 1, the slower the convergence.
+The theoretical convergence rate of the power method is $`|\lambda_2 / \lambda_1|`$: the closer this ratio is to 1, the slower the convergence.
 
 ```python
 lam_pm, v_pm, hist_pm = power_method(A, tol=1e-12)
@@ -289,7 +296,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-The semi-log error plot should be a straight line with slope $`\log|\lambda_2/\lambda_1|`$. Well-separated eigenvalues give rapid linear convergence; a small spectral gap (say $`|\lambda_2/\lambda_1| = 0.99`$) requires thousands of iterations to converge.
+The semi-log error plot should approach a straight line with slope $`\log|\lambda_2/\lambda_1|`$. For this matrix, $`|\lambda_2/\lambda_1| = 0.606665`$, so the error halves about every 1.4 iterations and the method converges in 51 iterations with `tol=1e-12`. Well-separated eigenvalues give rapid linear convergence; a small spectral gap that brings the ratio close to 1 (say $`|\lambda_2/\lambda_1| = 0.99`$) requires thousands of iterations to converge.
 
 ---
 
@@ -297,9 +304,9 @@ The semi-log error plot should be a straight line with slope $`\log|\lambda_2/\l
 
 ## 3. Inverse and Shifted Power Methods
 
-### 3.1 Inverse Power Method — Smallest Eigenvalue
+### 3.1 Inverse Power Method for the Smallest Eigenvalue
 
-If $`A\mathbf{v} = \lambda\mathbf{v}`$ and $`A`$ is invertible, then $`A^{-1}\mathbf{v} = (1/\lambda)\mathbf{v}`$. The smallest $`|\lambda_i|`$ of $`A`$ becomes the largest $`|1/\lambda_i|`$ of $`A^{-1}`$. Applying the Power Method to $`A^{-1}`$ therefore converges to $`1/\lambda_{\min}`$, and $`\lambda_{\min} = 1 / \mu_{\max}`$.
+If $`A\mathbf{v} = \lambda\mathbf{v}`$ and $`A`$ is invertible, then $`A^{-1}\mathbf{v} = (1/\lambda)\mathbf{v}`$. The smallest $`|\lambda_i|`$ of $`A`$ becomes the largest $`|1/\lambda_i|`$ of $`A^{-1}`$. Applying the power method to $`A^{-1}`$ therefore converges to $`1/\lambda_{\min}`$, and $`\lambda_{\min} = 1 / \mu_{\max}`$.
 
 **Implementation:** never form $`A^{-1}`$ explicitly. Each iteration solves $`A\mathbf{y} = \mathbf{x}`$ using the LU factorization of $`A`$, computed once. Per-iteration cost is $`O(n^2)`$ after the $`O(n^3)`$ factorization.
 
@@ -307,15 +314,15 @@ If $`A\mathbf{v} = \lambda\mathbf{v}`$ and $`A`$ is invertible, then $`A^{-1}\ma
 
 <br>
 
-### 3.2 Shifted Power Method — Any Eigenvalue
+### 3.2 Shifted Power Method for Any Eigenvalue
 
-Apply the Inverse Power Method to $`(A - \sigma I)`$ for a user-chosen **shift** $`\sigma`$. The eigenvalues of $`(A - \sigma I)^{-1}`$ are $`1/(\lambda_i - \sigma)`$. The eigenvalue of $`A`$ closest to $`\sigma`$ has the largest $`|1/(\lambda_i - \sigma)|`$, so the iteration converges to it:
+Apply the inverse power method to $`(A - \sigma I)`$ for a user-chosen **shift** $`\sigma`$, so the method is precisely a shifted inverse power method. The eigenvalues of $`(A - \sigma I)^{-1}`$ are $`1/(\lambda_i - \sigma)`$. The eigenvalue of $`A`$ closest to $`\sigma`$ has the largest $`|1/(\lambda_i - \sigma)|`$, so the iteration converges to it:
 
 ```math
 \lambda = \sigma + \frac{1}{\mu}, \qquad \mu = \text{dominant eigenvalue of } (A - \sigma I)^{-1}
 ```
 
-Setting $`\sigma = 0`$ recovers the Inverse Power Method (finds smallest $`|\lambda|`$). Setting $`\sigma`$ near any target value picks out the interior eigenvalue closest to it.
+Setting $`\sigma = 0`$ recovers the inverse power method (finds smallest $`|\lambda|`$). Setting $`\sigma`$ near any target value picks out the interior eigenvalue closest to it.
 
 ---
 
@@ -323,7 +330,7 @@ Setting $`\sigma = 0`$ recovers the Inverse Power Method (finds smallest $`|\lam
 
 ### 3.3 Python Implementation
 
-A single function handles both the Inverse Power Method ($`\sigma = 0`$) and the general Shifted variant:
+A single function handles both the inverse power method ($`\sigma = 0`$) and the general shifted variant:
 
 ```python
 import scipy as sc
@@ -364,7 +371,7 @@ def shifted_power_method(A, sigma=0.0, x0=None, tol=1e-8, max_iter=500):
     return float(lam), x, lam_hist
 ```
 
-> **Note:** The LU factorization is computed once outside the loop, so each iteration only needs an $`O(n^2)`$ triangular solve. Never use `np.linalg.inv(B) @ x` inside the loop — it is both slower and less numerically accurate.
+> **Note:** The LU factorization is computed once outside the loop, so each iteration only needs an $`O(n^2)`$ triangular solve. Do not use `np.linalg.inv(B) @ x` inside the loop, because it is both slower and less numerically accurate.
 
 ---
 
@@ -372,7 +379,7 @@ def shifted_power_method(A, sigma=0.0, x0=None, tol=1e-8, max_iter=500):
 
 ### 3.4 Finding All Eigenvalues with Different Shifts
 
-By choosing shifts near each eigenvalue of interest, the Shifted Power Method can recover every eigenvalue of a small matrix without calling `eig`:
+By choosing shifts near each eigenvalue of interest, the shifted power method can recover every eigenvalue of a small matrix without calling `eig`:
 
 ```python
 lam_sorted = np.sort(np.real(eigvals))
@@ -392,7 +399,39 @@ for label, func, kwargs, lam_t in tests:
     print(f'{label:<34}  {lam_f:>14.8f}  {lam_t:>12.8f}  {abs(lam_f-lam_t):>10.2e}  {len(hist):>6}')
 ```
 
-Shifts placed close to an eigenvalue lead to dramatically faster convergence: $`|1/(\lambda_i - \sigma)|`$ dominates the other reciprocals, so the effective spectral gap is very large. In practice, a rough estimate of $`\sigma`$ (e.g., from Gershgorin discs) is enough to converge in a handful of iterations.
+The closer a shift is to an eigenvalue, the more $`|1/(\lambda_i - \sigma)|`$ dominates the other reciprocals, so the effective eigenvalue ratio shrinks and convergence speeds up. The convergence ratio is $`|\lambda_j - \sigma| / |\lambda_k - \sigma|`$, where $`\lambda_j`$ is the eigenvalue closest to $`\sigma`$ and $`\lambda_k`$ the second closest. In the output above, $`\sigma = 24`$ gives a ratio of about 0.21 and converges in 18 iterations, whereas $`\sigma = 10`$ lies almost midway between the eigenvalues 6.09 and 13.18, gives a ratio of about 0.81, and needs 127 iterations. In practice, a rough $`\sigma`$ is chosen with tools such as Gershgorin discs, and convergence takes only a handful of iterations when $`\sigma`$ is much closer to the target eigenvalue than to any other.
+
+---
+
+<br>
+
+## 4. Method Comparison and Practical Guidelines
+
+### 4.1 Method Comparison
+
+| Method | Finds | Cost per iteration | Convergence rate |
+|:-------|:------|:------------------|:-----------------|
+| `np.linalg.eig(A)` | All $`n`$ eigenpairs | $`O(n^3)`$ total | Not applicable (direct computation) |
+| **Power Method** | Dominant $`\lambda`$ (largest $`\|\lambda\|`$) | $`O(n^2)`$ | $`\|\lambda_2 / \lambda_1\|`$ |
+| **Inverse Power** | Smallest $`\|\lambda\|`$ | $`O(n^2)`$ after LU | $`\|\lambda_{\min} / \lambda_{\text{next-smallest}}\|`$ |
+| **Shifted Power** | $`\lambda`$ nearest to $`\sigma`$ | $`O(n^2)`$ after LU | depends on shift quality |
+
+*Table 2. Comparison of eigenvalue computation methods*
+
+### 4.2 Key Formulas
+
+1. **Characteristic equation:** $`\det(A - \lambda I) = 0`$
+2. **Trace identity:** $`\text{tr}(A) = \sum_i \lambda_i`$ (use as sanity check)
+3. **Determinant identity:** $`\det(A) = \prod_i \lambda_i`$
+4. **Power step:** $`\lambda^{(k)} = y^{(k)}_{i^*}`$ (the entry of $`\mathbf{y}^{(k)} = A\mathbf{x}^{(k-1)}`$ with the largest absolute value, sign included), $`\mathbf{x}^{(k)} = A\mathbf{x}^{(k-1)} / \lambda^{(k)}`$
+5. **Shifted recovery:** $`\lambda = \sigma + 1/\mu`$ where $`\mu`$ is the dominant eigenvalue of $`(A - \sigma I)^{-1}`$
+
+### 4.3 Practical Tips
+
+- Always verify eigenpairs via the trace and determinant identities and the residual $`\|A\mathbf{v} - \lambda\mathbf{v}\|`$.
+- Factor $`(A - \sigma I)`$ once outside the iteration loop, and never invert it explicitly.
+- A small spectral gap means slow power method convergence, so shift to amplify the effective gap.
+- Use the shifted power method to probe interior eigenvalues without computing the whole spectrum.
 
 ---
 
@@ -400,26 +439,63 @@ Shifts placed close to an eigenvalue lead to dramatically faster convergence: $`
 
 ## Summary
 
-| Method | Finds | Cost per iteration | Convergence rate |
-|:-------|:------|:------------------|:-----------------|
-| `np.linalg.eig(A)` | All $`n`$ eigenpairs | $`O(n^3)`$ total | — |
-| **Power Method** | Dominant $`\lambda`$ (largest $`\|\lambda\|`$) | $`O(n^2)`$ | $`\|\lambda_2 / \lambda_1\|`$ |
-| **Inverse Power** | Smallest $`\|\lambda\|`$ | $`O(n^2)`$ after LU | $`\|\lambda_{\min} / \lambda_{\text{next-smallest}}\|`$ |
-| **Shifted Power** | $`\lambda`$ nearest to $`\sigma`$ | $`O(n^2)`$ after LU | depends on shift quality |
-
-Key formulas:
-
-1. **Characteristic equation**: $`\det(A - \lambda I) = 0`$
-2. **Trace identity**: $`\text{tr}(A) = \sum_i \lambda_i`$ (use as sanity check)
-3. **Determinant identity**: $`\det(A) = \prod_i \lambda_i`$
-4. **Power step**: $`\lambda^{(k)} = \max\|A\mathbf{x}^{(k-1)}\|_\infty, \quad \mathbf{x}^{(k)} = A\mathbf{x}^{(k-1)} / \lambda^{(k)}`$
-5. **Shifted recovery**: $`\lambda = \sigma + 1/\mu`$ where $`\mu`$ is the dominant eigenvalue of $`(A - \sigma I)^{-1}`$
-
-Practical tips:
-
-- Always verify eigenpairs via the trace/determinant identities and the residual $`\|A\mathbf{v} - \lambda\mathbf{v}\|`$
-- Factor $`(A - \sigma I)`$ once outside the iteration loop — never invert explicitly
-- A small spectral gap means slow Power Method convergence; shift to amplify the effective gap
-- Use the Shifted Power Method to probe interior eigenvalues without computing the whole spectrum
+| Concept | Key Summary |
+|:-----|:-----|
+| Characteristic equation | The eigenvalues are the roots of $`\det(A - \lambda I) = 0`$, and an $`n \times n`$ matrix has $`n`$ eigenvalues counting multiplicity. |
+| Trace and determinant identities | The identities $`\text{tr}(A) = \sum_i \lambda_i`$ and $`\det(A) = \prod_i \lambda_i`$ verify computed eigenvalues. |
+| `np.linalg.eig` | It computes all eigenpairs in $`O(n^3)`$, and the columns of the eigenvector matrix follow the order of the eigenvalue array. |
+| Power method | Repeated multiplication by $`A`$ with normalization by the largest-magnitude entry gives the dominant eigenvalue and eigenvector at $`O(n^2)`$ per iteration. |
+| Convergence ratio | The power method error shrinks by about $`\vert\lambda_2/\lambda_1\vert`$ per iteration, and a ratio close to 1 means slow convergence. |
+| Inverse power method | The power method is applied to $`A^{-1}`$ by solving $`A\mathbf{y} = \mathbf{x}`$ with an LU factorization, which gives the smallest $`\vert\lambda\vert`$. |
+| Shifted power method | The power method is applied to $`(A - \sigma I)^{-1}`$ and $`\lambda = \sigma + 1/\mu`$ recovers the eigenvalue closest to $`\sigma`$. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **Power method by hand:** Apply three iterations of the power method to $`A = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}`$ with $`\mathbf{x}^{(0)} = [1, 0]^T`$ and give the eigenvalue estimates. Where do the estimates converge, and what is the convergence ratio per iteration?
+
+   <details>
+   <summary>Answer</summary>
+
+   Since $`A\mathbf{x}^{(0)} = [2, 1]^T`$, $`\lambda^{(1)} = 2`$ and $`\mathbf{x}^{(1)} = [1, 0.5]^T`$. Since $`A\mathbf{x}^{(1)} = [2.5, 2]^T`$, $`\lambda^{(2)} = 2.5`$ and $`\mathbf{x}^{(2)} = [1, 0.8]^T`$. Since $`A\mathbf{x}^{(2)} = [2.8, 2.6]^T`$, $`\lambda^{(3)} = 2.8`$. The eigenvalues of $`A`$ are 3 and 1, so the estimates converge to 3 with convergence ratio $`\vert\lambda_2/\lambda_1\vert = 1/3`$ per iteration.
+
+   </details>
+
+2. **Trace and determinant identities:** For the matrix $`A`$ of Section 1.3, given the two eigenvalues 21.729156 and 13.182326, find the remaining eigenvalue with the trace identity and check it with the determinant identity.
+
+   <details>
+   <summary>Answer</summary>
+
+   Since $`\text{tr}(A) = 20 + 9 + 12 = 41`$, the remaining eigenvalue is $`41 - 21.729156 - 13.182326 = 6.088518`$. The product of the three eigenvalues is $`21.729156 \times 13.182326 \times 6.088518 \approx 1744.0`$, which matches $`\det(A) = 1744`$.
+
+   </details>
+
+3. **Choosing a shift:** If the shifted power method is applied to the same matrix with $`\sigma = 15`$, which eigenvalue does it converge to? Find $`\mu`$ at convergence and the convergence ratio per iteration.
+
+   <details>
+   <summary>Answer</summary>
+
+   The distances from 15 are $`\vert 21.729 - 15\vert = 6.729`$, $`\vert 13.182 - 15\vert = 1.818`$, and $`\vert 6.089 - 15\vert = 8.911`$, so the method converges to the closest eigenvalue, 13.182326. Then $`\mu = 1/(13.182326 - 15) \approx -0.5502`$, and the convergence ratio is $`1.818/6.729 \approx 0.270`$.
+
+   </details>
+
+4. **Condition on the starting vector:** What happens in theory if the starting vector of the power method has no component along the dominant eigenvector $`\mathbf{v}_1`$ ($`c_1 = 0`$)? What happens in actual floating-point computation?
+
+   <details>
+   <summary>Answer</summary>
+
+   In the expansion of Section 2.1, $`c_1 = 0`$ removes the $`\lambda_1^k`$ term, so in exact arithmetic the iteration converges to the eigenvalue of largest magnitude among the remaining components (e.g., $`\lambda_2`$ if $`c_2 \neq 0`$ and $`\vert\lambda_2\vert > \vert\lambda_3\vert`$). In floating-point computation, round-off error gradually introduces a $`\mathbf{v}_1`$ component, so the iteration usually converges to $`\lambda_1`$ in the end, although it may need many more iterations.
+
+   </details>
+
+5. **Cost of the inverse power method:** For $`m`$ iterations of the inverse power method on a dense $`n \times n`$ matrix, compare the total cost of factoring the matrix once by LU with the cost of factoring it anew in every iteration.
+
+   <details>
+   <summary>Answer</summary>
+
+   Factoring once costs one $`O(n^3)`$ factorization plus an $`O(n^2)`$ triangular solve per iteration, for a total of $`O(n^3 + mn^2)`$. Factoring in every iteration costs $`O(mn^3)`$ in total, and the gap widens as $`m`$ grows.
+
+   </details>

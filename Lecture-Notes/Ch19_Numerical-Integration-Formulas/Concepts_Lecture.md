@@ -1,15 +1,16 @@
-# Chapter 19 Lecture — Numerical Integration Formulas
+# Chapter 19 — Numerical Integration Formulas
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 19
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] Integration (Ch 1-18).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Apply trapezoidal rule and Simpson's rules
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 19
+
+> **Learning Objectives:**
+> 1. Apply the trapezoidal rule and Simpson's rules
 > 2. Derive error estimates for numerical integration
-> 3. Implement Romberg integration and Gauss quadrature
+> 3. Combine Simpson's 1/3 and 3/8 rules to match the number of segments
+> 4. Implement the composite trapezoidal and Simpson's rules in Python
 
 ---
 
@@ -18,7 +19,7 @@
 ## Table of Contents
 
 - [1. Introduction to Numerical Integration](#1-introduction-to-numerical-integration)
-  - [1.1 Motivation — Why Numerical Integration?](#11-motivation--why-numerical-integration)
+  - [1.1 Motivation: Why Numerical Integration?](#11-motivation-why-numerical-integration)
   - [1.2 The General Idea: Polynomial Approximation](#12-the-general-idea-polynomial-approximation)
   - [1.3 Lagrange Polynomial Review](#13-lagrange-polynomial-review)
   - [1.4 Quadrature Formulas and Newton-Cotes](#14-quadrature-formulas-and-newton-cotes)
@@ -46,9 +47,17 @@
   - [6.3 Error Analysis](#63-error-analysis)
 - [7. Composite Simpson's 3/8 Rule](#7-composite-simpsons-38-rule)
   - [7.1 Error Analysis](#71-error-analysis)
-- [8. Combining Rules — Practical Application](#8-combining-rules--practical-application)
+- [8. Combining Rules: Practical Application](#8-combining-rules-practical-application)
 - [9. Python Implementations](#9-python-implementations)
+  - [9.1 Trapezoidal Rule (Single Application)](#91-trapezoidal-rule-single-application)
+  - [9.2 Composite Trapezoidal Rule](#92-composite-trapezoidal-rule)
+  - [9.3 Simpson's 1/3 Rule (Single Application)](#93-simpsons-13-rule-single-application)
+  - [9.4 Composite Simpson's 1/3 Rule](#94-composite-simpsons-13-rule)
+  - [9.5 Simpson's 3/8 Rule (Single Application)](#95-simpsons-38-rule-single-application)
+  - [9.6 Complete Example: Comparing All Methods](#96-complete-example-comparing-all-methods)
+- [10. Comparison of Newton-Cotes Formulas](#10-comparison-of-newton-cotes-formulas)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -56,7 +65,7 @@
 
 ## 1. Introduction to Numerical Integration
 
-### 1.1 Motivation — Why Numerical Integration?
+### 1.1 Motivation: Why Numerical Integration?
 
 Numerical integration deals with the problem of approximating the definite integral of a function over an interval:
 
@@ -64,9 +73,9 @@ Numerical integration deals with the problem of approximating the definite integ
 I = \int_a^b f(x)\,dx \approx I_n
 ```
 
-Many real-world integrals **cannot be evaluated analytically**. A classic motivating example from the lecture involves a semiconductor wafer manufacturer.
+Many real-world integrals **cannot be evaluated analytically**. A classic motivating example involves a semiconductor wafer manufacturer.
 
-**Example — Wafer Quality Control:**
+**Example: Wafer Quality Control**
 
 A manufacturer produces 2-inch diameter wafers. The actual diameter is normally distributed with mean $`\mu = 2`$ inches and standard deviation $`\sigma = 0.01`$ inches. Specifications require the diameter to be between 1.985 and 2.02 inches. What is the probability that a wafer is acceptable?
 
@@ -128,7 +137,7 @@ The polynomial part can be expanded:
 \int_a^b p_n(x)\,dx = \int_a^b \sum_{j=0}^{n} p_n(x_j)\,\ell_j(x)\,dx = \sum_{j=0}^{n} p_n(x_j) \underbrace{\int_a^b \ell_j(x)\,dx}_{\text{a number (weight)}}
 ```
 
-> **[Calculus]** The key insight is that $`\int_a^b \ell_j(x)\,dx`$ does **not** depend on $`p_n(x)`$ — it is a fixed numerical weight determined only by the node positions and the interval $`[a,b]`$. This is why these are called **quadrature formulas**.
+> **Key Point:** $`\int_a^b \ell_j(x)\,dx`$ does **not** depend on $`p_n(x)`$. It is a fixed numerical weight determined only by the node positions and the interval $`[a,b]`$. This is why these are called **quadrature formulas**.
 
 The approach of approximating $`I = \int_a^b f(x)\,dx`$ by $`I_n = \int_a^b f_n(x)\,dx`$ where $`f_n(x)`$ is an $`n`$-th order polynomial is the foundation of **Newton-Cotes formulas**. The choice of $`n`$ determines the specific rule:
 
@@ -137,6 +146,8 @@ The approach of approximating $`I = \int_a^b f(x)\,dx`$ by $`I_n = \int_a^b f_n(
 | 1 | Trapezoidal Rule | Linear |
 | 2 | Simpson's 1/3 Rule | Quadratic |
 | 3 | Simpson's 3/8 Rule | Cubic |
+
+*Table 1. Newton-Cotes rules by polynomial order*
 
 ---
 
@@ -190,7 +201,7 @@ After algebraic simplification:
 \boxed{I \approx I_1 = \frac{b - a}{2}\bigl[f(a) + f(b)\bigr] = (b - a) \cdot \frac{f(a) + f(b)}{2}}
 ```
 
-> **[Calculus]** The trapezoidal rule computes the area of a **trapezoid** formed by the function values at the endpoints. The factor $`(b - a)`$ is the **width** and $`\frac{f(a) + f(b)}{2}`$ is the **average height**.
+> **Note:** **Geometric interpretation.** The trapezoidal rule computes the area of a **trapezoid** formed by the function values at the endpoints. The factor $`(b - a)`$ is the **width** and $`\frac{f(a) + f(b)}{2}`$ is the **average height**.
 
 ### 2.3 Truncation Error
 
@@ -202,7 +213,7 @@ The error of the trapezoidal rule is:
 
 **Important consequence:** If $`f(x) = mx + n`$ (a linear function), then $`f''(x) = 0`$, so $`E_1 = 0`$. The **trapezoidal rule is exact for linear functions** (polynomials of degree $`\leq 1`$).
 
-> **[Calculus]** The error is proportional to $`(b-a)^3`$ and depends on the second derivative $`f''`$. This tells us: (1) narrower intervals give smaller errors, and (2) functions with small curvature are well approximated by this rule.
+> **Note:** **Meaning of the error.** The error is proportional to $`(b-a)^3`$ and depends on the second derivative $`f''`$. This tells us that (1) narrower intervals give smaller errors and (2) functions with small curvature are well approximated by this rule.
 
 ---
 
@@ -298,7 +309,7 @@ With $`h = \frac{b - a}{2}`$:
 \boxed{I \approx I_2 = \frac{h}{3}(f_1 + 4f_2 + f_3) = \frac{b - a}{6}\bigl[f(a) + 4f\!\left(\tfrac{a+b}{2}\right) + f(b)\bigr]}
 ```
 
-> **[Calculus]** The name "1/3 rule" comes from the factor $`\frac{h}{3}`$ in the formula. The middle point receives **four times** the weight of the endpoints, reflecting the parabola's better fit near the center of the interval.
+> **Note:** **Name and weights.** The name "1/3 rule" comes from the factor $`\frac{h}{3}`$ in the formula. The middle point receives **four times** the weight of the endpoints because, as computed in Section 3.2, $`\int_a^b \ell_2(x)\,dx = \frac{4(b - a)}{6}`$ is four times $`\int_a^b \ell_1(x)\,dx = \frac{b - a}{6}`$.
 
 ### 3.4 Truncation Error
 
@@ -316,7 +327,7 @@ Since $`h = \frac{b - a}{2}`$:
 
 **Key insight:** Although Simpson's 1/3 rule uses a **second-order** polynomial, the error depends on the **fourth derivative** $`f^{(4)}`$. This means Simpson's 1/3 rule is **exact for polynomials up to degree 3** (since $`f^{(4)} = 0`$ for cubics).
 
-> **[Calculus]** This "bonus order" of accuracy occurs because the odd-power error terms cancel out due to the symmetry of the integration nodes around the midpoint.
+> **Note:** **Source of the extra accuracy.** This extra order of accuracy occurs because the odd-power error terms cancel out due to the symmetry of the integration nodes around the midpoint.
 
 ---
 
@@ -332,16 +343,16 @@ Approximate $`f(x)`$ by a third-order polynomial $`p_3(x)`$ through four equally
 x_0 = a, \quad x_1 = a + h, \quad x_2 = a + 2h, \quad x_3 = b
 ```
 
-The interpolating polynomial is:
+Writing $`f_i = f(x_i)`$, the interpolating polynomial is:
 
 ```math
-p_3(x) = f_1\,\ell_1(x) + f_2\,\ell_2(x) + f_3\,\ell_3(x) + f_4\,\ell_4(x)
+p_3(x) = f_0\,\ell_0(x) + f_1\,\ell_1(x) + f_2\,\ell_2(x) + f_3\,\ell_3(x)
 ```
 
 Integrating:
 
 ```math
-\int_a^b p_3(x)\,dx = f_1 \int_a^b \ell_1(x)\,dx + f_2 \int_a^b \ell_2(x)\,dx + f_3 \int_a^b \ell_3(x)\,dx + f_4 \int_a^b \ell_4(x)\,dx
+\int_a^b p_3(x)\,dx = f_0 \int_a^b \ell_0(x)\,dx + f_1 \int_a^b \ell_1(x)\,dx + f_2 \int_a^b \ell_2(x)\,dx + f_3 \int_a^b \ell_3(x)\,dx
 ```
 
 ### 4.2 Final Formula
@@ -350,7 +361,7 @@ Integrating:
 \boxed{I \approx I_3 = \frac{3h}{8}(f_0 + 3f_1 + 3f_2 + f_3), \qquad h = \frac{b - a}{3}}
 ```
 
-> **[Calculus]** The name "3/8 rule" comes from the coefficient $`\frac{3}{8}`$ multiplied by $`h`$. The weights follow the pattern $`1 : 3 : 3 : 1`$, reflecting the symmetric cubic interpolation.
+> **Note:** **Name and weights.** The name "3/8 rule" comes from the coefficient $`\frac{3}{8}`$ multiplied by $`h`$. The weights follow the pattern $`1 : 3 : 3 : 1`$, reflecting the symmetric cubic interpolation.
 
 ### 4.3 Truncation Error
 
@@ -366,7 +377,7 @@ Since $`h = \frac{b - a}{3}`$:
 
 Like Simpson's 1/3 rule, the 3/8 rule is also **exact for polynomials up to degree 3**, since the error depends on $`f^{(4)}`$.
 
-> **[Calculus]** Comparing single-application errors: $`|E_3| = \frac{(b-a)^5}{6480}|f^{(4)}(\xi)|`$ vs. $`|E_2| = \frac{(b-a)^5}{2880}|f^{(4)}(\xi)|`$. The 3/8 rule is **more accurate** per single application ($`6480 > 2880`$), but requires one additional function evaluation.
+> **Note:** **Single-application error comparison.** For one application over the same interval, $`|E_3| = \frac{(b-a)^5}{6480}|f^{(4)}(\xi)|`$ and $`|E_2| = \frac{(b-a)^5}{2880}|f^{(4)}(\xi)|`$. The 3/8 rule is **more accurate** per single application ($`6480 > 2880`$), but requires one additional function evaluation.
 
 ---
 
@@ -442,7 +453,7 @@ The average of $`f''(\xi_i)`$ values approximates $`\overline{f''}`$, and $`n = 
 
 The error is **proportional to $`h^2`$**. Therefore:
 
-> **If $`n`$ is doubled, the truncation error is reduced to one-fourth!** (Since $`h^2 \to (h/2)^2 = h^2/4`$.)
+> **Key Point:** **If $`n`$ is doubled, the truncation error is reduced to one-fourth** (since $`h^2 \to (h/2)^2 = h^2/4`$).
 
 ---
 
@@ -480,7 +491,20 @@ Equivalently:
 = (b - a)\,\frac{f_0 + 4\displaystyle\sum_{\substack{i\,\text{odd}}} f_i + 2\displaystyle\sum_{\substack{i\,\text{even}}} f_i + f_n}{3n}
 ```
 
-> **[Calculus]** The pattern of weights is $`1, 4, 2, 4, 2, 4, \ldots, 2, 4, 1`$. Odd-indexed interior points get weight 4, even-indexed interior points get weight 2, and endpoints get weight 1. This requires $`n`$ to be **even**.
+> **Note:** **Weight pattern.** The pattern of weights is $`1, 4, 2, 4, 2, 4, \ldots, 2, 4, 1`$. Odd-indexed interior points get weight 4, even-indexed interior points get weight 2, and endpoints get weight 1. This requires $`n`$ to be **even**.
+
+Even-indexed interior points get weight 2 because each is the shared endpoint of two neighboring pairs of subintervals, so its weight 1 is added twice.
+
+```text
+          x_0  x_1  x_2  x_3  x_4  x_5  x_6
+[x_0,x_2]  1    4    1
+[x_2,x_4]            1    4    1
+[x_4,x_6]                      1    4    1
+          ---  ---  ---  ---  ---  ---  ---
+           1    4    2    4    2    4    1
+```
+
+*Figure 1. Simpson weights (in units of h/3) of each pair of subintervals and their sum for n = 6*
 
 ### 6.3 Error Analysis
 
@@ -504,7 +528,7 @@ Since $`h = \frac{b-a}{n}`$:
 
 The error is **proportional to $`h^4`$**. Therefore:
 
-> **If $`n`$ is doubled, the truncation error is reduced by a factor of 16!** (Since $`h^4 \to (h/2)^4 = h^4/16`$.)
+> **Key Point:** **If $`n`$ is doubled, the truncation error is reduced by a factor of 16** (since $`h^4 \to (h/2)^4 = h^4/16`$).
 
 ---
 
@@ -532,22 +556,22 @@ E_{3t} = -\frac{3}{80}\,h^5 \sum_{k=1}^{n/3} f^{(4)}(\xi_k) \approx -\frac{1}{80
 \boxed{E_{3a} \approx -\frac{(b - a)}{80}\,\overline{f^{(4)}}\,h^4}
 ```
 
-Like the composite 1/3 rule, the error is proportional to $`h^4`$, but the constant is slightly different.
+Like the composite 1/3 rule, the error is proportional to $`h^4`$, but the constant is larger.
 
-> **[Calculus]** Although the 3/8 rule is more accurate than the 1/3 rule for a **single application**, the composite 3/8 rule has a larger error constant ($`\frac{1}{80}`$ vs. $`\frac{1}{180}`$) per unit of $`h^4`$ when applied in composite form. This is because the 3/8 rule uses more subintervals per application.
+> **Note:** **Error constant of the composite 3/8 rule.** Although the 3/8 rule is more accurate than the 1/3 rule for a **single application**, the composite 3/8 rule has a larger error constant ($`\frac{1}{80}`$ vs. $`\frac{1}{180}`$) per unit of $`h^4`$ when applied in composite form. This is because the 3/8 rule uses more subintervals per application.
 
 ---
 
 <br>
 
-## 8. Combining Rules — Practical Application
+## 8. Combining Rules: Practical Application
 
 In practice, when the number of segments $`n`$ is **not even** (required for composite Simpson's 1/3) and **not a multiple of 3** (required for composite Simpson's 3/8), we can **combine** the two rules:
 
-- Apply Simpson's **1/3 rule** to a portion of the subintervals (uses pairs of segments)
-- Apply Simpson's **3/8 rule** to the remaining subintervals (uses triples of segments)
+- Apply Simpson's **1/3 rule** to a portion of the subintervals (using pairs of segments).
+- Apply Simpson's **3/8 rule** to the remaining subintervals (using triples of segments).
 
-For example, with 5 segments: use the 1/3 rule on the first 2 segments and the 3/8 rule on the last 3 segments (or vice versa).
+For example, with 5 segments, use the 1/3 rule on the first 2 segments and the 3/8 rule on the last 3 segments (or vice versa). Computing $`\int_0^1 e^x\,dx`$ this way with $`n = 5`$ gives 1.718310, an error of about $`-2.9 \times 10^{-5}`$ from the true value 1.718282.
 
 ---
 
@@ -555,7 +579,7 @@ For example, with 5 segments: use the 1/3 rule on the first 2 segments and the 3
 
 ## 9. Python Implementations
 
-### Trapezoidal Rule (Single Application)
+### 9.1 Trapezoidal Rule (Single Application)
 
 ```python
 def trapezoidal(f, a, b):
@@ -563,7 +587,7 @@ def trapezoidal(f, a, b):
     return (b - a) / 2 * (f(a) + f(b))
 ```
 
-### Composite Trapezoidal Rule
+### 9.2 Composite Trapezoidal Rule
 
 ```python
 def composite_trapezoidal(f, a, b, n):
@@ -576,7 +600,7 @@ def composite_trapezoidal(f, a, b, n):
     return h / 2 * result
 ```
 
-### Simpson's 1/3 Rule (Single Application)
+### 9.3 Simpson's 1/3 Rule (Single Application)
 
 ```python
 def simpson_13(f, a, b):
@@ -585,7 +609,7 @@ def simpson_13(f, a, b):
     return h / 3 * (f(a) + 4 * f(a + h) + f(b))
 ```
 
-### Composite Simpson's 1/3 Rule
+### 9.4 Composite Simpson's 1/3 Rule
 
 ```python
 def composite_simpson_13(f, a, b, n):
@@ -602,7 +626,7 @@ def composite_simpson_13(f, a, b, n):
     return h / 3 * result
 ```
 
-### Simpson's 3/8 Rule (Single Application)
+### 9.5 Simpson's 3/8 Rule (Single Application)
 
 ```python
 def simpson_38(f, a, b):
@@ -611,7 +635,7 @@ def simpson_38(f, a, b):
     return 3 * h / 8 * (f(a) + 3 * f(a + h) + 3 * f(a + 2 * h) + f(b))
 ```
 
-### Complete Example — Comparing All Methods
+### 9.6 Complete Example: Comparing All Methods
 
 ```python
 import math
@@ -631,11 +655,24 @@ print(f"Composite Trap (n=10):   {composite_trapezoidal(f, a, b, 10):.10f}")
 print(f"Composite S-1/3 (n=10):  {composite_simpson_13(f, a, b, 10):.10f}")
 ```
 
+The output is as follows.
+
+```text
+Exact value: 1.7182818285
+Trapezoidal (n=1):       1.8591409142
+Simpson's 1/3 (n=2):     1.7188611519
+Simpson's 3/8 (n=3):     1.7185401534
+Composite Trap (n=10):   1.7197134914
+Composite S-1/3 (n=10):  1.7182827819
+```
+
+The error of the composite Simpson's 1/3 rule ($`n = 10`$) is about $`-9.5 \times 10^{-7}`$, far smaller than the error of about $`-1.4 \times 10^{-3}`$ of the composite trapezoidal rule with the same $`n`$.
+
 ---
 
 <br>
 
-## Summary
+## 10. Comparison of Newton-Cotes Formulas
 
 | Rule | Formula | Points | Error (Single) | Error (Composite) | Exact For |
 |------|---------|--------|----------------|-------------------|-----------|
@@ -643,10 +680,71 @@ print(f"Composite S-1/3 (n=10):  {composite_simpson_13(f, a, b, 10):.10f}")
 | **Simpson's 1/3** | $`\dfrac{h}{3}(f_0 + 4f_1 + f_2)`$ | 3 | $`O\bigl((b-a)^5\bigr)`$ | $`O(h^4)`$ | Degree $`\leq 3`$ |
 | **Simpson's 3/8** | $`\dfrac{3h}{8}(f_0 + 3f_1 + 3f_2 + f_3)`$ | 4 | $`O\bigl((b-a)^5\bigr)`$ | $`O(h^4)`$ | Degree $`\leq 3`$ |
 
-**Key takeaways from the lecture:**
+*Table 2. Formula, number of points, error, and exact degree of the Newton-Cotes formulas*
 
-1. All Newton-Cotes formulas work by **replacing the integrand with a polynomial** and integrating the polynomial exactly
-2. The **trapezoidal rule** uses a 1st-order polynomial; its composite error decreases as $`O(h^2)`$ --- doubling $`n`$ reduces error by $`4\times`$
-3. **Simpson's 1/3 rule** uses a 2nd-order polynomial but is exact up to degree 3 due to symmetry; its composite error decreases as $`O(h^4)`$ --- doubling $`n`$ reduces error by $`16\times`$
-4. **Simpson's 3/8 rule** uses a 3rd-order polynomial; also exact up to degree 3 with $`O(h^4)`$ composite error; slightly more accurate per single application than the 1/3 rule
-5. The **composite versions** subdivide the interval to reduce error, and different rules can be **combined** when $`n`$ does not match the divisibility requirements of a single rule
+---
+
+<br>
+
+## Summary
+
+| Concept | Key Summary |
+|---------|-------------|
+| Newton-Cotes formulas | They replace the integrand with an interpolating polynomial through equally spaced nodes and integrate it exactly, and the weights are the integrals of the basis polynomials. |
+| Trapezoidal rule | It uses a first-order polynomial, its single-application error is $`-\frac{1}{12}f''(\xi)(b-a)^3`$, and it is exact for polynomials of degree 1 or less. |
+| Simpson's 1/3 rule | It uses a second-order polynomial but is exact for polynomials up to degree 3 due to symmetry, and its single-application error is $`-\frac{(b-a)^5}{2880}f^{(4)}(\xi)`$. |
+| Simpson's 3/8 rule | It uses a third-order polynomial, is exact for polynomials up to degree 3, and is slightly more accurate than the 1/3 rule per single application. |
+| Composite trapezoidal rule | It applies the rule on $`n`$ segments, and since its error is $`O(h^2)`$, doubling $`n`$ reduces the error to about one-fourth. |
+| Composite Simpson's rules | The 1/3 rule needs an even $`n`$ and the 3/8 rule needs $`n`$ to be a multiple of 3, and since the error is $`O(h^4)`$, doubling $`n`$ reduces the error to about one-sixteenth. |
+| Combining rules | When $`n`$ does not meet the requirement of a single rule, the 1/3 and 3/8 rules are applied to different parts of the interval. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Single-application comparison:** Approximate $`\int_0^1 e^x\,dx`$ (true value $`e - 1 \approx 1.718282`$) with the single-application trapezoidal rule and Simpson's 1/3 rule, and find each error $`E = I - I_n`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The trapezoidal rule gives $`\frac{1 - 0}{2}(e^0 + e^1) = \frac{1 + 2.718282}{2} = 1.859141`$, an error of about $`-0.140859`$. For Simpson's 1/3 rule, $`h = 0.5`$, so it gives $`\frac{0.5}{3}(1 + 4e^{0.5} + e) = \frac{1 + 6.594885 + 2.718282}{6} = 1.718861`$, an error of about $`-0.000579`$.
+
+   </details>
+
+2. **Error estimate of the composite trapezoidal rule:** The composite trapezoidal rule with $`n = 10`$ gives 1.719713 for the same integral. Taking $`\overline{f''}`$ as the mean value $`e - 1`$ of $`f''(x) = e^x`$ on $`[0, 1]`$, estimate the approximate error $`E_a`$ and compare it with the actual error. Also predict the error for $`n = 20`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`E_a \approx -\frac{(1 - 0)^3}{12 \times 10^2} \times 1.718282 = -0.001432`$. The actual error $`1.718282 - 1.719713 = -0.001432`$ is almost the same. Since the error is proportional to $`h^2`$, the error for $`n = 20`$ is about one-fourth, $`-0.000358`$. The actual computation gives 1.718640, an error of $`-0.000358`$.
+
+   </details>
+
+3. **Accuracy of Simpson's rule:** Compute $`\int_0^2 x^3\,dx`$ with Simpson's 1/3 rule and explain why the result equals the true value.
+
+   <details>
+   <summary>Answer</summary>
+
+   With $`h = 1`$ and $`f(0) = 0`$, $`f(1) = 1`$, $`f(2) = 8`$, the rule gives $`\frac{1}{3}(0 + 4 \times 1 + 8) = 4`$. This equals the true value $`\frac{x^4}{4}\Big|_0^2 = 4`$. The error is proportional to $`f^{(4)}`$, and $`f^{(4)} = 0`$ for a cubic, so the error is zero.
+
+   </details>
+
+4. **Combining rules:** Describe how to integrate over 7 equally spaced subintervals using only Simpson's rules.
+
+   <details>
+   <summary>Answer</summary>
+
+   Since 7 is neither even nor a multiple of 3, a single rule cannot be applied. Apply the composite 1/3 rule (2 pairs of subintervals) to the first 4 subintervals and the 3/8 rule to the remaining 3. The order may be reversed so that the 3/8 rule covers the first 3. Both rules have $`O(h^4)`$ error, so the combined result keeps $`O(h^4)`$ accuracy.
+
+   </details>
+
+5. **Error order and n:** In the composite Simpson's 1/3 rule, by roughly what factor does the error shrink when $`n`$ grows from 10 to 20? If the error for $`\int_0^1 e^x\,dx`$ with $`n = 10`$ is about $`-9.5 \times 10^{-7}`$, predict the error for $`n = 20`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   Since the error is proportional to $`h^4`$, it shrinks to about one-sixteenth. The prediction is $`-9.5 \times 10^{-7} / 16 \approx -6.0 \times 10^{-8}`$, which agrees well with the actual error $`-5.96 \times 10^{-8}`$.
+
+   </details>

@@ -1,15 +1,16 @@
-# Chapter 22 Lecture — Initial-Value Problems for ODEs
+# Chapter 22 — Initial-Value Problems for ODEs
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 22
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] ODEs, derivatives (Ch 1-21).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 22
+
+> **Learning Objectives:**
 > 1. Apply Euler's method for initial value problems
 > 2. Implement Runge-Kutta methods (RK2, RK4)
 > 3. Analyze stability and accuracy of ODE solvers
+> 4. Convert higher-order ODEs into first-order systems and solve them numerically
 
 ---
 
@@ -34,7 +35,7 @@
 - [4. Runge-Kutta (RK) Methods](#4-runge-kutta-rk-methods)
   - [4.1 Core Idea](#41-core-idea)
   - [4.2 The Increment Function](#42-the-increment-function)
-  - [4.3 Explicit RK Methods — General Framework](#43-explicit-rk-methods--general-framework)
+  - [4.3 General Framework of Explicit RK Methods](#43-general-framework-of-explicit-rk-methods)
   - [4.4 Butcher Tableau](#44-butcher-tableau)
 - [5. 2nd-Order Runge-Kutta Methods](#5-2nd-order-runge-kutta-methods)
   - [5.1 General 2-Stage RK Form](#51-general-2-stage-rk-form)
@@ -49,7 +50,7 @@
 - [7. Systems of ODEs](#7-systems-of-odes)
   - [7.1 Vector Form](#71-vector-form)
   - [7.2 Higher-Order ODEs as Systems](#72-higher-order-odes-as-systems)
-  - [7.3 RK4 for Systems — Python Implementation](#73-rk4-for-systems--python-implementation)
+  - [7.3 Python Implementation of RK4 for Systems](#73-python-implementation-of-rk4-for-systems)
 - [8. Numerical Stability](#8-numerical-stability)
   - [8.1 The Model Problem](#81-the-model-problem)
   - [8.2 Stability of the Exact Solution](#82-stability-of-the-exact-solution)
@@ -59,6 +60,7 @@
   - [8.6 Stability of the Trapezoidal Method](#86-stability-of-the-trapezoidal-method)
   - [8.7 A-Stability and L-Stability](#87-a-stability-and-l-stability)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -83,7 +85,7 @@ The function $`f(t, y)`$ is known and gives the **slope** (tendency) of the solu
 Given an initial condition $`y(t_0) = y_0`$, solve for $`y(t)`$ for $`t > t_0`$. This is the **initial-value problem**:
 
 ```math
-\begin{cases} \dfrac{dy}{dt} = f(t, y), & t > t_0 \\[6pt] y(t_0) = g \end{cases}
+\begin{cases} \dfrac{dy}{dt} = f(t, y), & t > t_0 \\[6pt] y(t_0) = y_0 \end{cases}
 ```
 
 The initial condition selects a unique solution curve from the family of all solutions to the ODE.
@@ -106,7 +108,7 @@ In **vector form**, define $`\mathbf{y} := (u, v)^T`$ and $`\mathbf{f} := (p, q)
 \frac{d\mathbf{y}}{dt} = \mathbf{f}(t, \mathbf{y}), \quad \mathbf{y}(t_0) = (u_0, v_0)^T
 ```
 
-This is a **system of ODEs**. All single-equation methods (Euler, Runge-Kutta, etc.) extend naturally to systems by replacing scalar operations with vector operations.
+This is a **system of ODEs**. The single-equation methods in this chapter (Euler, Runge-Kutta, etc.) extend naturally to systems by replacing scalar operations with vector operations.
 
 ### 1.4 Integral Formulation
 
@@ -158,9 +160,23 @@ This gives **Euler's method** (Forward Euler):
 
 ### 2.2 Geometric Interpretation
 
-At each time step, Euler's method advances the solution along the tangent line at the current point $`(t_n, y_n)`$. The slope of this tangent is $`f(t_n, y_n)`$, so moving a horizontal distance $`h`$ produces a vertical change of $`h \cdot f(t_n, y_n)`$.
+At each time step, Euler's method advances the solution along the tangent line at the current point $`(t_n, y_n)`$. The slope of this tangent is $`f(t_n, y_n)`$, so moving a horizontal distance $`h`$ produces a vertical change of $`h \cdot f(t_n, y_n)`$ (Figure 1).
 
-> **[Calculus]** Euler's method is the simplest member of a vast family of numerical ODE solvers. It corresponds to approximating the integral $`\int f\,dt`$ by a left-endpoint rectangle rule. Better quadrature rules lead to better ODE methods (this is the Runge-Kutta idea).
+```text
+  y
+  │                               ● (t_{n+1}, y_{n+1})
+  │                            ╱  ┊
+  │                         ╱     ┊  h f(t_n, y_n)
+  │                      ╱        ┊
+  │                   ╱           ┊
+  │     (t_n, y_n) ●┈┈┈┈┈┈┈┈┈┈┈┈┈┈┘
+  │                ├────── h ─────┤
+  └──────────────────────────────────────────── t
+```
+
+*Figure 1. Euler's method advancing one step along the tangent line*
+
+> **Note:** **Relation to quadrature.** Euler's method is the simplest member of a vast family of numerical ODE solvers. It corresponds to approximating the integral $`\int f\,dt`$ by a left-endpoint rectangle rule. Better quadrature rules lead to better ODE methods, which is the idea behind Runge-Kutta methods.
 
 ---
 
@@ -186,7 +202,7 @@ A quantity $`z`$ is $`O(h^p)`$ if there exist constants $`h_0, C > 0`$ such that
 |z| \le C h^p \quad \forall\; 0 < h < h_0
 ```
 
-This means $`z`$ converges to zero as $`h \to 0`$, and the **rate of convergence** is $`p`$.
+For $`p > 0`$, this means $`z`$ converges to zero as $`h \to 0`$, and the **rate of convergence** is $`p`$.
 
 ### 3.3 Taylor Series Analysis of Euler's Method
 
@@ -204,7 +220,7 @@ Since $`y'(t_n) = f(t_n, y_n)`$, we can rewrite the Taylor expansion using deriv
 y(t_n + h) = \underbrace{y_n + f(t_n, y_n)\,h}_{\text{Euler approx}} + \underbrace{f'(t_n, y_n)\frac{h^2}{2} + \cdots + f^{(n)}(t_n, y_n)\frac{h^n}{n!} + O(h^{n+1})}_{\text{truncated terms (local truncation error)}}
 ```
 
-The **true local truncation error** of Euler's method is $`O(h^2)`$ — the leading term of what is discarded.
+The **true local truncation error** of Euler's method is $`O(h^2)`$, the order of the leading term of what is discarded.
 
 ### 3.4 Approximate Local Truncation Error
 
@@ -234,7 +250,7 @@ Substituting $`n = \frac{T}{h}`$:
 
 **Key result: Euler's method has local truncation error $`O(h^2)`$ and global truncation error $`O(h)`$.** Euler's method is a **first-order method**.
 
-> **[Calculus]** The local error loses one order of $`h`$ when accumulated into global error because the number of steps $`n = T/h`$ grows as $`h`$ decreases. This is a universal pattern: for a method with local error $`O(h^{p+1})`$, the global error is $`O(h^p)`$.
+> **Note:** **Orders of local and global error.** The local error loses one order of $`h`$ when accumulated into global error because the number of steps $`n = T/h`$ grows as $`h`$ decreases. For one-step methods applied to an $`f`$ that satisfies a Lipschitz condition, this pattern holds in general: for a method with local error $`O(h^{p+1})`$, the global error is $`O(h^p)`$. The simple sum above ignores how errors from earlier steps propagate into later steps, but a rigorous analysis that includes propagation gives the same order.
 
 ---
 
@@ -274,7 +290,7 @@ The increment function is a weighted sum of slope evaluations:
 
 This is essentially a **quadrature** of $`f`$ over the step, where $`b_i`$ are weights and $`c_i`$ are nodes.
 
-### 4.3 Explicit RK Methods — General Framework
+### 4.3 General Framework of Explicit RK Methods
 
 Since we do not know $`y(t_n + c_i h)`$ in general, we approximate it by an **internal stage** value $`Y_i`$:
 
@@ -308,7 +324,7 @@ y_{n+1} = y_n + h \sum_{i=1}^{s} b_i\,k_i
 
 where $`s`$ is the **number of stages**.
 
-> **[Calculus]** The key insight of RK methods is replacing the intractable problem of evaluating $`f`$ at unknown intermediate solution values with a bootstrapping procedure: use Euler-like predictions to estimate intermediate values, evaluate $`f`$ there, then combine those slopes.
+> **Key Point:** The key insight of RK methods is replacing the intractable problem of evaluating $`f`$ at unknown intermediate solution values with a bootstrapping procedure: use Euler-like predictions to estimate intermediate values, evaluate $`f`$ there, then combine those slopes.
 
 ### 4.4 Butcher Tableau
 
@@ -320,7 +336,7 @@ In matrix form for the internal stages:
 \begin{pmatrix} Y_1 \\ Y_2 \\ Y_3 \\ \vdots \\ Y_s \end{pmatrix} = \begin{pmatrix} y_n \\ y_n \\ y_n \\ \vdots \\ y_n \end{pmatrix} + h \begin{pmatrix} 0 & 0 & 0 & \cdots & 0 \\ a_{21} & 0 & 0 & \cdots & 0 \\ a_{31} & a_{32} & 0 & \cdots & 0 \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ a_{s1} & a_{s2} & a_{s3} & \cdots & 0 \end{pmatrix} \begin{pmatrix} k_1 \\ k_2 \\ k_3 \\ \vdots \\ k_s \end{pmatrix}
 ```
 
-The matrix $`A`$ being strictly lower triangular is what makes the method **explicit** — each stage can be computed from previously computed stages.
+The matrix $`A`$ being strictly lower triangular is what makes the method **explicit**: each stage can be computed from previously computed stages.
 
 The **Butcher tableau** is the standard compact notation:
 
@@ -396,7 +412,7 @@ b_2 c = \frac{1}{2}
 b_2 a = \frac{1}{2}
 ```
 
-Note: the last two conditions imply $`c = a`$.
+The last two conditions imply $`c = a`$.
 
 ### 5.4 Heun's Method (b2 = 1/2)
 
@@ -424,7 +440,7 @@ This is **Heun's method** (also called the improved Euler or trapezoidal predict
 \begin{array}{c|cc} 0 & & \\ 1 & 1 & \\ \hline & 1/2 & 1/2 \end{array}
 ```
 
-> **[Calculus]** Heun's method first predicts $`Y_2`$ using a full Euler step to $`t_{n+1}`$, evaluates the slope there, then averages the slopes at both endpoints. This is analogous to the trapezoidal rule for integration.
+> **Note:** **Analogy with the trapezoidal rule.** Heun's method first predicts $`Y_2`$ using a full Euler step to $`t_{n+1}`$, evaluates the slope there, then averages the slopes at both endpoints. This is analogous to the trapezoidal rule for integration (Chapter 19).
 
 ### 5.5 Modified Euler / Midpoint Method (b2 = 1)
 
@@ -452,7 +468,7 @@ This is the **modified Euler** (midpoint) method. The Butcher tableau is:
 \begin{array}{c|cc} 0 & & \\ 1/2 & 1/2 & \\ \hline & 0 & 1 \end{array}
 ```
 
-> **[Calculus]** The midpoint method uses an Euler half-step to estimate the slope at the interval's midpoint, then uses that midpoint slope to advance the full step. This is analogous to the midpoint rule for integration.
+> **Note:** **Analogy with the midpoint rule.** The midpoint method uses an Euler half-step to estimate the slope at the interval's midpoint, then uses that midpoint slope to advance the full step. This is analogous to the midpoint rule for integration.
 
 ---
 
@@ -484,9 +500,18 @@ k_4 = f(t_n + h,\; y_n + h\,k_3)
 \boxed{y_{n+1} = y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)}
 ```
 
-The weights $`\frac{1}{6}, \frac{2}{6}, \frac{2}{6}, \frac{1}{6}`$ correspond to **Simpson's 1/3 rule** applied to the four slope estimates.
+The weights $`\frac{1}{6}, \frac{2}{6}, \frac{2}{6}, \frac{1}{6}`$ correspond to **Simpson's 1/3 rule** applied to the four slope estimates. The midpoint weight $`\frac{4}{6}`$ of Simpson's 1/3 rule (Chapter 19) is split between the two midpoint slopes $`k_2`$ and $`k_3`$; Figure 2 shows where the slopes are evaluated.
 
-> **[Calculus]** RK4 is the workhorse of ODE solving. It achieves 4th-order accuracy using only 4 function evaluations per step, without requiring any derivatives of $`f`$. For many practical problems, it provides an excellent balance between accuracy and computational cost.
+```text
+   t_n                  t_n + h/2                t_n + h
+    ●───────────────────────●───────────────────────●
+   k_1                  k_2, k_3                   k_4
+ w = 1/6              w = 2/6, 2/6               w = 1/6
+```
+
+*Figure 2. Slope evaluation points and weights of RK4*
+
+> **Key Point:** RK4 is the workhorse of ODE solving. It achieves 4th-order accuracy using only 4 function evaluations per step, without requiring any derivatives of $`f`$, and for many practical problems it provides an excellent balance between accuracy and computational cost.
 
 ### 6.2 Butcher Tableau for RK4
 
@@ -549,7 +574,7 @@ A system of $`m`$ first-order ODEs is written in vector form as:
 
 where $`\mathbf{y} = (y_1, y_2, \ldots, y_m)^T`$ and $`\mathbf{f} = (f_1, f_2, \ldots, f_m)^T`$.
 
-All Euler and Runge-Kutta formulas apply **component-by-component** — simply replace scalar $`y`$, $`f`$, and $`k`$ with vectors $`\mathbf{y}`$, $`\mathbf{f}`$, and $`\mathbf{k}`$.
+All Euler and Runge-Kutta formulas apply **component-by-component**: simply replace scalar $`y`$, $`f`$, and $`k`$ with vectors $`\mathbf{y}`$, $`\mathbf{f}`$, and $`\mathbf{k}`$.
 
 ### 7.2 Higher-Order ODEs as Systems
 
@@ -567,9 +592,9 @@ is rewritten by introducing $`u = y`$ and $`v = y'`$:
 
 with initial conditions $`u(t_0) = y(t_0)`$ and $`v(t_0) = y'(t_0)`$.
 
-> **[Calculus]** This reduction technique is fundamental: *any* numerical method for first-order systems can solve higher-order ODEs by first converting them. For instance, Newton's second law $`m\,x'' = F(t, x, x')`$ becomes a first-order system in position $`x`$ and velocity $`v = x'`$.
+> **Note:** **Reducing higher-order ODEs.** This reduction technique is fundamental: *any* numerical method for first-order systems can solve higher-order ODEs by first converting them. For instance, Newton's second law $`m\,x'' = F(t, x, x')`$ becomes a first-order system in position $`x`$ and velocity $`v = x'`$.
 
-### 7.3 RK4 for Systems — Python Implementation
+### 7.3 Python Implementation of RK4 for Systems
 
 ```python
 import numpy as np
@@ -622,6 +647,8 @@ t, sol = rk4_system(harmonic, 0, np.array([1.0, 0.0]), 10, 0.01)
 # sol[:, 1] is v(t) ≈ -sin(t)
 ```
 
+In this example, `sol[-1, 0]` at $`t = 10`$ is $`-0.8390715295`$, which differs from the exact value $`\cos 10 \approx -0.8390715291`$ by about $`4.5 \times 10^{-10}`$.
+
 ---
 
 <br>
@@ -651,6 +678,8 @@ The behavior of the exact solution depends on $`\lambda`$:
 | $`\lambda > 0`$ | Exponential growth (unstable) |
 | $`\lambda = 0`$ | Constant (neutrally stable) |
 | $`\lambda < 0`$ | Exponential decay (stable) |
+
+*Table 1. Behavior of the exact solution by the sign of $`\lambda`$*
 
 The solution asymptotically approaches zero when $`\lambda < 0`$. A **stable** numerical method should reproduce this decaying behavior for $`\lambda < 0`$.
 
@@ -708,7 +737,7 @@ Since $`z = \lambda h`$ with $`h > 0`$, this requires:
 \lambda \le 0 \quad \text{and} \quad h \le \frac{-2}{\lambda} = \frac{2}{|\lambda|}
 ```
 
-**The forward Euler method is conditionally stable** — the step size $`h`$ must be chosen sufficiently small to ensure stability. For strongly negative $`\lambda`$ (stiff problems), $`h`$ must be very small.
+**The forward Euler method is conditionally stable**: the step size $`h`$ must be chosen sufficiently small to ensure stability. For strongly negative $`\lambda`$ (stiff problems), $`h`$ must be very small.
 
 ### 8.5 Stability of Backward Euler Method
 
@@ -741,14 +770,14 @@ x_n = (1 - \lambda h)^{-n}\,x_0
 The stability function is $`\phi(z) = \frac{1}{1 - z}`$. For stability:
 
 ```math
-\frac{1}{|1 - z|} < 1 \quad \Rightarrow \quad |1 - z| > 1
+\frac{1}{|1 - z|} \le 1 \quad \Rightarrow \quad |1 - z| \ge 1
 ```
 
-The stability region is the **exterior** of the disk of radius 1 centered at $`(1, 0)`$ in the complex $`z`$-plane. This region contains the **entire left half-plane** $`\text{Re}(z) < 0`$.
+The stability region is the **exterior** (including the boundary) of the disk of radius 1 centered at $`(1, 0)`$ in the complex $`z`$-plane. This region contains the **entire left half-plane** $`\text{Re}(z) \le 0`$.
 
-For any $`\lambda < 0`$, we can choose the step size $`h`$ **arbitrarily large** and the method remains stable. This means the backward Euler method does not require step size restrictions for stability — only accuracy considerations limit $`h`$.
+For any $`\lambda < 0`$, we can choose the step size $`h`$ **arbitrarily large** and the method remains stable. This means the backward Euler method does not require step size restrictions for stability; only accuracy considerations limit $`h`$.
 
-> **[Calculus]** The price of this unconditional stability is that backward Euler is **implicit**: at each step we must solve an equation (possibly nonlinear) for $`x_{n+1}`$. For the linear test problem, this reduces to a simple algebraic solve, but for general nonlinear $`f`$, Newton's method or similar techniques are required.
+> **Caution:** The price of this unconditional stability is that backward Euler is **implicit**: at each step we must solve an equation (possibly nonlinear) for $`x_{n+1}`$. For the linear test problem, this reduces to a simple algebraic solve, but for general nonlinear $`f`$, Newton's method or similar techniques are required.
 
 ### 8.6 Stability of the Trapezoidal Method
 
@@ -777,29 +806,29 @@ x_n = \left(\frac{1 + \frac{\lambda h}{2}}{1 - \frac{\lambda h}{2}}\right)^n x_0
 The stability function is $`\phi(z) = \frac{1 + z/2}{1 - z/2}`$. For stability:
 
 ```math
-\left|\frac{1 + z/2}{1 - z/2}\right| < 1 \quad \Rightarrow \quad |1 + z/2| < |1 - z/2| \quad \Rightarrow \quad |2 + z| < |2 - z|
+\left|\frac{1 + z/2}{1 - z/2}\right| \le 1 \quad \Rightarrow \quad |1 + z/2| \le |1 - z/2| \quad \Rightarrow \quad |2 + z| \le |2 - z|
 ```
 
-This condition is satisfied for the **entire left half-plane** $`\text{Re}(z) < 0`$, meaning the trapezoidal method is also stable for any $`\lambda < 0`$ regardless of step size.
+This condition is satisfied for the **entire left half-plane** $`\text{Re}(z) \le 0`$, meaning the trapezoidal method is also stable for any $`\lambda < 0`$ regardless of step size.
 
 ### 8.7 A-Stability and L-Stability
 
 **A-stability:** A numerical method is **A-stable** if its stability region includes the **entire left half-plane** $`\{z \in \mathbb{C} : \text{Re}(z) \le 0\}`$.
 
-- Forward Euler: **NOT** A-stable (finite stability region)
-- Backward Euler: **A-stable**
-- Trapezoidal method: **A-stable**
+- Forward Euler is **NOT** A-stable because its stability region is finite.
+- Backward Euler is **A-stable**.
+- The trapezoidal method is **A-stable**.
 
-**L-stability:** A numerical method is **L-stable** if:
-1. The method is A-stable, **and**
-2. The stability function $`\phi(z) \to 0`$ as $`z \to \infty`$
+**L-stability:** A numerical method is **L-stable** if both of the following hold:
+1. The method is A-stable.
+2. The stability function $`\phi(z) \to 0`$ as $`z \to \infty`$.
 
-L-stability is **more restrictive** than A-stability. It concerns the **asymptotic behavior** — an L-stable method correctly captures the rapid decay of very stiff components.
+L-stability is **more restrictive** than A-stability. It concerns the **asymptotic behavior**: an L-stable method correctly captures the rapid decay of very stiff components.
 
-- Backward Euler: $`\phi(z) = \frac{1}{1-z} \to 0`$ as $`z \to -\infty`$ — **L-stable**
-- Trapezoidal method: $`\phi(z) = \frac{1 + z/2}{1 - z/2} \to -1`$ as $`z \to -\infty`$ — A-stable but **NOT** L-stable
+- Backward Euler is **L-stable** because $`\phi(z) = \frac{1}{1-z} \to 0`$ as $`z \to -\infty`$.
+- The trapezoidal method is A-stable but **NOT** L-stable because $`\phi(z) = \frac{1 + z/2}{1 - z/2} \to -1`$ as $`z \to -\infty`$.
 
-> **[Calculus]** For stiff problems (where $`|\lambda|`$ is very large), L-stability is desirable because it ensures the numerical solution of rapidly decaying components also decays rapidly. The trapezoidal method, while A-stable, may exhibit spurious oscillations for very stiff problems because its stability function approaches $`-1`$ rather than $`0`$ for large $`|z|`$.
+> **Note:** **Stiff problems and L-stability.** For stiff problems (where $`|\lambda|`$ is very large; see Chapter 23), L-stability is desirable because it ensures the numerical solution of rapidly decaying components also decays rapidly. The trapezoidal method, while A-stable, may exhibit spurious oscillations for very stiff problems because its stability function approaches $`-1`$ rather than $`0`$ for large $`|z|`$.
 
 ---
 
@@ -807,21 +836,72 @@ L-stability is **more restrictive** than A-stability. It concerns the **asymptot
 
 ## Summary
 
-| Topic | Key Formula / Result |
-|:------|:---------------------|
-| **IVP** | $`\frac{dy}{dt} = f(t,y)`$, $`y(t_0) = y_0`$ |
-| **Euler method** | $`y_{n+1} = y_n + h\,f(t_n, y_n)`$ |
-| **Euler local error** | $`O(h^2)`$ |
-| **Euler global error** | $`O(h)`$ — 1st-order method |
-| **RK general form** | $`y_{n+1} = y_n + h \sum b_i k_i`$ |
-| **RK2 order conditions** | $`b_1 + b_2 = 1`$, $`b_2 c = 1/2`$, $`b_2 a = 1/2`$ |
-| **Heun's method** | $`y_{n+1} = y_n + \frac{h}{2}(k_1 + k_2)`$, $`k_2 = f(t_n+h, y_n+hk_1)`$ |
-| **Midpoint method** | $`y_{n+1} = y_n + h\,k_2`$, $`k_2 = f(t_n + h/2, y_n + \frac{h}{2}k_1)`$ |
-| **RK4** | $`y_{n+1} = y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)`$ — 4th order |
-| **Systems of ODEs** | Replace scalars with vectors; same formulas apply |
-| **Test equation** | $`y' = \lambda y`$ with $`y(t) = y_0 e^{\lambda t}`$ |
-| **Forward Euler stability** | $`\|1 + \lambda h\| \le 1`$ — **conditionally stable** |
-| **Backward Euler stability** | $`\|1 - \lambda h\|^{-1} < 1`$ — **unconditionally stable** (A-stable, L-stable) |
-| **Trapezoidal stability** | $`\left\|\frac{1+z/2}{1-z/2}\right\| < 1`$ — **A-stable but NOT L-stable** |
-| **A-stable** | Stability region contains the entire left half-plane |
-| **L-stable** | A-stable and $`\phi(z) \to 0`$ as $`z \to \infty`$ |
+| Concept | Key Summary |
+|:-----|:-----|
+| IVP | The ODE $`\frac{dy}{dt} = f(t,y)`$ with the initial condition $`y(t_0) = y_0`$ selects a single solution curve. |
+| Euler method | $`y_{n+1} = y_n + h\,f(t_n, y_n)`$ advances along the tangent line at the current point. |
+| Euler local error | The local truncation error of Euler's method is $`O(h^2)`$. |
+| Euler global error | The global truncation error of Euler's method is $`O(h)`$, so it is a first-order method. |
+| RK general form | A weighted average of internal stage slopes advances the solution as $`y_{n+1} = y_n + h \sum b_i k_i`$. |
+| RK2 order conditions | Second-order accuracy requires $`b_1 + b_2 = 1`$, $`b_2 c = 1/2`$, and $`b_2 a = 1/2`$, leaving one degree of freedom. |
+| Heun's method | It is the RK2 method with $`b_2 = 1/2`$, where $`k_2 = f(t_n+h, y_n+hk_1)`$ and $`y_{n+1} = y_n + \frac{h}{2}(k_1 + k_2)`$. |
+| Midpoint method | It is the RK2 method with $`b_2 = 1`$, where $`k_2 = f(t_n + h/2, y_n + \frac{h}{2}k_1)`$ and $`y_{n+1} = y_n + h\,k_2`$. |
+| RK4 | It is a 4-stage, 4th-order method that advances as $`y_{n+1} = y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)`$. |
+| Systems of ODEs | Replacing scalars with vectors lets the same formulas apply, and higher-order ODEs are solved after conversion to first-order systems. |
+| Test equation | The exact solution $`y(t) = y_0 e^{\lambda t}`$ of $`y' = \lambda y`$ is the reference for stability analysis. |
+| Forward Euler stability | It is stable only when $`\vert 1 + \lambda h \vert \le 1`$, so it is conditionally stable. |
+| Backward Euler stability | Since $`\vert 1 - \lambda h \vert^{-1} \le 1`$ holds for all $`\lambda < 0`$ and $`h > 0`$, it is unconditionally stable, and it is both A-stable and L-stable. |
+| Trapezoidal stability | Since $`\left\vert \frac{1+z/2}{1-z/2} \right\vert \le 1`$ holds on the entire left half-plane, it is A-stable but not L-stable. |
+| A-stable | The stability region contains the entire left half-plane. |
+| L-stable | The method is A-stable and $`\phi(z) \to 0`$ as $`z \to \infty`$. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Euler's method:** Solve $`y' = y`$, $`y(0) = 1`$ with two steps of Euler's method with $`h = 0.1`$, and find the approximation of $`y(0.2)`$ and its true error.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`y_1 = 1 + 0.1 \times 1 = 1.1`$ and $`y_2 = 1.1 + 0.1 \times 1.1 = 1.21`$. The true value is $`e^{0.2} \approx 1.221403`$, so the true error is about 0.011403.
+
+   </details>
+
+2. **One RK4 step:** Solve the same problem with one RK4 step with $`h = 0.1`$ to find $`y(0.1)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`k_1 = 1`$, $`k_2 = 1 + 0.05 \times 1 = 1.05`$, $`k_3 = 1 + 0.05 \times 1.05 = 1.0525`$, and $`k_4 = 1 + 0.1 \times 1.0525 = 1.10525`$. Therefore $`y_1 = 1 + \frac{0.1}{6}(1 + 2.1 + 2.105 + 1.10525) = 1 + \frac{0.1}{6}(6.31025) \approx 1.1051708`$. The error relative to $`e^{0.1} \approx 1.1051709`$ is about $`8.5 \times 10^{-8}`$.
+
+   </details>
+
+3. **RK2 parameters:** If a 2-stage RK method uses $`b_2 = 2/3`$, what are $`b_1`$, $`a`$, and $`c`$? Write the resulting formulas for $`k_2`$ and $`y_{n+1}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`b_1 = 1 - b_2 = 1/3`$ and $`c = a = \frac{1}{2b_2} = \frac{3}{4}`$. Hence $`k_2 = f\!\left(t_n + \frac{3}{4}h,\; y_n + \frac{3}{4}h\,k_1\right)`$ and $`y_{n+1} = y_n + h\left(\frac{1}{3}k_1 + \frac{2}{3}k_2\right)`$. This choice is Ralston's method.
+
+   </details>
+
+4. **Stability limit:** What is the largest stable step size when forward Euler is applied to $`y' = -50y`$? For $`h = 0.05`$, find the amplification factors of forward and backward Euler and describe the behavior.
+
+   <details>
+   <summary>Answer</summary>
+
+   The step size must satisfy $`h \le 2/|\lambda| = 2/50 = 0.04`$. For $`h = 0.05`$, the forward Euler amplification factor is $`1 + \lambda h = 1 - 2.5 = -1.5`$; its magnitude exceeds 1, so the numerical solution alternates in sign and grows. The backward Euler amplification factor is $`1/(1 - \lambda h) = 1/3.5 \approx 0.2857`$, so the numerical solution decays stably.
+
+   </details>
+
+5. **Converting a higher-order ODE:** Rewrite $`y'' + 3y' + 2y = 0`$, $`y(0) = 1`$, $`y'(0) = 0`$ as a first-order system and take one Euler step with $`h = 0.1`$ to find $`(u, v)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   With $`u = y`$ and $`v = y'`$, the system is $`u' = v`$, $`v' = -2u - 3v`$ with $`u(0) = 1`$ and $`v(0) = 0`$. One Euler step gives $`u_1 = 1 + 0.1 \times 0 = 1`$ and $`v_1 = 0 + 0.1 \times (-2 \times 1 - 3 \times 0) = -0.2`$.
+
+   </details>

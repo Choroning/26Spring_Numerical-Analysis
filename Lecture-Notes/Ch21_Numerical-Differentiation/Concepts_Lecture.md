@@ -1,15 +1,16 @@
-# Chapter 21 Lecture — Numerical Differentiation
+# Chapter 21 — Numerical Differentiation
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 21
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] Derivatives, Taylor series (Ch 1-20).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 21
+
+> **Learning Objectives:**
 > 1. Apply finite difference formulas for differentiation
 > 2. Analyze truncation error in numerical derivatives
 > 3. Implement Richardson extrapolation for improved accuracy
+> 4. Apply numerical differentiation formulas to unequally spaced data and multivariable functions
 
 ---
 
@@ -48,7 +49,12 @@
   - [8.4 Truncation Error](#84-truncation-error)
 - [9. Differentiable Programming (Brief Overview)](#9-differentiable-programming-brief-overview)
 - [10. Python Implementation](#10-python-implementation)
+  - [10.1 Forward, Backward, and Central Differences](#101-forward-backward-and-central-differences)
+  - [10.2 Richardson Extrapolation for Differentiation](#102-richardson-extrapolation-for-differentiation)
+  - [10.3 Derivative of Unequally Spaced Data (Lagrange)](#103-derivative-of-unequally-spaced-data-lagrange)
+  - [10.4 Numerical Partial Derivatives](#104-numerical-partial-derivatives)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -78,7 +84,7 @@ Taking the limit as $`\Delta x \to 0`$:
 
 This is **the first derivative of $`y`$ with respect to $`x`$**. Geometrically, the derivative is the slope of the tangent line to the curve at point $`x_i`$.
 
-> **[Calculus]** The three diagrams from the lecture illustrate how as $`\Delta x`$ shrinks, the secant line (connecting two points on the curve) approaches the tangent line at $`x_i`$, and the slope of the secant converges to $`f'(x_i)`$.
+> **[Calculus]** As $`\Delta x`$ shrinks, the secant line (connecting two points on the curve) approaches the tangent line at $`x_i`$, and the slope of the secant converges to $`f'(x_i)`$.
 
 ### 1.2 Second Derivative
 
@@ -88,7 +94,7 @@ The second derivative is the derivative of the first derivative:
 \frac{d^2 y}{dx^2} = \frac{d}{dx}\left(\frac{dy}{dx}\right)
 ```
 
-It measures **how fast the slope is changing** -- i.e., the curvature or concavity of the function.
+It measures **how fast the slope is changing**, which indicates the direction (concavity) and degree of bending of the graph.
 
 ### 1.3 Partial Derivatives
 
@@ -114,10 +120,10 @@ A classic engineering application is Fourier's law of heat conduction. Given a t
 
 where $`k`$ is the thermal conductivity. The negative sign indicates that heat flows from high temperature to low temperature:
 
-- A **positive slope** ($`\partial T / \partial x > 0`$) drives a **negative heat flow** (heat flows in the $`-x`$ direction)
-- A **negative slope** ($`\partial T / \partial x < 0`$) drives a **positive heat flow** (heat flows in the $`+x`$ direction)
+- A **positive slope** ($`\partial T / \partial x > 0`$) drives a **negative heat flux** (heat flows in the $`-x`$ direction).
+- A **negative slope** ($`\partial T / \partial x < 0`$) drives a **positive heat flux** (heat flows in the $`+x`$ direction).
 
-> **[Calculus]** The direction of heat flow is always opposite to the temperature gradient. This is a direct physical application of the derivative concept.
+> **Note:** **Direction of heat flow.** Heat always flows opposite to the temperature gradient. This is a direct physical application of the derivative concept.
 
 ---
 
@@ -125,7 +131,7 @@ where $`k`$ is the thermal conductivity. The negative sign indicates that heat f
 
 ## 2. Finite Difference Approximation for the First Derivative
 
-All finite difference formulas are derived from Taylor series expansions. Let $`h`$ denote the step size between equally spaced points: $`x_{i+1} = x_i + h`$.
+The equally spaced finite difference formulas in this chapter are derived from Taylor series expansions. Let $`h`$ denote the step size between equally spaced points, so that $`x_{i+1} = x_i + h`$.
 
 ### 2.1 Forward Difference (First-Order)
 
@@ -147,9 +153,9 @@ Dropping the truncation error terms yields the **forward difference** approximat
 \boxed{f'(x_i) \approx \frac{f(x_{i+1}) - f(x_i)}{h}}
 ```
 
-- **Truncation error**: $`O(h)`$ -- first-order accurate
-- **Leading error term**: $`-f''(x_i)\dfrac{h}{2}`$
-- Uses points $`x_i`$ and $`x_{i+1}`$ (the point itself and one point ahead)
+- **Truncation error**: $`O(h)`$, so the formula is first-order accurate.
+- **Leading error term**: $`-f''(x_i)\dfrac{h}{2}`$.
+- It uses points $`x_i`$ and $`x_{i+1}`$ (the point itself and one point ahead).
 
 ### 2.2 Backward Difference (First-Order)
 
@@ -165,8 +171,8 @@ Solving for $`f'(x_i)`$:
 \boxed{f'(x_i) \approx \frac{f(x_i) - f(x_{i-1})}{h}}
 ```
 
-- **Truncation error**: $`O(h)`$ -- first-order accurate
-- Uses points $`x_{i-1}`$ and $`x_i`$
+- **Truncation error**: $`O(h)`$, so the formula is first-order accurate.
+- It uses points $`x_{i-1}`$ and $`x_i`$.
 
 ### 2.3 Central Difference (Second-Order)
 
@@ -182,11 +188,11 @@ Solving for $`f'(x_i)`$:
 \boxed{f'(x_i) \approx \frac{f(x_{i+1}) - f(x_{i-1})}{2h}}
 ```
 
-- **Truncation error**: $`O(h^2)`$ -- second-order accurate
-- **Leading error term**: $`-f'''(x_i)\dfrac{h^2}{6}`$
-- Uses points $`x_{i-1}`$ and $`x_{i+1}`$ (symmetric about $`x_i`$)
+- **Truncation error**: $`O(h^2)`$, so the formula is second-order accurate.
+- **Leading error term**: $`-f'''(x_i)\dfrac{h^2}{6}`$.
+- It uses points $`x_{i-1}`$ and $`x_{i+1}`$ (symmetric about $`x_i`$).
 
-> **[Calculus]** The central difference achieves higher accuracy ($`O(h^2)`$ vs. $`O(h)`$) compared to forward/backward differences because the odd-order error terms cancel due to symmetry. This is a key advantage whenever both neighboring points are available.
+> **Key Point:** Because of symmetry, the error terms in odd powers of $`h`$ cancel, so the central difference achieves $`O(h^2)`$ accuracy, higher than the $`O(h)`$ of the forward and backward differences. This is a key advantage whenever both neighboring points are available.
 
 ---
 
@@ -210,10 +216,10 @@ Solving for $`f''(x_i)`$:
 
 This is the **central difference approximation for the second derivative**:
 
-- **Truncation error**: $`O(h^2)`$ -- second-order accurate
-- Uses three equally spaced points: $`x_{i-1}`$, $`x_i`$, $`x_{i+1}`$
+- **Truncation error**: $`O(h^2)`$, so the formula is second-order accurate.
+- It uses three equally spaced points: $`x_{i-1}`$, $`x_i`$, $`x_{i+1}`$.
 
-> **[Calculus]** This formula has a beautiful physical interpretation: it measures how much the function value at $`x_i`$ deviates from the average of its two neighbors. A large positive $`f''`$ means the function curves upward (concave up), while a large negative $`f''`$ means it curves downward (concave down).
+> **Note:** **Interpretation of the formula.** The numerator equals $`2\left(\frac{f(x_{i+1}) + f(x_{i-1})}{2} - f(x_i)\right)`$, so the formula measures how much the function value at $`x_i`$ deviates from the average of its two neighbors. A positive $`f''`$ means the graph curves upward (concave up), while a negative $`f''`$ means it curves downward (concave down).
 
 ### 3.2 Forward Difference for the Second Derivative
 
@@ -235,8 +241,8 @@ Solving for $`f''(x_i)`$:
 \boxed{f''(x_i) = \frac{f(x_{i+2}) - 2f(x_{i+1}) + f(x_i)}{h^2} + O(h)}
 ```
 
-- **Truncation error**: $`O(h)`$ -- first-order accurate (less accurate than the central formula)
-- Uses three forward points: $`x_i`$, $`x_{i+1}`$, $`x_{i+2}`$
+- **Truncation error**: $`O(h)`$, so the formula is first-order accurate (less accurate than the central formula).
+- It uses three forward points: $`x_i`$, $`x_{i+1}`$, $`x_{i+2}`$.
 
 ---
 
@@ -244,7 +250,7 @@ Solving for $`f''(x_i)`$:
 
 ## 4. Improving Accuracy: Higher-Order Forward Difference
 
-We can improve the forward difference for $`f'(x_i)`$ by incorporating the second derivative correction term. Recall:
+We can improve the forward difference for $`f'(x_i)`$ by incorporating the second derivative correction term. Recall from Section 2.1:
 
 ```math
 f'(x_i) = \frac{f(x_{i+1}) - f(x_i)}{h} - \underbrace{f''(x_i)}_{\text{plug in FD approx.}}\frac{h}{2} + O(h^2)
@@ -270,10 +276,24 @@ Combining:
 
 This is the **second-order forward difference** formula for $`f'(x_i)`$.
 
-- **Accuracy improved** from $`O(h)`$ to $`O(h^2)`$ by including one additional point
-- Adding the diffusion (second derivative) term enhances the accuracy
+- **Accuracy improves** from $`O(h)`$ to $`O(h^2)`$ by including one additional point.
+- Adding the diffusion (second derivative) term enhances the accuracy.
 
-> **[Calculus]** The idea of substituting a numerical approximation for the error's leading term back into the formula is a general technique for increasing accuracy. It is closely related to Richardson extrapolation (discussed next).
+Figure 1 summarizes the points used by the formulas derived so far.
+
+```text
+         x_{i-1}     x_i     x_{i+1}   x_{i+2}
+  ──────────┼─────────┼─────────┼─────────┼────
+            ●─────────●                          backward difference: f'(x_i), O(h)
+                      ●─────────●                forward difference: f'(x_i), O(h)
+            ●───────────────────●                central difference: f'(x_i), O(h^2)
+            ●─────────●─────────●                central difference: f''(x_i), O(h^2)
+                      ●─────────●─────────●      forward difference: f''(x_i), O(h); second-order forward: f'(x_i), O(h^2)
+```
+
+*Figure 1. Points (stencils) used by the finite difference formulas*
+
+> **Note:** **Correction terms and Richardson extrapolation.** The idea of substituting a numerical approximation for the error's leading term back into the formula is a general technique for increasing accuracy. It is closely related to Richardson extrapolation (Section 5).
 
 ---
 
@@ -283,7 +303,7 @@ This is the **second-order forward difference** formula for $`f'(x_i)`$.
 
 ### 5.1 Basic Idea
 
-Recall from numerical integration that Richardson extrapolation uses two estimates computed with different step sizes to eliminate leading error terms. For integration:
+Recall from numerical integration (Chapter 20) that Richardson extrapolation uses two estimates computed with different step sizes to eliminate leading error terms. For integrals computed with the trapezoidal rule, whose error is $`O(h^2)`$:
 
 ```math
 I = I(h_2) + \frac{1}{(h_1/h_2)^2 - 1}\bigl(I(h_2) - I(h_1)\bigr)
@@ -295,7 +315,7 @@ When $`h_1/h_2 = 2`$:
 I = \frac{4}{3}I(h_2) - \frac{1}{3}I(h_1)
 ```
 
-Similarly, for differentiation:
+Similarly, for derivative estimates whose error is $`O(h^2)`$, such as the central difference:
 
 ```math
 \boxed{D = \frac{4}{3}D(h_2) - \frac{1}{3}D(h_1)}
@@ -345,7 +365,7 @@ f'(x) = D(h) + e_2\,h^2 + e_4\,h^4 + \cdots
 
 where the error $`E(h) = e_2\,h^2 + e_4\,h^4 + \cdots`$.
 
-> **[Calculus]** A crucial observation is that the error coefficients $`e_2, e_4, \ldots`$ are **independent of $`h`$** -- they depend only on the function and the evaluation point $`x`$. This is exactly the property that makes Richardson extrapolation possible.
+> **Key Point:** The error coefficients $`e_2, e_4, \ldots`$ are **independent of $`h`$**; they depend only on the function and the evaluation point $`x`$. This is exactly the property that makes Richardson extrapolation possible.
 
 ### 5.3 First Extrapolation Level
 
@@ -371,7 +391,7 @@ Compute $`4 \times (\text{first}) - (\text{second})`$:
 \boxed{f'(x) = \underbrace{\frac{4}{3}D(h) - \frac{1}{3}D(2h)}_{=:\,\bar{D}(h)} - 4h^4 e_4 + O(h^6)}
 ```
 
-The combined estimate $`\bar{D}(h)`$ is now **$`O(h^4)`$** accurate -- the $`h^2`$ error has been eliminated.
+The combined estimate $`\bar{D}(h)`$ is now **$`O(h^4)`$** accurate because the $`h^2`$ error has been eliminated.
 
 ### 5.4 Second Extrapolation Level
 
@@ -395,9 +415,23 @@ Compute $`16 \times (\text{first}) - (\text{second})`$:
 \boxed{f'(x) = \frac{16}{15}\bar{D}(h) - \frac{1}{15}\bar{D}(2h) + O(h^6)}
 ```
 
-This is now **$`O(h^6)`$** accurate. The process can be continued indefinitely, each level eliminating the next even power of $`h`$.
+This is now **$`O(h^6)`$** accurate. In principle the process can be continued, each level eliminating the next even power of $`h`$.
 
-> **[Calculus]** Richardson extrapolation is a systematic way to accelerate convergence. At each level, the leading error term is cancelled by combining estimates at two different step sizes. The general pattern for the central difference (where errors are in even powers of $`h`$) uses the ratio $`4^n`$ at the $`n`$th level: the weights are $`\frac{4^n}{4^n - 1}`$ and $`\frac{-1}{4^n - 1}`$.
+> **Note:** **General pattern.** Richardson extrapolation is a systematic way to accelerate convergence. At each level, the leading error term is cancelled by combining estimates at two different step sizes. For the central difference, whose errors contain only even powers of $`h`$, the $`n`$th level uses the ratio $`4^n`$: the weights are $`\frac{4^n}{4^n - 1}`$ and $`\frac{-1}{4^n - 1}`$.
+
+Figure 2 shows how two levels of extrapolation are built from central differences with step sizes $`h`$, $`2h`$, and $`4h`$. The `richardson_diff` function in Section 10.2 computes this table.
+
+```text
+  O(h^2)       O(h^4)                               O(h^6)
+
+  D(4h) ──┐
+          ├──> D̄(2h) = [4 D(2h) - D(4h)] / 3 ──┐
+  D(2h) ──┤                                    ├──> [16 D̄(h) - D̄(2h)] / 15
+          ├──> D̄(h)  = [4 D(h) - D(2h)] / 3  ──┘
+  D(h)  ──┘
+```
+
+*Figure 2. Structure of the Richardson extrapolation table*
 
 ---
 
@@ -463,7 +497,7 @@ The derivative at any point $`x`$ is then:
 f'(x) = y_0 \cdot \frac{2x - x_1 - x_2}{(x_0 - x_1)(x_0 - x_2)} + y_1 \cdot \frac{2x - x_0 - x_2}{(x_1 - x_0)(x_1 - x_2)} + y_2 \cdot \frac{2x - x_0 - x_1}{(x_2 - x_0)(x_2 - x_1)}
 ```
 
-> **[Calculus]** This approach works for any spacing of the data points. When the points happen to be equally spaced (i.e., $`x_1 - x_0 = x_2 - x_1 = h`$), substituting $`x = x_1`$ into the formula above recovers the standard central difference formula $`f'(x_1) \approx (y_2 - y_0)/(2h)`$.
+> **Note:** **Relation to equally spaced data.** This approach works for any spacing of the data points. When the points happen to be equally spaced (i.e., $`x_1 - x_0 = x_2 - x_1 = h`$), substituting $`x = x_1`$ into the formula above recovers the standard central difference formula $`f'(x_1) \approx (y_2 - y_0)/(2h)`$.
 
 ---
 
@@ -483,7 +517,7 @@ For a function $`f(x, y)`$, the centered finite difference approximations for pa
 \boxed{\frac{\partial f}{\partial y} \approx \frac{f(x,\, y + \Delta y) - f(x,\, y - \Delta y)}{2\,\Delta y}}
 ```
 
-Both are $`O(\Delta x^2)`$ and $`O(\Delta y^2)`$ accurate, respectively.
+They are $`O(\Delta x^2)`$ and $`O(\Delta y^2)`$ accurate, respectively.
 
 ### 7.2 Mixed Partial Derivative
 
@@ -509,7 +543,19 @@ Simplifying:
 \boxed{\frac{\partial^2 f}{\partial x \,\partial y} \approx \frac{f(x+\Delta x,\, y+\Delta y) - f(x+\Delta x,\, y-\Delta y) - f(x-\Delta x,\, y+\Delta y) + f(x-\Delta x,\, y-\Delta y)}{4\,\Delta x\,\Delta y}}
 ```
 
-This requires four function evaluations at the "diagonal" points around $`(x, y)`$.
+This requires four function evaluations at the diagonal points $`(x \pm \Delta x, y \pm \Delta y)`$ around $`(x, y)`$, with the weight signs shown in Figure 3.
+
+```text
+            x - Δx          x           x + Δx
+
+  y + Δy      ● -1                        ● +1
+
+     y                      ○ (x, y)
+
+  y - Δy      ● +1                        ● -1
+```
+
+*Figure 3. Four diagonal points and weight signs of the mixed partial derivative approximation*
 
 ---
 
@@ -517,21 +563,21 @@ This requires four function evaluations at the "diagonal" points around $`(x, y)
 
 ## 8. Method of Undetermined Coefficients
 
-This is a systematic technique for deriving finite difference formulas when you want to approximate a derivative using a specified set of points.
+This is a systematic technique for deriving finite difference formulas that approximate a derivative using a specified set of points.
 
 ### 8.1 Problem Setup
 
-Seek an approximation of the second derivative $`f''(x)`$ based on three equally spaced points $`f(x-h)`$, $`f(x)`$, $`f(x+h)`$:
+Seek an approximation of the second derivative $`f''(x)`$ based on the function values $`f(x-h)`$, $`f(x)`$, $`f(x+h)`$ at three equally spaced points:
 
 ```math
 f''(x) \approx a\,f(x-h) + b\,f(x) + c\,f(x+h)
 ```
 
-**Question**: How can we determine $`a`$, $`b`$, $`c`$?
+The coefficients $`a`$, $`b`$, $`c`$ are determined by substituting Taylor expansions and matching the coefficient of each derivative.
 
 ### 8.2 Taylor Expansion and Matching
 
-Expand $`f(x-h)`$ and $`f(x+h)`$ in Taylor series (with remainders involving $`\xi_-`$ and $`\xi_+`$ in $`[x-h, x+h]`$):
+Expand $`f(x-h)`$ and $`f(x+h)`$ in Taylor series (with remainders involving $`\xi_- \in [x-h, x]`$ and $`\xi_+ \in [x, x+h]`$):
 
 ```math
 f(x-h) = f(x) - f'(x)\,h + f''(x)\frac{h^2}{2} - f'''(x)\frac{h^3}{6} + f^{(4)}(\xi_-)\frac{h^4}{24}
@@ -547,7 +593,7 @@ Substituting into the approximation and grouping by derivatives:
 a\,f(x-h) + b\,f(x) + c\,f(x+h) = (a + b + c)\,f(x) + (-a + c)\,h\,f'(x) + (a + c)\frac{h^2}{2}\,f''(x)
 ```
 ```math
-\quad + (c - a)\frac{h^3}{6}\,f'''(x) + \frac{h^4}{24}\bigl(f^{(4)}(\xi_-) + f^{(4)}(\xi_+)\bigr)
+\quad + (c - a)\frac{h^3}{6}\,f'''(x) + \frac{h^4}{24}\bigl(a\,f^{(4)}(\xi_-) + c\,f^{(4)}(\xi_+)\bigr)
 ```
 
 ### 8.3 Solving for Coefficients
@@ -556,9 +602,11 @@ For this expression to equal $`f''(x)`$, we need:
 
 | Condition | Equation |
 |:----------|:---------|
-| Coefficient of $`f(x) = 0`$ | $`a + b + c = 0`$ |
-| Coefficient of $`f'(x) = 0`$ | $`-a + c = 0`$ (equivalently, $`c = a`$) |
-| Coefficient of $`f''(x) = 1`$ | $`(a + c)\dfrac{h^2}{2} = 1`$ |
+| Coefficient of $`f(x)`$ is 0 | $`a + b + c = 0`$ |
+| Coefficient of $`f'(x)`$ is 0 | $`-a + c = 0`$ (equivalently, $`c = a`$) |
+| Coefficient of $`f''(x)`$ is 1 | $`(a + c)\dfrac{h^2}{2} = 1`$ |
+
+*Table 1. Coefficient conditions for the second derivative approximation*
 
 From $`c = a`$ and $`(a + c)\dfrac{h^2}{2} = 1`$:
 
@@ -574,13 +622,13 @@ Therefore:
 
 ### 8.4 Truncation Error
 
-Plugging back in, the third-order term vanishes since $`c - a = 0`$. The truncation error comes from the fourth-order remainder:
+Plugging back in, the third-derivative term vanishes since $`c - a = 0`$. The truncation error comes from the remainder involving the fourth derivative:
 
 ```math
-f''(x) = \frac{1}{h^2}\bigl(f(x-h) - 2f(x) + f(x+h)\bigr) - \frac{h^4}{24}\bigl(f^{(4)}(\xi_-) + f^{(4)}(\xi_+)\bigr)
+f''(x) = \frac{1}{h^2}\bigl(f(x-h) - 2f(x) + f(x+h)\bigr) - \frac{h^2}{24}\bigl(f^{(4)}(\xi_-) + f^{(4)}(\xi_+)\bigr)
 ```
 
-By the **Intermediate Value Theorem**, since $`f^{(4)}`$ is continuous and $`f^{(4)}(\xi_-)`$ and $`f^{(4)}(\xi_+)`$ are two values of $`f^{(4)}`$, there exists some $`\xi \in [x-h, x+h]`$ such that:
+If $`f^{(4)}`$ is continuous, the average of $`f^{(4)}(\xi_-)`$ and $`f^{(4)}(\xi_+)`$ lies between the two values, so by the **Intermediate Value Theorem** there exists some $`\xi \in [x-h, x+h]`$ such that:
 
 ```math
 f^{(4)}(\xi) = \frac{1}{2}\bigl(f^{(4)}(\xi_-) + f^{(4)}(\xi_+)\bigr)
@@ -594,7 +642,7 @@ Therefore:
 
 This confirms the central difference for $`f''`$ is $`O(h^2)`$ accurate, with the explicit truncation error term $`-\dfrac{h^2}{12}f^{(4)}(\xi)`$.
 
-> **[Calculus]** The method of undetermined coefficients is extremely versatile. By choosing which points to include and which derivative to approximate, you can derive any finite difference stencil. The system of equations is always linear in the unknown coefficients, making it straightforward to solve.
+> **Key Point:** The method of undetermined coefficients is versatile. By choosing which points to include and which derivative to approximate, one can derive any finite difference stencil. The system of equations is always linear in the unknown coefficients, making it straightforward to solve.
 
 ---
 
@@ -604,12 +652,12 @@ This confirms the central difference for $`f''`$ is $`O(h^2)`$ accurate, with th
 
 **Differentiable programming** is a modern programming paradigm where everything in the program is written so that it can be **differentiated automatically**.
 
-Key points:
+Its main features are:
 
-- You can compute how small changes in input affect the output
-- Enables **gradient-based optimization** (e.g., training neural networks)
-- Represents a **new hybrid approach** combining traditional numerical methods and data-driven methods
-- Provides **exact gradients** using automatic differentiation (AD), which is more accurate than finite differences and more efficient than symbolic differentiation
+- It computes how small changes in input affect the output.
+- It enables **gradient-based optimization** (e.g., training neural networks).
+- It represents a **new hybrid approach** combining traditional numerical methods and data-driven methods.
+- It provides **exact gradients** using automatic differentiation (AD), which is more accurate than finite differences and more efficient than symbolic differentiation.
 
 **Popular tools** for differentiable programming:
 - **PyTorch** (Python)
@@ -617,7 +665,7 @@ Key points:
 - **JAX** (Python, by Google)
 - **Zygote** (Julia)
 
-> **[Calculus]** Automatic differentiation is fundamentally different from numerical differentiation. While numerical differentiation approximates derivatives using finite differences (and suffers from truncation and round-off errors), AD computes derivatives to machine precision by systematically applying the chain rule through every operation in the program.
+> **Note:** **Automatic versus numerical differentiation.** Automatic differentiation is fundamentally different from numerical differentiation. Numerical differentiation approximates derivatives using finite differences and therefore suffers from truncation and round-off errors. AD instead computes derivatives to machine precision by systematically applying the chain rule through every operation in the program.
 
 ---
 
@@ -625,7 +673,7 @@ Key points:
 
 ## 10. Python Implementation
 
-### Forward, Backward, and Central Differences
+### 10.1 Forward, Backward, and Central Differences
 
 ```python
 import numpy as np
@@ -651,7 +699,7 @@ def forward_diff_2nd_order(f, x, h):
     return (-f(x + 2*h) + 4*f(x + h) - 3*f(x)) / (2 * h)
 ```
 
-### Richardson Extrapolation for Differentiation
+### 10.2 Richardson Extrapolation for Differentiation
 
 ```python
 def richardson_diff(f, x, h, levels=3):
@@ -702,7 +750,9 @@ print(f"Richardson (level 2):   {R[2,2]:.10f}  "
       f"Error: {abs(R[2,2] - true_val):.2e}")
 ```
 
-### Derivative of Unequally Spaced Data (Lagrange)
+Running this example gives errors relative to the true value $`e \approx 2.7182818285`$ of $`1.41 \times 10^{-1}`$ (forward), $`4.53 \times 10^{-3}`$ (central), $`9.77 \times 10^{-3}`$ (second-order forward), $`1.46 \times 10^{-4}`$ (Richardson level 1, `R[1,1]`), and $`3.46 \times 10^{-8}`$ (level 2, `R[2,2]`). Because `R[1,1]` combines the estimates with step sizes $`4h`$ and $`2h`$, its error is larger than that of `R[2,1]`, which combines $`2h`$ and $`h`$.
+
+### 10.3 Derivative of Unequally Spaced Data (Lagrange)
 
 ```python
 def lagrange_deriv(x_pts, y_pts, x_eval):
@@ -751,7 +801,9 @@ print(f"  True value:      {true:.8f}")
 print(f"  Error:           {abs(approx - true):.2e}")
 ```
 
-### Numerical Partial Derivatives
+> **Note:** **Spacing of the example data.** The points 1.0, 2.5, 4.0 in this example are in fact equally spaced with spacing 1.5. The result 17.29329 is therefore the central difference $`(e^4 - e^1)/3`$ with $`h = 1.5`$, and because the spacing is large it differs from the true value 12.18249 by 5.11. The function `lagrange_deriv` itself works unchanged for unequally spaced points.
+
+### 10.4 Numerical Partial Derivatives
 
 ```python
 def partial_x_central(f, x, y, dx):
@@ -778,28 +830,77 @@ print(f"  df/dy (central):      {partial_y_central(g, x0, y0, h):.8f}")
 print(f"  d^2f/(dx dy) (mixed): {mixed_partial_xy(g, x0, y0, h, h):.8f}")
 ```
 
+The computed $`\partial f/\partial x`$ and $`\partial f/\partial y`$ agree to eight decimal places with the analytical values $`2xy + y\cos(xy) = 4 + 2\cos 2 \approx 3.16770633`$ and $`x^2 + x\cos(xy) = 1 + \cos 2 \approx 0.58385316`$. The mixed partial result $`-0.23474334`$ differs by about $`1.7 \times 10^{-6}`$ from the analytical value $`2x + \cos(xy) - xy\sin(xy) = 2 + \cos 2 - 2\sin 2 \approx -0.23474169`$, because the very small denominator $`4h^2 = 4 \times 10^{-10}`$ amplifies round-off error.
+
 ---
 
 <br>
 
 ## Summary
 
-| Method | Formula | Accuracy | Points Used |
-|:-------|:--------|:---------|:------------|
-| **Forward Difference** ($`f'`$) | $`\dfrac{f_{i+1} - f_i}{h}`$ | $`O(h)`$ | $`x_i, x_{i+1}`$ |
-| **Backward Difference** ($`f'`$) | $`\dfrac{f_i - f_{i-1}}{h}`$ | $`O(h)`$ | $`x_{i-1}, x_i`$ |
-| **Central Difference** ($`f'`$) | $`\dfrac{f_{i+1} - f_{i-1}}{2h}`$ | $`O(h^2)`$ | $`x_{i-1}, x_{i+1}`$ |
-| **2nd-Order Forward** ($`f'`$) | $`\dfrac{-f_{i+2} + 4f_{i+1} - 3f_i}{2h}`$ | $`O(h^2)`$ | $`x_i, x_{i+1}, x_{i+2}`$ |
-| **Central Difference** ($`f''`$) | $`\dfrac{f_{i+1} - 2f_i + f_{i-1}}{h^2}`$ | $`O(h^2)`$ | $`x_{i-1}, x_i, x_{i+1}`$ |
-| **Forward Difference** ($`f''`$) | $`\dfrac{f_{i+2} - 2f_{i+1} + f_i}{h^2}`$ | $`O(h)`$ | $`x_i, x_{i+1}, x_{i+2}`$ |
-| **Richardson Extrap. (1 level)** | $`\dfrac{4}{3}D(h) - \dfrac{1}{3}D(2h)`$ | $`O(h^4)`$ | From $`D(h)`$ |
-| **Richardson Extrap. (2 levels)** | $`\dfrac{16}{15}\bar{D}(h) - \dfrac{1}{15}\bar{D}(2h)`$ | $`O(h^6)`$ | From $`\bar{D}(h)`$ |
-| **Mixed Partial** ($`f_{xy}`$) | $`\dfrac{f(x\!+\!\Delta x, y\!+\!\Delta y) - f(x\!+\!\Delta x, y\!-\!\Delta y) - f(x\!-\!\Delta x, y\!+\!\Delta y) + f(x\!-\!\Delta x, y\!-\!\Delta y)}{4\Delta x \Delta y}`$ | $`O(\Delta x^2, \Delta y^2)`$ | 4 diagonal pts |
+| Concept | Key Summary |
+|:-----|:-----|
+| Forward Difference ($`f'`$) | $`f'(x_i) \approx \dfrac{f_{i+1} - f_i}{h}`$ is an $`O(h)`$ formula that uses the points $`x_i, x_{i+1}`$. |
+| Backward Difference ($`f'`$) | $`f'(x_i) \approx \dfrac{f_i - f_{i-1}}{h}`$ is an $`O(h)`$ formula that uses the points $`x_{i-1}, x_i`$. |
+| Central Difference ($`f'`$) | $`f'(x_i) \approx \dfrac{f_{i+1} - f_{i-1}}{2h}`$ is an $`O(h^2)`$ formula that uses the points $`x_{i-1}, x_{i+1}`$ and, owing to error cancellation from symmetry, is more accurate than the forward and backward differences at the same step size. |
+| 2nd-Order Forward ($`f'`$) | $`f'(x_i) \approx \dfrac{-f_{i+2} + 4f_{i+1} - 3f_i}{2h}`$ is an $`O(h^2)`$ formula that uses the points $`x_i, x_{i+1}, x_{i+2}`$. |
+| Central Difference ($`f''`$) | $`f''(x_i) \approx \dfrac{f_{i+1} - 2f_i + f_{i-1}}{h^2}`$ is an $`O(h^2)`$ formula that uses the points $`x_{i-1}, x_i, x_{i+1}`$. |
+| Forward Difference ($`f''`$) | $`f''(x_i) \approx \dfrac{f_{i+2} - 2f_{i+1} + f_i}{h^2}`$ is an $`O(h)`$ formula that uses the points $`x_i, x_{i+1}, x_{i+2}`$. |
+| Taylor series expansions | Equally spaced finite difference formulas are derived by combining Taylor series expansions at several points. |
+| Richardson Extrap. (1 level) | $`\dfrac{4}{3}D(h) - \dfrac{1}{3}D(2h)`$ eliminates the $`h^2`$ error of the central difference $`D(h)`$ and gives $`O(h^4)`$ accuracy. |
+| Richardson Extrap. (2 levels) | $`\dfrac{16}{15}\bar{D}(h) - \dfrac{1}{15}\bar{D}(2h)`$ eliminates the $`h^4`$ error of $`\bar{D}(h)`$ and gives $`O(h^6)`$ accuracy, so repeating the process raises the accuracy as $`O(h^2) \to O(h^4) \to O(h^6) \to \cdots`$. |
+| Unequally spaced data | The derivative is obtained by differentiating the Lagrange interpolating polynomial, which reduces to the central difference formula when the points are equally spaced. |
+| Mixed Partial ($`f_{xy}`$) | $`\dfrac{f(x\!+\!\Delta x, y\!+\!\Delta y) - f(x\!+\!\Delta x, y\!-\!\Delta y) - f(x\!-\!\Delta x, y\!+\!\Delta y) + f(x\!-\!\Delta x, y\!-\!\Delta y)}{4\Delta x \Delta y}`$ is an $`O(\Delta x^2, \Delta y^2)`$ approximation that uses four diagonal points. |
+| Method of undetermined coefficients | Solving the linear system that matches Taylor expansion coefficients systematically derives any finite difference stencil. |
+| Differentiable programming | Tools such as PyTorch, JAX, and TensorFlow provide exact gradients via automatic differentiation, a modern alternative to numerical differentiation. |
 
-**Key Takeaways**:
-- All finite difference formulas are derived from **Taylor series expansions**
-- **Central differences** are more accurate than forward/backward differences at the same step size due to error cancellation from symmetry
-- **Richardson extrapolation** systematically eliminates leading error terms by combining estimates at different step sizes, increasing accuracy from $`O(h^2) \to O(h^4) \to O(h^6) \to \cdots`$
-- For **unequally spaced data**, differentiate the Lagrange interpolating polynomial
-- The **method of undetermined coefficients** provides a systematic way to derive any finite difference stencil
-- **Differentiable programming** (PyTorch, JAX, TensorFlow) provides exact gradients via automatic differentiation, representing a modern alternative to numerical differentiation
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Forward and central differences:** For $`f(x) = e^x`$, $`x = 1`$, and $`h = 0.1`$, approximate $`f'(1)`$ with the forward and central differences and find each error relative to the true value $`e \approx 2.718282`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`e^{1.1} \approx 3.004166`$ and $`e^{0.9} \approx 2.459603`$. The forward difference is $`(3.004166 - 2.718282)/0.1 \approx 2.858842`$ with an error of about 0.140560. The central difference is $`(3.004166 - 2.459603)/0.2 \approx 2.722815`$ with an error of about 0.004533. The central difference error is about 31 times smaller, showing the difference between $`O(h)`$ and $`O(h^2)`$ formulas.
+
+   </details>
+
+2. **Richardson extrapolation:** For the function in Question 1, the central differences are $`D(0.2) \approx 2.736440`$ and $`D(0.1) \approx 2.722815`$. Find the first-level Richardson estimate and its error.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\bar{D}(0.1) = \frac{4}{3}(2.722815) - \frac{1}{3}(2.736440) \approx 3.630420 - 0.912147 = 2.718273`$. Its error is about $`9.1 \times 10^{-6}`$, about 500 times smaller than the error 0.004533 of $`D(0.1)`$.
+
+   </details>
+
+3. **Unequally spaced data:** Fit a second-order Lagrange polynomial to the data $`(0, 1)`$, $`(1, 3)`$, $`(3, 2)`$ and find the derivative at $`x = 1`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   Substituting $`x = 1`$ into the formulas of Section 6.2 gives $`N_0'(1) = \frac{2 - 1 - 3}{(0 - 1)(0 - 3)} = -\frac{2}{3}`$, $`N_1'(1) = \frac{2 - 0 - 3}{(1 - 0)(1 - 3)} = \frac{1}{2}`$, and $`N_2'(1) = \frac{2 - 0 - 1}{(3 - 0)(3 - 1)} = \frac{1}{6}`$. Therefore $`f'(1) = 1 \cdot \left(-\frac{2}{3}\right) + 3 \cdot \frac{1}{2} + 2 \cdot \frac{1}{6} = \frac{7}{6} \approx 1.1667`$.
+
+   </details>
+
+4. **Undetermined coefficients:** Find $`a`$, $`b`$, $`c`$ so that $`f'(x) \approx a\,f(x) + b\,f(x+h) + c\,f(x+2h)`$ is second-order accurate.
+
+   <details>
+   <summary>Answer</summary>
+
+   Substituting Taylor expansions and matching coefficients gives $`a + b + c = 0`$, $`(b + 2c)h = 1`$, and $`(b + 4c)\frac{h^2}{2} = 0`$. The third equation gives $`b = -4c`$; substituting into the second gives $`-2ch = 1`$, so $`c = -\frac{1}{2h}`$, $`b = \frac{2}{h}`$, and $`a = -\frac{3}{2h}`$. The result $`f'(x) \approx \frac{-3f(x) + 4f(x+h) - f(x+2h)}{2h}`$ is the second-order forward difference formula of Section 4.
+
+   </details>
+
+5. **Step size and error:** If the step size $`h`$ is halved, by roughly what factor does the truncation error of the forward difference, the central difference, and the first-level Richardson estimate change? What should one watch for when $`h`$ keeps decreasing?
+
+   <details>
+   <summary>Answer</summary>
+
+   The truncation errors are $`O(h)`$, $`O(h^2)`$, and $`O(h^4)`$, so they change by factors of roughly $`\frac{1}{2}`$, $`\frac{1}{4}`$, and $`\frac{1}{16}`$. If $`h`$ becomes too small, however, dividing the difference of two nearly equal values such as $`f(x+h) - f(x-h)`$ by a small number amplifies round-off error, so the total error can increase.
+
+   </details>

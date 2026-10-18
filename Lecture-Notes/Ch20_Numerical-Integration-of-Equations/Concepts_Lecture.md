@@ -1,15 +1,16 @@
-# Chapter 20 Lecture --- Numerical Integration of Equations
+# Chapter 20 — Numerical Integration of Equations
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 20
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] Numerical integration formulas (Ch 19).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Apply numerical integration to engineering equations
-> 2. Handle improper integrals numerically
-> 3. Implement adaptive quadrature methods
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 20
+
+> **Learning Objectives:**
+> 1. Improve the accuracy of trapezoidal estimates with Richardson extrapolation
+> 2. Build a Romberg table and apply its stopping criterion
+> 3. Derive the two-point Gauss-Legendre formula with the method of undetermined coefficients
+> 4. Apply Gauss quadrature on an arbitrary interval through a change of variable
 
 ---
 
@@ -30,10 +31,12 @@
   - [3.1 Motivation: From Trapezoidal Rule to Gauss Quadrature](#31-motivation-from-trapezoidal-rule-to-gauss-quadrature)
   - [3.2 Method of Undetermined Coefficients (Trapezoidal Recovery)](#32-method-of-undetermined-coefficients-trapezoidal-recovery)
   - [3.3 Derivation of Two-Point Gauss-Legendre Formula](#33-derivation-of-two-point-gauss-legendre-formula)
-  - [3.4 Example 20.3 --- Two-Point Gauss-Legendre with Variable Substitution](#34-example-203----two-point-gauss-legendre-with-variable-substitution)
-  - [3.5 Higher-Order Gauss-Legendre Formulas (Table 20.1)](#35-higher-order-gauss-legendre-formulas-table-201)
+  - [3.4 Example 20.3: Two-Point Gauss-Legendre with Variable Substitution](#34-example-203-two-point-gauss-legendre-with-variable-substitution)
+  - [3.5 Higher-Order Gauss-Legendre Formulas (Textbook Table 20.1)](#35-higher-order-gauss-legendre-formulas-textbook-table-201)
   - [3.6 Gauss-Lobatto Rules](#36-gauss-lobatto-rules)
-- [4. Summary Table](#4-summary-table)
+- [4. Comparison of Methods](#4-comparison-of-methods)
+- [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 <br>
 
@@ -45,8 +48,8 @@
 
 This chapter covers two advanced numerical integration techniques:
 
-1. **Romberg Integration** --- systematically improving accuracy of the trapezoidal rule via Richardson extrapolation
-2. **Gauss Quadrature** --- choosing optimal evaluation points (not necessarily at the endpoints) to maximize integration accuracy
+1. **Romberg Integration**: a method that systematically improves the accuracy of the trapezoidal rule via Richardson extrapolation.
+2. **Gauss Quadrature**: a method that chooses optimal evaluation points (not necessarily at the endpoints) to maximize integration accuracy.
 
 <br>
 
@@ -59,8 +62,8 @@ This chapter covers two advanced numerical integration techniques:
 Romberg integration **systematically improves the accuracy of the trapezoidal rule** using **Richardson extrapolation**.
 
 The core idea:
-1. Use **two estimates** of an integral (with different step sizes)
-2. Compute a **third, more accurate** approximation by combining them
+1. Use **two estimates** of an integral (with different step sizes).
+2. Compute a **third, more accurate** approximation by combining them.
 
 <br>
 
@@ -75,8 +78,8 @@ I = I(h) + E(h)
 ```
 
 where:
-- $`I(h)`$ is the numerical approximation
-- $`E(h)`$ is the truncation error
+- $`I(h)`$ is the numerical approximation.
+- $`E(h)`$ is the truncation error.
 
 If we have two different step sizes $`h_1`$ and $`h_2`$:
 
@@ -84,7 +87,7 @@ If we have two different step sizes $`h_1`$ and $`h_2`$:
 I = I(h_1) + E(h_1) = I(h_2) + E(h_2)
 ```
 
-> **[Calculus]** The key insight is that both approximations estimate the same true integral $`I`$, so by relating their error terms, we can cancel out the leading-order error.
+> **Key Point:** Both approximations estimate the same true integral $`I`$, so by relating their error terms, we can cancel out the leading-order error.
 
 <br>
 
@@ -138,9 +141,9 @@ I = I_2 + C h_2^2 + D h_2^4 + O(h_2^6)
 \frac{h_1^2}{h_2^2} I = \frac{h_1^2}{h_2^2} I_2 + C h_1^2 + D \frac{h_1^2}{h_2^2} h_2^4 + O\!\left(\frac{h_1^2}{h_2^2} h_2^6\right)
 ```
 
-> **[Calculus]** Notice that the $`C h_1^2`$ term in the first equation now matches the $`C h_1^2`$ term we created by multiplying. This is the key step that allows cancellation.
+> **Note:** The $`C h_1^2`$ term in the first equation now matches the $`C h_1^2`$ term created by the multiplication. This is the key step that allows cancellation.
 
-**Step 3.** Subtract the first equation from the scaled second equation:
+**Step 3.** Subtract the scaled second equation from the first equation:
 
 ```math
 \left(1 - \frac{h_1^2}{h_2^2}\right) I = \left(I_1 - \frac{h_1^2}{h_2^2} I_2\right) + D(h_1^4 - h_1^2 h_2^2) + O(h_1^6 - h_1^2 h_2^4)
@@ -214,13 +217,13 @@ The idea can be applied **recursively** with three (or more) trapezoidal rule es
 
 **With three estimates** $`I_1`$ (1 segment), $`I_2`$ (2 segments), $`I_3`$ (4 segments):
 
-**Level 1 (k=1):** Trapezoidal estimates --- $`O(h^2)`$
+**Level 1 (k=1):** Trapezoidal estimates, $`O(h^2)`$
 
 ```math
 I_1, \quad I_2, \quad I_3
 ```
 
-**Level 2 (k=2):** First Richardson extrapolation --- $`O(h^4)`$
+**Level 2 (k=2):** First Richardson extrapolation, $`O(h^4)`$
 
 ```math
 I_{12} = \frac{4}{3} I_2 - \frac{1}{3} I_1 \quad \sim O(h^4)
@@ -230,21 +233,21 @@ I_{12} = \frac{4}{3} I_2 - \frac{1}{3} I_1 \quad \sim O(h^4)
 I_{23} = \frac{4}{3} I_3 - \frac{1}{3} I_2 \quad \sim O(h^4)
 ```
 
-**Level 3 (k=3):** Second Richardson extrapolation --- $`O(h^6)`$
+**Level 3 (k=3):** Second Richardson extrapolation, $`O(h^6)`$
 
 ```math
 I_{123} = \frac{16}{15} I_{23} - \frac{1}{15} I_{12} \quad \sim O(h^6)
 ```
 
-> **[Calculus]** At each successive level, we eliminate the next leading error term. Level $`k`$ eliminates the $`O(h^{2k})`$ error, so the result has error $`O(h^{2(k+1)})`$. The coefficients change because the error being eliminated at level 2 is $`O(h^4)`$, so the ratio becomes $`4^2 = 16`$ instead of $`4^1 = 4`$.
+> **Note:** At each successive level, we eliminate the next leading error term. Level $`k`$ ($`k \ge 2`$) eliminates the leading $`O(h^{2(k-1)})`$ error term of the level $`k-1`$ estimates, so the result has error $`O(h^{2k})`$. The coefficients change because the error being eliminated at level 3 is $`O(h^4)`$, so the ratio becomes $`4^2 = 16`$ instead of $`4^1 = 4`$.
 
 <br>
 
 ### 2.6 Romberg Integration Formula
 
 Using double-index notation $`I_{j,k}`$:
-- $`j`$ = row index (which trapezoidal estimate is used)
-- $`k`$ = level of integration (column)
+- $`j`$ is the row index (which trapezoidal estimate is used).
+- $`k`$ is the level of integration (column).
 
 The **Romberg table** is structured as:
 
@@ -254,6 +257,22 @@ The **Romberg table** is structured as:
 | $`I_{2,1}`$ | $`I_{2,2}`$ | |
 | $`I_{3,1}`$ | | |
 
+*Table 1. Structure of the Romberg table*
+
+Each element is formed by combining the two elements of the column to its left in the same row and in the row just below.
+
+```mermaid
+flowchart LR
+    A["I_{1,1}<br>(n = 1)"] --> D["I_{1,2}"]
+    B["I_{2,1}<br>(n = 2)"] --> D
+    B --> E["I_{2,2}"]
+    C["I_{3,1}<br>(n = 4)"] --> E
+    D --> F["I_{1,3}"]
+    E --> F
+```
+
+*Figure 1. Direction in which estimates are combined in the Romberg table*
+
 The **general recurrence formula** is:
 
 ```math
@@ -261,8 +280,8 @@ The **general recurrence formula** is:
 ```
 
 where:
-- $`I_{j+1,\,k-1}`$ is the **more accurate** integral (finer step size)
-- $`I_{j,\,k-1}`$ is the **less accurate** integral (coarser step size)
+- $`I_{j+1,\,k-1}`$ is the **more accurate** integral (finer step size).
+- $`I_{j,\,k-1}`$ is the **less accurate** integral (coarser step size).
 
 **Verification example:**
 
@@ -315,6 +334,21 @@ print(f"\nBest estimate: {R[0, 3]:.6f}")
 print(f"Exact value:   1.640533")
 ```
 
+The output is as follows.
+
+```text
+Romberg Table:
+  0.172800  1.367467  1.640533  1.640533
+  1.068800  1.623467  1.640533
+  1.484800  1.639467
+  1.600800
+
+Best estimate: 1.640533
+Exact value:   1.640533
+```
+
+Since the integrand is a fifth-degree polynomial and the estimates of the third column ($`k = 3`$, $`O(h^6)`$) are exact for polynomials up to degree 5, $`I_{1,3}`$ and the value to its right equal the true value 1.640533.
+
 <br>
 
 ### 2.7 Stopping Criterion
@@ -335,7 +369,7 @@ The diagonal elements of the Romberg table are compared:
 
 Stop when $`|\varepsilon_a| < \varepsilon_s`$ (a prescribed tolerance).
 
-> **[Calculus]** The comparison is always between the current top-right element $`I_{1,k}`$ and the element from the previous column along the diagonal $`I_{2,k-1}`$. These represent the two best estimates that were combined to form $`I_{1,k}`$.
+> **Note:** The comparison is always between the current top-right element $`I_{1,k}`$ and the element $`I_{2,k-1}`$ of the previous column along the diagonal. $`I_{2,k-1}`$ is the more accurate of the two values combined to form $`I_{1,k}`$, that is, the best estimate of the previous level.
 
 <br>
 
@@ -407,7 +441,7 @@ I = \int_a^b x \, dx = \frac{1}{2}(b^2 - a^2) = c_0 \cdot a + c_1 \cdot b
 
 This **recovers the trapezoidal rule**: $`I = \frac{b-a}{2} f(a) + \frac{b-a}{2} f(b)`$.
 
-> **[Calculus]** The range of integration does not matter for deriving the coefficients. We can shift the interval to $`\left[-\frac{b-a}{2}, \frac{b-a}{2}\right]`$ centered at the origin, and obtain the same result $`c_0 = c_1 = \frac{b-a}{2}`$.
+> **Note:** The location of the interval does not matter for deriving the coefficients. We can shift the interval to $`\left[-\frac{b-a}{2}, \frac{b-a}{2}\right]`$ centered at the origin and obtain the same result $`c_0 = c_1 = \frac{b-a}{2}`$.
 
 <br>
 
@@ -447,7 +481,7 @@ Work on the standard interval $`[-1, 1]`$:
 c_1 x_1 (x_1^2 - x_0^2) = 0
 ```
 
-Since $`c_1`$ and $`x_1`$ are arbitrary (nonzero), we require:
+Since $`c_1`$ and $`x_1`$ cannot be zero (otherwise conditions (i)-(iv) cannot hold simultaneously), we require:
 
 ```math
 x_1^2 = x_0^2 \quad \text{and} \quad x_1 \neq x_0
@@ -529,7 +563,7 @@ print(f"Exact value:             1.640533")
 
 <br>
 
-### 3.4 Example 20.3 --- Two-Point Gauss-Legendre with Variable Substitution
+### 3.4 Example 20.3: Two-Point Gauss-Legendre with Variable Substitution
 
 **Problem:** Evaluate the integral of
 
@@ -585,9 +619,21 @@ print(f"Result: {result:.6f}")
 print(f"Exact:  1.640533")
 ```
 
+The output is as follows.
+
+```text
+x values: 0.169060, 0.630940
+f(x0) = 1.291851
+f(x1) = 3.264593
+Result: 1.822578
+Exact:  1.640533
+```
+
+The integral is therefore $`0.4(1.291851 + 3.264593) \approx 1.822578`$, with a true relative error of $`\varepsilon_t = \frac{1.640533 - 1.822578}{1.640533} \times 100\% \approx -11.1\%`$. This is far more accurate than the value 0.1728 of the single-application trapezoidal rule, which uses the same two function evaluations.
+
 <br>
 
-### 3.5 Higher-Order Gauss-Legendre Formulas (Table 20.1)
+### 3.5 Higher-Order Gauss-Legendre Formulas (Textbook Table 20.1)
 
 The general form on $`[-1, 1]`$:
 
@@ -595,16 +641,18 @@ The general form on $`[-1, 1]`$:
 I \approx \sum_{i=0}^{n-1} c_i \, f(x_i)
 ```
 
-| Points ($`n`$) | Weights ($`w_i`$) | Nodes ($`x_i`$) | Error | Exact for degree |
+| Points ($`n`$) | Weights ($`c_i`$) | Nodes ($`x_i`$) | Error | Exact for degree |
 |:---:|:---|:---|:---:|:---:|
 | **1** | $`c_0 = 2`$ | $`x_0 = 0`$ | $`\sim f^{(2)}(\zeta)`$ | 1 |
 | **2** | $`c_0 = 1`$, $`c_1 = 1`$ | $`x_0 = -\frac{1}{\sqrt{3}}`$, $`x_1 = \frac{1}{\sqrt{3}}`$ | $`\sim f^{(4)}(\zeta)`$ | 3 |
 | **3** | $`c_0 = \frac{5}{9}`$, $`c_1 = \frac{8}{9}`$, $`c_2 = \frac{5}{9}`$ | $`x_0 = -\sqrt{\frac{3}{5}}`$, $`x_1 = 0`$, $`x_2 = \sqrt{\frac{3}{5}}`$ | $`\sim f^{(6)}(\zeta)`$ | 5 |
 | **$`n`$** | (tabulated) | (tabulated) | $`\sim f^{(2n)}(\zeta)`$ | $`2n - 1`$ |
 
-**Key property:** Gauss quadrature with $`n`$ points is **(2n-1)th-order accurate** --- it is exact for all polynomials up to degree $`2n - 1`$.
+*Table 2. Weights, nodes, error, and exact degree of the Gauss-Legendre formulas by number of points*
 
-> **[Calculus]** This is a remarkable result: with $`n`$ points, we can exactly integrate polynomials of degree up to $`2n - 1`$. The trapezoidal rule (2 endpoints) is only exact for degree 1, but two-point Gauss-Legendre is exact for degree 3. The "extra" accuracy comes from optimizing the positions of the evaluation points.
+**Key property:** Gauss quadrature with $`n`$ points is **$`(2n-1)`$th-order accurate**: it is exact for all polynomials up to degree $`2n - 1`$.
+
+> **Note:** **Effect of optimal placement.** This is a remarkable result: with $`n`$ points, we can exactly integrate polynomials of degree up to $`2n - 1`$. The trapezoidal rule (2 endpoints) is only exact for degree 1, but two-point Gauss-Legendre is exact for degree 3. The extra accuracy comes from optimizing the positions of the evaluation points.
 
 ```python
 import numpy as np
@@ -632,6 +680,15 @@ print(f"Three-point Gauss-Legendre: {result:.6f}")
 print(f"Exact value:               1.640533")
 ```
 
+The output is as follows.
+
+```text
+Three-point Gauss-Legendre: 1.640533
+Exact value:               1.640533
+```
+
+The three-point formula is exact for polynomials up to degree 5, so it reproduces the true value of this fifth-degree integrand.
+
 <br>
 
 ### 3.6 Gauss-Lobatto Rules
@@ -644,15 +701,17 @@ print(f"Exact value:               1.640533")
 \int_{-1}^{1} f(x) \, dx \approx \frac{1}{3} f(-1) + \frac{4}{3} f(0) + \frac{1}{3} f(1)
 ```
 
-| Points ($`n`$) | Weights ($`w_i`$) | Nodes ($`x_i`$) | Error | Exact for degree |
+| Points ($`n`$) | Weights ($`c_i`$) | Nodes ($`x_i`$) | Error | Exact for degree |
 |:---:|:---|:---|:---:|:---:|
 | **3** | $`c_0 = \frac{1}{3}`$, $`c_1 = \frac{4}{3}`$, $`c_2 = \frac{1}{3}`$ | $`x_0 = -1`$, $`x_1 = 0`$, $`x_2 = 1`$ | $`\sim f^{(4)}(\zeta)`$ | 3 |
 | **4** | $`c_0 = \frac{1}{6}`$, $`c_1 = \frac{5}{6}`$, $`c_2 = \frac{5}{6}`$, $`c_3 = \frac{1}{6}`$ | $`x_0 = -1`$, $`x_1 = -\frac{1}{\sqrt{5}}`$, $`x_2 = \frac{1}{\sqrt{5}}`$, $`x_3 = 1`$ | $`\sim f^{(6)}(\zeta)`$ | 5 |
 | **$`n`$** | (tabulated) | (tabulated) | $`\sim f^{(2n-2)}(\zeta)`$ | $`2n - 3`$ |
 
-**Key property:** Gauss-Lobatto quadrature with $`n`$ points is **(2n-3)th-order accurate** --- it is exact for polynomials up to degree $`2n - 3`$.
+*Table 3. Weights, nodes, error, and exact degree of the Gauss-Lobatto formulas by number of points*
 
-> **[Calculus]** Gauss-Lobatto is slightly less accurate than Gauss-Legendre for the same number of points ($`2n - 3`$ vs $`2n - 1`$) because two of the points are fixed at the endpoints, reducing the degrees of freedom available for optimization. However, including endpoints can be advantageous when boundary values are already known or when combining sub-intervals.
+**Key property:** Gauss-Lobatto quadrature with $`n`$ points is **$`(2n-3)`$th-order accurate**: it is exact for polynomials up to degree $`2n - 3`$.
+
+> **Note:** **Gauss-Lobatto versus Gauss-Legendre.** Gauss-Lobatto is slightly less accurate than Gauss-Legendre for the same number of points ($`2n - 3`$ vs $`2n - 1`$) because two of the points are fixed at the endpoints, reducing the degrees of freedom available for optimization. However, including endpoints can be advantageous when boundary values are already known or when combining sub-intervals.
 
 <br>
 
@@ -660,7 +719,7 @@ print(f"Exact value:               1.640533")
 
 <br>
 
-## 4. Summary Table
+## 4. Comparison of Methods
 
 | Method | Formula / Key Idea | Error Order | Remarks |
 |:---|:---|:---:|:---|
@@ -670,3 +729,72 @@ print(f"Exact value:               1.640533")
 | **Gauss-Legendre (3-pt)** | $`I \approx \frac{5}{9}f(-\sqrt{3/5}) + \frac{8}{9}f(0) + \frac{5}{9}f(\sqrt{3/5})`$ | $`\sim f^{(6)}`$ | Exact for polynomials up to degree 5 |
 | **Gauss-Legendre ($`n`$-pt)** | $`I \approx \sum c_i f(x_i)`$ | $`\sim f^{(2n)}`$ | Exact for degree $`2n-1`$; optimal point placement |
 | **Gauss-Lobatto ($`n`$-pt)** | Same form, but endpoints included | $`\sim f^{(2n-2)}`$ | Exact for degree $`2n-3`$; includes boundary points |
+
+*Table 4. Comparison of Romberg integration and Gauss quadrature*
+
+---
+
+<br>
+
+## Summary
+
+| Concept | Key Summary |
+|---------|-------------|
+| Richardson extrapolation | It combines two estimates with different step sizes to eliminate the leading error term, and for trapezoidal estimates with $`h_1 = 2h_2`$, $`I = \frac{4}{3}I_2 - \frac{1}{3}I_1`$ is $`O(h^4)`$ accurate. |
+| Romberg integration | It applies Richardson extrapolation recursively to trapezoidal estimates, and the level $`k`$ estimates have $`O(h^{2k})`$ error. |
+| Romberg stopping criterion | The procedure stops when the percent relative error between $`I_{1,k}`$ and $`I_{2,k-1}`$ falls below the tolerance $`\varepsilon_s`$. |
+| Method of undetermined coefficients | It determines the coefficients and evaluation points by substituting the polynomials the formula must integrate exactly, and fixing the points at the endpoints recovers the trapezoidal rule. |
+| Gauss-Legendre quadrature | It chooses $`n`$ weights and nodes optimally to integrate polynomials up to degree $`2n - 1`$ exactly, and the two-point formula is $`f(-1/\sqrt{3}) + f(1/\sqrt{3})`$. |
+| Change of variable | It maps $`[a, b]`$ to $`[-1, 1]`$ with $`x = \frac{b-a}{2}\zeta + \frac{a+b}{2}`$ and multiplies the result by $`\frac{b-a}{2}`$. |
+| Gauss-Lobatto quadrature | It includes both endpoints as nodes, which reduces the degrees of freedom, so the $`n`$-point formula is exact for polynomials up to degree $`2n - 3`$. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Richardson extrapolation:** For the integral of $`f(x) = 0.2 + 25x - 200x^2 + 675x^3 - 900x^4 + 400x^5`$ from 0 to 0.8, the trapezoidal estimates with 1, 2, and 4 segments are 0.1728, 1.0688, and 1.4848. Find $`I_{1,2}`$ and $`I_{2,2}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`I_{1,2} = \frac{4}{3}(1.0688) - \frac{1}{3}(0.1728) = 1.425067 - 0.0576 = 1.367467`$. $`I_{2,2} = \frac{4}{3}(1.4848) - \frac{1}{3}(1.0688) = 1.979733 - 0.356267 = 1.623467`$.
+
+   </details>
+
+2. **Romberg level 3 and stopping criterion:** Using the results of Question 1, find $`I_{1,3}`$ and compute $`|\varepsilon_a|`$ of the stopping criterion.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`I_{1,3} = \frac{16(1.623467) - 1.367467}{15} = \frac{24.608}{15} = 1.640533`$. $`|\varepsilon_a| = \left|\frac{1.640533 - 1.623467}{1.640533}\right| \times 100\% \approx 1.04\%`$. $`I_{1,3}`$ equals the true value 1.640533 because the $`k = 3`$ column is exact for polynomials up to degree 5.
+
+   </details>
+
+3. **Two-point Gauss-Legendre:** Compute the integral of Question 1 with the two-point Gauss-Legendre formula and find the true relative error.
+
+   <details>
+   <summary>Answer</summary>
+
+   With $`x = 0.4\zeta + 0.4`$, the nodes are $`x \approx 0.169060`$ and $`0.630940`$, and the function values are about 1.291851 and 3.264593. The integral is $`0.4(1.291851 + 3.264593) \approx 1.822578`$, and the true relative error is $`\frac{1.640533 - 1.822578}{1.640533} \times 100\% \approx -11.1\%`$.
+
+   </details>
+
+4. **Order of accuracy:** Explain, by counting unknowns, why the $`n`$-point Gauss-Legendre formula is exact for polynomials up to degree $`2n - 1`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The $`n`$ weights and $`n`$ nodes give $`2n`$ unknowns, so $`2n`$ conditions can be imposed requiring exactness for the $`2n`$ monomials $`1, x, \ldots, x^{2n-1}`$. Since both the integral and the formula are linear, the formula is exact for every polynomial of degree up to $`2n - 1`$, which is a linear combination of these monomials. The two-point formula uses 4 conditions and is exact up to degree 3.
+
+   </details>
+
+5. **Gauss-Lobatto and Simpson's rule:** Show that the three-point Gauss-Lobatto formula on $`[-1, 1]`$ is the same as Simpson's 1/3 rule of Chapter 19.
+
+   <details>
+   <summary>Answer</summary>
+
+   On $`[-1, 1]`$, Simpson's 1/3 rule has $`h = 1`$, so it gives $`\frac{h}{3}\bigl(f(-1) + 4f(0) + f(1)\bigr) = \frac{1}{3}f(-1) + \frac{4}{3}f(0) + \frac{1}{3}f(1)`$. This is the three-point Gauss-Lobatto formula, and both formulas are exact for polynomials up to degree 3 ($`2n - 3 = 3`$).
+
+   </details>

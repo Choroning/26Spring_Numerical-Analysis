@@ -1,15 +1,17 @@
-# Chapter 16 Lecture -- Fourier Analysis
+# Chapter 16 — Fourier Analysis
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 16
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] Trigonometric functions, integrals (Ch 1-15).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Apply discrete Fourier transform (DFT) for signal analysis
-> 2. Implement Fast Fourier Transform (FFT) algorithm
-> 3. Interpret frequency spectra and power spectral density
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
+
+> **Learning Objectives:**
+> 1. Derive and compute Fourier series coefficients using the orthogonality of trigonometric functions
+> 2. Explain the definitions and properties of the Fourier integral and the Fourier transform for non-periodic functions
+> 3. Fit a sinusoid to data by least-squares regression and use the closed-form solution for equispaced points
+> 4. Apply the discrete Fourier transform (DFT) for signal analysis and compute the Nyquist frequency
+> 5. Explain the principle of the Fast Fourier Transform (FFT) and interpret the power spectrum
 
 ---
 
@@ -27,7 +29,7 @@
   - [3.2 Example: Square Wave](#32-example-square-wave)
 - [4. Fourier Series (Period $`2\pi`$)](#4-fourier-series-period-2pi)
   - [4.1 Fourier's Claim](#41-fouriers-claim)
-  - [4.2 Fourier Coefficients -- Derivation](#42-fourier-coefficients----derivation)
+  - [4.2 Derivation of the Fourier Coefficients](#42-derivation-of-the-fourier-coefficients)
   - [4.3 Orthogonality Relations](#43-orthogonality-relations)
   - [4.4 Coefficient Formulas](#44-coefficient-formulas)
 - [5. Fourier Series of the Square Wave](#5-fourier-series-of-the-square-wave)
@@ -54,7 +56,8 @@
 - [15. Nyquist Frequency](#15-nyquist-frequency)
 - [16. Fast Fourier Transform (FFT)](#16-fast-fourier-transform-fft)
 - [17. Power Spectrum](#17-power-spectrum)
-- [18. Summary Table](#18-summary-table)
+- [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -62,22 +65,11 @@
 
 ## 1. Overview and Goals
 
-**From N17 (Fourier Series):**
+The first part of this chapter (Sections 2-8) covers the Fourier series and the Fourier integral.
 
-- Understand Fourier Series and Fourier Integral
+The second part (Sections 9-17) explains sinusoids (sine and cosine waves), fits a sinusoid to data by least-squares regression, and then covers Euler's formula, signal analysis in the frequency domain, the discrete Fourier transform, the Nyquist frequency, the fast Fourier transform, and the power spectrum.
 
-**From N18 (Fourier Analysis):**
-
-- Understand sinusoids (sine and cosine waves)
-- Use least-square regression to fit a sinusoid to data
-- Understand Euler's formula
-- Analyze signals in frequency domain
-- Discrete Fourier transform
-- Nyquist frequency
-- Fast Fourier transform
-- Power spectrum
-
-> **[Context]** Fourier analysis is one of the most powerful tools in numerical methods. It allows us to decompose any periodic (or even non-periodic) function into a sum of simple sinusoidal components. This has applications in signal processing, image compression, solving differential equations, and more.
+> **Note:** **Context.** Fourier analysis is one of the most powerful tools in numerical methods. It allows us to decompose a periodic (or even non-periodic) function that satisfies suitable conditions into a sum of simple sinusoidal components. This has applications in signal processing, image compression, solving differential equations, and more.
 
 ---
 
@@ -105,13 +97,13 @@ A function $`f(x)`$ is **odd** if:
 f(-x) = -f(x)
 ```
 
-The graph of $`f(x)`$ is **antisymmetric about** $`x = 0`$ (origin symmetry).
+The graph of $`f(x)`$ is **symmetric about the origin** (point symmetry).
 
 **Examples:** $`\sin(x)`$, $`x^3`$, $`x`$
 
 ### 2.3 Decomposition of Any Function
 
-Any function can be decomposed into the sum of an even function and an odd function:
+Any function defined on an interval symmetric about the origin can be decomposed into the sum of an even function and an odd function:
 
 ```math
 f(x) = \frac{1}{2}f(x) + \frac{1}{2}f(x)
@@ -121,7 +113,7 @@ f(x) = \frac{1}{2}f(x) + \frac{1}{2}f(x)
 = \underbrace{\frac{1}{2}\bigl[f(x) + f(-x)\bigr]}_{\text{Even part}} + \underbrace{\frac{1}{2}\bigl[f(x) - f(-x)\bigr]}_{\text{Odd part}}
 ```
 
-> **[Key Idea]** This decomposition is fundamental to understanding Fourier series, where cosine terms capture the even part and sine terms capture the odd part of a function.
+> **Key Point:** This decomposition is fundamental to understanding Fourier series, where cosine terms capture the even part and sine terms capture the odd part of a function.
 
 ---
 
@@ -165,7 +157,7 @@ This function repeats with period $`2\pi`$ and is a classic example used to demo
 
 ### 4.1 Fourier's Claim
 
-**Fourier (1768--1830)** claimed that an arbitrary function defined over $`[-\pi, \pi]`$ could be represented in the form:
+**Fourier (1768-1830)** claimed that an arbitrary function defined over $`[-\pi, \pi]`$ could be represented in the form:
 
 ```math
 f(x) = \sum_{n=0}^{\infty} (a_n \cos nx + b_n \sin nx)
@@ -177,15 +169,15 @@ Rewriting with the conventional $`\frac{a_0}{2}`$ notation:
 f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
 ```
 
-> **[Why $`a_0/2`$?]** When $`n = 0`$, we have $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$. We introduce the factor $`\frac{1}{2}`$ for convenience so that the formula for $`a_0`$ has the same form as $`a_n`$ for $`n \ge 1`$.
+> **Note:** **Why $`a_0/2`$?** When $`n = 0`$, we have $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$. We introduce the factor $`\frac{1}{2}`$ for convenience so that the formula for $`a_0`$ has the same form as $`a_n`$ for $`n \ge 1`$.
 
-Notice the structure:
+This expression has the following structure:
 
 ```math
 f(x) = \underbrace{\left(\frac{a_0}{2} + \sum_{n=1}^{\infty} a_n \cos nx \right)}_{\text{Even part}} + \underbrace{\left(\sum_{n=1}^{\infty} b_n \sin nx \right)}_{\text{Odd part}}
 ```
 
-### 4.2 Fourier Coefficients -- Derivation
+### 4.2 Derivation of the Fourier Coefficients
 
 **Finding $`a_0`$:** Integrate both sides over $`[-\pi, \pi]`$:
 
@@ -215,7 +207,7 @@ f(x) = \underbrace{\left(\frac{a_0}{2} + \sum_{n=1}^{\infty} a_n \cos nx \right)
 
 ### 4.3 Orthogonality Relations
 
-The key to deriving the coefficients relies on **orthogonality** of trigonometric functions.
+Deriving the coefficients relies on the **orthogonality** of trigonometric functions.
 
 **Product-to-sum identities:**
 
@@ -293,7 +285,7 @@ b_n = \frac{1}{\pi} \int_{-\pi}^{\pi} f(x)\sin nx\,dx = \frac{1}{\pi} \int_0^{\p
 f(x) = \frac{1}{2} + \sum_{\substack{n=1,3,5,\ldots}} \frac{2}{n\pi} \sin nx = \frac{1}{2} + \frac{2}{\pi} \sum_{n=1}^{\infty} \frac{\sin(2n-1)x}{2n-1}
 ```
 
-As $`n \to \infty`$, $`\frac{1}{n} \to 0`$, so the Fourier series **converges**.
+As $`n \to \infty`$, the coefficients $`\frac{2}{n\pi}`$ decrease to 0. Coefficients tending to 0 do not by themselves guarantee convergence, but this series **converges** by the convergence theorem for Fourier series of piecewise smooth functions (the Dirichlet conditions). It converges to $`f(x)`$ where $`f`$ is continuous and to the average $`\frac{1}{2}`$ of the left and right limits at the discontinuities $`x = 0, \pm\pi`$.
 
 ---
 
@@ -331,7 +323,7 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 
 **Question:** Can $`f(x) = e^{-x^2}`$ be expanded in a Fourier series?
 
-**Answer:** No -- $`f(x)`$ is NOT periodic.
+**Answer:** Not over the whole real line, because $`f(x)`$ is not periodic.
 
 **Solution:** Take $`\ell \to \infty`$. As $`\ell`$ increases, the frequency spectrum $`\frac{n\pi}{\ell}`$ becomes finer and finer, tending to a **continuous** spectrum.
 
@@ -340,6 +332,8 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 | $`\pi`$ | $`1, 2, 3, 4, \ldots`$ |
 | $`2\pi`$ | $`\frac{1}{2}, 1, \frac{3}{2}, 2, \ldots`$ |
 | $`10\pi`$ | $`0.1, 0.2, 0.3, 0.4, \ldots`$ |
+
+*Table 1. Spacing of the frequencies $`n\pi/\ell`$ for each half-period $`\ell`$*
 
 In the limit, the discrete sum becomes a continuous integral:
 
@@ -413,7 +407,7 @@ provided $`f(x) \to 0`$ as $`x \to \pm\infty`$.
 \mathcal{F}\left\{\frac{d^n}{dx^n}f(x)\right\} = (i\omega)^n\,\mathcal{F}\{f\}
 ```
 
-> **[Significance]** The derivative property converts differentiation in the spatial/time domain into multiplication in the frequency domain. This is why Fourier transforms are extremely useful for solving differential equations.
+> **Note:** **Significance.** The derivative property converts differentiation in the spatial/time domain into multiplication in the frequency domain. This is why Fourier transforms are extremely useful for solving differential equations.
 
 **3) Convolution:**
 
@@ -464,6 +458,8 @@ where:
 | $`\omega_0`$ | **Angular frequency** (radians/time) |
 | $`\theta`$ | **Phase angle** (radians) |
 
+*Table 2. Parameters of a sinusoidal function and their meaning*
+
 The relationships between frequency quantities:
 
 ```math
@@ -481,7 +477,7 @@ For $`\theta > 0`$:
 - $`\cos(\omega_0 t - \theta)`$: **lagging** phase angle (shifted right)
 - $`\cos(\omega_0 t + \theta)`$: **leading** phase angle (shifted left)
 
-Also note the relationship between sine and cosine:
+The following relationships between sine and cosine also hold:
 
 ```math
 \sin(t + \pi/2) = \cos(t), \qquad \cos(t - \pi/2) = \sin(t)
@@ -521,6 +517,8 @@ From these we can recover:
 \theta = \arctan\left(-\frac{B_1}{A_1}\right), \qquad C_1 = \sqrt{A_1^2 + B_1^2}
 ```
 
+Since $`\arctan`$ returns values in $`(-\pi/2, \pi/2)`$, add $`\pi`$ to $`\theta`$ when $`A_1 < 0`$.
+
 ---
 
 <br>
@@ -535,7 +533,7 @@ Given data points $`(t_i, y_i)`$, fit the model:
 y = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t) = \hat{y}(t)
 ```
 
-Interpret as a linear regression problem with basis functions:
+Interpret as a linear regression problem with basis functions ($`\beta_0 = A_0`$, $`\beta_1 = A_1`$, $`\beta_2 = B_1`$):
 
 ```math
 f_0 = 1, \quad f_1 = \cos(\omega_0 t), \quad f_2 = \sin(\omega_0 t)
@@ -569,7 +567,7 @@ This yields the normal equation system:
 
 Collect $`n`$ observations within a period $`T`$ at equally spaced points: $`T = n\,\Delta t`$.
 
-For **equispaced** points, the following orthogonality properties hold:
+For **equispaced** points ($`n \ge 3`$), the following orthogonality properties hold:
 
 ```math
 \sum_{i=1}^{n} \sin(\omega_0 t_i) = 0, \qquad \sum_{i=1}^{n} \cos(\omega_0 t_i) = 0
@@ -603,7 +601,7 @@ The normal equations simplify to a **diagonal** system:
 \boxed{B_1 = \frac{2}{n}\sum y_i \sin(\omega_0 t_i)}
 ```
 
-> **[Key Insight]** With equispaced data points, the normal equations decouple completely, giving simple closed-form expressions for the Fourier coefficients. This is a major computational advantage.
+> **Key Point:** With equispaced data points, the normal equations decouple completely, giving simple closed-form expressions for the Fourier coefficients. This is a major computational advantage.
 
 ---
 
@@ -613,7 +611,7 @@ The normal equations simplify to a **diagonal** system:
 
 ### 11.1 General Fourier Series
 
-Extending to the general model with $`m`$ harmonics ($`2m + 1`$ coefficients):
+Extend to the general model that contains all integer multiples of the fundamental frequency. For data fitting, the series is truncated at the $`m`$-th harmonic, which uses $`2m + 1`$ coefficients:
 
 ```math
 f(t) = a_0 + \sum_{k=1}^{\infty} \bigl(a_k \cos(k\omega_0 t) + b_k \sin(k\omega_0 t)\bigr)
@@ -621,8 +619,8 @@ f(t) = a_0 + \sum_{k=1}^{\infty} \bigl(a_k \cos(k\omega_0 t) + b_k \sin(k\omega_
 
 where:
 
-- $`\omega_0 = \frac{2\pi}{T}`$ is the **fundamental frequency**
-- $`2\omega_0, 3\omega_0, \ldots, m\omega_0, \ldots`$ are the **harmonics** (constant multiples of $`\omega_0`$)
+- $`\omega_0 = \frac{2\pi}{T}`$ is the **fundamental frequency**.
+- $`2\omega_0, 3\omega_0, \ldots, m\omega_0, \ldots`$ are the **harmonics** (integer multiples of $`\omega_0`$).
 
 The coefficients for the general model:
 
@@ -638,7 +636,7 @@ A_j = \frac{2}{n}\sum y_i \cos(j\omega_0 t_i), \quad j = 1, 2, \ldots, m
 B_j = \frac{2}{n}\sum y_i \sin(j\omega_0 t_i), \quad j = 1, 2, \ldots, m
 ```
 
-> **[Regression vs. Collocation]** If $`n > 2m + 1`$ (more data points than coefficients), we compute the coefficients to fit data in the **regression** (least-squares) sense. If $`n = 2m + 1`$ (the number of data points equals the number of Fourier coefficients), this is called **collocation** -- the Fourier series interpolates the data exactly.
+> **Note:** **Regression and collocation.** If $`n > 2m + 1`$ (more data points than coefficients), we compute the coefficients to fit data in the **regression** (least-squares) sense. If $`n = 2m + 1`$ (the number of data points equals the number of Fourier coefficients), this is called **collocation**, and the Fourier series interpolates the data exactly.
 
 ### 11.2 Euler's Formula and Complex Form
 
@@ -668,8 +666,8 @@ where the complex Fourier coefficients are:
 
 The **frequency domain** provides an alternative perspective for characterizing the behavior of oscillating functions.
 
-- **Time domain**: the usual representation $`f(t)`$ -- amplitude vs. time
-- **Frequency domain**: the Fourier coefficients $`\hat{f}(\omega)`$ -- amplitude vs. frequency
+- **Time domain**: the usual representation $`f(t)`$, which shows amplitude versus time.
+- **Frequency domain**: the Fourier coefficients $`\hat{f}(\omega)`$, which show amplitude versus frequency.
 
 Fourier analysis transforms a signal from the time domain to the frequency domain, revealing which frequencies are present and their relative strengths.
 
@@ -679,7 +677,7 @@ Fourier analysis transforms a signal from the time domain to the frequency domai
 
 ## 13. Fourier Integral and Fourier Transformation (Revisited)
 
-Transition from a periodic function to a non-periodic function by taking $`T \to \infty`$:
+Transition from a periodic function to a non-periodic function by taking $`T \to \infty`$.
 
 **Fourier Integral (inverse transform):**
 
@@ -701,7 +699,7 @@ F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt
 
 Collect a **finite set** of function values. An interval from $`0`$ to $`T`$ can be divided into $`n`$ equispaced subintervals with $`\Delta t = \frac{T}{n}`$.
 
-Discrete samples: $`f_j = f(t = t_j)`$, where $`t_j = t_0 + j\,\Delta t`$.
+The discrete samples are $`f_j = f(t = t_j)`$, where $`t_j = t_0 + j\,\Delta t`$.
 
 **DFT (Forward):**
 
@@ -739,7 +737,7 @@ def idft(F):
     return f / n
 ```
 
-> **[Complexity]** The naive DFT has time complexity $`O(n^2)`$ because each of the $`n`$ output values requires a sum over $`n`$ input values.
+> **Note:** **Complexity.** The naive DFT has time complexity $`O(n^2)`$ because each of the $`n`$ output values requires a sum over $`n`$ input values.
 
 ---
 
@@ -753,14 +751,14 @@ The **Nyquist frequency** is the highest frequency that can be measured in a sig
 f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}
 ```
 
-**Example:** Collect 100 samples ($`n = 100`$) at a sampling frequency of $`f_s = 1000`$ Hz:
+**Example:** Collecting 100 samples ($`n = 100`$) at a sampling frequency of $`f_s = 1000`$ Hz gives the following.
 
 - Sampling interval: $`\Delta t = \frac{1}{f_s} = \frac{1}{1000} = 10^{-3}`$ sec/sample
 - Total time: $`T = n \cdot \Delta t = 100 \times 10^{-3} = 0.1`$ s
 - **Nyquist frequency:** $`f_{\max} = \frac{1}{2}f_s = 500`$ Hz
 - **Lowest detectable frequency:** $`f_{\min} = \frac{1}{T} = \frac{1}{n\,\Delta t} = 10`$ Hz
 
-> **[Aliasing]** If a signal contains frequencies above the Nyquist frequency, those frequencies will be incorrectly represented as lower frequencies -- a phenomenon called **aliasing**. To avoid this, the sampling rate must be at least twice the highest frequency present in the signal (the **Nyquist-Shannon sampling theorem**).
+> **Caution:** **Aliasing.** If a signal contains frequencies above the Nyquist frequency, those frequencies will be incorrectly represented as lower frequencies. This phenomenon is called **aliasing**. To avoid this, the sampling rate must be greater than twice the highest frequency present in the signal (the **Nyquist-Shannon sampling theorem**).
 
 ---
 
@@ -796,7 +794,7 @@ freqs = np.fft.fftfreq(len(t), d=t[1] - t[0])
 recovered = np.fft.ifft(F)
 ```
 
-> **[Why $`n = 2^p`$?]** The Cooley-Tukey FFT algorithm works most efficiently when $`n`$ is a power of 2, as the recursive splitting into halves can be done $`\log_2 n`$ times evenly.
+> **Note:** **Why $`n = 2^p`$?** The radix-2 Cooley-Tukey FFT algorithm works most efficiently when $`n`$ is a power of 2, as the recursive splitting into halves can be done $`\log_2 n`$ times evenly.
 
 ---
 
@@ -846,26 +844,77 @@ plt.show()
 
 <br>
 
-## 18. Summary Table
+## Summary
 
-| Topic | Key Formula | Notes |
-|:---|:---|:---|
-| **Fourier Series** ($`2\pi`$ period) | $`f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty}(a_n\cos nx + b_n\sin nx)`$ | Periodic functions on $`[-\pi,\pi]`$ |
-| **Coefficients** ($`2\pi`$ period) | $`a_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\cos nx\,dx`$, $`b_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\sin nx\,dx`$ | Derived from orthogonality |
-| **General Period** $`2\ell`$ | $`f(x) = \frac{a_0}{2} + \sum a_n\cos\frac{n\pi}{\ell}x + \sum b_n\sin\frac{n\pi}{\ell}x`$ | Change of variable $`x' = \frac{\pi x}{\ell}`$ |
-| **Fourier Integral** | $`f(x) = \int_0^{\infty}[a(\omega)\cos\omega x + b(\omega)\sin\omega x]\,d\omega`$ | Non-periodic; $`\ell \to \infty`$ |
-| **Fourier Transform** | $`\hat{f}(\omega) = \int_{-\infty}^{\infty}f(\xi)e^{-i\omega\xi}\,d\xi`$ | Complex exponential form |
-| **Inverse FT** | $`f(x) = \frac{1}{2\pi}\int_{-\infty}^{\infty}\hat{f}(\omega)e^{i\omega x}\,d\omega`$ | Recovers original function |
-| **Sinusoidal Fit** | $`f(t) = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t)`$ | $`C_1 = \sqrt{A_1^2+B_1^2}`$, $`\theta = \arctan(-B_1/A_1)`$ |
-| **Discrete Coefficients** | $`A_0 = \bar{y}`$, $`A_j = \frac{2}{n}\sum y_i\cos(j\omega_0 t_i)`$, $`B_j = \frac{2}{n}\sum y_i\sin(j\omega_0 t_i)`$ | Equispaced data |
-| **Euler's Formula** | $`e^{i\theta} = \cos\theta + i\sin\theta`$ | Connects trig and exponential |
-| **Complex Fourier Series** | $`f(t) = \sum_{k=-\infty}^{\infty}\tilde{C}_k e^{ik\omega_0 t}`$ | $`\tilde{C}_k = \frac{1}{T}\int_{-T/2}^{T/2}f(t)e^{-ik\omega_0 t}\,dt`$ |
-| **DFT** | $`\hat{f}_k = \sum_{j=0}^{n-1}f_j e^{-ik\omega_0 j}`$ | $`O(n^2)`$ complexity |
-| **FFT** | Same result as DFT | $`O(n\log n)`$ complexity |
-| **Nyquist Frequency** | $`f_{\max} = \frac{1}{2}f_s = \frac{1}{2\Delta t}`$ | Maximum detectable frequency |
-| **Power Spectrum** | $`P_k = \lvert\tilde{C}_k\rvert^2`$, $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$ | Energy distribution over frequencies |
-| **FT Linearity** | $`\mathcal{F}\{\alpha f + \beta g\} = \alpha\mathcal{F}\{f\} + \beta\mathcal{F}\{g\}`$ | Linear operator |
-| **FT Derivative** | $`\mathcal{F}\{f^{(n)}\} = (i\omega)^n\mathcal{F}\{f\}`$ | Differentiation becomes multiplication |
-| **FT Convolution** | $`\mathcal{F}\{f*g\} = \hat{f}(\omega)\cdot\hat{g}(\omega)`$ | Convolution becomes product |
-| **FT $`x`$-shift** | $`\mathcal{F}^{-1}\{e^{-ia\omega}\hat{f}(\omega)\} = f(x-a)`$ | Spatial shift |
-| **FT $`\omega`$-shift** | $`\mathcal{F}^{-1}\{\hat{f}(\omega-a)\} = e^{iax}f(x)`$ | Frequency modulation |
+| Concept | Key Summary |
+|---------|-------------|
+| Fourier series ($`2\pi`$ period) | A periodic function on $`[-\pi,\pi]`$ is expanded as $`f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty}(a_n\cos nx + b_n\sin nx)`$. |
+| Coefficients ($`2\pi`$ period) | Orthogonality gives $`a_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\cos nx\,dx`$ and $`b_n = \frac{1}{\pi}\int_{-\pi}^{\pi}f(x)\sin nx\,dx`$. |
+| General period $`2\ell`$ | The change of variable $`x' = \frac{\pi x}{\ell}`$ gives $`f(x) = \frac{a_0}{2} + \sum a_n\cos\frac{n\pi}{\ell}x + \sum b_n\sin\frac{n\pi}{\ell}x`$. |
+| Fourier integral | A non-periodic function is represented in the limit $`\ell \to \infty`$ as $`f(x) = \int_0^{\infty}[a(\omega)\cos\omega x + b(\omega)\sin\omega x]\,d\omega`$. |
+| Fourier transform | The transform in complex exponential form is $`\hat{f}(\omega) = \int_{-\infty}^{\infty}f(\xi)e^{-i\omega\xi}\,d\xi`$. |
+| Inverse FT | The original function is recovered by $`f(x) = \frac{1}{2\pi}\int_{-\infty}^{\infty}\hat{f}(\omega)e^{i\omega x}\,d\omega`$. |
+| Sinusoidal fit | The amplitude and phase angle of the model $`f(t) = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t)`$ are $`C_1 = \sqrt{A_1^2+B_1^2}`$ and $`\theta = \arctan(-B_1/A_1)`$ (add $`\pi`$ to $`\theta`$ when $`A_1 < 0`$). |
+| Discrete coefficients | For equispaced data, $`A_0 = \bar{y}`$, $`A_j = \frac{2}{n}\sum y_i\cos(j\omega_0 t_i)`$, and $`B_j = \frac{2}{n}\sum y_i\sin(j\omega_0 t_i)`$. |
+| Euler's formula | $`e^{i\theta} = \cos\theta + i\sin\theta`$ connects trigonometric and exponential functions. |
+| Complex Fourier series | $`f(t) = \sum_{k=-\infty}^{\infty}\tilde{C}_k e^{ik\omega_0 t}`$ with coefficients $`\tilde{C}_k = \frac{1}{T}\int_{-T/2}^{T/2}f(t)e^{-ik\omega_0 t}\,dt`$. |
+| DFT | $`\hat{f}_k = \sum_{j=0}^{n-1}f_j e^{-ik\omega_0 j}`$, with $`O(n^2)`$ computational complexity. |
+| FFT | It computes the same result as the DFT with $`O(n\log n)`$ complexity. |
+| Nyquist frequency | The maximum detectable frequency is $`f_{\max} = \frac{1}{2}f_s = \frac{1}{2\Delta t}`$. |
+| Power spectrum | The energy distribution over frequencies is $`P_k = \lvert\tilde{C}_k\rvert^2`$ and $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$. |
+| FT linearity | The Fourier transform is a linear operator satisfying $`\mathcal{F}\{\alpha f + \beta g\} = \alpha\mathcal{F}\{f\} + \beta\mathcal{F}\{g\}`$. |
+| FT derivative | Since $`\mathcal{F}\{f^{(n)}\} = (i\omega)^n\mathcal{F}\{f\}`$, differentiation becomes multiplication. |
+| FT convolution | Since $`\mathcal{F}\{f*g\} = \hat{f}(\omega)\cdot\hat{g}(\omega)`$, convolution becomes a product. |
+| FT $`x`$-shift | A spatial shift appears as $`\mathcal{F}^{-1}\{e^{-ia\omega}\hat{f}(\omega)\} = f(x-a)`$. |
+| FT $`\omega`$-shift | Frequency modulation appears as $`\mathcal{F}^{-1}\{\hat{f}(\omega-a)\} = e^{iax}f(x)`$. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Even and odd decomposition:** Decompose $`f(x) = e^x`$ into its even part and odd part.
+
+   <details>
+   <summary>Answer</summary>
+
+   The even part is $`\frac{1}{2}(e^x + e^{-x}) = \cosh x`$, and the odd part is $`\frac{1}{2}(e^x - e^{-x}) = \sinh x`$. Here $`\cosh(-x) = \cosh x`$ and $`\sinh(-x) = -\sinh x`$, and the two parts add up to $`e^x`$.
+
+   </details>
+
+2. **Fourier coefficients:** Find the Fourier coefficients $`a_n`$ and $`b_n`$ of $`f(x) = x`$ on the interval $`[-\pi, \pi]`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   Since $`f`$ is odd, $`f(x)\cos nx`$ is also odd, so $`a_n = 0`$ for every $`n`$. $`b_n = \frac{2}{\pi}\int_0^{\pi} x \sin nx\,dx`$, and integration by parts gives $`\int_0^{\pi} x\sin nx\,dx = -\frac{\pi\cos n\pi}{n}`$, so $`b_n = -\frac{2\cos n\pi}{n} = \frac{2(-1)^{n+1}}{n}`$. Thus $`b_1 = 2`$, $`b_2 = -1`$, $`b_3 = \frac{2}{3}`$, and $`x = 2\left(\sin x - \frac{\sin 2x}{2} + \frac{\sin 3x}{3} - \cdots\right)`$.
+
+   </details>
+
+3. **Using the square wave series:** Evaluate the square wave series of Section 5 at $`x = \pi/2`$ to find the value of $`1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \cdots`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`x = \pi/2`$ is a point where $`f`$ is continuous, and $`f(\pi/2) = 1`$. Since $`\sin((2n-1)\pi/2) = (-1)^{n+1}`$, $`1 = \frac{1}{2} + \frac{2}{\pi}\left(1 - \frac{1}{3} + \frac{1}{5} - \cdots\right)`$. Therefore $`1 - \frac{1}{3} + \frac{1}{5} - \cdots = \frac{\pi}{4} \approx 0.7854`$.
+
+   </details>
+
+4. **Least-squares fit of a sinusoid:** Over one period $`T = 1`$ ($`\omega_0 = 2\pi`$), the values $`y = 3, 5, 1, -1`$ were measured at the equispaced times $`t = 0, 0.25, 0.5, 0.75`$. Find the coefficients of $`y = A_0 + A_1\cos(\omega_0 t) + B_1\sin(\omega_0 t)`$, the amplitude $`C_1`$, and the phase angle $`\theta`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\cos(\omega_0 t_i) = 1, 0, -1, 0`$ and $`\sin(\omega_0 t_i) = 0, 1, 0, -1`$. $`A_0 = \bar{y} = 8/4 = 2`$, $`A_1 = \frac{2}{4}(3 - 1) = 1`$, and $`B_1 = \frac{2}{4}(5 + 1) = 3`$. $`C_1 = \sqrt{1^2 + 3^2} = \sqrt{10} \approx 3.162`$, and since $`A_1 > 0`$, $`\theta = \arctan(-3/1) \approx -1.249`$ rad. For these data, the fitted curve passes through all four points exactly.
+
+   </details>
+
+5. **Nyquist frequency and aliasing:** 200 samples were taken at a sampling frequency of $`f_s = 100`$ Hz. Find the sampling interval, the total time, the Nyquist frequency, and the lowest detectable frequency, and state the frequency at which a 70 Hz sinusoid appears.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\Delta t = 1/100 = 0.01`$ s, $`T = 200 \times 0.01 = 2`$ s, $`f_{\max} = 50`$ Hz, and $`f_{\min} = 1/T = 0.5`$ Hz. Since 70 Hz exceeds the Nyquist frequency of 50 Hz, aliasing occurs and it appears as a component at $`\lvert 70 - 100 \rvert = 30`$ Hz.
+
+   </details>

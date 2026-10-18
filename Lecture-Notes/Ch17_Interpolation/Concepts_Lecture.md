@@ -1,15 +1,17 @@
-# Chapter 17 Lecture -- Polynomial Interpolation
+# Chapter 17 — Polynomial Interpolation
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 17
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] Polynomials (Ch 14-16).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Apply Newton and Lagrange interpolation polynomials
-> 2. Analyze interpolation error and Runge's phenomenon
-> 3. Implement inverse interpolation for root finding
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 17
+
+> **Learning Objectives:**
+> 1. Find the coefficients of an interpolating polynomial with the Vandermonde matrix and improve its condition number by standardization
+> 2. Construct and evaluate Newton's interpolating polynomial with a divided difference table
+> 3. Construct the interpolating polynomial with Lagrange basis functions and compare it with Newton's form
+> 4. Estimate the $`x`$ that corresponds to a given function value by inverse interpolation
+> 5. Explain the risk of extrapolation and Runge's phenomenon
 
 ---
 
@@ -27,9 +29,9 @@
   - [2.1 Linear Interpolation (1st Order)](#21-linear-interpolation-1st-order)
   - [2.2 Quadratic Interpolation (2nd Order)](#22-quadratic-interpolation-2nd-order)
   - [2.3 Finite Divided Differences](#23-finite-divided-differences)
-  - [2.4 Recursive Nature of Finite Differences](#24-recursive-nature-of-finite-differences)
+  - [2.4 Recursive Nature of Finite Divided Differences](#24-recursive-nature-of-finite-divided-differences)
   - [2.5 General Form of Newton's Interpolating Polynomial](#25-general-form-of-newtons-interpolating-polynomial)
-  - [2.6 Example 17.4 -- Estimating ln 2](#26-example-174----estimating-ln-2)
+  - [2.6 Example 17.4: Estimating ln 2](#26-example-174-estimating-ln-2)
 - [3. Lagrange Interpolating Polynomial](#3-lagrange-interpolating-polynomial)
   - [3.1 Linear Lagrange Interpolation (1st Order)](#31-linear-lagrange-interpolation-1st-order)
   - [3.2 Basis Functions N1(x) and N2(x)](#32-basis-functions-n1x-and-n2x)
@@ -41,7 +43,8 @@
 - [5. Extrapolation and Oscillations](#5-extrapolation-and-oscillations)
   - [5.1 Extrapolation](#51-extrapolation)
   - [5.2 Oscillations (Runge Phenomenon)](#52-oscillations-runge-phenomenon)
-- [Summary Table](#summary-table)
+- [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -51,9 +54,9 @@
 
 ### 1.1 What Is Interpolation?
 
-Interpolation is the technique of estimating the value of a function at an intermediate point, given a set of discrete data points. The core question is: **How do we fill in the values between two known data points?**
+Interpolation is the technique of estimating the value of a function at an intermediate point, given a set of discrete data points. The core question is how to fill in **the values between two known data points**.
 
-The answer: use **polynomial interpolation**. The idea is to pass a polynomial through the known data points and then evaluate the polynomial at the desired intermediate location.
+The answer to this question is **polynomial interpolation**. The idea is to pass a polynomial through the known data points and then evaluate the polynomial at the desired intermediate location.
 
 There are three common types of polynomial interpolation, depending on how many data points are used:
 
@@ -63,18 +66,22 @@ There are three common types of polynomial interpolation, depending on how many 
 | Quadratic interpolation | 3 | 2nd order |
 | Cubic interpolation | 4 | 3rd order |
 
-> **Motivating Example:** Suppose you are given a table of temperature $`T`$ [C] and density $`\rho`$ [kg/m$`^3`$] of air:
->
-> | $`T`$ [C] | $`\rho`$ [kg/m$`^3`$] |
-> |---------|-------------------|
-> | $`-40`$   | $`1.52`$            |
-> | $`0`$     | $`1.29`$            |
-> | $`20`$    | $`1.20`$            |
-> | $`50`$    | $`1.09`$            |
-> | $`\vdots`$ | $`\vdots`$         |
-> | $`500`$   | $`0.46`$            |
->
-> What is the density at $`T = 30`$ C? Interpolation answers this question.
+*Table 1. Types of polynomial interpolation by the number of data points*
+
+**Motivating Example:** Suppose you are given a table of temperature $`T`$ [C] and density $`\rho`$ [kg/m$`^3`$] of air.
+
+| $`T`$ [C] | $`\rho`$ [kg/m$`^3`$] |
+|---------|-------------------|
+| $`-40`$   | $`1.52`$            |
+| $`0`$     | $`1.29`$            |
+| $`20`$    | $`1.20`$            |
+| $`50`$    | $`1.09`$            |
+| $`\vdots`$ | $`\vdots`$         |
+| $`500`$   | $`0.46`$            |
+
+*Table 2. Density of air by temperature*
+
+What is the density at $`T = 30`$ C? Interpolation answers this question.
 
 ### 1.2 Polynomial Form and Unknowns
 
@@ -86,7 +93,7 @@ f(x) = a_0 + a_1 x + a_2 x^2 + \cdots + a_n x^n
 
 This polynomial has **$`n + 1`$ unknowns** (the coefficients $`a_0, a_1, \ldots, a_n`$), so we need **$`n + 1`$ data points** to uniquely determine them.
 
-> **Key Principle:** To fit an $`n`$-th order polynomial, we need exactly $`n + 1`$ data points.
+> **Key Point:** To uniquely determine an $`n`$-th order interpolating polynomial, we need $`n + 1`$ data points with distinct $`x`$-values.
 
 ### 1.3 Determining Coefficients
 
@@ -133,7 +140,7 @@ In general, for a 2nd-order polynomial with data at $`x_1, x_2, x_3`$:
 
 The coefficient matrix $`V`$ is known as the **Vandermonde matrix**. Solve $`V \mathbf{p} = \mathbf{f}`$ to find the polynomial coefficients.
 
-> **Problem:** The Vandermonde matrix is often **ill-conditioned** when the $`x`$-values are large. For the example above, $`\text{cond}(V) \sim 10^6`$, which causes numerical instability.
+> **Caution:** The Vandermonde matrix is often **ill-conditioned** when the $`x`$-values are large. For the example above, $`\text{cond}(V) \approx 5.9 \times 10^6`$ (in the 2-norm), which causes numerical instability.
 
 ### 1.5 Standardization
 
@@ -149,9 +156,9 @@ This maps the original $`x`$-values $`\{300, 400, 500\}`$ to $`\{-1, 0, 1\}`$, p
 V' = \begin{pmatrix} 1 & -1 & 1 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \end{pmatrix}
 ```
 
-Now $`\text{cond}(V') = 3.26`$, which is dramatically better than $`10^6`$.
+Now $`\text{cond}(V') \approx 3.23`$, which is dramatically better than the $`10^6`$ level.
 
-> **Standardization** is necessary to improve the conditioning of the Vandermonde matrix and stabilize the computation.
+> **Key Point:** **Standardization** improves the conditioning of the Vandermonde matrix and stabilizes the computation.
 
 ---
 
@@ -169,9 +176,9 @@ Given two data points $`(x_1, f(x_1))`$ and $`(x_2, f(x_2))`$, the **Newton line
 \hat{f}(x) = f(x_1) + \frac{f(x_2) - f(x_1)}{x_2 - x_1}(x - x_1)
 ```
 
-This is simply a straight line through the two points (slope-intercept form using the slope of the secant line).
+This is a straight line through the two points (point-slope form using the slope of the secant line).
 
-> **Accuracy** increases as the interval $`|x_2 - x_1|`$ decreases and as $`x`$ is closer to the data points.
+> **Note:** In general, the **accuracy** of linear interpolation increases as the interval $`|x_2 - x_1|`$ decreases and as $`x`$ is closer to the data points.
 
 ### 2.2 Quadratic Interpolation (2nd Order)
 
@@ -243,19 +250,21 @@ f[x_i, x_j, x_k] = \frac{f[x_i, x_j] - f[x_j, x_k]}{x_i - x_k}
 f[x_n, x_{n-1}, \ldots, x_1] = \frac{f[x_n, x_{n-1}, \ldots, x_2] - f[x_{n-1}, x_{n-2}, \ldots, x_1]}{x_n - x_1}
 ```
 
-### 2.4 Recursive Nature of Finite Differences
+### 2.4 Recursive Nature of Finite Divided Differences
 
 The divided differences can be organized in a **triangular table**:
 
 | $`x_i`$ | $`f(x_i)`$ | 1st Divided Diff. | 2nd Divided Diff. | 3rd Divided Diff. |
 |--------|-----------|-------------------|--------------------|---------------------|
-| $`x_1`$ | $`f(x_1) \; {}^{\prime\prime}b_1{}^{\prime\prime}`$ | | | |
-| | | $`f[x_2, x_1] \; {}^{\prime\prime}b_2{}^{\prime\prime}`$ | | |
-| $`x_2`$ | $`f(x_2)`$ | | $`f[x_3, x_2, x_1] \; {}^{\prime\prime}b_3{}^{\prime\prime}`$ | |
-| | | $`f[x_3, x_2]`$ | | $`f[x_4, x_3, x_2, x_1] \; {}^{\prime\prime}b_4{}^{\prime\prime}`$ |
+| $`x_1`$ | $`f(x_1) = b_1`$ | | | |
+| | | $`f[x_2, x_1] = b_2`$ | | |
+| $`x_2`$ | $`f(x_2)`$ | | $`f[x_3, x_2, x_1] = b_3`$ | |
+| | | $`f[x_3, x_2]`$ | | $`f[x_4, x_3, x_2, x_1] = b_4`$ |
 | $`x_3`$ | $`f(x_3)`$ | | $`f[x_4, x_3, x_2]`$ | |
 | | | $`f[x_4, x_3]`$ | | |
 | $`x_4`$ | $`f(x_4)`$ | | | |
+
+*Table 3. Triangular table of divided differences*
 
 The **top diagonal** of the table gives the coefficients $`b_1, b_2, b_3, b_4, \ldots`$ of the Newton polynomial.
 
@@ -284,9 +293,9 @@ where
 - $`b_3 = f[x_3, x_2, x_1]`$
 - $`b_k = f[x_k, x_{k-1}, \ldots, x_1]`$
 
-> **Advantage:** Newton's form is **incremental** -- adding a new data point only requires computing one additional divided difference and appending one more term. The previously computed coefficients remain unchanged.
+> **Note:** **Advantage.** Newton's form is **incremental**. Adding a new data point only requires computing one more diagonal of the divided difference table to get one new coefficient and appending one more term. The previously computed coefficients remain unchanged.
 
-### 2.6 Example 17.4 -- Estimating ln 2
+### 2.6 Example 17.4: Estimating ln 2
 
 **Problem:** Estimate $`\ln 2`$ using a 3rd-order Newton interpolating polynomial.
 
@@ -299,7 +308,9 @@ where
 | 3   | 6      | 1.791759             |
 | 4   | 5      | 1.609438             |
 
-**Step 1:** Build the divided difference table:
+*Table 4. Data points of Example 17.4*
+
+**Step 1:** Build the divided difference table.
 
 | | $`f(x_i)`$ | 1st | 2nd | 3rd |
 |---|----------|-----|-----|-----|
@@ -311,7 +322,9 @@ where
 | | | $`f[x_4, x_3]`$ | | |
 | $`x_4 = 5`$ | $`1.609438`$ | | | |
 
-**Step 2:** Compute each divided difference:
+*Table 5. Divided difference table of Example 17.4*
+
+**Step 2:** Compute each divided difference.
 
 ```math
 f[x_2, x_1] = \frac{1.386294 - 0}{4 - 1} = 0.462098 = b_2
@@ -337,13 +350,13 @@ f[x_4, x_3, x_2] = \frac{0.182321 - 0.202733}{5 - 4} = -0.020412
 f[x_4, x_3, x_2, x_1] = \frac{-0.020412 - (-0.051873)}{5 - 1} = 0.007865 = b_4
 ```
 
-**Step 3:** Construct the 3rd-order polynomial:
+**Step 3:** Construct the 3rd-order polynomial.
 
 ```math
 \hat{f}_3(x) = 0 + 0.462098(x - 1) + (-0.051873)(x - 1)(x - 4) + 0.007865(x - 1)(x - 4)(x - 6)
 ```
 
-**Step 4:** Evaluate at $`x = 2`$:
+**Step 4:** Evaluate at $`x = 2`$.
 
 ```math
 \hat{f}_3(2) = 0.462098(1) + (-0.051873)(1)(-2) + 0.007865(1)(-2)(-4)
@@ -353,7 +366,7 @@ f[x_4, x_3, x_2, x_1] = \frac{-0.020412 - (-0.051873)}{5 - 1} = 0.007865 = b_4
 = 0.462098 + 0.103746 + 0.062920 = 0.628764
 ```
 
-The exact value is $`\ln 2 = 0.693147`$, so the estimate has some error due to the spacing of data points.
+The exact value is $`\ln 2 = 0.693147`$, so the estimate has a true relative error of about 9.3% due to the spacing of data points.
 
 ```python
 import numpy as np
@@ -422,16 +435,17 @@ Then the **linear Lagrange interpolating polynomial** is:
 
 ### 3.2 Basis Functions N1(x) and N2(x)
 
-The basis functions have the important **partition of unity** property:
+The basis functions take the following values at the data points (the Kronecker delta property):
 
 - $`N_1(x_1) = 1, \quad N_1(x_2) = 0`$
 - $`N_2(x_1) = 0, \quad N_2(x_2) = 1`$
 
-At $`x = x_1`$: the interpolation gives $`f(x_1)`$ exactly (weighted 100% by $`N_1`$).
-At $`x = x_2`$: the interpolation gives $`f(x_2)`$ exactly (weighted 100% by $`N_2`$).
-Between $`x_1`$ and $`x_2`$: the result is a **weighted average** of $`f(x_1)`$ and $`f(x_2)`$.
+- At $`x = x_1`$, the interpolation gives $`f(x_1)`$ exactly (weighted 100% by $`N_1`$).
+- At $`x = x_2`$, the interpolation gives $`f(x_2)`$ exactly (weighted 100% by $`N_2`$).
+- For every $`x`$, $`N_1(x) + N_2(x) = 1`$, which is called the **partition of unity** property.
+- Between $`x_1`$ and $`x_2`$, both weights lie between 0 and 1, so the result is a **weighted average** of $`f(x_1)`$ and $`f(x_2)`$.
 
-> **Geometric Interpretation:** $`N_1(x)`$ and $`N_2(x)`$ are linear functions that cross at an intermediate point. The interpolated value $`y = N_1(x) f(x_1) + N_2(x) f(x_2)`$ is the weighted combination of function values at the data points.
+> **Note:** **Geometric interpretation.** $`N_1(x)`$ and $`N_2(x)`$ are linear functions that cross at the midpoint of the two points. The interpolated value $`y = N_1(x) f(x_1) + N_2(x) f(x_2)`$ is the weighted combination of function values at the data points.
 
 ### 3.3 2nd-Order Lagrange Interpolating Polynomial
 
@@ -478,8 +492,8 @@ L_i(x) = \prod_{\substack{j=1 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j}
 ```
 
 Here:
-- $`n`$ is the **number of data points**
-- $`\prod`$ denotes the **product** over all $`j`$ except $`j = i`$
+- $`n`$ is the **number of data points**.
+- $`\prod`$ denotes the **product** over all $`j`$ except $`j = i`$.
 
 ```python
 import numpy as np
@@ -506,7 +520,7 @@ print(f"Lagrange f(2) = {estimate:.6f}")
 print(f"Exact ln(2) = {np.log(2):.6f}")
 ```
 
-> **Newton vs. Lagrange:** Both methods produce the **same** interpolating polynomial -- they are algebraically equivalent. Newton's form is more efficient for **incrementally adding** new data points. Lagrange's form is conceptually simpler and more straightforward to implement.
+> **Note:** **Newton and Lagrange.** Both methods produce the **same** interpolating polynomial, and they are algebraically equivalent. Newton's form is more efficient for **incrementally adding** new data points. Lagrange's form is conceptually simpler and more straightforward to implement.
 
 ---
 
@@ -520,13 +534,13 @@ In standard interpolation, we are given $`x`$ and estimate $`f(x)`$. In **invers
 
 Given data points $`(x_0, f(x_0)), (x_1, f(x_1)), (x_2, f(x_2)), \ldots`$, we want to find $`x`$ such that $`f(x) = y`$.
 
-**Key idea:** No explicit inverse function $`f^{-1}(x)`$ is needed. Instead, **reverse the roles** of $`x`$ and $`f(x)`$ -- treat $`f(x_i)`$ as the independent variable and $`x_i`$ as the dependent variable, then apply standard interpolation.
+**Key idea:** No explicit inverse function $`f^{-1}(x)`$ is needed. Instead, **reverse the roles** of $`x`$ and $`f(x)`$. That is, treat $`f(x_i)`$ as the independent variable and $`x_i`$ as the dependent variable, then apply standard interpolation. This requires $`f`$ to be monotonic (one-to-one) over the data range.
 
 ```math
 x(y) = \sum_{i=0}^{n} x_i \, L_i(y)
 ```
 
-where $`L_i(y)`$ are Lagrange basis functions constructed using $`f(x_i)`$ values as the "x-data."
+where $`L_i(y)`$ are Lagrange basis functions constructed using the $`f(x_i)`$ values as the independent-variable data (the place where $`x_i`$ usually goes).
 
 ### 4.2 Example
 
@@ -540,25 +554,25 @@ Given three data points:
 
 **Goal:** Find $`x`$ such that $`f(x) = 5`$.
 
-**Step 1:** Reverse the pairs:
+**Step 1:** Reverse the pairs.
 
 ```math
 (f(x_0), x_0) = (1, 2), \quad (f(x_1), x_1) = (2, 4), \quad (f(x_2), x_2) = (3, 8)
 ```
 
-**Step 2:** Apply Lagrange interpolation with $`y`$-values as the independent variable:
+**Step 2:** Apply Lagrange interpolation with $`y`$-values as the independent variable.
 
 ```math
 x(y) = \sum_{i=0}^{2} x_i \, L_i(y)
 ```
 
-**Step 3:** Evaluate at $`y = 5`$:
+**Step 3:** Evaluate at $`y = 5`$.
 
 ```math
 x(5) = \sum_{i=0}^{2} x_i \, L_i(5)
 ```
 
-Compute each basis function at $`y = 5`$:
+Each basis function at $`y = 5`$ is computed as follows.
 
 ```math
 L_0(5) = \frac{(5-2)(5-3)}{(1-2)(1-3)} = \frac{(3)(2)}{(-1)(-2)} = 3
@@ -598,6 +612,8 @@ x_at_y5 = lagrange_interp(y_data, x_data, 5.0)
 print(f"x such that f(x)=5: {x_at_y5:.2f}")
 ```
 
+> **Caution:** $`y = 5`$ lies outside the $`y`$-range $`[1, 3]`$ of the data, so this computation is an inverse extrapolation (Section 5.1). For example, if the data came from $`f(x) = \log_2 x`$, the true value would be $`x = 32`$, far from the estimate 22.
+
 ---
 
 <br>
@@ -611,13 +627,13 @@ print(f"x such that f(x)=5: {x_at_y5:.2f}")
 - **Interpolation:** $`x \in [x_1, x_n]`$ (between known points)
 - **Extrapolation:** $`x < x_1`$ or $`x > x_n`$ (outside known points)
 
-> **Warning:** Extrapolation using polynomial interpolation is generally **unreliable**. The polynomial may diverge rapidly outside the data range because there is no data to constrain its behavior in those regions. The error can grow dramatically.
+> **Caution:** Extrapolation using polynomial interpolation is generally **unreliable**. The polynomial may diverge rapidly outside the data range because there is no data to constrain its behavior in those regions. The error can grow dramatically.
 
 ### 5.2 Oscillations (Runge Phenomenon)
 
 Using a **high-order polynomial** for interpolation can introduce **spurious oscillations**, especially near the edges of the data interval. This is known as **Runge's phenomenon**.
 
-**Example 17.7 -- Runge Function:**
+**Example 17.7 (Runge function):**
 
 ```math
 f(x) = \frac{1}{1 + 25x^2}, \qquad x \in [-1, 1]
@@ -625,12 +641,12 @@ f(x) = \frac{1}{1 + 25x^2}, \qquad x \in [-1, 1]
 
 When this function is interpolated with a high-order polynomial (e.g., 4th order or higher) using equally spaced points, the polynomial develops large oscillations near the boundaries $`x = \pm 1`$, even though it passes exactly through all the data points.
 
-> **Runge's Phenomenon:** As the polynomial order increases with equally spaced nodes, the interpolation error can actually **increase** near the endpoints, rather than decrease. This is a fundamental limitation of high-order polynomial interpolation.
+> **Caution:** **Runge's phenomenon.** As the polynomial order increases with equally spaced nodes, the interpolation error can actually **increase** near the endpoints, rather than decrease. This is a fundamental limitation of high-order polynomial interpolation on equally spaced nodes.
 
 **Remedies for oscillation:**
-1. Use **lower-order** piecewise polynomials (splines) instead of a single high-order polynomial
-2. Use **non-equally spaced** nodes (e.g., Chebyshev nodes) that cluster near the boundaries
-3. Keep the polynomial order reasonably low and use more intervals
+1. Use **lower-order** piecewise polynomials (splines, Chapter 18) instead of a single high-order polynomial.
+2. Use **non-equally spaced** nodes (e.g., Chebyshev nodes) that cluster near the boundaries.
+3. Keep the polynomial order reasonably low and use more intervals.
 
 ```python
 import numpy as np
@@ -669,20 +685,62 @@ plt.show()
 
 <br>
 
-## Summary Table
+## Summary
 
-| Topic | Key Formula / Concept | Points Needed | Order |
-|-------|----------------------|---------------|-------|
-| **Polynomial Interpolation** | $`f(x) = a_0 + a_1 x + \cdots + a_n x^n`$ | $`n+1`$ | $`n`$ |
-| **Vandermonde Matrix** | $`V \mathbf{p} = \mathbf{f}`$ | Solves for coefficients | Often ill-conditioned |
-| **Standardization** | $`z = \frac{x - \bar{x}}{\Delta x}`$ | Improves $`\text{cond}(V)`$ | Same order |
-| **Newton Linear** | $`\hat{f}(x) = f(x_1) + f[x_2,x_1](x - x_1)`$ | 2 | 1 |
-| **Newton Quadratic** | $`+ \, f[x_3,x_2,x_1](x-x_1)(x-x_2)`$ | 3 | 2 |
-| **Newton General** | $`\hat{f}_{n-1}(x) = \sum b_k \prod_{j=1}^{k-1}(x - x_j)`$ | $`n`$ | $`n-1`$ |
-| **Divided Differences** | $`f[x_i,x_j] = \frac{f(x_i)-f(x_j)}{x_i - x_j}`$ | Recursive | Builds table |
-| **Lagrange Linear** | $`\hat{f}_1 = N_1(x)f(x_1) + N_2(x)f(x_2)`$ | 2 | 1 |
-| **Lagrange General** | $`\hat{f}_{n-1}(x) = \sum L_i(x) f(x_i)`$ | $`n`$ | $`n-1`$ |
-| **Lagrange Basis** | $`L_i(x) = \prod_{j \neq i} \frac{x - x_j}{x_i - x_j}`$ | Kronecker delta property | -- |
-| **Inverse Interpolation** | Swap roles of $`x`$ and $`f(x)`$, then interpolate | Same as forward | Same |
-| **Extrapolation** | Evaluation outside $`[x_1, x_n]`$ | -- | Unreliable |
-| **Oscillations (Runge)** | $`f(x) = \frac{1}{1+25x^2}`$ | High order + equal spacing | Diverges at edges |
+| Concept | Key Summary |
+|---------|-------------|
+| Polynomial interpolation | An $`n`$-th order polynomial $`f(x) = a_0 + a_1 x + \cdots + a_n x^n`$ is determined by $`n+1`$ data points. |
+| Vandermonde matrix | Solving $`V \mathbf{p} = \mathbf{f}`$ gives the coefficients, but this matrix is often ill-conditioned. |
+| Standardization | Changing the variable to $`z = \frac{x - \bar{x}}{\Delta x}`$ keeps the order the same and improves $`\text{cond}(V)`$. |
+| Newton linear | First-order interpolation with 2 points is $`\hat{f}(x) = f(x_1) + f[x_2,x_1](x - x_1)`$. |
+| Newton quadratic | Second-order interpolation with 3 points adds $`f[x_3,x_2,x_1](x-x_1)(x-x_2)`$ to the Newton linear formula. |
+| Newton general | $`(n-1)`$-th order interpolation with $`n`$ points is $`\hat{f}_{n-1}(x) = \sum b_k \prod_{j=1}^{k-1}(x - x_j)`$. |
+| Divided differences | The table is built recursively, starting from $`f[x_i,x_j] = \frac{f(x_i)-f(x_j)}{x_i - x_j}`$. |
+| Lagrange linear | First-order interpolation with 2 points is $`\hat{f}_1 = N_1(x)f(x_1) + N_2(x)f(x_2)`$. |
+| Lagrange general | $`(n-1)`$-th order interpolation with $`n`$ points is $`\hat{f}_{n-1}(x) = \sum L_i(x) f(x_i)`$. |
+| Lagrange basis | $`L_i(x) = \prod_{j \neq i} \frac{x - x_j}{x_i - x_j}`$ has the Kronecker delta property. |
+| Inverse interpolation | The roles of $`x`$ and $`f(x)`$ are swapped before interpolating, and the number of points and the order are the same as for forward interpolation. |
+| Extrapolation | Evaluation outside $`[x_1, x_n]`$ is unreliable. |
+| Oscillations (Runge) | Interpolating $`f(x) = \frac{1}{1+25x^2}`$ with a high-order polynomial on equally spaced nodes oscillates and the error grows at the edges. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Second-order Newton interpolation:** Build the second-order Newton interpolating polynomial from the data (1, 0), (4, 1.386294), (6, 1.791759), estimate $`\ln 2`$, and find the true relative error.
+
+   <details>
+   <summary>Answer</summary>
+
+   From the divided differences of Example 17.4, $`b_1 = 0`$, $`b_2 = 0.462098`$, and $`b_3 = -0.051873`$. $`\hat{f}_2(2) = 0 + 0.462098(2 - 1) + (-0.051873)(2 - 1)(2 - 4) = 0.462098 + 0.103746 = 0.565844`$. The true relative error is $`(0.693147 - 0.565844) / 0.693147 \approx 18.4\%`$, larger than the 9.3% error of the third-order polynomial that adds the point $`x = 5`$ (Example 17.4).
+
+   </details>
+
+2. **Comparison with the Lagrange form:** Using the same three points as Question 1, compute the second-order Lagrange basis functions $`L_1(2)`$, $`L_2(2)`$, $`L_3(2)`$, estimate $`\ln 2`$, and check the sum of the three values.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`L_1(2) = \frac{(2-4)(2-6)}{(1-4)(1-6)} = \frac{8}{15} \approx 0.5333`$, $`L_2(2) = \frac{(2-1)(2-6)}{(4-1)(4-6)} = \frac{2}{3} \approx 0.6667`$, and $`L_3(2) = \frac{(2-1)(2-4)}{(6-1)(6-4)} = -0.2`$. Therefore $`\hat{f}_2(2) = 0.5333 \cdot 0 + 0.6667 \cdot 1.386294 - 0.2 \cdot 1.791759 = 0.924196 - 0.358352 = 0.565844`$, the same as in Question 1, because the second-order interpolating polynomial through the same three points is unique. The three basis function values sum to $`\frac{8}{15} + \frac{2}{3} - 0.2 = 1`$.
+
+   </details>
+
+3. **Inverse interpolation:** Using the data (1, 1), (2, 4), (3, 9) from $`f(x) = x^2`$, estimate the $`x`$ with $`f(x) = 5`$ by second-order inverse interpolation and compare it with the true value $`\sqrt{5}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   Reversing the pairs gives $`(1, 1), (4, 2), (9, 3)`$. $`L_0(5) = \frac{(5-4)(5-9)}{(1-4)(1-9)} = -\frac{1}{6}`$, $`L_1(5) = \frac{(5-1)(5-9)}{(4-1)(4-9)} = \frac{16}{15}`$, and $`L_2(5) = \frac{(5-1)(5-4)}{(9-1)(9-4)} = \frac{1}{10}`$, so $`x(5) = 1 \cdot \left(-\frac{1}{6}\right) + 2 \cdot \frac{16}{15} + 3 \cdot \frac{1}{10} \approx 2.2667`$. The relative error against the true value $`\sqrt{5} \approx 2.2361`$ is about 1.4%. Since the target value 5 lies inside the $`y`$-range $`[1, 9]`$ of the data and $`f`$ is monotonic there, this is not an extrapolation, unlike the example in Section 4.2.
+
+   </details>
+
+4. **Runge's phenomenon:** How does the maximum error change when the Runge function is interpolated on 5, 9, and 13 equally spaced nodes in $`[-1, 1]`$? Give two remedies.
+
+   <details>
+   <summary>Answer</summary>
+
+   Computing with the code in Section 5.2, the maximum error is about 0.44 for order 4, about 1.05 for order 8, and about 3.66 for order 12, so it grows as the order increases, and the large errors appear near the endpoints $`x = \pm 1`$. The remedies are to use low-order piecewise polynomials such as splines and to use Chebyshev nodes that cluster near the boundaries. With the same number of Chebyshev nodes, the maximum error drops to about 0.40, 0.17, and 0.069.
+
+   </details>

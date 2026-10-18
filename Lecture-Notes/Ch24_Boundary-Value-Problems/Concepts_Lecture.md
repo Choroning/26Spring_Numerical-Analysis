@@ -1,19 +1,18 @@
-# Chapter 24 Lecture — Boundary-Value Problems
+# Chapter 24 — Boundary-Value Problems
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 24
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Calculus] ODE methods (Ch 22-23). [Linear Algebra] Systems of equations.
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 24
+
+> **Learning Objectives:**
 > 1. Formulate boundary value problems for ODEs
-> 2. Apply shooting method and finite difference method
-> 3. Analyze convergence of BVP solvers
+> 2. Obtain the analytical solution of a linear BVP as the sum of the homogeneous and particular solutions
+> 3. Apply the shooting method and the finite difference method
+> 4. Analyze the accuracy and convergence of BVP solvers
 
 ---
-
-<br>
 
 ## Table of Contents
 
@@ -42,6 +41,7 @@
   - [4.6 Matrix Formulation](#46-matrix-formulation)
   - [4.7 Python Implementation](#47-python-implementation)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -53,10 +53,21 @@
 
 Consider a **steady-state temperature distribution** for a long, thin rod positioned between two constant-temperature walls:
 
-- The left wall is held at temperature $`T_a`$
-- The right wall is held at temperature $`T_b`$
-- The surrounding air temperature is $`T_\infty`$
-- The rod has length $`L`$
+- The left wall is held at temperature $`T_a`$.
+- The right wall is held at temperature $`T_b`$.
+- The surrounding air temperature is $`T_\infty`$.
+- The rod has length $`L`$.
+
+```text
+                 Ambient air T∞
+ ┃   ↕    ↕    ↕    ↕    ↕    ↕    ↕    ↕   ┃   ↕ Convection
+ ┃██████████████████████████████████████████┃   ◀─▶ Conduction (along the rod)
+T_a                                        T_b
+ ├──────────────────────────────────────────┤──▶ x
+ 0                                          L
+```
+
+*Figure 1. Conduction and convection in a heated rod between two walls*
 
 Two mechanisms of heat transfer act on the rod:
 
@@ -65,15 +76,17 @@ Two mechanisms of heat transfer act on the rod:
 | **Conduction** | Along the rod (horizontal) | Heat flows through the rod material from one end to the other |
 | **Convection** | Perpendicular to the rod (vertical) | Heat is exchanged between the rod surface and the surrounding air at $`T_\infty`$ |
 
+*Table 1. Two heat transfer mechanisms acting on the heated rod*
+
 The fundamental question is: **What is the temperature distribution $`T(x)`$ along the rod?**
 
 The temperature $`T(x)`$ varies from $`T_a`$ at $`x = 0`$ to $`T_b`$ at $`x = L`$, and the profile between these endpoints depends on the balance of conduction and convection.
 
-> **[Physics]** Conduction is governed by Fourier's law and depends on the thermal conductivity of the rod material. Convection depends on the heat transfer coefficient between the rod surface and the surrounding fluid. The parameter $`h'`$ in the governing equation encapsulates the ratio of convective to conductive effects.
+> **Note:** **Physics background.** Conduction is governed by Fourier's law and depends on the thermal conductivity of the rod material. Convection depends on the heat transfer coefficient between the rod surface and the surrounding fluid. The parameter $`h'`$ in the governing equation captures the relative strength of convective and conductive effects.
 
 ### 1.2 Governing Equation
 
-The governing equation for heat conduction and heat diffusion along the rod is:
+The governing equation that combines heat conduction along the rod and convection to the surrounding air is:
 
 ```math
 0 = \frac{d^2 T}{dx^2} + h'(T_\infty - T) \quad \cdots (**)
@@ -95,10 +108,12 @@ Given two boundary values at the endpoints of the domain, we can solve for the t
 |:--------|:---------------------------|:-----------------------------|
 | **Conditions given at** | A single point ($`x = x_0`$) | Two or more distinct points |
 | **Typical conditions** | $`y(x_0) = y_0`$, $`y'(x_0) = y'_0`$ | $`y(a) = \alpha`$, $`y(b) = \beta`$ |
-| **Solution approach** | March forward from $`x_0`$ | Cannot simply march; need global strategy |
+| **Solution approach** | March forward from $`x_0`$ | Cannot simply march from one end; needs iterative guessing (shooting) or a global solve (finite differences) |
 | **Order** | Needs $`n`$ conditions at one point for $`n`$-th order ODE | Conditions split across boundary |
 
-> **[Calculus]** A second-order ODE requires exactly two conditions to determine a unique solution. In an IVP, both conditions are specified at the same point (e.g., position and velocity at $`t = 0`$). In a BVP, the conditions are specified at different spatial locations (e.g., temperatures at both ends of a rod).
+*Table 2. Comparison of initial-value and boundary-value problems*
+
+> **[Calculus]** A second-order ODE generally requires two conditions to determine a unique solution. In an IVP, both conditions are specified at the same point (e.g., position and velocity at $`t = 0`$). In a BVP, the conditions are specified at different spatial locations (e.g., temperatures at both ends of a rod). A linear IVP with continuous coefficients has exactly one solution, but a BVP may have no solution or infinitely many even with two conditions. For example, $`y'' + y = 0`$, $`y(0) = 0`$, $`y(\pi) = 0`$ has the solution $`y = C \sin x`$ for every constant $`C`$.
 
 ---
 
@@ -122,7 +137,7 @@ The total solution is the sum of:
 
 ### 2.2 Homogeneous Solution
 
-Solve the homogeneous equation:
+First, solve the homogeneous equation:
 
 ```math
 \frac{d^2 T}{dx^2} - h' T = 0 \quad \cdots (***)
@@ -136,7 +151,7 @@ Substituting into $`(***)`$:
 \lambda^2 C e^{\lambda x} - h' C e^{\lambda x} = (\lambda^2 - h') C e^{\lambda x} = 0
 ```
 
-Since $`T = C e^{\lambda x}`$ is arbitrary (non-trivial), the characteristic equation must be satisfied:
+Since we seek a non-trivial solution ($`C \neq 0`$) and $`e^{\lambda x}`$ is never zero, the characteristic equation must be satisfied:
 
 ```math
 \lambda^2 - h' = 0
@@ -156,7 +171,7 @@ T_h = C_1 e^{\lambda x} + C_2 e^{-\lambda x}, \quad \lambda = \sqrt{h'}
 
 ### 2.3 Particular Solution
 
-A particular solution is a constant function that satisfies the full non-homogeneous equation. By inspection, if $`T = T_\infty`$:
+A particular solution is any one solution that satisfies the full non-homogeneous equation. Since the right-hand side is constant, a constant function is a natural trial, and if $`T = T_\infty`$:
 
 ```math
 \frac{d^2 T_\infty}{dx^2} - h' T_\infty = 0 - h' T_\infty = -h' T_\infty \quad \checkmark
@@ -226,11 +241,11 @@ e^{-\lambda L} T_a - T_b = e^{-\lambda L} T_\infty - T_\infty + C_1 (e^{-\lambda
 
 The shooting method transforms a boundary-value problem into an initial-value problem by:
 
-1. **Using** the known boundary condition at one end as the initial condition
-2. **Guessing** the missing initial condition (the derivative at that end)
-3. **Integrating** the ODE from one boundary to the other using any IVP solver (e.g., Euler, RK4)
-4. **Comparing** the computed result at the far boundary with the known boundary value
-5. **Adjusting** the guess and repeating until the far boundary condition is satisfied
+1. **Using** the known boundary condition at one end as the initial condition.
+2. **Guessing** the missing initial condition (the derivative at that end).
+3. **Integrating** the ODE from one boundary to the other using any IVP solver (e.g., Euler, RK4).
+4. **Comparing** the computed result at the far boundary with the known boundary value.
+5. **Adjusting** the guess and repeating until the far boundary condition is satisfied.
 
 The name "shooting method" comes from the analogy of firing a projectile: you adjust the launch angle (the initial slope guess) until the projectile hits the target (the far boundary condition).
 
@@ -261,31 +276,33 @@ Then the single second-order ODE becomes a **system of two first-order ODEs**:
 If we know both $`z(x = 0)`$ and $`T(x = 0)`$, we can integrate the system of ODEs from $`x = 0`$ to $`x = L`$.
 
 However, in a BVP:
-- $`T(x = 0) = T_a`$ is **known** (boundary condition)
-- $`z(x = 0) = \frac{dT}{dx}\big|_{x=0}`$ is **unknown**
+- $`T(x = 0) = T_a`$ is **known** (boundary condition).
+- $`z(x = 0) = \frac{dT}{dx}\big|_{x=0}`$ is **unknown**.
 
 **Procedure:**
 
-1. **Guess** $`z(x = 0) = z_{a,1}`$ (first guess for the initial slope)
-2. **Integrate** the pair of first-order ODEs from $`x = 0`$ to $`x = L`$ using a numerical method (e.g., RK4)
-3. Obtain $`T(x = L) = T_{b,1}`$ (the computed temperature at the right boundary)
-4. **Compare** $`T_{b,1}`$ with the known $`T_b`$
-5. In general, $`T_{b,1} \neq T_b`$
-6. **Adjust** the guess: set $`z(x = 0) = z_{a,2}`$ (new guess)
-7. **Repeat** the integration and comparison until $`T(L) \approx T_b`$ within a desired tolerance
+1. **Guess** the initial slope as $`z(x = 0) = z_{a,1}`$ (first guess).
+2. **Integrate** the pair of first-order ODEs from $`x = 0`$ to $`x = L`$ using a numerical method (e.g., RK4).
+3. Obtain the computed temperature at the right boundary, $`T(x = L) = T_{b,1}`$.
+4. **Compare** $`T_{b,1}`$ with the known $`T_b`$.
+5. In general, $`T_{b,1} \neq T_b`$.
+6. **Adjust** the guess to $`z(x = 0) = z_{a,2}`$ (new guess).
+7. **Repeat** the integration and comparison until $`T(L) \approx T_b`$ within a desired tolerance.
 
 The adjustment of the guess can be done systematically using root-finding methods:
 
-- **Bisection method**: Bracket the correct slope between two guesses
-- **Secant method / linear interpolation**: Use two guesses and their results to interpolate the next guess
+- **Bisection method**: Bracket the correct slope between two guesses and keep narrowing the bracket.
+- **Secant method / linear interpolation**: Use two guesses and their results to interpolate the next guess.
 
 ```math
 z_{a,\text{new}} = z_{a,1} + \frac{(T_b - T_{b,1})(z_{a,2} - z_{a,1})}{T_{b,2} - T_{b,1}}
 ```
 
+> **Note:** When the ODE is linear, as in this example, $`T(L)`$ is a linear function of $`z(0)`$. The $`z_{a,\text{new}}`$ obtained by linear interpolation of two trial shots is therefore the exact initial slope apart from the numerical error of the integration, and it satisfies the boundary condition without further iteration. With the example values of Section 4.7, the implementation in Section 3.5 converges at the first interpolation. For a nonlinear ODE this relation does not hold, so the interpolation must be repeated.
+
 ### 3.4 Algorithm Summary
 
-```
+```text
 1. Set T(0) = Ta  (known boundary condition)
 2. Guess z(0) = z_a1
 3. Integrate the system of ODEs from x = 0 to x = L
@@ -398,6 +415,16 @@ Note that the right-hand side $`-h' T_\infty`$ is a **known value**.
 
 Divide the domain $`[0, L]`$ into $`n`$ equal subintervals with spacing $`\Delta x = L / n`$, creating nodes $`x_0, x_1, \ldots, x_n`$.
 
+```text
+T_0 = T_a                                         T_n = T_b
+  ●───────○───────○── ... ──○───────○───────○── ... ──●
+ x_0     x_1     x_2     x_{i-1}   x_i   x_{i+1}     x_n
+  ├── Δx ─┤
+ ● Boundary node (known value)   ○ Interior node (unknown)
+```
+
+*Figure 2. Boundary and interior nodes of the finite difference grid*
+
 The **central difference approximation** for the second derivative at node $`x_i`$ is:
 
 ```math
@@ -430,6 +457,8 @@ This gives a total of $`(n+1)`$ equations for $`(n+1)`$ unknowns $`T_0, T_1, \ld
 | Boundary conditions: $`T_0 = T_a`$, $`T_n = T_b`$ | $`2`$ |
 | Interior FD equations (at $`x_1, x_2, \ldots, x_{n-1}`$) | $`n - 1`$ |
 | **Total equations** | $`n + 1`$ |
+
+*Table 3. Number of unknowns and equations*
 
 Since $`T_0`$ and $`T_n`$ are known from the boundary conditions, the system reduces to $`(n - 1)`$ equations in $`(n - 1)`$ unknowns $`T_1, T_2, \ldots, T_{n-1}`$.
 
@@ -489,6 +518,8 @@ T_{n-2} - (2 + (\Delta x)^2 h') T_{n-1} = -h' T_\infty (\Delta x)^2 - T_n
 T_{n-2} - G \cdot T_{n-1} = -F - T_n
 ```
 
+If $`n = 2`$, there is only one interior node $`T_1`$, so i) and iii) become the same equation, $`-G \cdot T_1 = -F - T_0 - T_2`$. The general interior equation ii) appears only when $`n \geq 4`$.
+
 ### 4.6 Matrix Formulation
 
 Combining all the interior equations into matrix form:
@@ -497,11 +528,11 @@ Combining all the interior equations into matrix form:
 \begin{bmatrix} -G & 1 & & & \\ 1 & -G & 1 & & \\ & 1 & -G & 1 & \\ & & \ddots & \ddots & \ddots \\ & & & 1 & -G \end{bmatrix} \begin{bmatrix} T_1 \\ T_2 \\ T_3 \\ \vdots \\ T_{n-1} \end{bmatrix} = \begin{bmatrix} -F \\ -F \\ -F \\ \vdots \\ -F \end{bmatrix} - \begin{bmatrix} T_0 \\ 0 \\ 0 \\ \vdots \\ T_n \end{bmatrix}
 ```
 
-This is a **tridiagonal system** of $`(n-1)`$ equations that can be solved efficiently using:
-- **Thomas algorithm** (tridiagonal matrix algorithm) in $`O(n)`$ time
-- **NumPy's `linalg.solve`** or any standard linear algebra solver
+This is a **tridiagonal system** of $`(n-1)`$ equations that can be solved using:
+- **Thomas algorithm** (tridiagonal matrix algorithm), which solves it efficiently in $`O(n)`$ time.
+- **NumPy's `linalg.solve`** or any standard linear algebra solver, which is simple to use but treats the matrix as dense and takes $`O(n^3)`$ time.
 
-> **[Linear Algebra]** The coefficient matrix is tridiagonal, symmetric, and diagonally dominant (since $`G = 2 + (\Delta x)^2 h' > 2`$ and the off-diagonal entries are $`\pm 1`$). This guarantees that the system has a unique solution and that iterative methods like Gauss-Seidel will converge.
+> **[Linear Algebra]** The coefficient matrix is tridiagonal, symmetric, and strictly diagonally dominant. For $`h' > 0`$, the magnitude of each diagonal entry, $`G = 2 + (\Delta x)^2 h'`$, exceeds 2, while each row has at most two off-diagonal entries, each equal to 1. This guarantees that the system has a unique solution and that iterative methods like Gauss-Seidel will converge.
 
 ### 4.7 Python Implementation
 
@@ -552,7 +583,7 @@ def finite_difference_bvp(h_prime, T_inf, Ta, Tb, L, n=10):
     return x_full, T_full
 ```
 
-**Example usage: comparing both methods with the analytical solution:**
+**Example usage:** comparing both methods with the analytical solution.
 
 ```python
 import matplotlib.pyplot as plt
@@ -591,19 +622,72 @@ plt.grid(True)
 plt.show()
 ```
 
+Running this example gives the analytical constants $`C_1 \approx 73.4523`$ and $`C_2 \approx -53.4523`$. The shooting method converges at the first interpolation with $`z(0) \approx 12.6905`$, and the finite difference solution with $`n = 10`$ gives $`108.6904`$ at $`x = 5`$ (analytical $`108.6819`$), with an error below $`0.009`$ at every node.
+
 ---
 
 <br>
 
 ## Summary
 
-| Topic | Key Points |
+| Concept | Key Summary |
 |:------|:-----------|
-| **Boundary-Value Problem** | ODE with conditions specified at two (or more) distinct points, unlike IVP where all conditions are at one point |
-| **Heated Rod BVP** | $`\dfrac{d^2 T}{dx^2} + h'(T_\infty - T) = 0`$, with $`T(0) = T_a`$, $`T(L) = T_b`$ |
-| **Analytical Solution** | $`T(x) = T_\infty + C_1 e^{\lambda x} + C_2 e^{-\lambda x}`$, where $`\lambda = \sqrt{h'}`$ and constants from BCs |
-| **Shooting Method** | Convert BVP to IVP by guessing the unknown initial slope $`z(0) = dT/dx\|_{x=0}`$; integrate forward; adjust guess via root-finding until $`T(L) = T_b`$ |
-| **ODE Conversion** | A single $`n`$-th order ODE can be converted to $`n`$ first-order ODEs by introducing auxiliary variables |
-| **Finite Difference Method** | Discretize domain into grid; approximate $`d^2T/dx^2 \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}`$; solve resulting tridiagonal linear system |
-| **FD Matrix Structure** | Tridiagonal with diagonal $`-G = -(2 + (\Delta x)^2 h')`$ and off-diagonals $`1`$; solvable in $`O(n)`$ via Thomas algorithm |
-| **Key Difference** | Shooting method is iterative (guess-and-check); FD method produces a direct algebraic system (one-shot solve for linear BVPs) |
+| Boundary-Value Problem | An ODE problem with conditions specified at two or more distinct points, unlike an IVP where all conditions are given at one point. |
+| Heated Rod BVP | The governing equation is $`\dfrac{d^2 T}{dx^2} + h'(T_\infty - T) = 0`$, with boundary conditions $`T(0) = T_a`$ and $`T(L) = T_b`$. |
+| Analytical Solution | The solution is $`T(x) = T_\infty + C_1 e^{\lambda x} + C_2 e^{-\lambda x}`$ with $`\lambda = \sqrt{h'}`$, and the constants $`C_1`$, $`C_2`$ are determined from the boundary conditions. |
+| Shooting Method | It converts the BVP to an IVP by guessing the unknown initial slope $`z(0) = dT/dx\vert_{x=0}`$, integrates forward, and adjusts the guess by root-finding until $`T(L) = T_b`$. |
+| ODE Conversion | A single $`n`$-th order ODE can be converted to a system of $`n`$ first-order ODEs by introducing auxiliary variables. |
+| Finite Difference Method | It discretizes the domain into a grid, approximates $`d^2T/dx^2 \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}`$, and solves the resulting tridiagonal linear system. |
+| FD Matrix Structure | The matrix is tridiagonal with diagonal entries $`-G = -(2 + (\Delta x)^2 h')`$ and off-diagonal entries $`1`$, and the Thomas algorithm solves it in $`O(n)`$. |
+| Key Difference | The shooting method iterates by guess and check, while the FD method builds an algebraic system directly and solves a linear BVP in one step. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **BVP and IVP:** Explain why a BVP cannot be integrated forward from one end like an IVP, and describe how the shooting method resolves this.
+
+   <details>
+   <summary>Answer</summary>
+
+   Integrating a second-order ODE forward requires both $`T`$ and $`dT/dx`$ at the starting point. In a BVP, $`T`$ is given at $`x = 0`$ and at $`x = L`$, so the starting slope $`z(0)`$ is unknown. The shooting method guesses $`z(0)`$, integrates the resulting IVP, and adjusts the guess with a root-finding method until the difference between the computed $`T(L)`$ and the given $`T_b`$ is within the tolerance.
+
+   </details>
+
+2. **Constants of the analytical solution:** For $`h' = 0.01`$, $`L = 10`$, $`T_\infty = 20`$, $`T_a = 40`$, and $`T_b = 200`$, find $`\lambda`$, $`C_1`$, and $`C_2`$, and compute $`T(5)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\lambda = \sqrt{0.01} = 0.1`$ and $`\lambda L = 1`$. Substituting $`e \approx 2.718282`$ and $`e^{-1} \approx 0.367879`$ gives $`C_1 = (0.367879 \times 20 - 180)/(0.367879 - 2.718282) = (-172.6424)/(-2.350402) \approx 73.4523`$ and $`C_2 = (2.718282 \times 20 - 180)/(2.718282 - 0.367879) = (-125.6344)/2.350402 \approx -53.4523`$. As a check, $`C_1 + C_2 = 20 = T_a - T_\infty`$. Therefore $`T(5) = 20 + 73.4523 e^{0.5} - 53.4523 e^{-0.5} \approx 20 + 121.1023 - 32.4204 = 108.6819`$.
+
+   </details>
+
+3. **Linear interpolation in the shooting method:** Under the conditions of Question 2, integrating with $`z(0) = 10`$ gives $`T(10) \approx 168.3817`$, and integrating with $`z(0) = 20`$ gives $`T(10) \approx 285.9019`$. Find the next guess $`z_{a,\text{new}}`$, and explain why it matches the value of $`dT/dx`$ at $`x = 0`$ from the analytical solution of Question 2.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`z_{a,\text{new}} = 10 + (200 - 168.3817)(20 - 10)/(285.9019 - 168.3817) = 10 + 316.183/117.5202 \approx 12.6905`$. From the analytical solution, $`dT/dx\big|_{x=0} = \lambda(C_1 - C_2) = 0.1 \times (73.4523 + 53.4523) \approx 12.6905`$, so the two values agree. Because this ODE is linear, $`T(L) = T_\infty + (T_a - T_\infty)\cosh(\lambda L) + (z(0)/\lambda)\sinh(\lambda L)`$ is a linear function of $`z(0)`$. Interpolating along the straight line through the two trial points therefore gives the exact initial slope.
+
+   </details>
+
+4. **Finite difference calculation:** Under the conditions of Question 2, apply the finite difference method with $`n = 2`$ ($`\Delta x = 5`$) to find $`T_1 \approx T(5)`$, and compare it with the analytical solution and with the result for $`n = 10`$ ($`108.6904`$).
+
+   <details>
+   <summary>Answer</summary>
+
+   $`G = 2 + 25 \times 0.01 = 2.25`$ and $`F = 0.01 \times 20 \times 25 = 5`$. With only one interior node, $`-2.25 T_1 = -5 - 40 - 200 = -245`$, so $`T_1 = 245/2.25 \approx 108.8889`$. The error against the analytical value $`108.6819`$ is about $`0.2070`$, while the error for $`n = 10`$ is about $`0.0085`$. When $`\Delta x`$ shrinks from 5 to 1 (a factor of 1/5), the error drops by about 1/24, which nearly matches the factor 1/25 expected from second-order accuracy, where the error is proportional to $`(\Delta x)^2`$.
+
+   </details>
+
+5. **Properties of the coefficient matrix:** For $`n = 10`$, state the size of the linear system that the finite difference method solves, and explain why the system of Section 4.6 has a unique solution and why Gauss-Seidel iteration converges.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`T_0`$ and $`T_{10}`$ are known from the boundary conditions, so the unknowns are $`T_1, \ldots, T_9`$ and the system is $`9 \times 9`$. In each row, the magnitude of the diagonal entry is $`G = 2 + (\Delta x)^2 h'`$, which exceeds 2 when $`h' > 0`$, while the magnitudes of the off-diagonal entries sum to at most 2. The matrix is therefore strictly diagonally dominant, and a strictly diagonally dominant matrix is nonsingular, so the solution is unique and Gauss-Seidel iteration converges.
+
+   </details>

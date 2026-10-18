@@ -1,15 +1,17 @@
 # Chapter 9 Lab — Pivoting, Condition Number, and Tridiagonal Systems
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 9
+[Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Prerequisites**: [Programming Language] MATLAB/Python. [Linear Algebra] Matrix operations (Ch 8).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 9
+
+> **Learning Objectives:**
 > 1. Perform Gaussian elimination with partial pivoting
 > 2. Analyze computational complexity of elimination
 > 3. Implement back substitution algorithms
+> 4. Diagnose ill-conditioned systems with the condition number
+> 5. Solve tridiagonal systems with the Thomas algorithm
 
 ---
 
@@ -28,6 +30,7 @@
   - [3.2 1D Steady-State Heat Conduction Application](#32-1d-steady-state-heat-conduction-application)
   - [3.3 Performance Comparison: Thomas vs. General Solver](#33-performance-comparison-thomas-vs-general-solver)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -53,7 +56,7 @@ The first pivot $`a_{11} = 0`$ causes immediate failure. Even if the pivot is no
 
 ### 1.2 Gauss Elimination with Partial Pivoting
 
-The fix is to search for the largest element in the current column (from the pivot row downward) and swap rows before each elimination step:
+The fix is to search for the element with the largest absolute value in the current column (from the pivot row downward) and swap rows before each elimination step:
 
 ```python
 def gauss_pivot(A, b):
@@ -89,9 +92,9 @@ print(f'Solution: {x}')
 print(f'Residual: {np.linalg.norm(A_bad @ x - b_bad):.2e}')
 ```
 
-> **Note:** The key line is `imax = np.argmax(np.abs(Aug[k:, k])) + k` — this searches only the rows below (and including) the current pivot row. The `+ k` offset converts the local index back to the global row index. Without this offset, the wrong row would be swapped.
+> **Note:** The key line is `imax = np.argmax(np.abs(Aug[k:, k])) + k`. It searches only the current pivot row and the rows below it. The `+ k` offset converts the local index of the subarray back to the global row index. Without this offset, the wrong row would be swapped.
 
-The row swap `Aug[[k, imax]] = Aug[[imax, k]]` uses NumPy's advanced indexing to exchange two rows in a single operation. The forward elimination and back substitution are identical to the naive version — the only addition is the pivot search and swap.
+The row swap `Aug[[k, imax]] = Aug[[imax, k]]` uses NumPy's advanced indexing to exchange two rows in a single operation. The forward elimination and back substitution are identical to the naive version, and the only addition is the pivot search and swap. The solution of this system is $`x = (0.2, 0.4, 0.2)`$, with a residual of 0.
 
 ---
 
@@ -114,9 +117,9 @@ H = hilbert(5)
 print(f'Hilbert(5) κ = {np.linalg.cond(H):.1f}')  # ~476607
 ```
 
-The identity matrix has $`\kappa = 1`$ (the best possible), meaning perturbations are not amplified at all. The Hilbert matrix is a classic example of an ill-conditioned matrix — even at size $`5 \times 5`$, its condition number is nearly $`500{,}000`$.
+The identity matrix has $`\kappa = 1`$, the smallest possible value, meaning perturbations are not amplified at all. The Hilbert matrix ($`H_{ij} = 1/(i + j - 1)`$) is a classic example of an ill-conditioned matrix; even at size $`5 \times 5`$, its condition number is about $`4.8 \times 10^5`$, nearly $`500{,}000`$.
 
-> **[Linear Algebra]** The condition number $`\kappa(A)`$ is the ratio of the largest to smallest singular value. It bounds the worst-case error amplification: a relative perturbation of $`\varepsilon`$ in the input can cause a relative perturbation of up to $`\kappa(A) \cdot \varepsilon`$ in the output.
+> **Note:** **Condition number and singular values.** In the 2-norm, the condition number $`\kappa(A)`$ is the ratio of the largest to smallest singular value. It bounds the worst-case error amplification: a relative perturbation of $`\varepsilon`$ in the input can cause a relative perturbation of up to $`\kappa(A) \cdot \varepsilon`$ in the output.
 
 ### 2.2 Perturbation Sensitivity of Ill-Conditioned Systems
 
@@ -139,9 +142,9 @@ print(f'Output perturbation: {np.linalg.norm(x_perturbed - x_exact):.2e}')
 # Output perturbation >> input perturbation!
 ```
 
-The output perturbation is orders of magnitude larger than the input perturbation, with the amplification factor bounded by the condition number. For `hilbert(10)`, $`\kappa \approx 10^{13}`$, meaning a perturbation of $`10^{-10}`$ in $`b`$ can produce a change of up to $`10^{3}`$ in $`x`$. This makes the system essentially unsolvable in double precision.
+The output perturbation is orders of magnitude larger than the input perturbation, with the amplification factor bounded by the condition number. For `hilbert(10)`, $`\kappa \approx 1.6 \times 10^{13}`$, meaning a perturbation of $`10^{-10}`$ in $`b`$ can produce a change of up to about $`10^{3}`$ in $`x`$. Even errors of order $`10^{-10}`$ in the data therefore make the solution of this system essentially meaningless.
 
-> **Note:** When $`\kappa(A) \cdot \varepsilon_{\text{mach}} \gtrsim 1`$, the system is so ill-conditioned that no numerical method can produce a meaningful solution in standard double precision. The Hilbert matrix of size $`n \geq 13`$ reaches this threshold.
+> **Note:** When $`\kappa(A) \cdot \varepsilon_{\text{mach}} \gtrsim 1`$, the system is so ill-conditioned that no numerical method can produce a meaningful solution in standard double precision. The Hilbert matrix reaches this threshold at $`n \geq 12`$ ($`\kappa(H_{12}) \approx 1.7 \times 10^{16}`$).
 
 ---
 
@@ -151,7 +154,18 @@ The output perturbation is orders of magnitude larger than the input perturbatio
 
 ### 3.1 Thomas Algorithm Implementation
 
-The **Thomas algorithm** solves tridiagonal systems in $`O(n)`$ time by exploiting the banded structure. Only the three diagonals need to be stored and processed:
+The **Thomas algorithm** solves tridiagonal systems in $`O(n)`$ time by exploiting the banded structure. Only the three diagonals need to be stored and processed. The implementation below stores them in arrays `e`, `f`, and `g` of length $`n`$ as shown in Figure 1. The equation of row $`i`$ (counting from 0) is $`e_i x_{i-1} + f_i x_i + g_i x_{i+1} = r_i`$, and `e[0]` and `g[n-1]` are unused.
+
+```text
+index     0       1       2      ...     n-1
+e         -      e[1]    e[2]    ...    e[n-1]
+f        f[0]    f[1]    f[2]    ...    f[n-1]
+g        g[0]    g[1]    g[2]    ...      -
+```
+
+*Figure 1. Array storage of the three diagonals in the Thomas algorithm*
+
+The implementation is:
 
 ```python
 def thomas(e, f, g, r):
@@ -186,9 +200,9 @@ def thomas(e, f, g, r):
     return x
 ```
 
-The `.copy()` calls are essential — without them, the function would modify the caller's arrays because NumPy arrays are passed by reference. The forward sweep eliminates the sub-diagonal entries one by one, and the back substitution recovers the solution from bottom to top.
+Copying the inputs is essential: without a copy, the function would modify the caller's arrays because NumPy arrays are passed by reference. Since `astype(float)` already returns a new array by default, the `.copy()` here is redundant and only makes the intent explicit. The forward sweep eliminates the sub-diagonal entries one by one, and the back substitution recovers the solution from bottom to top.
 
-> **[Python]** The `.astype(float).copy()` pattern ensures two things: (1) the computation uses floating-point arithmetic even if integer arrays are passed, and (2) the original arrays are not modified. This is a common defensive programming pattern in numerical Python.
+> **[Computer Programming]** The `.astype(float).copy()` pattern ensures two things: (1) the computation uses floating-point arithmetic even if integer arrays are passed, and (2) the original arrays are not modified. This is a common defensive programming pattern in numerical Python.
 
 ### 3.2 1D Steady-State Heat Conduction Application
 
@@ -204,7 +218,7 @@ Discretizing with central finite differences on a uniform grid with spacing $`\D
 \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2} = 0
 ```
 
-This simplifies to the tridiagonal system $`T_{i-1} - 2T_i + T_{i+1} = 0`$, where the boundary conditions enter through the right-hand side:
+This simplifies to the tridiagonal system $`T_{i-1} - 2T_i + T_{i+1} = 0`$, where the boundary conditions enter through the right-hand side. For example, the equation of the first interior point becomes $`-2T_1 + T_2 = -T_L`$:
 
 ```python
 import matplotlib.pyplot as plt
@@ -243,9 +257,9 @@ plt.grid(True)
 plt.show()
 ```
 
-For the Laplace equation ($`d^2T/dx^2 = 0`$), the exact solution is linear: $`T(x) = T_L + (T_R - T_L) \cdot x / L`$. The numerical solution matches exactly (up to round-off) for any mesh size because linear functions are represented exactly by the central difference approximation.
+For the Laplace equation ($`d^2T/dx^2 = 0`$), the exact solution is linear: $`T(x) = T_L + (T_R - T_L) \cdot x / L`$. Because linear functions are represented exactly by the central difference approximation, the numerical solution matches exactly (up to round-off) for any mesh size.
 
-> **[Differential Equations]** The central difference approximation $`T''(x_i) \approx (T_{i-1} - 2T_i + T_{i+1}) / (\Delta x)^2`$ is second-order accurate. For the Laplace equation, it gives exact results because the truncation error involves $`T^{(4)}(x)`$, which is zero for linear (and quadratic) functions.
+> **Note:** **Accuracy of the central difference.** The central difference approximation $`T''(x_i) \approx (T_{i-1} - 2T_i + T_{i+1}) / (\Delta x)^2`$ is second-order accurate. For the Laplace equation, it gives exact results because the truncation error involves $`T^{(4)}(x)`$, which is zero for polynomials of degree at most 3 (including linear functions).
 
 ### 3.3 Performance Comparison: Thomas vs. General Solver
 
@@ -283,9 +297,9 @@ for i, n in enumerate(sizes):
     print(f'{n:8d} {t_thomas[i]:12.6f} {t_numpy[i]:12.6f} {speedup:10.1f}x')
 ```
 
-At $`n = 100{,}000`$, the Thomas algorithm completes in milliseconds while `np.linalg.solve` (which builds and factors a full $`100{,}000 \times 100{,}000`$ matrix) would require terabytes of memory and hours of computation. This demonstrates why exploiting matrix structure is essential in large-scale scientific computing.
+At $`n = 100{,}000`$, the pure Python Thomas algorithm completes in tens of milliseconds, while `np.linalg.solve` must build and factor a dense $`100{,}000 \times 100{,}000`$ matrix, which takes about 80 GB of memory for the matrix alone and hours of computation. Running the code above as written therefore runs out of memory while building the dense matrix at $`n = 100{,}000`$. This demonstrates why exploiting matrix structure is essential in large-scale scientific computing.
 
-> **Note:** In production, use `scipy.linalg.solve_banded()` for tridiagonal systems — it provides an optimized LAPACK implementation (DGTSV) that is faster than a pure Python Thomas algorithm while maintaining $`O(n)`$ complexity.
+> **Note:** In production, use `scipy.linalg.solve_banded()` for tridiagonal systems. It provides an optimized LAPACK implementation (DGTSV) that is faster than a pure Python Thomas algorithm while maintaining $`O(n)`$ complexity.
 
 ---
 
@@ -293,17 +307,54 @@ At $`n = 100{,}000`$, the Thomas algorithm completes in milliseconds while `np.l
 
 ## Summary
 
-| Method | Implementation | When to Use |
-|:-------|:--------------|:------------|
-| `gauss_pivot()` | Partial pivoting Gauss | General dense systems |
-| `thomas()` | Thomas algorithm $`O(n)`$ | Tridiagonal systems |
-| `np.linalg.solve()` | Optimized LAPACK | Production use (always) |
-| `np.linalg.cond()` | Condition number | Diagnose ill-conditioning |
-
-Key implementation takeaways:
-
-- **Partial pivoting** adds minimal code (pivot search + row swap) but prevents division by zero and controls error growth
-- **Condition number** should always be checked before trusting a solution — if $`\kappa(A) \cdot \varepsilon_{\text{mach}} \approx 1`$, the results are unreliable
-- **Thomas algorithm** achieves $`O(n)`$ by exploiting tridiagonal structure — always use specialized solvers when the matrix has special structure
+| Concept | Key Summary |
+|:-------|:--------------|
+| `gauss_pivot()` | It implements Gauss elimination with partial pivoting and is used for general dense systems. |
+| `thomas()` | It implements the $`O(n)`$ Thomas algorithm and is used for tridiagonal systems. |
+| `np.linalg.solve()` | It is an optimized LAPACK routine used in production for general systems. |
+| `np.linalg.cond()` | It computes the condition number to diagnose ill-conditioning. |
+| Partial pivoting | It adds minimal code (pivot search and row swap) but prevents division by zero and controls error growth. |
+| Condition number | It should always be checked before trusting a solution, and if $`\kappa(A) \cdot \varepsilon_{\text{mach}} \approx 1`$, the results are unreliable. |
+| Thomas algorithm | It achieves $`O(n)`$ by exploiting tridiagonal structure, and specialized solvers should always be used when the matrix has special structure. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **Pivot row index:** If `k = 1` and `Aug[1:, 1]` is `[0.5, -3.0, 2.0]`, what is `imax`? What happens if `+ k` is omitted?
+
+   <details>
+   <summary>Answer</summary>
+
+   `np.abs(Aug[1:, 1])` is `[0.5, 3.0, 2.0]`, so `np.argmax` returns the local index 1 and `imax = 1 + 1 = 2`. Without `+ k`, `imax = 1`, so the current pivot row (value 0.5) is swapped with itself and no pivoting takes place.
+
+   </details>
+
+2. **Condition number and reliable digits:** For a system with $`\kappa(A) = 10^6`$, if the relative error in $`b`$ is $`10^{-8}`$, what is the upper bound on the relative error in $`x`$? With only round-off error in double precision ($`\varepsilon_{\text{mach}} \approx 2.2 \times 10^{-16}`$), roughly how many digits can be trusted?
+
+   <details>
+   <summary>Answer</summary>
+
+   The bound is $`\kappa(A) \times 10^{-8} = 10^{-2}`$, that is, 1%. With only round-off error, $`\kappa(A) \cdot \varepsilon_{\text{mach}} \approx 2.2 \times 10^{-10}`$, so about 6 of the roughly 16 digits are lost and about 9-10 digits can be trusted.
+
+   </details>
+
+3. **Discretizing heat conduction:** For $`T_L = 100`$, $`T_R = 20`$, and 3 interior points ($`L = 1`$, $`\Delta x = 0.25`$), write the tridiagonal system and find its solution.
+
+   <details>
+   <summary>Answer</summary>
+
+   The system is $`-2T_1 + T_2 = -100`$, $`T_1 - 2T_2 + T_3 = 0`$, $`T_2 - 2T_3 = -20`$. Evaluating the exact solution $`T(x) = 100 - 80x`$ at $`x = 0.25, 0.5, 0.75`$ gives $`T_1 = 80`$, $`T_2 = 60`$, $`T_3 = 40`$. Substituting gives $`-160 + 60 = -100`$, $`80 - 120 + 40 = 0`$, and $`60 - 80 = -20`$, so all three equations hold, and `thomas()` returns the same values.
+
+   </details>
+
+4. **Memory comparison:** For a tridiagonal system with $`n = 10{,}000`$, compare the memory needed to store it as a dense double-precision matrix and as three diagonal arrays.
+
+   <details>
+   <summary>Answer</summary>
+
+   The dense matrix has $`10^8`$ elements at 8 bytes each, or $`8 \times 10^8`$ bytes, about 800 MB. The three diagonals have $`3 \times 10^4`$ elements, or 240,000 bytes, about 240 KB, roughly 1/3,300 of the dense matrix.
+
+   </details>

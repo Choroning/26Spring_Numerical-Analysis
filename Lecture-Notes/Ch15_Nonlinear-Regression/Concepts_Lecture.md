@@ -1,15 +1,16 @@
-# Chapter 15 Lecture -- Nonlinear Regression
+# Chapter 15 — Nonlinear Regression
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 15
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Statistics] Linear regression (Ch 14).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Apply polynomial and multiple linear regression
-> 2. Implement Gauss-Newton method for nonlinear regression
-> 3. Compare model selection criteria
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 15
+
+> **Learning Objectives:**
+> 1. Linearize exponential, power, and saturation-growth-rate models and fit them by linear regression
+> 2. Derive and apply the normal equations of polynomial and multiple linear regression
+> 3. Derive the normal equations of the general linear least-squares model in matrix form and compute goodness-of-fit statistics
+> 4. Fit models that are inherently nonlinear in their parameters by iterative optimization
 
 ---
 
@@ -46,7 +47,8 @@
 - [6. Nonlinear Regression (Gauss-Newton)](#6-nonlinear-regression-gauss-newton)
   - [6.1 Motivation: The Antoine Equation](#61-motivation-the-antoine-equation)
   - [6.2 Python Implementation with scipy.optimize](#62-python-implementation-with-scipyoptimize)
-- [7. Summary Table](#7-summary-table)
+- [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -72,7 +74,7 @@ where:
 - Sample mean $`\bar{y} = 172`$ cm
 - $`s_y = 3.16`$ cm
 
-> **Interpretation:** On average, individual height measurements differ from the mean by about 3.16 cm.
+> **Note:** **Interpretation.** Individual height measurements differ from the mean by roughly 3.16 cm.
 
 ### 1.2 Standard Error of the Mean (SE)
 
@@ -85,11 +87,11 @@ SE = \frac{s_y}{\sqrt{n}}
 **Example (continued):**
 - $`SE = \frac{3.16}{\sqrt{5}} = 1.41`$ cm
 
-> **Interpretation:** The average height is estimated to be 172 cm, with a standard error of $`\pm 1.41`$ cm.
+> **Note:** **Interpretation.** The average height is estimated to be 172 cm, with a standard error of $`\pm 1.41`$ cm.
 
 ### 1.3 Standard Error of Regression
 
-**Standard Error** (SE) of **Regression** measures how much observed values deviate from the linear regression line.
+The **standard error of regression** ($`s_e`$) measures how much observed values deviate from the linear regression line.
 
 ```math
 s_e = \sqrt{\frac{1}{n-2} \sum_{j=1}^{n} (y_j - \hat{y}_j)^2} = \sqrt{\frac{SSE}{n-2}}
@@ -101,9 +103,9 @@ where:
 
 **Example:** Heights = [170, 172, 168, 174, 176] cm, $`x = [1, 2, 3, 4, 5]`$
 
-- $`SE = \sqrt{\frac{SSE}{n-2}} = 2.61`$ cm
+- $`s_e = \sqrt{\frac{SSE}{n-2}} = 2.61`$ cm
 
-> **Interpretation:** The observed $`y`$-values deviate from the regression line by about 2.61 cm.
+> **Note:** **Interpretation.** The observed $`y`$-values deviate from the regression line by about 2.61 cm.
 
 ### 1.4 Coefficient of Determination (R-squared)
 
@@ -128,9 +130,9 @@ R^2 = \frac{SSR}{SST} = 1 - \frac{SSE}{SST}
 ```
 
 where:
-- $`SST = \sum (y_i - \bar{y})^2`$ -- Total Sum of Squares
-- $`SSR = \sum (\hat{y}_i - \bar{y})^2`$ -- Regression Sum of Squares (explained variation)
-- $`SSE = \sum (y_i - \hat{y}_i)^2`$ -- Error Sum of Squares (unexplained variation)
+- $`SST = \sum (y_i - \bar{y})^2`$: Total Sum of Squares
+- $`SSR = \sum (\hat{y}_i - \bar{y})^2`$: Regression Sum of Squares (explained variation)
+- $`SSE = \sum (y_i - \hat{y}_i)^2`$: Error Sum of Squares (unexplained variation)
 
 | $`R^2`$ Value | Meaning |
 |---|---|
@@ -138,9 +140,11 @@ where:
 | $`R^2 = 0`$ | No fit |
 | $`0 < R^2 < 1`$ | Partial fit |
 
-**Example (ex 14.6):** $`R^2 = 88\%`$
+*Table 1. Meaning of coefficient of determination values*
 
-> **Interpretation:** The relationship between the two variables explains 88% (approximately 90%) of the variation in the data.
+**Example (textbook Example 14.6):** $`R^2 = 88\%`$
+
+> **Note:** **Interpretation.** The relationship between the two variables explains 88% (approximately 90%) of the variation in the data.
 
 ---
 
@@ -166,7 +170,7 @@ y = \alpha_1 e^{\beta_1 x}
 
 This gives a linear form: $`\ln y = \underbrace{\ln \alpha_1}_{\text{intercept}} + \underbrace{\beta_1}_{\text{slope}} \cdot x`$
 
-> **Graphical Effect:** A plot of $`y`$ vs $`x`$ shows an exponential curve. A plot of $`\ln y`$ vs $`x`$ becomes a straight line with slope $`\beta_1`$ and intercept $`\ln \alpha_1`$.
+> **Note:** **Graphical Effect.** A plot of $`y`$ vs $`x`$ shows an exponential curve. A plot of $`\ln y`$ vs $`x`$ becomes a straight line with slope $`\beta_1`$ and intercept $`\ln \alpha_1`$.
 
 ### 2.2 Power Model
 
@@ -184,7 +188,7 @@ y = \alpha_2 x^{\beta_2}
 
 This gives a linear form: $`\ln y = \underbrace{\ln \alpha_2}_{\text{intercept}} + \underbrace{\beta_2}_{\text{slope}} \cdot \ln x`$
 
-> **Graphical Effect:** A plot of $`y`$ vs $`x`$ shows a power curve. A plot of $`\ln y`$ vs $`\ln x`$ becomes a straight line with slope $`\beta_2`$ and intercept $`\ln \alpha_2`$.
+> **Note:** **Graphical Effect.** A plot of $`y`$ vs $`x`$ shows a power curve. A plot of $`\ln y`$ vs $`\ln x`$ becomes a straight line with slope $`\beta_2`$ and intercept $`\ln \alpha_2`$.
 
 ### 2.3 Saturation-Growth-Rate Model
 
@@ -202,13 +206,15 @@ y = \frac{\alpha_3 x}{\beta_3 + x}
 
 This gives a linear form: $`\frac{1}{y} = \underbrace{\frac{\beta_3}{\alpha_3}}_{\text{slope}} \cdot \frac{1}{x} + \underbrace{\frac{1}{\alpha_3}}_{\text{intercept}}`$
 
-> **Graphical Effect:** A plot of $`y`$ vs $`x`$ shows a saturation curve. A plot of $`\frac{1}{y}`$ vs $`\frac{1}{x}`$ becomes a straight line with slope $`\frac{\beta_3}{\alpha_3}`$ and intercept $`\frac{1}{\alpha_3}`$.
+> **Note:** **Graphical Effect.** A plot of $`y`$ vs $`x`$ shows a saturation curve. A plot of $`\frac{1}{y}`$ vs $`\frac{1}{x}`$ becomes a straight line with slope $`\frac{\beta_3}{\alpha_3}`$ and intercept $`\frac{1}{\alpha_3}`$.
 
 | Model | Original Form | Transformed Variables | Slope | Intercept |
 |---|---|---|---|---|
 | Exponential | $`y = \alpha_1 e^{\beta_1 x}`$ | $`\ln y`$ vs $`x`$ | $`\beta_1`$ | $`\ln \alpha_1`$ |
 | Power | $`y = \alpha_2 x^{\beta_2}`$ | $`\ln y`$ vs $`\ln x`$ | $`\beta_2`$ | $`\ln \alpha_2`$ |
 | Saturation-Growth | $`y = \frac{\alpha_3 x}{\beta_3 + x}`$ | $`\frac{1}{y}`$ vs $`\frac{1}{x}`$ | $`\frac{\beta_3}{\alpha_3}`$ | $`\frac{1}{\alpha_3}`$ |
+
+*Table 2. Transformed variables, slopes, and intercepts of the linearized models*
 
 ---
 
@@ -220,9 +226,7 @@ This gives a linear form: $`\frac{1}{y} = \underbrace{\frac{\beta_3}{\alpha_3}}_
 
 When data shows a curvilinear pattern (e.g., parabolic), a linear line is not sufficient. We extend the linear regression idea to **polynomial regression**.
 
-**Goal:**
-- Extend the linear regression idea to polynomial regression
-- Estimate confidence intervals
+The goal of this section is to extend the linear regression idea to polynomial regression and to obtain confidence intervals for the estimated parameters (Section 5.6).
 
 Given a set of data $`\{x_i, y_i\}_{i=1}^{n}`$, find $`\beta_0, \beta_1, \beta_2`$ such that:
 
@@ -283,7 +287,7 @@ The normal equations can be written compactly as:
 \begin{bmatrix} \beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix}
 ```
 
-> **Key Observation:** This is a $`3 \times 3`$ linear system that can be solved using methods from Part 3 (e.g., Gaussian elimination, LU decomposition).
+> **Key Point:** This is a $`3 \times 3`$ linear system that can be solved with methods for linear algebraic equations such as Gauss elimination (Chapter 9) or LU factorization (Chapter 10).
 
 ### 3.4 Standard Error of the Estimate
 
@@ -301,7 +305,7 @@ SSE = \sum e_i^2
 s_e = \sqrt{\frac{SSE}{n - 3}}
 ```
 
-> **Degrees of Freedom:** The denominator is $`n - 3`$ because three parameters ($`\beta_0, \beta_1, \beta_2`$) are used to construct $`\hat{y}`$. In general, for an $`m`$-th degree polynomial, the degrees of freedom are $`n - (m+1)`$.
+> **Note:** **Degrees of Freedom.** The denominator is $`n - 3`$ because three parameters ($`\beta_0, \beta_1, \beta_2`$) are used to construct $`\hat{y}`$. In general, for an $`m`$-th degree polynomial, the degrees of freedom are $`n - (m+1)`$.
 
 ---
 
@@ -366,13 +370,13 @@ Multiple linear regression can be extended to **multivariable power models**:
 y = \beta_0 x_1^{\beta_1} x_2^{\beta_2} \cdots x_m^{\beta_m} + \varepsilon
 ```
 
-Taking the natural logarithm:
+Ignoring the error term $`\varepsilon`$ and taking the natural logarithm:
 
 ```math
 \ln y = \ln \beta_0 + \beta_1 \ln x_1 + \beta_2 \ln x_2 + \cdots + \beta_m \ln x_m
 ```
 
-> **Key Insight:** After the log transformation, this becomes a standard multiple linear regression problem in the transformed variables $`\ln y`$, $`\ln x_1`$, $`\ln x_2`$, ..., $`\ln x_m`$.
+> **Key Point:** After the log transformation, this becomes a standard multiple linear regression problem in the transformed variables $`\ln y`$, $`\ln x_1`$, $`\ln x_2`$, ..., $`\ln x_m`$.
 
 ---
 
@@ -382,9 +386,9 @@ Taking the natural logarithm:
 
 ### 5.1 General Model Formulation
 
-The general linear least square model unifies all previous cases. The model is "linear in the parameters" $`\beta_j`$, but the basis functions $`f_j`$ can be arbitrary (e.g., trigonometric):
+The general linear least square model unifies all previous cases. The model is linear in the parameters $`\beta_j`$, but the basis functions $`f_j`$ can be arbitrary (e.g., trigonometric):
 
-**Example -- Fourier-type model:**
+**Example (Fourier-type model):**
 
 ```math
 y = \beta_0 + \beta_1 \cos(\omega x) + \beta_2 \sin(\omega x)
@@ -396,7 +400,7 @@ y = \beta_0 + \beta_1 \cos(\omega x) + \beta_2 \sin(\omega x)
 y = \beta_0 f_0(x_1, x_2, \ldots, x_p) + \beta_1 f_1(x_1, x_2, \ldots, x_p) + \cdots + \beta_m f_m(x_1, x_2, \ldots, x_p)
 ```
 
-> **Important:** "Linear" here means linear in the **parameters** $`\beta_j`$, not necessarily in $`x`$. The functions $`f_j`$ can be nonlinear in $`x`$.
+> **Key Point:** "Linear" here means linear in the **parameters** $`\beta_j`$, not necessarily in $`x`$. The functions $`f_j`$ can be nonlinear in $`x`$.
 
 ### 5.2 Matrix Formulation
 
@@ -429,7 +433,7 @@ where:
 
 Here $`f_{ji}`$ denotes the value of basis function $`f_j`$ evaluated at data point $`i`$, and $`\mathbf{e}`$ is the residual (error) vector.
 
-> **Notation:** $`\mathbf{X}`$ has $`n`$ rows (data points) and $`m+1`$ columns (number of parameters including $`\beta_0`$).
+> **Note:** **Notation.** $`\mathbf{X}`$ has $`n`$ rows (data points) and $`m+1`$ columns (number of parameters including $`\beta_0`$).
 
 ### 5.3 Deriving the Normal Equations (Matrix Calculus)
 
@@ -459,7 +463,7 @@ Solving for $`\boldsymbol{\beta}`$:
 \boxed{\boldsymbol{\beta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}}
 ```
 
-> **Key Formula:** This is the most important result of the chapter. It provides a closed-form solution for the parameter vector $`\boldsymbol{\beta}`$ that minimizes the sum of squared errors, applicable to any general linear model.
+> **Key Point:** This is the most important result of the chapter. It provides a closed-form solution for the parameter vector $`\boldsymbol{\beta}`$ that minimizes the sum of squared errors, applicable to any general linear model.
 
 ### 5.4 Computing the Solution
 
@@ -470,6 +474,8 @@ Once $`\boldsymbol{\beta}`$ is computed:
 | Residual vector | $`\mathbf{e} = \mathbf{y} - \mathbf{X}\boldsymbol{\beta}`$ |
 | Sum of squared errors | $`SSE = \mathbf{e}^T \mathbf{e}`$ |
 | Predicted values | $`\hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\beta}`$ |
+
+*Table 3. Quantities computed after obtaining the parameter vector*
 
 ### 5.5 Goodness-of-Fit Statistics
 
@@ -495,7 +501,7 @@ SSE = SST - SSR
 s_e = \sqrt{\frac{SSE}{n - (m+1)}}
 ```
 
-> **Degrees of Freedom:** The denominator $`n - (m+1)`$ accounts for the $`m+1`$ parameters used to fit the model.
+> **Note:** **Degrees of Freedom.** The denominator $`n - (m+1)`$ accounts for the $`m+1`$ parameters used to fit the model.
 
 ### 5.6 Covariance Matrix of Parameter Estimates
 
@@ -507,7 +513,7 @@ The covariance matrix of the estimated parameters:
 
 where $`\sigma_e^2`$ is estimated by $`s_e^2 = \frac{SSE}{n-(m+1)}`$.
 
-> **Practical Use:** The diagonal elements of $`\text{cov}(\hat{\boldsymbol{\beta}})`$ give the variance of each individual parameter estimate, and their square roots provide the standard errors of the parameters. These can be used to construct confidence intervals.
+> **Note:** **Practical Use.** The diagonal elements of $`\text{cov}(\hat{\boldsymbol{\beta}})`$ give the variance of each individual parameter estimate, and their square roots provide the standard errors of the parameters. These can be used to construct confidence intervals.
 
 ---
 
@@ -529,6 +535,8 @@ where:
 - $`A, B, C`$ = adjustable parameters
 
 Since $`C`$ appears inside a nonlinear expression ($`C + T`$ in the denominator), this equation **cannot** be expressed as a general linear model. We need nonlinear regression (optimization) to fit it.
+
+> **Note:** **Gauss-Newton Method.** The Gauss-Newton method, a technique designed specifically for nonlinear regression, linearizes the model $`f(x_i; a_0, \ldots, a_m)`$ around the current parameter estimates with a first-order Taylor series. This gives a linear relation between the residual vector $`\mathbf{d}`$ ($`d_i = y_i - f(x_i)`$) and the parameter correction $`\Delta\mathbf{a}`$ through the matrix $`\mathbf{Z}`$ whose elements are the partial derivatives $`\partial f / \partial a_k`$, so the correction is found by solving the general linear least-squares normal equations $`\mathbf{Z}^T \mathbf{Z} \, \Delta\mathbf{a} = \mathbf{Z}^T \mathbf{d}`$. The parameters are corrected and the linearization is repeated until the correction becomes sufficiently small. The code in Section 6.2 instead minimizes the SSE directly with a general-purpose optimizer.
 
 ### 6.2 Python Implementation with scipy.optimize
 
@@ -564,21 +572,63 @@ result = minimize(objective, initial_guess, method='L-BFGS-B')
 A_opt, B_opt, C_opt = result.x
 ```
 
-> **Method:** The `scipy.optimize.minimize` function with `method='L-BFGS-B'` uses a quasi-Newton optimization algorithm. An initial guess is required, and the algorithm iteratively refines the parameters to minimize $`SSE`$.
+> **Note:** **Method.** The `scipy.optimize.minimize` function with `method='L-BFGS-B'` uses a quasi-Newton optimization algorithm. An initial guess is required, and the algorithm iteratively refines the parameters to minimize $`SSE`$.
 
-> **Initial Guess Sensitivity:** Nonlinear regression methods depend on the initial guess. A poor initial guess may lead to convergence to a local minimum rather than the global minimum.
+> **Caution:** **Initial Guess Sensitivity.** Nonlinear regression methods depend on the initial guess. A poor initial guess may lead to convergence to a local minimum rather than the global minimum. In the code above, the parameters also differ greatly in scale, and L-BFGS-B declares convergence at a point where $`B`$ has stayed near its initial value of 1500. From the same initial guess, the Levenberg-Marquardt method, an improvement of the Gauss-Newton method and the default of `scipy.optimize.curve_fit`, reaches $`A \approx 8.01`$, $`B \approx 1697`$, $`C \approx 230.6`$ with a smaller SSE.
 
 ---
 
 <br>
 
-## 7. Summary Table
+## Summary
 
-| Topic | Model | Parameters | Normal Equation / Method | $`s_e`$ |
-|---|---|---|---|---|
-| **Linear Regression** | $`\hat{y} = \beta_0 + \beta_1 x`$ | 2 | Closed-form (Ch.14) | $`\sqrt{\frac{SSE}{n-2}}`$ |
-| **Polynomial Regression** | $`\hat{y} = \beta_0 + \beta_1 x + \beta_2 x^2`$ | 3 | $`3 \times 3`$ normal equations | $`\sqrt{\frac{SSE}{n-3}}`$ |
-| **Multiple Linear Regression** | $`\hat{y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2`$ | 3 | $`3 \times 3`$ normal equations | $`\sqrt{\frac{SSE}{n-3}}`$ |
-| **General Linear Least Squares** | $`\hat{y} = \sum \beta_j f_j(\mathbf{x})`$ | $`m+1`$ | $`\boldsymbol{\beta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}`$ | $`\sqrt{\frac{SSE}{n-(m+1)}}`$ |
-| **Linearized Models** | Exponential / Power / Saturation | 2 | Transform then linear regression | depends on transform |
-| **Nonlinear Regression** | e.g., Antoine eq. | varies | Iterative optimization (e.g., L-BFGS-B) | $`\sqrt{\frac{SSE}{n-p}}`$ |
+| Concept | Key Summary |
+|---|---|
+| Linear regression | The model $`\hat{y} = \beta_0 + \beta_1 x`$ has 2 parameters and is solved in closed form (Chapter 14), and its standard error of the estimate is $`s_e = \sqrt{\frac{SSE}{n-2}}`$. |
+| Polynomial regression | The model $`\hat{y} = \beta_0 + \beta_1 x + \beta_2 x^2`$ has 3 parameters and is solved with $`3 \times 3`$ normal equations, and $`s_e = \sqrt{\frac{SSE}{n-3}}`$. |
+| Multiple linear regression | The model $`\hat{y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2`$ has 3 parameters and is solved with $`3 \times 3`$ normal equations, and $`s_e = \sqrt{\frac{SSE}{n-3}}`$. |
+| General linear least squares | The model $`\hat{y} = \sum \beta_j f_j(\mathbf{x})`$ has $`m+1`$ parameters and is solved by $`\boldsymbol{\beta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}`$, and $`s_e = \sqrt{\frac{SSE}{n-(m+1)}}`$. |
+| Linearized models | The exponential, power, and saturation-growth models have 2 parameters and are solved by transforming the variables and then applying linear regression, and their $`s_e`$ depends on the transform. |
+| Nonlinear regression | Models such as the Antoine equation have a model-dependent number of parameters and are solved by iterative optimization (e.g., L-BFGS-B), and with $`p`$ parameters $`s_e = \sqrt{\frac{SSE}{n-p}}`$. |
+
+---
+
+<br>
+
+## Self-Check Questions
+
+1. **Standard error of regression and coefficient of determination:** For the example in Section 1.3 (heights = [170, 172, 168, 174, 176] cm, $`x = [1, 2, 3, 4, 5]`$), find the least-squares line, $`SSE`$, $`s_e`$, and $`R^2`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   With $`\bar{x} = 3`$, $`\bar{y} = 172`$, $`\sum (x_i - \bar{x})(y_i - \bar{y}) = 14`$, and $`\sum (x_i - \bar{x})^2 = 10`$, the slope is $`\beta_1 = 1.4`$ and the intercept is $`\beta_0 = 172 - 1.4 \cdot 3 = 167.8`$. The predicted values are 169.2, 170.6, 172.0, 173.4, 174.8 and the residuals are 0.8, 1.4, -4.0, 0.6, 1.2, so $`SSE = 20.4`$. Therefore $`s_e = \sqrt{20.4/3} \approx 2.61`$ cm. Since $`SST = 40`$, $`R^2 = 1 - 20.4/40 = 0.49`$, so the line explains only 49% of the variation in height.
+
+   </details>
+
+2. **Linearizing the saturation-growth-rate model:** A linear regression of $`1/y`$ on $`1/x`$ gives slope 0.5 and intercept 0.2. Find $`\alpha_3`$ and $`\beta_3`$ of the saturation-growth-rate model $`y = \frac{\alpha_3 x}{\beta_3 + x}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The intercept is $`1/\alpha_3 = 0.2`$, so $`\alpha_3 = 5`$. The slope is $`\beta_3/\alpha_3 = 0.5`$, so $`\beta_3 = 0.5 \cdot 5 = 2.5`$. The model is therefore $`y = \frac{5x}{2.5 + x}`$, and $`y`$ approaches the saturation value 5 as $`x`$ grows.
+
+   </details>
+
+3. **Degrees of freedom:** A second-degree polynomial fitted to 10 data points gives $`SSE = 3.5`$. Find the standard error of the estimate, and explain how the value would change if the same $`SSE`$ came from a straight-line fit.
+
+   <details>
+   <summary>Answer</summary>
+
+   A second-degree polynomial has 3 parameters, so the degrees of freedom are $`n - 3 = 7`$ and $`s_e = \sqrt{3.5/7} = \sqrt{0.5} \approx 0.707`$. A straight line has 2 parameters, so the degrees of freedom are $`n - 2 = 8`$ and $`s_e = \sqrt{3.5/8} \approx 0.661`$. More parameters leave fewer degrees of freedom, so the same $`SSE`$ gives a larger $`s_e`$.
+
+   </details>
+
+4. **Linearity in the parameters:** Decide whether each model can be fitted directly by general linear least squares, fitted by linear regression after a transformation, or requires nonlinear regression. (a) $`y = \beta_0 + \beta_1 \cos(\omega x) + \beta_2 \sin(\omega x)`$ with known $`\omega`$ (b) $`y = \alpha_1 e^{\beta_1 x}`$ (c) $`\log_{10} P_v = A - \frac{B}{C + T}`$
+
+   <details>
+   <summary>Answer</summary>
+
+   In (a) the parameters are the coefficients of the basis functions $`1`$, $`\cos(\omega x)`$, and $`\sin(\omega x)`$, and the model is linear in them, so it is fitted directly by general linear least squares. Model (b) is nonlinear in its parameters, but the transformation $`\ln y = \ln \alpha_1 + \beta_1 x`$ allows a linear regression fit. In (c), $`C`$ sits inside $`C + T`$ in the denominator, so $`\log_{10} P_v`$ cannot be written as a linear combination of the parameters, and nonlinear regression is required.
+
+   </details>

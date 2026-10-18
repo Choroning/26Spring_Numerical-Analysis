@@ -1,27 +1,27 @@
 # Chapter 2 Lab — Python Programming
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 2
+[Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Prerequisites**: [Programming Language] MATLAB/Python. [Programming Language] Basic programming. [Calculus] Derivatives.
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
+
+> **Learning Objectives:**
 > 1. Write structured programs for numerical computation
 > 2. Apply modular programming principles
 > 3. Debug and test numerical algorithms
+> 4. Determine in which scope a variable name is resolved under the LEGB rule
+> 5. Replace explicit loops with NumPy vectorized operations
 
 ---
-
-<br>
 
 ## Table of Contents
 
 - [1. Script Files and Functions](#1-script-files-and-functions)
-  - [1.1 Bungee Jumper — Inline Script](#11-bungee-jumper--inline-script)
+  - [1.1 Bungee Jumper: Inline Script](#11-bungee-jumper-inline-script)
   - [1.2 Refactoring as a Function](#12-refactoring-as-a-function)
   - [1.3 Multiple Return Values](#13-multiple-return-values)
-- [2. Variable Scope — LEGB Rule](#2-variable-scope--legb-rule)
+- [2. Variable Scope: LEGB Rule](#2-variable-scope-legb-rule)
   - [2.1 Local and Global Scope](#21-local-and-global-scope)
   - [2.2 Enclosing Scope (Nested Functions)](#22-enclosing-scope-nested-functions)
   - [2.3 The global Keyword](#23-the-global-keyword)
@@ -44,7 +44,7 @@
 - [7. Exception Handling](#7-exception-handling)
 - [8. Decorators](#8-decorators)
 - [9. OOP Basics](#9-oop-basics)
-  - [9.1 Classes with __init__, __repr__, __str__](#91-classes-with-__init__-__repr__-__str__)
+  - [9.1 Classes with `__init__`, `__repr__`, `__str__`](#91-classes-with-__init__-__repr__-__str__)
   - [9.2 Dataclasses](#92-dataclasses)
 - [10. Type Hints](#10-type-hints)
 - [11. Generators](#11-generators)
@@ -52,6 +52,7 @@
   - [11.2 Generator Functions with yield](#112-generator-functions-with-yield)
   - [11.3 Batch Generator for Large Data](#113-batch-generator-for-large-data)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -59,7 +60,7 @@
 
 ## 1. Script Files and Functions
 
-### 1.1 Bungee Jumper — Inline Script
+### 1.1 Bungee Jumper: Inline Script
 
 We revisit the bungee jumper problem from Chapter 1, now with a **quadratic drag model**. The governing ODE is:
 
@@ -85,10 +86,10 @@ t, m, cd = 4, 68.1, 0.25
 g = pc.g  # 9.80665 m/s^2 (standard gravity from scipy.constants)
 
 v = math.sqrt(m * g / cd) * math.tanh(math.sqrt(cd * g / m) * t)
-print(f'velocity = {v:.4f} m/s')  # velocity = 51.6938 m/s
+print(f'velocity = {v:.4f} m/s')  # velocity = 33.1022 m/s
 ```
 
-> **[Python]** `scipy.constants` provides physical constants with full precision. `pc.g` gives the standard acceleration due to gravity ($`9.80665`$ m/s$`^2`$), which is slightly different from the commonly used approximation $`9.81`$ m/s$`^2`$.
+> **[Computer Programming]** `scipy.constants` provides physical constants with full precision. `pc.g` gives the standard acceleration due to gravity ($`9.80665`$ m/s$`^2`$), which is slightly different from the commonly used approximation $`9.81`$ m/s$`^2`$.
 
 ### 1.2 Refactoring as a Function
 
@@ -112,17 +113,17 @@ def freefall(t, m, cd):
 Now the function can be called with any set of parameters:
 
 ```python
-print(freefall(4, 68.1, 0.25))    # 51.6938...
+print(freefall(4, 68.1, 0.25))    # 33.1022...
 print(freefall(10, 80.0, 0.30))   # different jumper
 print(freefall(0, 68.1, 0.25))    # 0.0 (at t=0, velocity is zero)
 ```
 
 The key benefits of functions are:
 
-1. **Reusability** — call it many times with different inputs
-2. **Readability** — the function name documents what the code does
-3. **Testability** — easy to verify correctness by checking known values
-4. **Modularity** — complex programs are built from simple, well-tested functions
+1. **Reusability**: the function can be called many times with different inputs.
+2. **Readability**: the function name documents what the code does.
+3. **Testability**: correctness is easy to verify by checking known values.
+4. **Modularity**: complex programs are built from simple, well-tested functions.
 
 ### 1.3 Multiple Return Values
 
@@ -143,16 +144,16 @@ The caller unpacks the tuple into separate variables:
 data = [2.3, 4.5, 1.2, 3.8, 5.1]
 count, mean, std = stats(data)
 print(f'n={count}, mean={mean:.2f}, std={std:.2f}')
-# n=5, mean=3.38, std=1.54
+# n=5, mean=3.38, std=1.61
 ```
 
-> **Note:** The standard deviation formula uses $`n-1`$ in the denominator (Bessel's correction) because we are computing the **sample** standard deviation, not the population standard deviation. This corrects for the bias introduced by using the sample mean instead of the true population mean.
+> **Note:** The standard deviation formula uses $`n-1`$ in the denominator (Bessel's correction) because we are computing the **sample** standard deviation, not the population standard deviation. Using the sample mean instead of the true population mean makes the sum of squared deviations smaller, and dividing by $`n-1`$ corrects this bias in the variance estimate so that the sample variance becomes an unbiased estimator. Its square root, the sample standard deviation, still carries a small bias.
 
 ---
 
 <br>
 
-## 2. Variable Scope — LEGB Rule
+## 2. Variable Scope: LEGB Rule
 
 Python resolves variable names using the **LEGB rule**, which defines the order in which scopes are searched:
 
@@ -163,7 +164,19 @@ Python resolves variable names using the **LEGB rule**, which defines the order 
 | **G**lobal | Variables defined at the module (file) level | Exists for the entire program |
 | **B**uilt-in | Python's built-in names (`print`, `len`, `range`, etc.) | Always available |
 
-When Python encounters a variable name, it searches these scopes **in order**: Local first, then Enclosing, then Global, then Built-in. It uses the first match found.
+*Table 1. The four scopes of the LEGB rule*
+
+When Python encounters a variable name, it searches these scopes **in order**: Local first, then Enclosing, then Global, then Built-in. It uses the first match found, and raises a `NameError` if the name is in none of the four scopes.
+
+```mermaid
+flowchart LR
+    L[Local] -->|not found| E[Enclosing]
+    E -->|not found| G[Global]
+    G -->|not found| B[Built-in]
+    B -->|not found| X[NameError raised]
+```
+
+*Figure 1. Name lookup order under the LEGB rule*
 
 ### 2.1 Local and Global Scope
 
@@ -179,7 +192,7 @@ func()
 # print(s)  # NameError! s is local to func, not visible here
 ```
 
-A function can **read** variables from outer scopes, but it **cannot modify** them without explicit declaration. If you assign to a variable inside a function, Python treats it as a **new local variable**, even if a global variable with the same name exists:
+A function can **read** variables from outer scopes, but it **cannot modify** them by reassigning the name without explicit declaration. If you assign to a variable inside a function, Python treats it as a **new local variable**, even if a global variable with the same name exists. Changing the contents of a mutable object that the variable refers to, such as calling `append` on a global list, is not an assignment and works without any declaration:
 
 ```python
 x = 88
@@ -209,7 +222,7 @@ fun1()
 # fun2()  # NameError — fun2 only exists inside fun1
 ```
 
-The enclosing scope is important for **closures** — functions that capture and remember variables from their enclosing scope even after the enclosing function has finished executing.
+The enclosing scope is important for **closures**. A closure is a function that captures and remembers variables from its enclosing scope even after the enclosing function has finished executing.
 
 ### 2.3 The global Keyword
 
@@ -225,7 +238,7 @@ modify_global()
 print(x)  # 99 — global x was modified
 ```
 
-> **[Programming Languages]** The LEGB rule is Python's implementation of lexical (static) scoping. Most modern languages use similar scoping rules. The key insight: a function can read variables from outer scopes, but can only modify them with explicit `global` or `nonlocal` keywords.
+> **[Programming Languages]** The LEGB rule is Python's implementation of lexical (static) scoping. Most modern languages use similar scoping rules. The key point is that a function can read variables from outer scopes, but it needs an explicit `global` or `nonlocal` keyword to reassign those names.
 
 Similarly, the `nonlocal` keyword allows modification of variables in the enclosing (but not global) scope:
 
@@ -293,7 +306,7 @@ print(mysum(1, 2, 3))       # 6
 print(mysum(10, 20, 30, 40)) # 100
 ```
 
-This is useful when you don't know in advance how many arguments will be passed:
+This is useful when you do not know in advance how many arguments will be passed:
 
 ```python
 def mean(*values):
@@ -317,7 +330,7 @@ show_kwargs(name='Alice', age=30, major='CSE')
 # major = CSE
 ```
 
-You can combine all argument types in a single function definition. The order must be: positional, `*args`, keyword with defaults, `**kwargs`:
+You can combine all argument types in a single function definition. The order must be positional arguments, `*args`, keyword arguments with defaults, and `**kwargs`:
 
 ```python
 def combined(a, b, *args, option=True, **kwargs):
@@ -347,6 +360,8 @@ Numerical computing frequently involves reading data from files and saving resul
 | `.npy` (single array) | `np.save` | `np.load` | Fast binary, single array |
 | `.npz` (multiple arrays) | `np.savez` | `np.load` | Fast binary, multiple named arrays |
 
+*Table 2. NumPy file I/O functions by format*
+
 ### 4.1 Text Files (CSV/TXT)
 
 `np.loadtxt` reads columnar numeric data from text files. It handles headers, delimiters, and column selection:
@@ -359,11 +374,11 @@ import numpy as np
 _, t, temp = np.loadtxt('./data/awsdata.txt', skiprows=2, unpack=True)
 ```
 
-Parameter details:
+The parameters mean the following:
 
-- `skiprows=2` — skip the first 2 rows (header lines)
-- `unpack=True` — transpose the data so each column becomes a separate 1D array
-- The `_` variable is a Python convention for values we intend to discard (here, the station ID column)
+- `skiprows=2`: skips the first 2 rows (header lines).
+- `unpack=True`: transposes the data so each column becomes a separate 1D array.
+- The `_` variable is a Python convention for values we intend to discard (here, the station ID column).
 
 To save data to a text file:
 
@@ -426,7 +441,7 @@ for i in range(1, 11):
 print(total)  # 55
 ```
 
-**`break`** exits the loop immediately; **`continue`** skips to the next iteration:
+**`break`** exits the loop immediately, and **`continue`** skips the rest of the body and moves to the next iteration:
 
 ```python
 # Find the first multiple of 7 greater than 0
@@ -446,7 +461,7 @@ while count > 0:
 # 10 9 8 7 6 5 4 3 2 1
 ```
 
-While loops are particularly useful in numerical methods for **iterative convergence**, where you repeat until the error drops below a tolerance:
+Repeating until a condition is met is particularly useful in numerical methods for **iterative convergence**, where you repeat until the error drops below a tolerance. The example below uses a `for` loop with a maximum iteration count and `break` instead of `while`, so that it cannot loop forever if it fails to converge:
 
 ```python
 # Example: iterate until convergence
@@ -488,11 +503,11 @@ print(f'Speedup: {loop_time / vec_time:.0f}x')
 # Vectorized is typically 10-100x faster!
 ```
 
-> **[Python]** Vectorization is the single most important optimization technique in scientific Python. Instead of looping over elements in Python (slow interpreter), vectorized operations push the loop down to C (fast compiled code). Always prefer NumPy vectorized operations over explicit loops.
+> **[Computer Programming]** Vectorization is the single most important optimization technique in scientific Python. Instead of looping over elements in Python (slow interpreter), vectorized operations push the loop down to C (fast compiled code). Whenever possible, prefer NumPy vectorized operations over explicit loops.
 
-Why is the loop so much slower? Python is an **interpreted language** — each iteration of the loop involves type checking, function dispatch, and other overhead. NumPy's vectorized operations bypass this by executing a single optimized C routine on the entire array at once.
+Why is the loop so much slower? Python is an **interpreted language**, so each iteration of the loop involves type checking, function dispatch, and other overhead. NumPy's vectorized operations bypass this by executing a single optimized C routine on the entire array at once.
 
-**Rule of thumb:** If you find yourself writing a `for` loop that operates on array elements one at a time, there is almost certainly a vectorized NumPy equivalent that will be dramatically faster.
+> **Note:** **Rule of thumb.** If you find yourself writing a `for` loop that processes array elements independently one at a time, there is almost certainly a vectorized NumPy equivalent that will be dramatically faster. A computation in which each step depends on the result of the previous step, such as Euler's method, cannot be vectorized directly.
 
 ---
 
@@ -500,7 +515,7 @@ Why is the loop so much slower? Python is an **interpreted language** — each i
 
 ## 6. Functions as First-Class Objects
 
-In Python, functions are **first-class objects** — they can be assigned to variables, passed as arguments, returned from other functions, and stored in data structures. This enables powerful functional programming patterns.
+In Python, functions are **first-class objects**. That is, they can be assigned to variables, passed as arguments, returned from other functions, and stored in data structures. This enables powerful functional programming patterns.
 
 ### 6.1 Lambda Functions
 
@@ -534,9 +549,9 @@ print(square(5))  # 25
 print(cube(5))    # 125
 ```
 
-Here, `make_power` returns a lambda that "remembers" the value of `n` from the enclosing scope, even after `make_power` has finished executing. This is the essence of a closure.
+Here, `make_power` returns a lambda that remembers the value of `n` from the enclosing scope, even after `make_power` has finished executing. This is the essence of a closure.
 
-Passing a function as an argument:
+Passing a function as an argument looks like this:
 
 ```python
 def f_at_midpoint(func, a, b):
@@ -549,7 +564,7 @@ print(f_at_midpoint(np.cos, 0, 10))  # cos(5) = 0.2837...
 print(f_at_midpoint(np.sin, 0, 10))  # sin(5) = -0.9589...
 ```
 
-This pattern is fundamental to numerical methods — many algorithms take a function as input (e.g., root finders, integrators, optimizers).
+This pattern is fundamental to numerical methods. Many algorithms, such as root finders, integrators, and optimizers, take a function as input.
 
 ### 6.3 functools.partial
 
@@ -568,7 +583,7 @@ print(square(5))  # 25
 print(cube(5))    # 125
 ```
 
-This is useful when you need to adapt a function's signature to match what another function expects. For example, an ODE solver might expect `f(t, y)`, but your function has extra parameters — `partial` can fix those extra parameters.
+This is useful when you need to adapt a function's signature to match what another function expects. For example, an ODE solver might expect `f(t, y)`, but your function has extra parameters; `partial` can fix those extra parameters.
 
 ### 6.4 zip, filter, and Comprehensions
 
@@ -612,7 +627,7 @@ unique_remainders = {x % 3 for x in range(10)}
 # {0, 1, 2}
 ```
 
-> **Note:** Comprehensions are generally preferred over `map` and `filter` in modern Python because they are more readable. However, for very simple operations, `map` with a lambda can be marginally faster.
+> **Note:** Comprehensions are generally preferred over `map` and `filter` in modern Python because they are more readable. However, `map` can be marginally faster when it applies a built-in function, as in `map(str, data)`, while passing a lambda usually makes it slower than a comprehension because of the function call overhead.
 
 ---
 
@@ -638,7 +653,7 @@ print(safe_divide(10, 0))    # Division by zero! → None
 print(safe_divide('a', 2))   # Invalid types! → None
 ```
 
-A practical application — cleaning noisy data that may contain non-numeric values:
+As a practical application, the following example cleans noisy data that may contain non-numeric values:
 
 ```python
 raw = ['1.5', '2.3', 'N/A', '4.1', '-']
@@ -699,9 +714,9 @@ The `@simple_decorator` syntax above `greet` is equivalent to writing:
 greet = simple_decorator(greet)
 ```
 
-> **[Programming Languages]** Decorators are syntactic sugar for higher-order functions. `@decorator` above a function definition is equivalent to `func = decorator(func)`. They're widely used in web frameworks (Flask routes), testing, and logging.
+> **[Programming Languages]** Decorators are syntactic sugar for higher-order functions. `@decorator` above a function definition is equivalent to `func = decorator(func)`. They are widely used in web frameworks (Flask routes), testing, and logging.
 
-A practical example — a decorator that measures execution time:
+As a practical example, a decorator that measures execution time looks like this:
 
 ```python
 import time
@@ -729,7 +744,7 @@ slow_function()  # slow_function took 1.00XXs
 
 ## 9. OOP Basics
 
-### 9.1 Classes with \_\_init\_\_, \_\_repr\_\_, \_\_str\_\_
+### 9.1 Classes with `__init__`, `__repr__`, `__str__`
 
 Object-oriented programming organizes code around **objects** that bundle data (attributes) and behavior (methods):
 
@@ -750,7 +765,7 @@ print(repr(s))  # MyStudent(Alice, [95, 88, 92])
 print(str(s))   # Alice: avg=91.7
 ```
 
-Key special methods (dunder methods):
+The key special methods (dunder methods) are:
 
 | Method | Purpose | Called by |
 |:-------|:--------|:---------|
@@ -758,9 +773,11 @@ Key special methods (dunder methods):
 | `__repr__` | Unambiguous string representation (for developers) | `repr(obj)`, REPL |
 | `__str__` | Human-readable string representation | `print(obj)`, `str(obj)` |
 
+*Table 3. Key special methods and when they are called*
+
 ### 9.2 Dataclasses
 
-The `@dataclass` decorator (Python 3.7+) eliminates boilerplate by automatically generating `__init__`, `__repr__`, and comparison methods:
+The `@dataclass` decorator (Python 3.7+) eliminates boilerplate by automatically generating `__init__`, `__repr__`, and the equality method `__eq__`. Ordering methods are generated only when requested with `@dataclass(order=True)`:
 
 ```python
 from dataclasses import dataclass
@@ -863,6 +880,8 @@ Common type hints:
 | `Dict[str, float]` | Dictionary with string keys and float values |
 | `Callable[[int], float]` | Function taking `int`, returning `float` |
 
+*Table 4. Common type hints and their meanings*
+
 > **Note:** From Python 3.9+, you can use built-in types directly (`list[int]`, `tuple[int, float]`) instead of importing from `typing`. From Python 3.10+, `X | None` replaces `Optional[X]`.
 
 ---
@@ -873,7 +892,7 @@ Common type hints:
 
 ### 11.1 Memory Efficiency
 
-Generators produce values **lazily** — one at a time, on demand — instead of storing all values in memory at once. This is critical when working with large datasets:
+Generators produce values one at a time on demand through **lazy evaluation**, instead of storing all values in memory at once. This is critical when working with large datasets:
 
 ```python
 import sys
@@ -884,11 +903,11 @@ list_comp = [x ** 2 for x in range(10000)]
 # Generator expression: stores only the formula, computes on demand
 gen_expr = (x ** 2 for x in range(10000))
 
-print(sys.getsizeof(list_comp))  # ~800,000 bytes
+print(sys.getsizeof(list_comp))  # ~85,000 bytes
 print(sys.getsizeof(gen_expr))   # ~200 bytes (!)
 ```
 
-The difference is dramatic: the list stores 10,000 integers, while the generator stores only the state needed to produce the next value.
+The difference is dramatic: the list stores references to 10,000 integers, while the generator stores only the state needed to produce the next value. `sys.getsizeof` measures only the list's array of references and does not include the memory taken by the integer objects themselves. The exact byte counts vary slightly between Python versions.
 
 ### 11.2 Generator Functions with yield
 
@@ -905,11 +924,11 @@ for val in countdown(5):
 ```
 
 Execution flow:
-1. Call `countdown(5)` — returns a generator object (does not execute the body yet)
-2. First `next()` — executes until `yield 5`, suspends, returns `5`
-3. Second `next()` — resumes after `yield`, `n` becomes `4`, reaches `yield 4`, returns `4`
-4. ... continues until the `while` condition is `False`
-5. When the function returns (implicitly), `StopIteration` is raised, ending the loop
+1. Calling `countdown(5)` returns a generator object without executing the body yet.
+2. The first `next()` executes until `yield 5`, suspends, and returns `5`.
+3. The second `next()` resumes after `yield`, decreases `n` to `4`, and returns `4` when it reaches `yield 4`.
+4. The same process continues until the `while` condition is `False`.
+5. When the function returns (implicitly), `StopIteration` is raised, ending the loop.
 
 ### 11.3 Batch Generator for Large Data
 
@@ -932,9 +951,9 @@ for batch in batch_generator(data, 30):
 # Batch size: 10
 ```
 
-> **[Python]** Generators use lazy evaluation — values are computed on demand, not stored in memory. This is essential when working with datasets larger than available RAM. The `yield` keyword suspends function execution and resumes where it left off on the next call.
+> **[Computer Programming]** Generators use lazy evaluation, so values are computed on demand rather than stored in memory. This is essential when working with datasets larger than available RAM. The `yield` keyword suspends function execution and resumes where it left off on the next call.
 
-Another practical example — reading a large file line by line without loading it all into memory:
+Another practical example is a generator that reads a large file line by line without loading it all into memory:
 
 ```python
 def read_large_file(filepath):
@@ -954,18 +973,67 @@ def read_large_file(filepath):
 
 ## Summary
 
-| Topic | Key Concepts |
+| Concept | Key Summary |
 |:------|:------------|
-| Functions | `def`, docstrings, multiple returns, `*args`/`**kwargs` |
-| Scope | LEGB rule, `global`, `nonlocal`, closures |
-| File I/O | `np.loadtxt`, `np.save`/`np.load`, `np.savez` |
-| Control Flow | `if`/`elif`/`else`, `for`, `while`, `break`/`continue` |
-| Vectorization | NumPy vectorized ops >> Python loops (10-100x faster) |
-| Functional | `lambda`, `partial`, higher-order functions, comprehensions |
-| Exceptions | `try`/`except`/`else`/`finally` for error handling |
-| Decorators | `@decorator` = syntactic sugar for `func = decorator(func)` |
-| OOP | `__init__`, `@dataclass`, `@property` |
-| Type Hints | `int`, `List[int]`, `Optional[...]`, `Tuple[...]` for documentation |
-| Generators | `yield`, lazy evaluation, memory-efficient iteration |
+| Functions | Functions are defined with `def` and documented with docstrings, and they support multiple returns and `*args`/`**kwargs`. |
+| Scope | Names are resolved by the LEGB rule, `global` and `nonlocal` allow assignment to outer names, and closures remember outer variables. |
+| File I/O | Text files are handled with `np.loadtxt`, and binary files with `np.save`/`np.load` and `np.savez`. |
+| Control Flow | `if`/`elif`/`else`, `for`, `while`, and `break`/`continue` control branching and repetition. |
+| Vectorization | NumPy vectorized operations are typically 10-100x faster than Python loops. |
+| Functional | `lambda`, `partial`, higher-order functions, and comprehensions treat functions as values. |
+| Exceptions | `try`/`except`/`else`/`finally` handles errors. |
+| Decorators | `@decorator` is syntactic sugar for `func = decorator(func)`. |
+| OOP | `__init__` initializes an object, and `@dataclass` and `@property` reduce boilerplate. |
+| Type Hints | `int`, `List[int]`, `Optional[...]`, and `Tuple[...]` document expected types, which are not enforced at runtime. |
+| Generators | `yield` provides memory-efficient iteration through lazy evaluation. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **LEGB rule:** A global `x = 'global'` exists, and the function `outer` contains `x = 'enclosing'` and a nested function `inner`. If `inner` only executes `print(x)`, what is printed when `outer()` is called?
+
+   <details>
+   <summary>Answer</summary>
+
+   `'enclosing'` is printed. `inner` has no local `x`, so Python looks in the next scope, the enclosing scope of `outer`, finds `x` there, and never reaches the global scope.
+
+   </details>
+
+2. **Local and global variables:** A global `count = 0` exists, and the function `f` executes `count = 5` without a `global` declaration. What does `print(count)` show after calling `f()`?
+
+   <details>
+   <summary>Answer</summary>
+
+   It prints `0`. The `count` assigned inside the function becomes a new local variable and does not change the global `count`. To change the global variable, `global count` must be declared.
+
+   </details>
+
+3. **Multiple return values and Bessel's correction:** What tuple does the `stats` function of Section 1.3 return for `[2, 4, 6]`?
+
+   <details>
+   <summary>Answer</summary>
+
+   It returns `(3, 4.0, 2.0)`. The mean is 12/3 = 4.0, and the sum of squared deviations is 4 + 0 + 4 = 8. Dividing by $`n - 1 = 2`$ gives 4, whose square root, the sample standard deviation, is 2.0.
+
+   </details>
+
+4. **Combining arguments:** If the `combined` function of Section 3.3 is called as `combined(1, 2, 3, option=False, z=0)`, what are `args`, `option`, and `kwargs`?
+
+   <details>
+   <summary>Answer</summary>
+
+   After `a=1` and `b=2` are filled, the remaining positional argument 3 goes into `args`, so `args=(3,)`. `option=False`, and the keyword argument `z=0`, which matches no parameter name, goes into `kwargs={'z': 0}`.
+
+   </details>
+
+5. **Batch generator:** List, in order, the sizes of the batches produced by `batch_generator(np.arange(10), 4)` from Section 11.3.
+
+   <details>
+   <summary>Answer</summary>
+
+   The sizes are 4, 4, and 2. The start indices are 0, 4, and 8, so `data[0:4]`, `data[4:8]`, and `data[8:12]` are produced, and the last slice is cut off at the end of the array and holds 2 elements.
+
+   </details>

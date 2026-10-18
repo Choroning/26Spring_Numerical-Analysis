@@ -1,15 +1,16 @@
-# Chapter 9 Lecture — Gauss Elimination: Improved Methods
+# Chapter 9 — Gauss Elimination: Improved Methods
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 9
+[Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Prerequisites**: [Linear Algebra] Matrix operations (Ch 8).
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 9
+
+> **Learning Objectives:**
 > 1. Perform Gaussian elimination with partial pivoting
 > 2. Analyze computational complexity of elimination
 > 3. Implement back substitution algorithms
+> 4. Solve tridiagonal systems with the Thomas algorithm
 
 ---
 
@@ -26,12 +27,13 @@
   - [3.1 Without Pivoting (4-Digit Arithmetic)](#31-without-pivoting-4-digit-arithmetic)
   - [3.2 With Pivoting](#32-with-pivoting)
 - [4. Gauss-Jordan Method](#4-gauss-jordan-method)
-- [5. Tridiagonal Systems — Thomas Algorithm](#5-tridiagonal-systems--thomas-algorithm)
+- [5. Tridiagonal Systems: Thomas Algorithm](#5-tridiagonal-systems-thomas-algorithm)
   - [5.1 Tridiagonal Matrix Structure](#51-tridiagonal-matrix-structure)
   - [5.2 Thomas Algorithm](#52-thomas-algorithm)
   - [5.3 Computational Cost](#53-computational-cost)
 - [6. Python Implementation](#6-python-implementation)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -43,8 +45,8 @@
 
 In naive Gauss elimination, the pivot element $`a_{ii}`$ is used directly as the divisor during each elimination step. This causes two critical problems:
 
-1. **Division by zero**: If $`a_{ii} = 0`$, the algorithm fails outright
-2. **Large round-off errors**: If $`a_{ii}`$ is very small (close to zero), the multiplier $`a_{ki}/a_{ii}`$ becomes very large, amplifying every round-off error in subsequent operations by that factor
+1. **Division by zero**: If $`a_{ii} = 0`$, the algorithm fails outright.
+2. **Large round-off errors**: If $`a_{ii}`$ is very small (close to zero), the multiplier $`a_{ki}/a_{ii}`$ becomes very large, amplifying every round-off error in subsequent operations by that factor.
 
 Both problems stem from the same root cause: the pivot element is too small relative to other elements in the column.
 
@@ -58,7 +60,7 @@ Since the multiplier is computed as $`\text{factor} = a_{ki}/a_{ii}`$, making $`
 
 The only modification to naive Gauss elimination is the addition of a pivot search and row swap before each elimination step:
 
-```
+```text
 for i = 1 to n-1:
     // Find max |a[k][i]| for k = i, ..., n
     imax = argmax(|a[k][i]|) for k = i..n
@@ -70,7 +72,7 @@ for i = 1 to n-1:
             a[k][j] = a[k][j] - factor * a[i][j]
 ```
 
-> **Note:** Row swapping is an $`O(n)`$ operation per elimination step, so the total overhead of pivoting is $`O(n^2)`$ — negligible compared to the $`O(n^3)`$ cost of the elimination itself. There is essentially no reason to skip pivoting.
+> **Note:** Row swapping is an $`O(n)`$ operation per elimination step, so the total overhead of pivoting is $`O(n^2)`$, which is negligible compared to the $`O(n^3)`$ cost of the elimination itself. There is essentially no reason to skip pivoting.
 
 ---
 
@@ -82,13 +84,13 @@ Sometimes partial pivoting alone is insufficient. This happens when the rows of 
 
 **Scaled partial pivoting** addresses this by normalizing each row before comparing pivot candidates:
 
-1. Compute the **scale factor** for each row: $`s_i = \max_j |a_{ij}|`$
-2. When selecting the pivot for column $`i`$, choose the row $`k`$ that maximizes $`|a_{ki}| / s_k`$ (the ratio of the candidate pivot to the row's scale factor)
-3. Swap and proceed with standard elimination
+1. Compute the **scale factor** for each row: $`s_i = \max_j |a_{ij}|`$.
+2. When selecting the pivot for column $`i`$, choose the row $`k`$ that maximizes $`|a_{ki}| / s_k`$ (the ratio of the candidate pivot to the row's scale factor).
+3. Swap and proceed with standard elimination.
 
-The scale factors $`s_i`$ are computed once at the beginning and updated only when rows are swapped (the scale factors follow their rows). This normalization ensures that the pivot selection accounts for the overall magnitude of each row, preventing a row with uniformly large entries from always being chosen.
+The scale factors $`s_i`$ are computed once at the beginning; when rows are swapped they move with their rows and are not recomputed. This normalization ensures that the pivot selection accounts for the overall magnitude of each row, preventing a row with uniformly large entries from always being chosen.
 
-> **[Linear Algebra]** Scaled partial pivoting is equivalent to implicitly scaling the rows of the matrix before applying partial pivoting. The key insight is that the "best" pivot is not necessarily the largest in absolute value, but the largest relative to the other entries in its row.
+> **Note:** **Implicit scaling.** Scaled partial pivoting is equivalent to implicitly scaling the rows of the matrix before applying partial pivoting. The scale factors are used only to choose the pivot, and the elimination itself uses the original coefficients. The key insight is that the best pivot is not necessarily the largest in absolute value, but the largest relative to the other entries in its row.
 
 ---
 
@@ -112,12 +114,12 @@ The exact solution is $`x_1 = 1/3`$ and $`x_2 = 2/3`$.
 
 Using 4-digit arithmetic with the equations in the given order:
 
-- The pivot is $`a_{11} = 0.0003`$ (very small!)
-- Factor = $`1.0000 / 0.0003 = 3333.3`$ (very large!)
-- After elimination: $`-9999x_2 = -6666`$
-- Back substitution: $`x_2 = 0.6667`$, then $`x_1 = (2.0001 - 3.0000 \times 0.6667) / 0.0003 = 0.3333`$
+- The pivot is $`a_{11} = 0.0003`$, which is very small.
+- The factor is $`1.0000 / 0.0003 = 3333.3`$, which is very large.
+- After elimination: $`-9999x_2 = -6666`$.
+- Back substitution gives $`x_2 = 0.6667`$, then $`x_1 = (2.0001 - 3.0000 \times 0.6667) / 0.0003 = (2.0001 - 2.0001) / 0.0003 = 0.0000`$.
 
-With limited precision, the answer is **wrong**. The enormous factor of 3333.3 amplifies every round-off error by that amount. The small perturbations introduced by 4-digit rounding are magnified to the point where significant digits are lost.
+$`x_2`$ is accurate, but with limited precision $`x_1`$ is **wrong**: it comes out as 0 instead of the true value $`1/3`$, a 100% relative error. The product $`3.0000 \times 0.6667`$ nearly equals 2.0001, so the subtraction cancels all significant digits (catastrophic cancellation), and the result is divided by the tiny pivot 0.0003. The large factor of 3333.3 magnifies the small perturbations introduced by 4-digit rounding to the point where significant digits are lost.
 
 ### 3.2 With Pivoting
 
@@ -133,14 +135,14 @@ Swap the two rows first (since $`|1.0000| > |0.0003|`$ in column 1):
 
 Now:
 
-- The pivot is $`a_{11} = 1.0000`$ (well-scaled)
-- Factor = $`0.0003 / 1.0000 = 0.0003`$ (small factor!)
-- After elimination: $`2.9997x_2 = 1.9998`$
-- Back substitution: $`x_2 = 0.6667`$, then $`x_1 = (1.0000 - 1.0000 \times 0.6667) / 1.0000 = 0.3333`$
+- The pivot is $`a_{11} = 1.0000`$, which is well-scaled.
+- The factor is $`0.0003 / 1.0000 = 0.0003`$, which is small.
+- After elimination: $`2.9997x_2 = 1.9998`$.
+- Back substitution gives $`x_2 = 0.6667`$, then $`x_1 = (1.0000 - 1.0000 \times 0.6667) / 1.0000 = 0.3333`$.
 
 The result is much more accurate because the small factor (0.0003 instead of 3333.3) does not amplify round-off errors.
 
-> **Note:** This example dramatically shows why pivoting matters. A factor of 3333.3 amplifies every round-off error by that amount. Pivoting keeps factors $`\leq 1`$, controlling error growth. In practice, partial pivoting is always used — naive Gauss elimination is only taught for pedagogical purposes.
+> **Note:** This example dramatically shows why pivoting matters. A factor of 3333.3 amplifies every round-off error by that amount. Pivoting keeps factors $`\leq 1`$, controlling error growth. In practice, partial pivoting is always used, and naive Gauss elimination is taught only for pedagogical purposes.
 
 ---
 
@@ -152,25 +154,25 @@ The **Gauss-Jordan method** extends standard Gauss elimination by eliminating en
 
 The procedure is:
 
-1. **Forward elimination**: Same as standard Gauss elimination — eliminate below the diagonal
-2. **Backward elimination**: Additionally eliminate entries **above** the diagonal
-3. **Normalization**: Divide each row by its diagonal element to produce the identity matrix on the left
+1. **Forward elimination**: Eliminate below the diagonal, as in standard Gauss elimination.
+2. **Backward elimination**: Additionally eliminate entries **above** the diagonal.
+3. **Normalization**: Divide each row by its diagonal element to produce the identity matrix on the left.
 
 The result is that the augmented matrix $`[A|b]`$ is transformed into $`[I|x]`$, where $`x`$ is the solution. No back substitution is needed because the matrix is already diagonal (or identity after normalization).
 
 **Key properties:**
 
-- **No back substitution needed**: The solution is read directly from the transformed right-hand side
-- **Useful for computing the matrix inverse**: Apply Gauss-Jordan to $`[A|I]`$ to obtain $`[I|A^{-1}]`$
-- **More expensive**: The operation count is $`O(n^3)`$ with a larger constant than standard Gauss elimination — approximately $`n^3/2`$ multiplications vs. $`n^3/3`$ for standard Gauss with back substitution
+- **No back substitution needed**: The solution is read directly from the transformed right-hand side.
+- **Useful for computing the matrix inverse**: Applying Gauss-Jordan to $`[A|I]`$ yields $`[I|A^{-1}]`$.
+- **More expensive**: The operation count is $`O(n^3)`$ with a larger constant than standard Gauss elimination, approximately $`n^3/2`$ multiplications versus $`n^3/3`$ for standard Gauss with back substitution.
 
-> **[Linear Algebra]** The Gauss-Jordan method is the standard algorithm for computing matrix inverses. While it is about 50% more expensive than Gauss elimination with back substitution for solving a single system, it becomes competitive when solving for multiple right-hand sides simultaneously (as in computing the inverse).
+> **Note:** **Matrix inversion and cost.** The Gauss-Jordan method is the standard textbook algorithm for computing matrix inverses. While it is about 50% more expensive than Gauss elimination with back substitution for solving a single system, it becomes competitive when solving for multiple right-hand sides simultaneously (as in computing the inverse).
 
 ---
 
 <br>
 
-## 5. Tridiagonal Systems — Thomas Algorithm
+## 5. Tridiagonal Systems: Thomas Algorithm
 
 ### 5.1 Tridiagonal Matrix Structure
 
@@ -184,15 +186,15 @@ where $`e_i`$ is the sub-diagonal, $`f_i`$ is the main diagonal, and $`g_i`$ is 
 
 Tridiagonal systems are extremely common in scientific computing:
 
-- **Discretized ODEs**: Central finite differences for second-order boundary value problems
-- **Spline interpolation**: Cubic spline coefficient systems
-- **Implicit time-stepping**: Implicit methods for parabolic PDEs (e.g., heat equation)
+- **Discretized ODEs**: They arise from central finite differences for second-order boundary value problems.
+- **Spline interpolation**: The system for cubic spline coefficients is tridiagonal.
+- **Implicit time-stepping**: They arise in implicit methods for parabolic PDEs (e.g., the heat equation).
 
 ### 5.2 Thomas Algorithm
 
 The **Thomas algorithm** is a specialized form of Gauss elimination that exploits the tridiagonal structure. It consists of two phases:
 
-**Forward sweep** (elimination): For $`i = 2`$ to $`n`$:
+**Forward sweep (elimination):** For $`i = 2`$ to $`n`$:
 
 ```math
 \text{factor} = \frac{e_i}{f_{i-1}}
@@ -206,7 +208,7 @@ f_i = f_i - \text{factor} \cdot g_{i-1}
 r_i = r_i - \text{factor} \cdot r_{i-1}
 ```
 
-**Back substitution**:
+**Back substitution:**
 
 ```math
 x_n = \frac{r_n}{f_n}
@@ -218,13 +220,13 @@ For $`i = n-1`$ down to $`1`$:
 x_i = \frac{r_i - g_i \cdot x_{i+1}}{f_i}
 ```
 
-Each step of the forward sweep only touches the current row and the row above it, and each step of back substitution only requires the next solution value. The algorithm only accesses the three diagonals and never fills in entries outside the band.
+Each step of the forward sweep only touches the current row and the row above it, and each step of back substitution only requires the next solution value. The algorithm only accesses the three diagonals and never fills in entries outside the band. Because it does not pivot, however, it is reliable when the $`f_i`$ cannot become nearly zero during elimination, as for diagonally dominant matrices.
 
 ### 5.3 Computational Cost
 
-The Thomas algorithm requires exactly $`3(n-1)`$ multiplications/divisions and $`3(n-1)`$ additions/subtractions in the forward sweep, plus $`n`$ operations in back substitution — giving a total cost of **$`O(n)`$**.
+The Thomas algorithm requires $`3(n-1)`$ multiplications/divisions and $`2(n-1)`$ additions/subtractions in the forward sweep, plus $`2n-1`$ multiplications/divisions and $`n-1`$ subtractions in back substitution. This totals $`8n-7`$ operations, giving a cost of **$`O(n)`$**.
 
-This is a dramatic improvement over the $`O(n^3)`$ cost of general Gauss elimination. For a system of size $`n = 100{,}000`$, the Thomas algorithm is approximately $`10^{10}`$ times faster.
+This is a dramatic improvement over the $`O(n^3)`$ cost of general Gauss elimination. For a system of size $`n = 100{,}000`$, the ratio of operation counts is $`(2n^3/3)/(8n) = n^2/12 \approx 8 \times 10^8`$, so the Thomas algorithm is about $`10^9`$ times faster (comparing orders alone gives $`n^2 = 10^{10}`$).
 
 > **[Data Structures]** The Thomas algorithm exploits the banded structure of the matrix. Only 3 diagonals are stored and processed, analogous to how sparse matrix formats save memory. This is a recurring theme: exploiting structure in the problem leads to dramatic efficiency gains.
 
@@ -234,7 +236,7 @@ This is a dramatic improvement over the $`O(n^3)`$ cost of general Gauss elimina
 
 ## 6. Python Implementation
 
-Python's NumPy/SciPy libraries provide robust, production-quality implementations that use LAPACK routines with partial pivoting internally:
+Python's NumPy and SciPy libraries provide robust, production-quality implementations that use LAPACK routines with partial pivoting internally:
 
 ```python
 import numpy as np
@@ -259,17 +261,55 @@ x = solve_banded((1, 1), ab, b)  # Exploits tridiagonal structure
 
 ## Summary
 
-| Method | Pivot? | Cost | Best Use |
-|:-------|:-------|:-----|:---------|
-| Naive Gauss | No | $`O(n^3)`$ | Teaching only |
-| Gauss with Partial Pivoting (GEPP) | Yes | $`O(n^3)`$ | General systems |
-| Gauss-Jordan | Yes | $`O(n^3)`$ (higher constant) | Matrix inverse |
-| Thomas Algorithm | No | $`O(n)`$ | Tridiagonal systems |
-
-Key takeaways:
-
-- **Always use pivoting** for general systems — the cost is negligible and the stability improvement is essential
-- **Exploit structure** whenever possible — the Thomas algorithm turns an $`O(n^3)`$ problem into $`O(n)`$ for tridiagonal systems
-- **Use library implementations** in production — they are optimized, tested, and handle edge cases
+| Concept | Key Summary |
+|:-------|:-------|
+| Naive Gauss | It does not pivot, costs $`O(n^3)`$, and is used only for teaching. |
+| Gauss with Partial Pivoting (GEPP) | It picks the pivot with the largest absolute value at each step, costs $`O(n^3)`$, and is used for general systems. |
+| Scaled partial pivoting | It picks the pivot by size relative to each row's scale factor, preventing wrong choices caused by rows of very different magnitudes. |
+| Gauss-Jordan | It uses pivoting and costs $`O(n^3)`$ with a higher constant, and it is used for computing matrix inverses. |
+| Thomas Algorithm | It solves tridiagonal systems at $`O(n)`$ cost without pivoting. |
+| Pivoting rule | Always use pivoting for general systems, since the cost is negligible and the stability improvement is essential. |
+| Exploiting structure | Exploit matrix structure whenever possible; the Thomas algorithm turns an $`O(n^3)`$ problem into $`O(n)`$ for tridiagonal systems. |
+| Library use | Use library implementations in production, since they are optimized, tested, and handle edge cases. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **Row selection in partial pivoting:** When partial pivoting is applied to $`A = \begin{bmatrix} 2 & 1 & 1 \\ 4 & -6 & 0 \\ -8 & 7 & 2 \end{bmatrix}`$, which row becomes the pivot row in the first step? Find the factors used in that step.
+
+   <details>
+   <summary>Answer</summary>
+
+   The absolute values in column 1 are 2, 4, and 8, so row 3 becomes the pivot row and is swapped with row 1. The pivot is $`-8`$, and after the swap the factor for row 2 is $`4/(-8) = -0.5`$ and the factor for row 3 (formerly row 1) is $`2/(-8) = -0.25`$. Both factors have absolute value at most 1.
+
+   </details>
+
+2. **Scaled partial pivoting:** For $`2x_1 + 100000x_2 = 100000`$ and $`x_1 + x_2 = 2`$, which row does partial pivoting choose as the pivot row, and which does scaled partial pivoting choose?
+
+   <details>
+   <summary>Answer</summary>
+
+   Partial pivoting chooses row 1 because $`|2| > |1|`$. Scaled partial pivoting uses $`s_1 = 100000`$ and $`s_2 = 1`$, giving ratios $`2/100000 = 2 \times 10^{-5}`$ and $`1/1 = 1`$, so it chooses row 2. In row 1 the coefficient of $`x_2`$ is so large that the coefficient 2 of $`x_1`$ is relatively small within that row.
+
+   </details>
+
+3. **Thomas algorithm:** Solve the tridiagonal system with $`f = (2, 2, 2)`$, $`e_2 = e_3 = -1`$, $`g_1 = g_2 = -1`$, and $`r = (1, 0, 1)`$ by the Thomas algorithm.
+
+   <details>
+   <summary>Answer</summary>
+
+   In the forward sweep, for $`i = 2`$ the factor is $`-1/2 = -0.5`$, giving $`f_2 = 2 - (-0.5)(-1) = 1.5`$ and $`r_2 = 0 - (-0.5)(1) = 0.5`$. For $`i = 3`$ the factor is $`-1/1.5 = -2/3`$, giving $`f_3 = 2 - (-2/3)(-1) = 4/3`$ and $`r_3 = 1 - (-2/3)(0.5) = 4/3`$. Back substitution gives $`x_3 = (4/3)/(4/3) = 1`$, $`x_2 = (0.5 - (-1)(1))/1.5 = 1`$, and $`x_1 = (1 - (-1)(1))/2 = 1`$, so the solution is $`(1, 1, 1)`$.
+
+   </details>
+
+4. **Operation counts:** For $`n = 300`$, compare the multiplication counts of Gauss elimination with back substitution and of the Gauss-Jordan method, and find the total operation count of the Thomas algorithm for a tridiagonal system of the same size.
+
+   <details>
+   <summary>Answer</summary>
+
+   Gauss elimination needs about $`n^3/3 = 9.0 \times 10^6`$ multiplications and Gauss-Jordan about $`n^3/2 = 1.35 \times 10^7`$, about 1.5 times as many. For a tridiagonal system, the Thomas algorithm needs only $`8n - 7 = 2393`$ operations.
+
+   </details>

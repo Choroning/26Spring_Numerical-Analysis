@@ -1,19 +1,18 @@
 # Chapter 1 Lab — Python Fundamentals for Scientific Computing
 
-> **Last Updated:** 2026-06-19
->
-> Numerical Methods for Engineers, Chapra & Canale (8th Ed.) - Ch 1
+[Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Prerequisites**: [Programming Language] MATLAB/Python. No prior numerical analysis knowledge required. [Calculus] Basic derivatives and integrals.
+> **Last Updated:** 2026-10-18
 >
-> **Learning Objectives**:
-> 1. Explain the role of mathematical modeling in engineering
-> 2. Identify sources of error in numerical computations
-> 3. Describe the trade-off between model complexity and accuracy
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 1
+
+> **Learning Objectives:**
+> 1. Create and index arrays, vectors, and matrices with NumPy
+> 2. Distinguish and apply element-wise multiplication and matrix multiplication
+> 3. Plot computational results with Matplotlib
+> 4. Distinguish views from copies of NumPy arrays
 
 ---
-
-<br>
 
 ## Table of Contents
 
@@ -40,6 +39,7 @@
   - [6.1 Views (Slicing)](#61-views-slicing)
   - [6.2 Copies (Fancy Indexing)](#62-copies-fancy-indexing)
 - [Summary](#summary)
+- [Self-Check Questions](#self-check-questions)
 
 ---
 
@@ -65,7 +65,7 @@ c = 2 + 4j
 print(type(c))  # <class 'complex'>
 ```
 
-> **[Python]** Python's dynamic typing means variables don't need explicit type declarations. The type is determined at runtime based on the assigned value. This is different from statically typed languages like C++ or Java.
+> **[Computer Programming]** Python's dynamic typing means variables do not need explicit type declarations. The type is determined at runtime based on the assigned value. This is different from statically typed languages like C++ or Java.
 
 ### 1.2 Mathematical Constants and Formatted Output
 
@@ -97,11 +97,11 @@ print('{0:12.4e}'.format(pc.h))  # Planck's constant: 6.6261e-34
 
 **NumPy** (Numerical Python) is the foundational library for scientific computing in Python. Its key advantages are:
 
-- **Speed**: NumPy arrays are backed by C code and stored in contiguous memory blocks, making operations orders of magnitude faster than Python lists
-- **Vectorization**: Operations are applied element-wise to entire arrays without explicit Python loops
-- **Broadcasting**: Allows arithmetic between arrays of different shapes following well-defined rules
+- **Speed**: NumPy arrays are backed by C code and stored in contiguous memory blocks, making whole-array operations orders of magnitude faster than looping over Python lists.
+- **Vectorization**: Operations are applied element-wise to entire arrays without explicit Python loops.
+- **Broadcasting**: Allows arithmetic between arrays of different shapes following well-defined rules.
 
-> **[Python]** NumPy arrays are stored in contiguous memory blocks (unlike Python lists), enabling vectorized operations that run at C speed. Broadcasting allows operations between arrays of different shapes without explicit loops.
+> **[Computer Programming]** NumPy arrays are stored in contiguous memory blocks (unlike Python lists), enabling vectorized operations that run at C speed. Broadcasting allows operations between arrays of different shapes without explicit loops.
 
 ### 2.2 Creating Arrays
 
@@ -117,7 +117,9 @@ NumPy provides several functions for creating arrays:
 | `np.linspace(start, stop, n)` | $`n`$ evenly spaced values (stop included) | `np.linspace(0, 1, 11)` |
 | `np.logspace(start, stop, n)` | Log-spaced values from $`10^{\text{start}}`$ to $`10^{\text{stop}}`$ | `np.logspace(-1, 2, 4)` |
 
-> **Note:** `np.matrix` is deprecated — always use `np.array` instead. 2D arrays support all matrix operations via the `@` operator.
+*Table 1. NumPy array creation functions*
+
+> **Note:** `np.matrix` is no longer recommended (deprecated); always use `np.array` instead. 2D arrays perform matrix multiplication with the `@` operator, and the other matrix operations are provided by the functions in `np.linalg`.
 
 ```python
 import numpy as np
@@ -150,22 +152,22 @@ print(A[:, 1])   # [4, 3] (entire column 1)
 
 ### 2.4 Sequence Generation: arange, linspace, logspace
 
-These three functions generate sequences of numbers, but they differ in how the spacing is specified:
+These three functions generate sequences of numbers, but they differ in how the spacing is specified.
 
-**`np.arange`** — specified by step size, endpoint **not** included:
+**`np.arange`** specifies the spacing by step size and does **not** include the endpoint:
 
 ```python
 x = np.arange(0, 1, 0.1)  # [0.0, 0.1, 0.2, ..., 0.9] — 10 values, 1.0 NOT included
 ```
 
-**`np.linspace`** — specified by number of points, endpoint **included** by default:
+**`np.linspace`** specifies the spacing by the number of points and **includes** the endpoint by default:
 
 ```python
 x = np.linspace(0, 1, 11)  # [0.0, 0.1, 0.2, ..., 1.0] — 11 values, 1.0 included
 x = np.linspace(0, 1, 10, endpoint=False)  # [0.0, 0.1, ..., 0.9] — excludes 1.0
 ```
 
-**`np.logspace`** — logarithmically spaced values:
+**`np.logspace`** generates logarithmically spaced values:
 
 ```python
 # Default base=10: from 10^(-1) to 10^2
@@ -196,7 +198,9 @@ Python provides the following arithmetic operators:
 | `**` | Exponentiation | `2 ** 3` | `8` |
 | `@` | Matrix multiplication | `A @ B` | Matrix product |
 
-**Operator precedence** follows standard mathematical convention (PEMDAS). An important subtlety: **exponentiation is right-to-left associative**:
+*Table 2. Python arithmetic operators*
+
+**Operator precedence** follows standard mathematical convention (PEMDAS). An important subtlety is that **exponentiation is right-to-left associative**:
 
 ```python
 x, y, z = 2, 3, 2
@@ -270,13 +274,15 @@ Python provides several built-in functions that are essential for everyday compu
 | `int(x)` | Convert to integer (truncates) | `int(3.7)` → `3` |
 | `help(x)` | Display documentation | `help(abs)` |
 
+*Table 3. Common Python built-in functions*
+
 ```python
 print(abs(-6 + 4j))  # 7.211102550927978 (magnitude: sqrt(36 + 16))
 ```
 
 ### 4.2 Banker's Rounding
 
-Python's `round()` function uses **banker's rounding** (also called "round half to even"). When a value is exactly halfway between two integers, it rounds to the **nearest even number**:
+Python 3's `round()` function uses **banker's rounding**, also called **round half to even**. When a value is exactly halfway between two integers, it rounds to the **nearest even number**:
 
 ```python
 print(round(4.5))     # 4 (rounds to nearest even)
@@ -287,7 +293,7 @@ print(round(2.5))     # 2 (rounds to nearest even)
 print(round(3.5))     # 4 (rounds to nearest even)
 ```
 
-> **Note:** Python uses "banker's rounding" (round half to even): `round(0.5) = 0`, `round(1.5) = 2`. This minimizes cumulative rounding bias in statistical computations.
+> **Note:** Python uses banker's rounding (round half to even), so `round(0.5) = 0` and `round(1.5) = 2`. This minimizes cumulative rounding bias in statistical computations.
 
 ### 4.3 Application: Bungee Jumper Velocity
 
@@ -306,11 +312,11 @@ tm = np.linspace(0, 20, 11)  # time from 0 to 20 s, 11 points
 
 v = math.sqrt(m * g / cd) * np.tanh(math.sqrt(cd * g / m) * tm)
 print(v)
-# [ 0.          9.63...  17.85...  23.53...  27.29...  29.67...
-#  31.09...  31.87...  32.26...  32.44...  32.52...]
+# [ 0.         18.72...  33.11...  42.07...  46.95...  49.42...
+#  50.61...  51.18...  51.45...  51.58...  51.64...]
 ```
 
-> **[Python]** The `np.tanh()` function operates element-wise on the entire `tm` array, producing a result array of the same shape without any explicit loop. This is vectorization in action.
+> **[Computer Programming]** The `np.tanh()` function operates element-wise on the entire `tm` array, producing a result array of the same shape without any explicit loop. This is vectorization in action.
 
 ---
 
@@ -366,7 +372,7 @@ plt.savefig('sample.png', bbox_inches='tight')
 plt.show()
 ```
 
-> **[Python]** The `ls` parameter controls line style (`'-'` solid, `'--'` dashed, `':'` dotted), `marker` controls data point markers (`'o'` circle, `'D'` diamond, `'s'` square), and `label` provides the text for the legend entry. `bbox_inches='tight'` removes excess whitespace when saving.
+> **[Computer Programming]** The `ls` parameter controls line style (`'-'` solid, `'--'` dashed, `':'` dotted), `marker` controls data point markers (`'o'` circle, `'D'` diamond, `'s'` square), and `label` provides the text for the legend entry. `bbox_inches='tight'` removes excess whitespace when saving.
 
 ---
 
@@ -378,7 +384,7 @@ Understanding the difference between **views** and **copies** is critical in sci
 
 ### 6.1 Views (Slicing)
 
-When you create a subset of an array using **basic slicing** (e.g., `x[1:3]`), NumPy returns a **view** — a window into the same underlying memory. Changes to the view affect the original array:
+When you create a subset of an array using **basic slicing** (e.g., `x[1:3]`), NumPy returns a **view**, a window into the same underlying memory. Changes to the view affect the original array:
 
 ```python
 import numpy as np
@@ -396,7 +402,7 @@ print(y.base)     # [1, 2, 99, 4, 5] — shows the original (base) array
 
 ### 6.2 Copies (Fancy Indexing)
 
-When you use **fancy indexing** (indexing with a list or array of indices), NumPy returns a **copy** — a completely independent array:
+When you use **fancy indexing** (indexing with a list or array of indices), NumPy returns a **copy**, a completely independent array:
 
 ```python
 import numpy as np
@@ -412,6 +418,16 @@ print(y)          # [2, 3] — y is unchanged, because it's a copy
 print(y.base is None)  # True — no base array, it's independent
 ```
 
+```text
+x          [ 1 | 2 | 3 | 4 | 5 ]   original data buffer
+                 └─┬─┘
+x[1:3]             │               view: refers to indices 1 and 2 of the same buffer
+
+x[[1, 2]]  [ 2 | 3 ]               copy: values are copied into a new buffer
+```
+
+*Figure 1. A view created by basic slicing and a copy created by fancy indexing*
+
 > **Note:** This distinction is critical in scientific computing. Modifying a view accidentally changes the original data. Use `.copy()` explicitly when you need an independent copy: `y = x[1:3].copy()`.
 
 ---
@@ -420,13 +436,62 @@ print(y.base is None)  # True — no base array, it's independent
 
 ## Summary
 
-| Topic | Key Functions / Concepts |
+| Concept | Key Summary |
 |:------|:------------------------|
-| Variables | `type()`, dynamic typing, `math.pi`, `scipy.constants` |
-| NumPy Arrays | `np.array`, `np.zeros`, `np.ones`, `np.eye`, `np.linspace` |
-| Math Ops | `*` (element-wise), `@` (matrix), `np.dot`, `np.cross` |
-| Built-in | `abs`, `round` (banker's rounding), `min`, `max`, `help()` |
-| Plotting | `plt.plot`, `plt.xlabel`, `plt.legend`, `plt.savefig` |
-| View vs. Copy | Slicing → view (shared memory), Fancy indexing → copy (independent) |
+| Variables | Python uses dynamic typing; `type()` checks a type, and `math.pi` and `scipy.constants` provide constants. |
+| NumPy Arrays | Arrays are created with `np.array`, `np.zeros`, `np.ones`, `np.eye`, `np.linspace`, and similar functions. |
+| Math Ops | `*` is element-wise multiplication and `@` is matrix multiplication, while `np.dot` and `np.cross` give dot and cross products. |
+| Built-in | Python provides `abs`, `round`, `min`, `max`, `help()`, and others, and `round` uses banker's rounding. |
+| Plotting | `plt.plot` draws a plot, `plt.xlabel` and `plt.legend` annotate it, and `plt.savefig` saves it. |
+| View vs. Copy | Slicing returns a view that shares memory, while fancy indexing returns an independent copy. |
 
 ---
+
+<br>
+
+## Self-Check Questions
+
+1. **arange and linspace:** Write the arrays produced by `np.arange(0, 1, 0.25)` and `np.linspace(0, 1, 5)`, and explain the difference.
+
+   <details>
+   <summary>Answer</summary>
+
+   `np.arange(0, 1, 0.25)` gives `[0, 0.25, 0.5, 0.75]` and excludes the endpoint 1. `np.linspace(0, 1, 5)` gives `[0, 0.25, 0.5, 0.75, 1.0]`, five points including the endpoint. `arange` sets the spacing by step size, while `linspace` sets it by the number of points.
+
+   </details>
+
+2. **Associativity of exponentiation:** Find the values of `2 ** 2 ** 3` and `(2 ** 2) ** 3`.
+
+   <details>
+   <summary>Answer</summary>
+
+   Exponentiation is right-to-left associative, so `2 ** 2 ** 3` is `2 ** (2 ** 3)` = `2 ** 8` = 256. `(2 ** 2) ** 3` is `4 ** 3` = 64.
+
+   </details>
+
+3. **Element-wise and matrix multiplication:** For `B = np.array([[1, 2], [3, 4]])`, find `B * B` and `B @ B`.
+
+   <details>
+   <summary>Answer</summary>
+
+   `B * B` is the element-wise product `[[1, 4], [9, 16]]`. `B @ B` is the matrix product: the first row is 1×1 + 2×3 = 7 and 1×2 + 2×4 = 10, and the second row is 3×1 + 4×3 = 15 and 3×2 + 4×4 = 22, giving `[[7, 10], [15, 22]]`.
+
+   </details>
+
+4. **Banker's rounding:** Write the results of `round(6.5)`, `round(7.5)`, and `round(7.51)`.
+
+   <details>
+   <summary>Answer</summary>
+
+   They are 6, 8, and 8. Since 6.5 and 7.5 are exactly halfway, they round to the nearest even numbers 6 and 8. Since 7.51 is not halfway, it rounds to the nearest integer 8.
+
+   </details>
+
+5. **View and copy:** After running `x = np.array([10, 20, 30, 40])`, `y = x[1:3]`, and `z = x[[1, 2]]`, what are `y` and `z` once `x[1] = 0` is executed?
+
+   <details>
+   <summary>Answer</summary>
+
+   `y` is a view created by basic slicing, so it becomes `[0, 30]`. `z` is a copy created by fancy indexing, so it stays `[20, 30]`.
+
+   </details>
