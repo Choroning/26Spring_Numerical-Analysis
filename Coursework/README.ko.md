@@ -2,14 +2,14 @@
 
 [레포지토리 안내](../README.ko.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **최종 수정일:** 2026-10-18
+> **최종 수정일:** 2026-10-19
 
 | 항목 | 내용 | 문서 |
 |:-----|:-----|:-----|
 | [HW01_Sources-of-Numerical-Errors](HW01_Sources-of-Numerical-Errors/) | 2주차 과제. 수치 오차의 원인을 다루는 실습 노트북(Lab02)을 완성해 제출한 Jupyter 노트북으로, 3, 4장과 이어진다 | [노트북](HW01_Sources-of-Numerical-Errors/Solution/Lab02-SourceOfErrors_Completed.ipynb), [3장 실습 노트](../Lecture-Notes/Ch03_Approximations-and-Round-Off-Errors/Concepts_Lab.ko.md), [4장 강의 노트](../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.ko.md) |
 | [HW02_Linear-Systems-and-Gaussian-Elimination](HW02_Linear-Systems-and-Gaussian-Elimination/) | 3주차 과제. 연립 일차방정식과 가우스 소거법을 다루는 실습 노트북(Lab03)을 완성해 제출한 Jupyter 노트북으로, 8, 9장과 이어진다 | [노트북](HW02_Linear-Systems-and-Gaussian-Elimination/Solution/Lab03-LinearSystem_Completed.ipynb), [8장 실습 노트](../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md), [9장 실습 노트](../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lab.ko.md) |
 | [HW03_LU-Factorization-and-Matrix-Inverse](HW03_LU-Factorization-and-Matrix-Inverse/) | 4주차 과제. LU 분해와 역행렬을 다루는 실습 노트북(Lab04)을 완성해 제출한 Jupyter 노트북으로, 10, 11장과 이어진다 | [노트북](HW03_LU-Factorization-and-Matrix-Inverse/Solution/Lab04-LU_Completed.ipynb), [10장 실습 노트](../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md), [11장 실습 노트](../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md) |
-| [HW04_Iterative-Solvers](HW04_Iterative-Solvers/) | 5주차 과제. 선형계의 반복법을 다루는 실습 노트북(Lab05)을 완성해 제출한 Jupyter 노트북으로, 12장과 이어진다 | [노트북](HW04_Iterative-Solvers/Solution/Lab05-IterativeSolver_Completed.ipynb), [12장 실습 노트](../Lecture-Notes/Ch12_Eigenvalues-Power-Method/Concepts_Lab.ko.md) |
+| [HW04_Iterative-Solvers](HW04_Iterative-Solvers/) | 5주차 과제. 선형계의 반복법을 다루는 실습 노트북(Lab05)을 완성해 제출한 Jupyter 노트북으로, 12장과 이어진다 | [노트북](HW04_Iterative-Solvers/Solution/Lab05-IterativeSolver_Completed.ipynb), [12장 실습 노트](../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.ko.md) |
 | [HW05_Eigenvalues-and-Eigenvectors](HW05_Eigenvalues-and-Eigenvectors/) | 6주차 과제. 고유값과 고유벡터를 다루는 실습 노트북(Lab06)을 완성해 제출한 Jupyter 노트북으로, 13장과 이어진다 | [노트북](HW05_Eigenvalues-and-Eigenvectors/Solution/Lab06-Eigen_Completed.ipynb), [13장 실습 노트](../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md) |
 | [HW06_Root-Finding-Methods](HW06_Root-Finding-Methods/) | 7주차 과제. 근 찾기 방법을 다루는 실습 노트북(Lab07)을 완성해 제출한 Jupyter 노트북으로, 5, 6장과 이어진다 | [노트북](HW06_Root-Finding-Methods/Solution/Lab07-RootSolving_Completed.ipynb), [5장 강의 노트](../Lecture-Notes/Ch05_Roots-Bracketing-Methods/Concepts_Lecture.ko.md), [6장 강의 노트](../Lecture-Notes/Ch06_Roots-Open-Methods/Concepts_Lecture.ko.md) |
 | [HW07_Optimization-Methods](HW07_Optimization-Methods/) | 9주차 과제. 최적화 방법을 다루는 실습 노트북(Lab08)을 완성해 제출한 Jupyter 노트북으로, 7장과 이어진다 | [노트북](HW07_Optimization-Methods/Solution/Lab08-Optimization_Completed.ipynb), [7장 강의 노트](../Lecture-Notes/Ch07_Optimization/Concepts_Lecture.ko.md) |
