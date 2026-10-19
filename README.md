@@ -22,17 +22,13 @@ This repository archives bilingual lecture notes and coursework for the Numerica
 <br><a name="about-this-repository"></a>
 ## 📝 About This Repository
 
-This repository contains the bilingual lecture notes of a Numerical Analysis course that covers the fundamental numerical methods for solving scientific and engineering problems, following the textbook by Chapra and Clough.
-
-- `Lecture-Notes/` holds a lecture note (`Concepts_Lecture`) for each textbook chapter, and Chapters 1-3 and 8-13 also have a lab note (`Concepts_Lab`) that summarizes the lab content.
-- The lecture slides follow the textbook chapter numbers, so the units are also numbered by chapter (`Ch##`), and they cover the full curriculum across the six parts of the textbook. The part grouping is in the `Lecture-Notes` index.
-- Every lecture note and lab note comes as an English file (`.md`) and a Korean file (`.ko.md`) with the same structure.
-- The lecture notes include Python implementations of the numerical algorithms from the textbook.
-- `Coursework/` holds the lab notebooks (Jupyter) completed and submitted as the 12 weekly homework assignments.
+- `Lecture-Notes/` holds lecture notes that follow the textbook's chapter numbers (`Ch##`), and some chapters also hold lab notes.
+- `Coursework/` holds the 12 lab notebooks (Jupyter) submitted as weekly assignments.
+- Every note comes as an English (`.md`) and Korean (`.ko.md`) pair.
 
 > **🤖 AI Agent Usage**
 > This course encourages the use of AI agents.
-> [Claude Code](https://claude.ai/download) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) were used as coding assistants throughout the course, and Claude Code was also used to organize and translate the lecture notes and to restructure the repository.
+> [Claude Code](https://claude.ai/download) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) were used as coding assistants throughout the course.
 
 <br><a name="course-information"></a>
 ## 📚 Course Information
@@ -46,14 +42,14 @@ This repository contains the bilingual lecture notes of a Numerical Analysis cou
 
 ### Course Overview
 
-An English-taught major elective that surveys the fundamental numerical methods for solving scientific and engineering problems and implements each method in Python following the textbook by Chapra and Clough. Numerical methods are widely used in science and engineering applications, including data science, life science, social science, atmospheric science, finance, aerospace engineering, mechanical engineering, and biomedical engineering. The course covers error analysis, solving linear systems and nonlinear equations, eigenvalues, optimization, regression, Fourier analysis, interpolation, numerical differentiation and integration, and ordinary differential equations, and aims to build the ability to formulate and solve complex scientific and engineering problems by integrating fundamental numerical methods with computational application skills. The instructor, schedule and class format, assessment, course policies, weekly plan and progress, and references are in the [course information document](Course-Information.md).
+A major elective course taught in English that surveys the basic numerical methods for solving science and engineering problems and implements each method in Python following Chapra and Clough's textbook. The instructor, schedule, assessment, course policies, and progress are in the [course information document](Course-Information.md).
 
 <br><a name="prerequisites"></a>
 ## ✅ Prerequisites
 
-- An understanding of linear algebra and discrete mathematics is required. The syllabus also lists Python as a recommended prerequisite.
-- A Python interpreter must be installed.
-- Familiarity with scientific computing libraries is required.
+- Understanding of Linear Algebra and Discrete Mathematics
+- Python interpreter installed
+- Familiarity with scientific computing libraries
 
 - **💻 Development Environment**
 
