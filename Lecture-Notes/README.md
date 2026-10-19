@@ -2,7 +2,7 @@
 
 [Repository Guide](../README.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-19
 
 ## Part 1 Modeling, Computers, and Error Analysis
 
@@ -29,7 +29,7 @@
 | [Chapter 9 Gauss Elimination: Improved Methods](Ch09_Gauss-Elimination/) | Partial pivoting and scaled partial pivoting, the Gauss-Jordan method, tridiagonal systems and the Thomas algorithm, condition number, heat conduction | [Lecture notes](Ch09_Gauss-Elimination/Concepts_Lecture.md), [Lab notes](Ch09_Gauss-Elimination/Concepts_Lab.md) |
 | [Chapter 10 LU Factorization](Ch10_LU-Factorization/) | Gauss elimination as LU factorization, forward and back substitution, LU factorization with pivoting, Cholesky factorization, Doolittle's algorithm, multiple right-hand sides and a thermal resistor network | [Lecture notes](Ch10_LU-Factorization/Concepts_Lecture.md), [Lab notes](Ch10_LU-Factorization/Concepts_Lab.md) |
 | [Chapter 11 Matrix Inverse and Condition Number](Ch11_Matrix-Inverse-and-Condition/) | The matrix inverse and its computation via LU factorization, physical interpretation with a mass-spring system, detecting ill-conditioning, vector and matrix norms, the matrix condition number and the error bound theorem, the Hilbert matrix | [Lecture notes](Ch11_Matrix-Inverse-and-Condition/Concepts_Lecture.md), [Lab notes](Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.md) |
-| [Chapter 12 Iterative Methods for Linear Systems](Ch12_Eigenvalues-Power-Method/) | The Gauss-Seidel method, diagonal dominance and convergence, Jacobi iteration, relaxation, preconditioning, the power method for eigenvalues, the inverse and shifted power methods | [Lecture notes](Ch12_Eigenvalues-Power-Method/Concepts_Lecture.md), [Lab notes](Ch12_Eigenvalues-Power-Method/Concepts_Lab.md) |
+| [Chapter 12 Iterative Methods for Linear Systems](Ch12_Iterative-Methods/) | The Gauss-Seidel method, diagonal dominance and convergence, Jacobi iteration, relaxation, preconditioning, the power method for eigenvalues, the inverse and shifted power methods | [Lecture notes](Ch12_Iterative-Methods/Concepts_Lecture.md), [Lab notes](Ch12_Iterative-Methods/Concepts_Lab.md) |
 | [Chapter 13 Eigenvalue Methods: Symmetric Matrices](Ch13_Eigenvalues-Symmetric-Matrices/) | Computing eigenvalues and eigenvectors, eigenvalues and the stability of ordinary differential equations, coupled second-order ODE systems, mass-spring systems, the power method, spectral decomposition of symmetric matrices, vibration analysis | [Lecture notes](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md), [Lab notes](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md) |
 
 ## Part 4 Curve Fitting
