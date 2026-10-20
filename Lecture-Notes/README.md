@@ -2,7 +2,7 @@
 
 [Repository Guide](../README.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **Last Updated:** 2026-10-19
+> **Last Updated:** 2026-10-20
 
 ## Part 1 Modeling, Computers, and Error Analysis
 
@@ -21,7 +21,7 @@
 | [Chapter 6 Roots: Open Methods](Ch06_Roots-Open-Methods/) | Fixed-point iteration, the Wegstein method, the Newton-Raphson method, the secant method, inverse quadratic interpolation, Brent's method | [Lecture notes](Ch06_Roots-Open-Methods/Concepts_Lecture.md) |
 | [Chapter 7 Optimization](Ch07_Optimization/) | Local and global optimality, existence of an optimal solution, one-dimensional optimization, golden-section search, parabolic interpolation, level sets and the gradient, convex problems, the steepest descent method | [Lecture notes](Ch07_Optimization/Concepts_Lecture.md) |
 
-## Part 3 Linear Algebraic Equations
+## Part 3 Linear Systems
 
 | Unit | Topics | Documents |
 |:-----|:-----|:-----|

@@ -2,9 +2,9 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
 > **Learning Objectives:**
 > 1. Formulate engineering problems as linear algebraic equations
@@ -158,9 +158,9 @@ print(f'Residual norm: {np.linalg.norm(residual):.2e}')
 
 The residual $`\|[K]\{x\} - \{F\}\|`$ should be near machine epsilon, confirming that the computed solution satisfies the original equations to full floating-point precision. For this system, the displacements are $`x_1 \approx 0.2584`$, $`x_2 \approx 0.1377`$, and $`x_3 \approx -0.0234`$ m, and the residual norm is about $`4 \times 10^{-16}`$.
 
-> **Note:** **Properties of the stiffness matrix.** When all spring constants are positive and the system is anchored to the walls, the stiffness matrix K is symmetric positive definite (SPD). Each diagonal entry is the sum of spring constants connected to that mass. Off-diagonal entries represent coupling between masses through shared springs.
+> **Note:** **Properties of the stiffness matrix.** When all spring constants are positive and the system is anchored to the walls, the stiffness matrix $`K`$ is symmetric positive definite (SPD). Each diagonal entry is the sum of spring constants connected to that mass. Off-diagonal entries represent coupling between masses through shared springs.
 
-The SPD property guarantees that the system always has a unique solution, the displacements are finite for finite forces, and specialized solvers (such as Cholesky decomposition) can exploit the symmetry for improved efficiency.
+The SPD property guarantees that the system always has a unique solution, the displacements are finite for finite forces, and specialized solvers (such as Cholesky factorization) can exploit the symmetry for improved efficiency.
 
 ---
 

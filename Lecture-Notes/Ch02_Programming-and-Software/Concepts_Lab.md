@@ -2,14 +2,14 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
 
 > **Learning Objectives:**
 > 1. Write structured programs for numerical computation
 > 2. Apply modular programming principles
-> 3. Debug and test numerical algorithms
+> 3. Detect and handle errors that arise during numerical computation with exception handling
 > 4. Determine in which scope a variable name is resolved under the LEGB rule
 > 5. Replace explicit loops with NumPy vectorized operations
 
@@ -89,7 +89,7 @@ v = math.sqrt(m * g / cd) * math.tanh(math.sqrt(cd * g / m) * t)
 print(f'velocity = {v:.4f} m/s')  # velocity = 33.1022 m/s
 ```
 
-> **[Computer Programming]** `scipy.constants` provides physical constants with full precision. `pc.g` gives the standard acceleration due to gravity ($`9.80665`$ m/s$`^2`$), which is slightly different from the commonly used approximation $`9.81`$ m/s$`^2`$.
+> **Note:** `scipy.constants` provides physical constants with full precision. `pc.g` gives the standard acceleration due to gravity ($`9.80665`$ m/s$`^2`$), which is slightly different from the commonly used approximation $`9.81`$ m/s$`^2`$.
 
 ### 1.2 Refactoring as a Function
 
@@ -238,7 +238,7 @@ modify_global()
 print(x)  # 99 — global x was modified
 ```
 
-> **[Programming Languages]** The LEGB rule is Python's implementation of lexical (static) scoping. Most modern languages use similar scoping rules. The key point is that a function can read variables from outer scopes, but it needs an explicit `global` or `nonlocal` keyword to reassign those names.
+> **[Programming Languages]** **Lexical (static) scoping** is the rule that determines which variable a name refers to by where the function is defined in the source code, not by where it is called, and the LEGB rule is Python's implementation of this rule. In addition, Python interprets an assignment inside a function as the declaration of a local variable, so reassigning a name from an outer scope requires an explicit `global` or `nonlocal`.
 
 Similarly, the `nonlocal` keyword allows modification of variables in the enclosing (but not global) scope:
 
@@ -503,7 +503,7 @@ print(f'Speedup: {loop_time / vec_time:.0f}x')
 # Vectorized is typically 10-100x faster!
 ```
 
-> **[Computer Programming]** Vectorization is the single most important optimization technique in scientific Python. Instead of looping over elements in Python (slow interpreter), vectorized operations push the loop down to C (fast compiled code). Whenever possible, prefer NumPy vectorized operations over explicit loops.
+> **[Computer Programming]** A compiled language such as C translates the source code into machine code before execution, so one iteration of a loop takes only a few machine instructions, whereas Python, an interpreted language, interprets each statement and checks the types of values during execution. Vectorization moves the loop into a compiled C loop inside NumPy so that this interpretation cost is paid only once for the whole array; whenever possible, NumPy vectorized operations are therefore used instead of explicit loops.
 
 Why is the loop so much slower? Python is an **interpreted language**, so each iteration of the loop involves type checking, function dispatch, and other overhead. NumPy's vectorized operations bypass this by executing a single optimized C routine on the entire array at once.
 
@@ -714,7 +714,7 @@ The `@simple_decorator` syntax above `greet` is equivalent to writing:
 greet = simple_decorator(greet)
 ```
 
-> **[Programming Languages]** Decorators are syntactic sugar for higher-order functions. `@decorator` above a function definition is equivalent to `func = decorator(func)`. They are widely used in web frameworks (Flask routes), testing, and logging.
+> **[Programming Languages]** **Syntactic sugar** is syntax that lets existing constructs be written more briefly without adding to what the language can express. A decorator lets `func = decorator(func)`, which passes a function to a higher-order function and rebinds the name to the result, be written as one line `@decorator` above the function definition, so decorators are widely used where the same behavior is added to many functions, as in web frameworks (Flask routes), testing, and logging.
 
 As a practical example, a decorator that measures execution time looks like this:
 
@@ -951,7 +951,7 @@ for batch in batch_generator(data, 30):
 # Batch size: 10
 ```
 
-> **[Computer Programming]** Generators use lazy evaluation, so values are computed on demand rather than stored in memory. This is essential when working with datasets larger than available RAM. The `yield` keyword suspends function execution and resumes where it left off on the next call.
+> **[Programming Languages]** **Lazy evaluation** is an evaluation strategy that does not compute the value of an expression until it is actually needed. A generator applies this strategy to iteration, suspending at `yield` and keeping only the state needed for the next value, so even a dataset larger than available RAM can be processed one part at a time.
 
 Another practical example is a generator that reads a large file line by line without loading it all into memory:
 

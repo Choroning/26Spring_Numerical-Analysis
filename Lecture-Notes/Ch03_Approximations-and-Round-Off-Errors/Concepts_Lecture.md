@@ -2,9 +2,9 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
 > **Learning Objectives:**
 > 1. Count significant figures and distinguish accuracy from precision
@@ -223,7 +223,7 @@ The **IEEE 754** standard defines the universal format for floating-point arithm
 
 Because binary floating-point numbers are normalized to have a leading 1 (i.e., $`1.xxxxx \times 2^e`$), the leading 1 is **implicit** and does not need to be stored. This gives an effective 53 bits of precision in the mantissa.
 
-> **[Computer Architecture]** IEEE 754 is the universal standard for floating-point arithmetic in modern CPUs. The 64-bit double precision format stores approximately 15-17 significant decimal digits. Understanding this limitation is essential for all numerical computing.
+> **[Computer Architecture]** The floating-point unit of a CPU adds and multiplies IEEE 754 bit patterns directly in hardware and rounds each result to the 53-bit mantissa before storing it. This hardware rounding is where the round-off error studied in this chapter originates, and the 53-bit mantissa corresponds to about 15-17 significant decimal digits.
 
 ### 5.4 Machine Epsilon
 
@@ -286,7 +286,7 @@ When a very large number and a very small number are added, the small number may
 
 This happens because the number $`1`$ is $`10^{-16}`$ relative to $`10^{16}`$, which is less than half of machine epsilon (about $`1.11 \times 10^{-16}`$). When the computer aligns the two numbers to the same exponent for addition, the digits of the smaller number fall outside the range the mantissa can hold and are discarded by rounding. Near $`10^{16}`$, adjacent double-precision numbers are 2 apart.
 
-Applying the same estimate to $`10^{15}`$, the size of a number that can change the result when added to $`10^{15}`$ is roughly $`10^{15} \times 2.22 \times 10^{-16} \approx 0.222`$. Therefore, in $`10^{15} + 1`$ the 1 is above this threshold and is preserved ($`10^{15} + 1 \neq 10^{15}`$), whereas in $`10^{16} + 1`$ the 1 falls below the relative precision and is lost entirely.
+Applying the same estimate to $`10^{15}`$, the size of a number that can change the result when added to $`10^{15}`$ is roughly $`10^{15} \times 1.11 \times 10^{-16} \approx 0.111`$. Therefore, in $`10^{15} + 1`$ the 1 is above this threshold and is preserved ($`10^{15} + 1 \neq 10^{15}`$), whereas in $`10^{16} + 1`$ the 1 falls below the relative precision and is lost entirely.
 
 ### 6.3 Smearing
 

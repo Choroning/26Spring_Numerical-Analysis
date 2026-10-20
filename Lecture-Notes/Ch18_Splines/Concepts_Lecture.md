@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 18
 
@@ -467,7 +467,7 @@ After algebraic manipulation (substituting the expressions for $`b_i`$ and $`b_{
 3\frac{f_{i+1} - f_i}{h_i} - 3\frac{f_i - f_{i-1}}{h_{i-1}} = h_{i-1}\,c_{i-1} + 2(h_{i-1} + h_i)\,c_i + h_i\,c_{i+1}
 ```
 
-for $`i = 2, 3, \dots, n-2`$.
+for $`i = 2, 3, \dots, n-1`$. The equation for $`i = n - 1`$ contains $`c_n`$, which Section 5.4 introduces as an additional variable.
 
 > **Note:** The left-hand side involves **divided differences**:
 > ```math
@@ -475,7 +475,7 @@ for $`i = 2, 3, \dots, n-2`$.
 > ```
 > where $`f[x_{i+1}, x_i] = \dfrac{f_{i+1} - f_i}{h_i}`$.
 
-This gives $`n - 3`$ equations for the unknowns $`c_1, c_2, \dots, c_{n-1}`$ (which are $`n - 1`$ unknowns). Together with the 2 end conditions, we get $`n - 1`$ equations in $`n - 1`$ unknowns.
+This gives $`n - 2`$ equations for the unknowns $`c_1, c_2, \dots, c_n`$ (which are $`n`$ unknowns). Together with the 2 end conditions, we get $`n`$ equations in $`n`$ unknowns.
 
 **Matrix form (with natural end conditions $`c_1 = 0`$, $`c_n = 0`$):**
 
@@ -510,7 +510,7 @@ flowchart LR
 
 ### 5.4 End Conditions (Textbook Section 18.4.2)
 
-Since the tridiagonal system has $`n - 1`$ unknowns ($`c_1, \dots, c_{n-1}`$) but only $`n - 3`$ interior equations, **2 additional boundary (end) conditions** are required:
+Since the tridiagonal system has $`n`$ unknowns ($`c_1, \dots, c_n`$, including $`c_n`$) but only $`n - 2`$ interior equations, **2 additional boundary (end) conditions** are required:
 
 | End Condition | Description | Equations |
 |---|---|---|

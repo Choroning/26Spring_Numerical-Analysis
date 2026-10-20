@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 24
 
@@ -13,6 +13,8 @@
 > 4. Analyze the accuracy and convergence of BVP solvers
 
 ---
+
+<br>
 
 ## Table of Contents
 
@@ -132,7 +134,7 @@ Express equation $`(**)`$ as:
 This is a **second-order linear ODE with constant coefficients** and a non-homogeneous term $`-h' T_\infty`$ on the right-hand side.
 
 The total solution is the sum of:
-1. The **homogeneous** (general) solution
+1. The **homogeneous** solution
 2. A **particular** solution
 
 ### 2.2 Homogeneous Solution
@@ -161,7 +163,7 @@ Since we seek a non-trivial solution ($`C \neq 0`$) and $`e^{\lambda x}`$ is nev
 \lambda = \pm \sqrt{h'}
 ```
 
-Thus the **homogeneous (general) solution** is:
+Thus the **homogeneous solution** is:
 
 ```math
 T_h = C_1 e^{\lambda x} + C_2 e^{-\lambda x}, \quad \lambda = \sqrt{h'}
@@ -431,7 +433,7 @@ The **central difference approximation** for the second derivative at node $`x_i
 \left. \frac{d^2 T}{dx^2} \right|_{x_i} \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}
 ```
 
-> **[Calculus]** This approximation is derived from adding the forward and backward Taylor expansions around $`x_i`$. The leading error term is $`O((\Delta x)^2)`$, meaning the approximation has second-order accuracy.
+> **Note:** This approximation is the central difference formula for the second derivative derived in Section 3.4 of Chapter 4 and Section 3.1 of Chapter 21, obtained by adding the forward and backward Taylor expansions around $`x_i`$. The leading error term is $`O((\Delta x)^2)`$, meaning the approximation has second-order accuracy.
 
 ### 4.3 Generating the Finite Difference Equations
 
@@ -532,7 +534,7 @@ This is a **tridiagonal system** of $`(n-1)`$ equations that can be solved using
 - **Thomas algorithm** (tridiagonal matrix algorithm), which solves it efficiently in $`O(n)`$ time.
 - **NumPy's `linalg.solve`** or any standard linear algebra solver, which is simple to use but treats the matrix as dense and takes $`O(n^3)`$ time.
 
-> **[Linear Algebra]** The coefficient matrix is tridiagonal, symmetric, and strictly diagonally dominant. For $`h' > 0`$, the magnitude of each diagonal entry, $`G = 2 + (\Delta x)^2 h'`$, exceeds 2, while each row has at most two off-diagonal entries, each equal to 1. This guarantees that the system has a unique solution and that iterative methods like Gauss-Seidel will converge.
+> **Note:** The coefficient matrix is tridiagonal, symmetric, and strictly diagonally dominant. For $`h' > 0`$, the magnitude of each diagonal entry, $`G = 2 + (\Delta x)^2 h'`$, exceeds 2, while each row has at most two off-diagonal entries, each equal to 1. A strictly diagonally dominant matrix is nonsingular, so the system has a unique solution, and by the convergence condition of Section 3 of Chapter 12, iterative methods like Gauss-Seidel converge.
 
 ### 4.7 Python Implementation
 

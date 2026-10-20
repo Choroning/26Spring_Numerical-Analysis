@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 22
 
@@ -744,27 +744,27 @@ Since $`z = \lambda h`$ with $`h > 0`$, this requires:
 The **backward Euler method** (implicit) evaluates the slope at the *next* time step:
 
 ```math
-x_{n+1} = x_n + h\,f(x_{n+1})
+y_{n+1} = y_n + h\,f(t_{n+1}, y_{n+1})
 ```
 
-Applied to $`\frac{dx}{dt} = \lambda x`$:
+Applied to $`\frac{dy}{dt} = \lambda y`$:
 
 ```math
-x_{n+1} = x_n + \lambda h\,x_{n+1}
-```
-
-```math
-(1 - \lambda h)\,x_{n+1} = x_n
+y_{n+1} = y_n + \lambda h\,y_{n+1}
 ```
 
 ```math
-x_{n+1} = \frac{1}{1 - \lambda h}\,x_n
+(1 - \lambda h)\,y_{n+1} = y_n
+```
+
+```math
+y_{n+1} = \frac{1}{1 - \lambda h}\,y_n
 ```
 
 By induction:
 
 ```math
-x_n = (1 - \lambda h)^{-n}\,x_0
+y_n = (1 - \lambda h)^{-n}\,y_0
 ```
 
 The stability function is $`\phi(z) = \frac{1}{1 - z}`$. For stability:
@@ -777,30 +777,30 @@ The stability region is the **exterior** (including the boundary) of the disk of
 
 For any $`\lambda < 0`$, we can choose the step size $`h`$ **arbitrarily large** and the method remains stable. This means the backward Euler method does not require step size restrictions for stability; only accuracy considerations limit $`h`$.
 
-> **Caution:** The price of this unconditional stability is that backward Euler is **implicit**: at each step we must solve an equation (possibly nonlinear) for $`x_{n+1}`$. For the linear test problem, this reduces to a simple algebraic solve, but for general nonlinear $`f`$, Newton's method or similar techniques are required.
+> **Caution:** The price of this unconditional stability is that backward Euler is **implicit**: at each step we must solve an equation (possibly nonlinear) for $`y_{n+1}`$. For the linear test problem, this reduces to a simple algebraic solve, but for general nonlinear $`f`$, Newton's method or similar techniques are required.
 
 ### 8.6 Stability of the Trapezoidal Method
 
 The **trapezoidal method** uses the averaged slope at both endpoints:
 
 ```math
-x_{n+1} = x_n + \frac{h}{2}(f_n + f_{n+1})
+y_{n+1} = y_n + \frac{h}{2}(f_n + f_{n+1})
 ```
 
-Applied to $`\frac{dx}{dt} = \lambda x`$:
+Applied to $`\frac{dy}{dt} = \lambda y`$:
 
 ```math
-x_{n+1} = x_n + \frac{\lambda h}{2}(x_n + x_{n+1})
+y_{n+1} = y_n + \frac{\lambda h}{2}(y_n + y_{n+1})
 ```
 
 ```math
-\left(1 - \frac{\lambda h}{2}\right)x_{n+1} = \left(1 + \frac{\lambda h}{2}\right)x_n
+\left(1 - \frac{\lambda h}{2}\right)y_{n+1} = \left(1 + \frac{\lambda h}{2}\right)y_n
 ```
 
 By induction:
 
 ```math
-x_n = \left(\frac{1 + \frac{\lambda h}{2}}{1 - \frac{\lambda h}{2}}\right)^n x_0
+y_n = \left(\frac{1 + \frac{\lambda h}{2}}{1 - \frac{\lambda h}{2}}\right)^n y_0
 ```
 
 The stability function is $`\phi(z) = \frac{1 + z/2}{1 - z/2}`$. For stability:

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 11
 
@@ -235,7 +235,7 @@ Matrix norms satisfy the same four properties as vector norms (non-negativity, d
 
 This property is what makes matrix norms useful for bounding errors: it allows us to bound the norm of a product by the product of the norms.
 
-> **[Linear Algebra]** The spectral norm (L2 matrix norm) equals the largest singular value of A. It measures the maximum stretching the matrix can apply to a unit vector.
+> **[Linear Algebra]** The singular values of a matrix $`A`$ are the square roots of the eigenvalues of $`A^T A`$, and the singular value decomposition (SVD) writes $`A`$ as the product of an orthogonal matrix, a matrix with the singular values on its diagonal, and another orthogonal matrix. The spectral norm $`\sqrt{\mu_{max}}`$ in the table above therefore equals the largest singular value $`\sigma_{max}`$ of $`A`$, which is the maximum stretching the matrix can apply to a unit vector.
 
 ---
 
@@ -337,7 +337,7 @@ Since $`\text{Cond}[A'] = 451.2 \gg 1`$, the $`3 \times 3`$ Hilbert matrix is al
 
 The situation deteriorates rapidly with increasing size. For larger Hilbert matrices, the condition number grows approximately as $`\kappa(H_n) \sim e^{3.5n}`$, that is, in proportion to $`e^{3.5n}`$, making them practically unsolvable for $`n > 12`$ or so in double precision.
 
-> **Note:** **Where Hilbert matrices arise.** Hilbert matrices are the canonical example of ill-conditioning. Their condition number grows exponentially with size: $`\kappa(H_n) \sim e^{3.5n}`$. They arise naturally in polynomial least-squares fitting.
+> **Note:** **Where Hilbert matrices arise.** Hilbert matrices arise naturally in polynomial least-squares fitting. If the normal equations of a continuous least-squares fit on the interval $`[0, 1]`$ are set up with the basis $`1, x, \ldots, x^{n-1}`$, the entries of the coefficient matrix are $`\int_0^1 x^{i-1} x^{j-1}\,dx = 1/(i + j - 1)`$, that is, $`H_{ij}`$.
 
 ---
 

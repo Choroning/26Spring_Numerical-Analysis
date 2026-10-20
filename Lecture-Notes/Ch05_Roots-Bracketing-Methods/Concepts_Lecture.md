@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 5
 
@@ -109,18 +109,18 @@ These problems often occur when a **design problem** presents an **implicit equa
 
 ### 3.1 Savings Account Example
 
-**Problem Setup:** Shin saves money by making regular monthly deposits of $`p`$ to his account. The annual interest rate is $`r`$. The total amount $`A`$ after $`n`$ payments is as follows.
+**Problem Setup:** Shin saves money by making regular monthly deposits of $`p`$ to his account. The annual interest rate is $`r`$, and each deposit earns interest compounded at the monthly rate $`r/12`$ starting the month after it is deposited. The total amount $`A`$ right after the $`n`$th payment is as follows.
 
 ```math
-A = p\left(1 + \frac{r}{12}\right) + p\left(1 + \frac{r}{12}\right)^2 + \cdots + p\left(1 + \frac{r}{12}\right)^n
+A = p + p\left(1 + \frac{r}{12}\right) + p\left(1 + \frac{r}{12}\right)^2 + \cdots + p\left(1 + \frac{r}{12}\right)^{n-1}
 ```
 
-> **[Calculus]** This is a geometric series with first term $`p(1 + r/12)`$ and common ratio $`(1 + r/12)`$.
+> **[Calculus]** The sum of the first $`n`$ terms of a geometric sequence with first term $`a`$ and common ratio $`q \neq 1`$ is $`a + aq + \cdots + aq^{n-1} = a\frac{q^n - 1}{q - 1}`$. The expression above is a geometric series with first term $`p`$, common ratio $`1 + r/12`$, and $`n`$ terms, so this sum formula gives the closed form below.
 
 Applying the geometric series formula gives the following.
 
 ```math
-A = \sum_{i=1}^{n} p\left(1 + \frac{r}{12}\right)^i = p \cdot \frac{\left(1 + \frac{r}{12}\right)^n - 1}{\left(1 + \frac{r}{12}\right) - 1} = \frac{12p}{r}\left[\left(1 + \frac{r}{12}\right)^n - 1\right]
+A = \sum_{i=0}^{n-1} p\left(1 + \frac{r}{12}\right)^i = p \cdot \frac{\left(1 + \frac{r}{12}\right)^n - 1}{\left(1 + \frac{r}{12}\right) - 1} = \frac{12p}{r}\left[\left(1 + \frac{r}{12}\right)^n - 1\right]
 ```
 
 **Root-Finding Formulation:** Suppose $`A`$ is the target amount. Shin wants to have $`A`$ within $`n`$ months. What is the interest rate $`r`$ to achieve this goal?
@@ -133,7 +133,7 @@ This equation **cannot be solved analytically** for $`r`$, so it is a root-findi
 
 ### 3.2 Graphical Root Estimation
 
-We can use the graphical approach to estimate the root by plotting $`g(x) = f(r)`$ and visually identifying where the curve crosses the x-axis ($`g(x) = 0`$).
+We can use the graphical approach to estimate the root by plotting $`f(r)`$ and visually identifying where the curve crosses the horizontal axis ($`f(r) = 0`$). In the code below, `g` is $`f(r)`$, obtained by fixing the other arguments of `func` so that it depends only on the interest rate.
 
 ```python
 # ex
@@ -209,13 +209,13 @@ flowchart TD
 
 ### 5.1 Sign-Change Principle
 
-If $`f`$ is **real and continuous** in the interval from $`x_l`$ to $`x_u`$, and $`f`$ changes sign on opposite sides of the root, then the following holds.
+When $`f`$ is **real and continuous** in the interval from $`x_l`$ to $`x_u`$, the condition that $`f`$ has opposite signs at the two ends of the interval is the following.
 
 ```math
 f(x_l) \cdot f(x_u) < 0
 ```
 
-This means a root exists somewhere between $`x_l`$ (lower bound) and $`x_u`$ (upper bound).
+If this condition holds, at least one root exists somewhere between $`x_l`$ (lower bound) and $`x_u`$ (upper bound). Conversely, equal signs at the two ends do not mean that there is no root, since an even number of roots can lie in the interval (Section 5.2).
 
 > **[Calculus]** This is a direct application of the Intermediate Value Theorem. For this conclusion to hold, $`f`$ must be continuous on $`[x_l, x_u]`$. For example, $`f(x) = 1/x`$ has opposite signs at the ends of $`[-1, 1]`$ but no root, because it is discontinuous at $`x = 0`$.
 
@@ -512,7 +512,7 @@ When the function has significant curvature, one endpoint gets stuck while the o
 
 ### 9.1 Introducing Scaling Parameters
 
-To guarantee that the length of the interval containing a root tends to zero, the Regula Falsi method can be **modified** by introducing scaling parameters $`\alpha`$ and $`\beta`$. Their default values are $`\alpha = \beta = 1`$, and the result of the formula depends only on the ratio of $`\alpha`$ to $`\beta`$.
+To guarantee that the length of the interval containing a root tends to zero, the false position method can be **modified** by introducing scaling parameters $`\alpha`$ and $`\beta`$. Their default values are $`\alpha = \beta = 1`$, and the result of the formula depends only on the ratio of $`\alpha`$ to $`\beta`$.
 
 **Original formula:**
 
@@ -528,9 +528,9 @@ c_n = \frac{a_n \cdot \beta \cdot f(b_n) - b_n \cdot \alpha \cdot f(a_n)}{\beta 
 
 ### 9.2 Two Consecutive Points on Same Side
 
-The modification is applied when **two consecutive estimates** $`c_0`$ and $`c_1`$ appear on the **same side** of the root (i.e., $`f(c_0) \cdot f(c_1) > 0`$).
+The modification is applied when **two consecutive estimates** $`c_{n-1}`$ and $`c_n`$ appear on the **same side** of the root (i.e., $`f(c_{n-1}) \cdot f(c_n) > 0`$).
 
-**Case 1: Two consecutive points to the right of the root** (i.e., $`f(c_0) \cdot f(c_1) > 0`$ and the stationary endpoint is $`a_n`$):
+**Case 1: Two consecutive points to the right of the root** (i.e., $`f(c_{n-1}) \cdot f(c_n) > 0`$ and the stationary endpoint is $`a_n`$):
 
 Set $`\alpha = \frac{1}{2}`$, which halves the function value at the **stationary** endpoint.
 
@@ -548,7 +548,7 @@ Set $`\beta = \frac{1}{2}`$, which halves the function value at the stationary e
 c = \frac{a \cdot \frac{1}{2} f(b) - b \cdot f(a)}{\frac{1}{2} f(b) - f(a)}
 ```
 
-> **Note:** **The Illinois algorithm.** The modified false position method guarantees that the interval width shrinks to zero, overcoming the one-sidedness problem of standard Regula Falsi. The Illinois algorithm is a well-known variant that uses this halving strategy.
+> **Note:** **The Illinois algorithm.** The modified false position method guarantees that the interval width shrinks to zero, overcoming the one-sidedness problem of the standard false position method. The Illinois algorithm is a well-known variant that uses this halving strategy.
 
 ```python
 def modified_false_position(f, a, b, tol=1e-6, max_iter=100):
@@ -606,7 +606,7 @@ Applied to the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`
 | **Convergence Guarantee** | Depends on step size | Always (if continuous) | Always (if continuous) | Always (if continuous) |
 | **A Priori Error Bound** | None | $`\frac{\Delta x}{2^n}`$ | None | None |
 | **Iterations for Tolerance** | Unknown | $`n > \log_2(\Delta x / \varepsilon_s)`$ | Unpredictable | Unpredictable |
-| **One-Sidedness Issue** | N/A | No | Yes | No (corrected) |
+| **One-Sidedness Issue** | N/A | No | Yes | No (resolved by scaling the function value) |
 | **Convergence Rate** | N/A | Linear | Varies (can stall) | Generally better than FP |
 | **Key Advantage** | Simple to implement | Predictable, robust | Often faster than bisection | Fixes FP stalling |
 | **Key Disadvantage** | Sensitive to step size | Slow (linear convergence) | Can stall (one-sided) | Slightly more complex |

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 12
 
@@ -658,6 +658,8 @@ When the error vector happens to be an eigenvector of $`M`$, the error at the ne
 ```
 
 So the error decays geometrically as $`\lambda^k`$. The smaller $`\rho(M)`$, the faster the convergence.
+
+> **[Linear Algebra]** If the iteration matrix $`M`$ is diagonalizable, its eigenvectors $`\mathbf{v}_1, \ldots, \mathbf{v}_n`$ form a basis, so any initial error can be expanded as $`\mathbf{e}^0 = \sum_i c_i \mathbf{v}_i`$, which gives $`\mathbf{e}^k = \sum_i c_i \lambda_i^k \mathbf{v}_i`$. Each component of the error therefore shrinks by a power of its own eigenvalue, and $`\rho(M)`$, the factor by which the slowest-decaying component shrinks per iteration, determines the overall rate of convergence.
 
 > **Note:** **Diagonal dominance and the spectral radius.** This is the fundamental reason why diagonal dominance ensures convergence. For a diagonally dominant matrix, the iteration matrix $`M`$ of both Gauss-Seidel and Jacobi methods has spectral radius less than 1. The choice of $`\lambda`$ in SOR aims to minimize $`\rho(M)`$.
 

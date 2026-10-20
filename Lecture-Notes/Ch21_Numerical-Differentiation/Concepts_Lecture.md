@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 21
 
@@ -84,7 +84,7 @@ Taking the limit as $`\Delta x \to 0`$:
 
 This is **the first derivative of $`y`$ with respect to $`x`$**. Geometrically, the derivative is the slope of the tangent line to the curve at point $`x_i`$.
 
-> **[Calculus]** As $`\Delta x`$ shrinks, the secant line (connecting two points on the curve) approaches the tangent line at $`x_i`$, and the slope of the secant converges to $`f'(x_i)`$.
+> **[Calculus]** As $`\Delta x`$ shrinks, the secant line (connecting two points on the curve) approaches the tangent line at $`x_i`$, and the slope of the secant converges to $`f'(x_i)`$. The finite difference approximations of this chapter stop short of this limit and use the slope of the secant at a finite $`\Delta x`$ in place of the derivative.
 
 ### 1.2 Second Derivative
 
@@ -277,7 +277,7 @@ Combining:
 This is the **second-order forward difference** formula for $`f'(x_i)`$.
 
 - **Accuracy improves** from $`O(h)`$ to $`O(h^2)`$ by including one additional point.
-- Adding the diffusion (second derivative) term enhances the accuracy.
+- Adding the second-derivative (diffusion) correction term enhances the accuracy.
 
 Figure 1 summarizes the points used by the formulas derived so far.
 
@@ -665,7 +665,7 @@ Its main features are:
 - **JAX** (Python, by Google)
 - **Zygote** (Julia)
 
-> **Note:** **Automatic versus numerical differentiation.** Automatic differentiation is fundamentally different from numerical differentiation. Numerical differentiation approximates derivatives using finite differences and therefore suffers from truncation and round-off errors. AD instead computes derivatives to machine precision by systematically applying the chain rule through every operation in the program.
+> **Note:** **Automatic versus numerical differentiation.** Automatic differentiation is fundamentally different from numerical differentiation. Numerical differentiation approximates derivatives using finite differences and therefore suffers from truncation and round-off errors. AD instead computes derivatives to the accuracy of machine epsilon by systematically applying the chain rule through every operation in the program.
 
 ---
 
@@ -847,8 +847,8 @@ The computed $`\partial f/\partial x`$ and $`\partial f/\partial y`$ agree to ei
 | Central Difference ($`f''`$) | $`f''(x_i) \approx \dfrac{f_{i+1} - 2f_i + f_{i-1}}{h^2}`$ is an $`O(h^2)`$ formula that uses the points $`x_{i-1}, x_i, x_{i+1}`$. |
 | Forward Difference ($`f''`$) | $`f''(x_i) \approx \dfrac{f_{i+2} - 2f_{i+1} + f_i}{h^2}`$ is an $`O(h)`$ formula that uses the points $`x_i, x_{i+1}, x_{i+2}`$. |
 | Taylor series expansions | Equally spaced finite difference formulas are derived by combining Taylor series expansions at several points. |
-| Richardson Extrap. (1 level) | $`\dfrac{4}{3}D(h) - \dfrac{1}{3}D(2h)`$ eliminates the $`h^2`$ error of the central difference $`D(h)`$ and gives $`O(h^4)`$ accuracy. |
-| Richardson Extrap. (2 levels) | $`\dfrac{16}{15}\bar{D}(h) - \dfrac{1}{15}\bar{D}(2h)`$ eliminates the $`h^4`$ error of $`\bar{D}(h)`$ and gives $`O(h^6)`$ accuracy, so repeating the process raises the accuracy as $`O(h^2) \to O(h^4) \to O(h^6) \to \cdots`$. |
+| Richardson extrapolation (1 level) | $`\dfrac{4}{3}D(h) - \dfrac{1}{3}D(2h)`$ eliminates the $`h^2`$ error of the central difference $`D(h)`$ and gives $`O(h^4)`$ accuracy. |
+| Richardson extrapolation (2 levels) | $`\dfrac{16}{15}\bar{D}(h) - \dfrac{1}{15}\bar{D}(2h)`$ eliminates the $`h^4`$ error of $`\bar{D}(h)`$ and gives $`O(h^6)`$ accuracy, so repeating the process raises the accuracy as $`O(h^2) \to O(h^4) \to O(h^6) \to \cdots`$. |
 | Unequally spaced data | The derivative is obtained by differentiating the Lagrange interpolating polynomial, which reduces to the central difference formula when the points are equally spaced. |
 | Mixed Partial ($`f_{xy}`$) | $`\dfrac{f(x\!+\!\Delta x, y\!+\!\Delta y) - f(x\!+\!\Delta x, y\!-\!\Delta y) - f(x\!-\!\Delta x, y\!+\!\Delta y) + f(x\!-\!\Delta x, y\!-\!\Delta y)}{4\Delta x \Delta y}`$ is an $`O(\Delta x^2, \Delta y^2)`$ approximation that uses four diagonal points. |
 | Method of undetermined coefficients | Solving the linear system that matches Taylor expansion coefficients systematically derives any finite difference stencil. |

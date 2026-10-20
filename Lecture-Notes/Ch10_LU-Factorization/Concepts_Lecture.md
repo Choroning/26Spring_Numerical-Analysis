@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10
 
@@ -66,7 +66,7 @@ A = LU
 
 Here $`L`$ is a **lower triangular matrix**, in which all entries above the diagonal are zero, and $`U`$ is an **upper triangular matrix**, in which all entries below the diagonal are zero.
 
-> **[Linear Algebra]** LU factorization is mathematically equivalent to Gaussian elimination. The elimination factors are exactly the entries of L. This connection is deep: any algorithm that performs Gaussian elimination implicitly computes an LU factorization.
+> **[Linear Algebra]** Linear algebra represents each row operation of Gaussian elimination as multiplication by an **elementary matrix**. The inverse of the elementary matrix that subtracts $`f_{ij}`$ times row $`j`$ from row $`i`$ is the unit lower triangular matrix with $`+f_{ij}`$ in the same position, so the product $`L`$ of the inverses of the elementary matrices used in elimination contains the elimination factors as they are, and $`A = LU`$ holds (Section 2). Therefore any algorithm that performs Gaussian elimination implicitly computes an LU factorization.
 
 ### 1.2 Two-Phase Solution Process
 
@@ -464,9 +464,9 @@ A special and important class of matrices are **symmetric positive definite (SPD
 1. **Symmetric:** $`A = A^T`$, that is, $`a_{ij} = a_{ji}`$ for all $`i, j`$.
 2. **Positive definite:** $`x^T A x > 0`$ for all nonzero vectors $`x`$.
 
-Equivalently, a symmetric matrix is positive definite if and only if all its eigenvalues are strictly positive.
+Also, a symmetric matrix is positive definite if and only if all its eigenvalues are strictly positive.
 
-> **[Linear Algebra]** SPD matrices arise naturally in physics (mass and stiffness matrices), statistics (covariance matrices), and optimization (Hessians of convex functions).
+> **[Linear Algebra]** A symmetric positive definite matrix is a symmetric matrix whose quadratic form $`x^T A x`$ is positive for every nonzero vector $`x`$; this is equivalent to all eigenvalues being positive and to all leading principal minors being positive. Because of this property, the value under the square root in the Cholesky formula of Section 9.2 is always positive, so Cholesky factorization is applied only to SPD matrices, which arise naturally in physics (mass and stiffness matrices), statistics (covariance matrices), and optimization (Hessians of convex functions).
 
 For SPD matrices, LU factorization can be simplified to the **Cholesky factorization**:
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -338,7 +338,7 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 In the limit, the discrete sum becomes a continuous integral:
 
 ```math
-f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
+f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} \left(a_n \cos\frac{n\pi}{\ell}x + b_n \sin\frac{n\pi}{\ell}x\right)
 ```
 
 ```math
@@ -364,6 +364,8 @@ Restating the Fourier Integral using complex exponentials:
 ```math
 f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\infty}^{\infty} f(\xi) e^{-i\omega\xi}\,d\xi}_{\hat{f}(\omega)}\,d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} \hat{f}(\omega)\,e^{i\omega x}\,d\omega
 ```
+
+> **[Calculus]** Euler's formula $`e^{i\theta} = \cos\theta + i\sin\theta`$ follows from comparing the Taylor series of the exponential, cosine, and sine functions. It lets $`\cos\omega x`$ and $`\sin\omega x`$ be written as combinations of $`e^{i\omega x}`$ and $`e^{-i\omega x}`$, so the real-form Fourier integral of Section 7 can be rewritten in the complex exponential form above (Section 11.2).
 
 The **Fourier Transform** and its **inverse**:
 
@@ -753,7 +755,7 @@ f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}
 
 **Example:** Collecting 100 samples ($`n = 100`$) at a sampling frequency of $`f_s = 1000`$ Hz gives the following.
 
-- Sampling interval: $`\Delta t = \frac{1}{f_s} = \frac{1}{1000} = 10^{-3}`$ sec/sample
+- Sampling interval: $`\Delta t = \frac{1}{f_s} = \frac{1}{1000} = 10^{-3}`$ s
 - Total time: $`T = n \cdot \Delta t = 100 \times 10^{-3} = 0.1`$ s
 - **Nyquist frequency:** $`f_{\max} = \frac{1}{2}f_s = 500`$ Hz
 - **Lowest detectable frequency:** $`f_{\min} = \frac{1}{T} = \frac{1}{n\,\Delta t} = 10`$ Hz
@@ -861,7 +863,7 @@ plt.show()
 | DFT | $`\hat{f}_k = \sum_{j=0}^{n-1}f_j e^{-ik\omega_0 j}`$, with $`O(n^2)`$ computational complexity. |
 | FFT | It computes the same result as the DFT with $`O(n\log n)`$ complexity. |
 | Nyquist frequency | The maximum detectable frequency is $`f_{\max} = \frac{1}{2}f_s = \frac{1}{2\Delta t}`$. |
-| Power spectrum | The energy distribution over frequencies is $`P_k = \lvert\tilde{C}_k\rvert^2`$ and $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$. |
+| Power spectrum | The power distribution over frequencies is $`P_k = \lvert\tilde{C}_k\rvert^2`$ and $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$. |
 | FT linearity | The Fourier transform is a linear operator satisfying $`\mathcal{F}\{\alpha f + \beta g\} = \alpha\mathcal{F}\{f\} + \beta\mathcal{F}\{g\}`$. |
 | FT derivative | Since $`\mathcal{F}\{f^{(n)}\} = (i\omega)^n\mathcal{F}\{f\}`$, differentiation becomes multiplication. |
 | FT convolution | Since $`\mathcal{F}\{f*g\} = \hat{f}(\omega)\cdot\hat{g}(\omega)`$, convolution becomes a product. |

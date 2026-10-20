@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 19
 
@@ -93,9 +93,11 @@ P(1.985 \leq x \leq 2.02) = \int_{1.985}^{2.02} p(x)\,dx = \frac{1}{\sigma\sqrt{
 
 This integral has **no closed-form antiderivative**, so we need numerical integration methods.
 
+> **[Calculus]** By the fundamental theorem of calculus, if an antiderivative $`F`$ of a continuous function $`f`$ ($`F' = f`$) is known, the definite integral is computed as $`\int_a^b f(x)\,dx = F(b) - F(a)`$. This method cannot be used for an integrand such as the normal probability density, whose antiderivative cannot be written in terms of elementary functions, so numerical integration, which approximates the definite integral as the area under the curve, is needed.
+
 ### 1.2 The General Idea: Polynomial Approximation
 
-The strategy is to **replace the integrand with a polynomial** that is easy to integrate:
+Taking the integrand $`p(x)`$ of Section 1.1 as an example, the strategy is to **replace the integrand with a polynomial** that is easy to integrate:
 
 ```math
 p(x) \approx p_n(x) = a_0 + a_1 x + \cdots + a_n x^n
@@ -139,7 +141,7 @@ The polynomial part can be expanded:
 
 > **Key Point:** $`\int_a^b \ell_j(x)\,dx`$ does **not** depend on $`p_n(x)`$. It is a fixed numerical weight determined only by the node positions and the interval $`[a,b]`$. This is why these are called **quadrature formulas**.
 
-The approach of approximating $`I = \int_a^b f(x)\,dx`$ by $`I_n = \int_a^b f_n(x)\,dx`$ where $`f_n(x)`$ is an $`n`$-th order polynomial is the foundation of **Newton-Cotes formulas**. The choice of $`n`$ determines the specific rule:
+For a general integrand $`f(x)`$, the approach of approximating $`I = \int_a^b f(x)\,dx`$ by $`I_n = \int_a^b f_n(x)\,dx`$ where $`f_n(x)`$ is an $`n`$-th order polynomial is the foundation of **Newton-Cotes formulas**. The choice of $`n`$ determines the specific rule:
 
 | $`n`$ | Rule Name | Polynomial Order |
 |-----|-----------|-----------------|
@@ -188,7 +190,7 @@ After algebraic simplification:
 ```
 
 ```math
-= \frac{1}{2}\bigl[a\,f(b) - a\,f(a) + b\,f(b) - b\,f(a)\bigr]
+= \frac{1}{2}\bigl[b\,f(b) - a\,f(b) + b\,f(a) - a\,f(a)\bigr]
 ```
 
 ```math

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 1
 
@@ -174,7 +174,7 @@ v(t_{i+1}) = v(t_i) + \frac{dv}{dt}\bigg|_{t_i} \cdot h
 
 This says that the new value equals the old value plus the slope at the current point times the step size. Geometrically, we follow the tangent line at each point to estimate the next value.
 
-> **[Calculus]** Euler's method replaces the continuous derivative $`dv/dt`$ with a discrete approximation: $`\frac{\Delta v}{\Delta t} = \frac{v(t_{i+1}) - v(t_i)}{h}`$. This is the simplest numerical ODE solver, and as $`h \to 0`$ this difference quotient leads to the formal definition of a derivative.
+> **[Calculus]** The derivative $`dv/dt`$ is defined as the limit of the difference quotient $`\frac{\Delta v}{\Delta t} = \frac{v(t_{i+1}) - v(t_i)}{h}`$ as $`h \to 0`$. Euler's method uses the difference quotient at a finite $`h`$ in place of the derivative without taking this limit, so the approximation approaches the definition of the derivative as $`h`$ becomes smaller.
 
 ### 3.2 Step-by-Step Calculation
 
@@ -279,7 +279,7 @@ Numerical methods provide tools for solving a wide range of engineering and scie
 7. **Optimization**: Finding parameter values that minimize or maximize an objective function.
    - Example: minimizing cost, maximizing efficiency, optimal design
 
-> **Note:** Of these categories, roots of equations are covered in Chapters 5-6, optimization in Chapter 7, systems of linear algebraic equations in Chapters 8-11, curve fitting in Chapters 14-18, integration in Chapters 19-20, and ODEs in Chapters 22-24. Each topic builds on the foundations established in earlier chapters.
+> **Note:** Of these categories, roots of equations are covered in Chapters 5-6, optimization in Chapter 7, systems of linear algebraic equations in Chapters 8-12, curve fitting in Chapters 14-18, integration in Chapters 19-20, and ODEs in Chapters 22-24. Each topic builds on the foundations established in earlier chapters.
 
 ---
 

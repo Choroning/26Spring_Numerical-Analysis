@@ -1,8 +1,8 @@
-# 16장 — 푸리에 해석(Fourier Analysis)
+# 16장 — 푸리에 해석
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-18
+> **최종 수정일:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -38,7 +38,7 @@
 - [8. 푸리에 변환(Fourier Transform)](#8-푸리에-변환fourier-transform)
   - [8.1 정의](#81-정의)
   - [8.2 푸리에 변환의 성질](#82-푸리에-변환의-성질)
-- [9. 정현파 함수를 이용한 곡선 맞춤](#9-정현파-함수를-이용한-곡선-맞춤)
+- [9. 정현파 함수를 이용한 곡선 적합](#9-정현파-함수를-이용한-곡선-적합)
   - [9.1 정현파 함수의 매개변수](#91-정현파-함수의-매개변수)
   - [9.2 위상각(Phase Angle)](#92-위상각phase-angle)
   - [9.3 대안적 형태](#93-대안적-형태)
@@ -69,7 +69,7 @@
 
 뒷부분(9~17절)은 정현파(사인파와 코사인파)를 이해하고 최소제곱 회귀로 데이터에 정현파를 적합한 뒤, 오일러 공식(Euler's Formula), 주파수 영역에서의 신호 분석, 이산 푸리에 변환(Discrete Fourier Transform), 나이퀴스트 주파수(Nyquist Frequency), 고속 푸리에 변환(Fast Fourier Transform), 파워 스펙트럼(Power Spectrum)을 다룬다.
 
-> **참고:** **맥락.** 푸리에 해석은 수치 해석에서 가장 강력한 도구 중 하나이다. 적절한 조건을 만족하는 주기 함수(또는 비주기 함수)를 단순한 정현파 성분의 합으로 분해할 수 있게 해 준다. 신호 처리, 이미지 압축, 미분 방정식 풀이 등에 응용된다.
+> **참고:** **맥락.** 푸리에 해석은 수치 해석에서 가장 강력한 도구 중 하나이다. 적절한 조건을 만족하는 주기 함수(또는 비주기 함수)를 단순한 정현파 성분의 합으로 분해할 수 있게 해 준다. 신호 처리, 이미지 압축, 미분방정식 풀이 등에 응용된다.
 
 ---
 
@@ -338,7 +338,7 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 극한에서, 이산 합은 연속 적분이 된다:
 
 ```math
-f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
+f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} \left(a_n \cos\frac{n\pi}{\ell}x + b_n \sin\frac{n\pi}{\ell}x\right)
 ```
 
 ```math
@@ -364,6 +364,8 @@ f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
 ```math
 f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\infty}^{\infty} f(\xi) e^{-i\omega\xi}\,d\xi}_{\hat{f}(\omega)}\,d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} \hat{f}(\omega)\,e^{i\omega x}\,d\omega
 ```
+
+> **[미적분학]** 오일러 공식 $`e^{i\theta} = \cos\theta + i\sin\theta`$는 지수 함수, 코사인, 사인의 테일러 급수를 비교하여 얻는다. 이 공식으로 $`\cos\omega x`$와 $`\sin\omega x`$를 $`e^{i\omega x}`$와 $`e^{-i\omega x}`$의 결합으로 바꿀 수 있으므로, 7절의 실수 형태 푸리에 적분을 위와 같은 복소 지수 형태로 다시 쓸 수 있다(11.2절).
 
 **푸리에 변환**과 그 **역변환**:
 
@@ -407,7 +409,7 @@ f(x) = \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i\omega x} \underbrace{\int_{-\
 \mathcal{F}\left\{\frac{d^n}{dx^n}f(x)\right\} = (i\omega)^n\,\mathcal{F}\{f\}
 ```
 
-> **참고:** **중요성.** 미분 성질은 공간/시간 영역에서의 미분을 주파수 영역에서의 곱셈으로 변환한다. 이것이 푸리에 변환이 미분 방정식을 풀 때 매우 유용한 이유이다.
+> **참고:** **중요성.** 미분 성질은 공간/시간 영역에서의 미분을 주파수 영역에서의 곱셈으로 변환한다. 이것이 푸리에 변환이 미분방정식을 풀 때 매우 유용한 이유이다.
 
 **3) 합성곱(Convolution):**
 
@@ -437,7 +439,7 @@ f * g := \int_{-\infty}^{\infty} f(x - \xi)\,g(\xi)\,d\xi = \mathcal{F}^{-1}\{\h
 
 <br>
 
-## 9. 정현파 함수를 이용한 곡선 맞춤
+## 9. 정현파 함수를 이용한 곡선 적합
 
 ### 9.1 정현파 함수의 매개변수
 
@@ -753,7 +755,7 @@ f_{\max} = \frac{1}{2} f_s = \frac{1}{2\,\Delta t}
 
 **예제:** 표본 추출 주파수 $`f_s = 1000`$ Hz로 100개의 표본($`n = 100`$)을 수집하는 경우는 다음과 같다.
 
-- 표본 추출 간격: $`\Delta t = \frac{1}{f_s} = \frac{1}{1000} = 10^{-3}`$ sec/sample
+- 표본 추출 간격: $`\Delta t = \frac{1}{f_s} = \frac{1}{1000} = 10^{-3}`$ s
 - 총 시간: $`T = n \cdot \Delta t = 100 \times 10^{-3} = 0.1`$ s
 - **나이퀴스트 주파수:** $`f_{\max} = \frac{1}{2}f_s = 500`$ Hz
 - **검출 가능한 최저 주파수:** $`f_{\min} = \frac{1}{T} = \frac{1}{n\,\Delta t} = 10`$ Hz
@@ -802,7 +804,7 @@ recovered = np.fft.ifft(F)
 
 ## 17. 파워 스펙트럼(Power Spectrum)
 
-**파워 스펙트럼**은 신호의 전력이 서로 다른 주파수에 어떻게 분포되어 있는지를 보여준다.
+**파워 스펙트럼**은 신호의 전력이 서로 다른 주파수에 어떻게 분포되어 있는지를 보여 준다.
 
 **이산의 경우** (이산 주파수 $`k\omega_0`$에서의 전력):
 
@@ -861,7 +863,7 @@ plt.show()
 | DFT | $`\hat{f}_k = \sum_{j=0}^{n-1}f_j e^{-ik\omega_0 j}`$이며 계산 복잡도는 $`O(n^2)`$이다. |
 | FFT | DFT와 같은 결과를 $`O(n\log n)`$ 복잡도로 계산한다. |
 | 나이퀴스트 주파수 | 검출 가능한 최대 주파수는 $`f_{\max} = \frac{1}{2}f_s = \frac{1}{2\Delta t}`$이다. |
-| 파워 스펙트럼 | 주파수별 에너지 분포는 $`P_k = \lvert\tilde{C}_k\rvert^2`$, $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$로 나타낸다. |
+| 파워 스펙트럼 | 주파수별 전력 분포는 $`P_k = \lvert\tilde{C}_k\rvert^2`$, $`P(\omega) = \lvert\hat{F}(\omega)\rvert^2`$로 나타낸다. |
 | FT 선형성 | 푸리에 변환은 $`\mathcal{F}\{\alpha f + \beta g\} = \alpha\mathcal{F}\{f\} + \beta\mathcal{F}\{g\}`$를 만족하는 선형 연산자이다. |
 | FT 미분 | $`\mathcal{F}\{f^{(n)}\} = (i\omega)^n\mathcal{F}\{f\}`$이므로 미분이 곱셈으로 변환된다. |
 | FT 합성곱 | $`\mathcal{F}\{f*g\} = \hat{f}(\omega)\cdot\hat{g}(\omega)`$이므로 합성곱이 곱으로 변환된다. |

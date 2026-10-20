@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 11
 
@@ -184,7 +184,7 @@ for n in range(2, 16):
     print(f'{n:4d} {kappa:15.2e} {digits:12d}')
 ```
 
-For double precision ($`\approx 16`$ significant digits), the table shows that by $`n = 12`$, the Hilbert matrix has a condition number around $`10^{16}`$, meaning the computed solution has essentially **zero** reliable digits. For $`n \geq 13`$, the computed condition number stays around $`10^{17}`$-$`10^{18}`$ or even decreases, because the smallest singular value falls below machine precision and the condition number itself can no longer be computed accurately. Hilbert matrices arise naturally in polynomial least-squares fitting, which is one reason polynomial fitting beyond modest degrees is numerically dangerous.
+For double precision (about 16 significant digits), the table shows that by $`n = 12`$, the Hilbert matrix has a condition number around $`10^{16}`$, meaning the computed solution has essentially **zero** reliable digits. For $`n \geq 13`$, the computed condition number stays around $`10^{17}`$-$`10^{18}`$ or even decreases, because the smallest singular value falls below machine epsilon times the largest singular value and the condition number itself can no longer be computed accurately. Hilbert matrices arise naturally in polynomial least-squares fitting, which is one reason polynomial fitting beyond modest degrees is numerically dangerous.
 
 ---
 

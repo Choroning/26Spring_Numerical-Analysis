@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -322,7 +322,7 @@ Apply the inverse power method to $`(A - \sigma I)`$ for a user-chosen **shift**
 \lambda = \sigma + \frac{1}{\mu}, \qquad \mu = \text{dominant eigenvalue of } (A - \sigma I)^{-1}
 ```
 
-Setting $`\sigma = 0`$ recovers the inverse power method (finds smallest $`|\lambda|`$). Setting $`\sigma`$ near any target value picks out the interior eigenvalue closest to it.
+Setting $`\sigma = 0`$ recovers the inverse power method (finds smallest $`|\lambda|`$). Setting $`\sigma`$ near any target value picks out the eigenvalue closest to it, so interior eigenvalues, which are neither the largest nor the smallest, can also be found.
 
 ---
 
@@ -412,8 +412,8 @@ The closer a shift is to an eigenvalue, the more $`|1/(\lambda_i - \sigma)|`$ do
 | Method | Finds | Cost per iteration | Convergence rate |
 |:-------|:------|:------------------|:-----------------|
 | `np.linalg.eig(A)` | All $`n`$ eigenpairs | $`O(n^3)`$ total | Not applicable (direct computation) |
-| **Power Method** | Dominant $`\lambda`$ (largest $`\|\lambda\|`$) | $`O(n^2)`$ | $`\|\lambda_2 / \lambda_1\|`$ |
-| **Inverse Power** | Smallest $`\|\lambda\|`$ | $`O(n^2)`$ after LU | $`\|\lambda_{\min} / \lambda_{\text{next-smallest}}\|`$ |
+| **Power Method** | Dominant $`\lambda`$ (largest $`\vert\lambda\vert`$) | $`O(n^2)`$ | $`\vert\lambda_2 / \lambda_1\vert`$ |
+| **Inverse Power** | Smallest $`\vert\lambda\vert`$ | $`O(n^2)`$ after LU | $`\vert\lambda_{\min} / \lambda_{\text{next-smallest}}\vert`$ |
 | **Shifted Power** | $`\lambda`$ nearest to $`\sigma`$ | $`O(n^2)`$ after LU | depends on shift quality |
 
 *Table 2. Comparison of eigenvalue computation methods*

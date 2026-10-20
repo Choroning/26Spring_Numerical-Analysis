@@ -1,8 +1,8 @@
-# Chapter 10 Lab — LU Factorization and Cholesky
+# Chapter 10 Lab — LU and Cholesky Factorizations
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10
 
@@ -25,7 +25,7 @@
   - [2.2 Backward Substitution](#22-backward-substitution)
   - [2.3 Complete LU Solve with Pivoting](#23-complete-lu-solve-with-pivoting)
 - [3. Thermal Resistor Network](#3-thermal-resistor-network)
-- [4. Multiple Right-Hand Sides: Why LU Shines](#4-multiple-right-hand-sides-why-lu-shines)
+- [4. Multiple Right-Hand Sides: The Advantage of LU Factorization](#4-multiple-right-hand-sides-the-advantage-of-lu-factorization)
   - [4.1 Performance Comparison](#41-performance-comparison)
   - [4.2 Spring-Mass System with Multiple Load Cases](#42-spring-mass-system-with-multiple-load-cases)
 - [5. Cholesky Factorization](#5-cholesky-factorization)
@@ -217,7 +217,7 @@ The diagonal entries of $`A_\text{net}`$ are the sum of conductances (reciprocal
 
 <br>
 
-## 4. Multiple Right-Hand Sides: Why LU Shines
+## 4. Multiple Right-Hand Sides: The Advantage of LU Factorization
 
 ### 4.1 Performance Comparison
 

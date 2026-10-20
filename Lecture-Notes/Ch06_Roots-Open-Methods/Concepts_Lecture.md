@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 6
 
@@ -177,6 +177,8 @@ By the **Mean Value Theorem**, there exists $`\xi_i \in (x_i, x^*)`$ or $`(x^*, 
 ```math
 g(x_i) - g(x^*) = g'(\xi_i)(x_i - x^*)
 ```
+
+> **[Calculus]** The Mean Value Theorem states that for a function $`g`$ continuous on $`[a, b]`$ and differentiable on $`(a, b)`$ there exists $`\xi \in (a, b)`$ with $`g(b) - g(a) = g'(\xi)(b - a)`$. The convergence analysis of fixed-point iteration uses it to turn the difference of function values at two points into the slope $`g'(\xi_i)`$ times the distance, showing that the error is multiplied by $`|g'(\xi_i)|`$ at each iteration. The analysis therefore holds under the assumption that $`g`$ is differentiable.
 
 Since $`x_i = g(x_{i-1})`$ and $`x^* = g(x^*)`$, we obtain the following.
 
@@ -426,7 +428,7 @@ The Newton-Raphson method has **quadratic convergence**, meaning:
 |x_{i+1} - x^*| \lesssim |x_i - x^*|^2
 ```
 
-**Intuitive meaning:** If the current error is $`\sim 10^{-2}`$, the next error will be $`\sim 10^{-4}`$. The number of correct digits roughly **doubles** each iteration.
+**Intuitive meaning:** When the constant $`M`$ below is of order 1, if the current error is $`\sim 10^{-2}`$, the next error will be $`\sim 10^{-4}`$. The number of correct digits roughly **doubles** each iteration.
 
 **Formal statement:** Assume that $`f`$ is twice continuously differentiable on $`(a, b)`$. Suppose there exists $`x^* \in (a, b)`$ with $`f(x^*) = 0`$ and $`f'(x^*) \neq 0`$. Define the Newton-Raphson iteration as follows.
 
@@ -437,7 +439,7 @@ x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}, \quad i = 1, 2, \ldots
 Assume that $`x_i \to x^*`$ as $`i \to \infty`$. Then for sufficiently large $`i`$:
 
 ```math
-|x_{i+1} - x^*| \leq M |x_i - x^*|^2 \quad \text{where} \quad M \geq \frac{|f''(x^*)|}{2|f'(x^*)|}
+|x_{i+1} - x^*| \leq M |x_i - x^*|^2 \quad \text{where} \quad M > \frac{|f''(x^*)|}{2|f'(x^*)|}
 ```
 
 ### 5.5 Proof of Quadratic Convergence
@@ -638,7 +640,7 @@ For example, `modified_secant(lambda x: x - np.exp(-x), 1.0)` converges to the s
 Suppose we have **three points** $`(x_{i-2}, y_{i-2})`$, $`(x_{i-1}, y_{i-1})`$, $`(x_i, y_i)`$ where $`y_k = f(x_k)`$.
 
 The key idea is as follows.
-- A forward quadratic $`y = f(x)`$ through three points may **not cross the x-axis**.
+- A forward quadratic $`y = p(x)`$ (a quadratic in $`x`$) through three points may **not cross the x-axis**.
 - But the **inverse function** $`x = g(y)`$ through these three points is a quadratic in $`y`$, so it always **crosses** the x-axis. That is, we can evaluate $`g(0)`$ to find the root estimate.
 
 We fit a **quadratic function of $`y`$**.

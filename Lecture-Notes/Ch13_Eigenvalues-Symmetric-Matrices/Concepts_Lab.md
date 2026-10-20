@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -59,7 +59,7 @@ When $`A = A^T`$ (symmetric), its eigenstructure has several guarantees that the
 
 *Table 1. Properties of the eigenstructure of a real symmetric matrix*
 
-These guarantees are why specialized symmetric-eigenvalue algorithms (Jacobi, QR on tridiagonal form) are much more efficient than general ones.
+These guarantees are why specialized symmetric-eigenvalue algorithms (the Jacobi eigenvalue method, QR on tridiagonal form) are much more efficient than general ones.
 
 Use **`np.linalg.eigh`** (not `eig`) whenever you know the matrix is symmetric (Hermitian in the complex case). It:
 
@@ -96,7 +96,7 @@ A_reconstructed = V @ Lambda @ V.T
 print(f'\nmax|A - V Lambda V^T| = {np.max(np.abs(A - A_reconstructed)):.2e}')
 ```
 
-The reconstruction error should be on the order of machine precision ($`10^{-14}`$ or smaller). This identity underlies many applications: once you have $`V`$ and $`\Lambda`$, expressions like $`A^k`$, $`e^A`$, and $`A^{-1}`$ reduce to $`V f(\Lambda) V^T`$, a diagonal operation sandwiched between cheap orthogonal multiplications.
+The reconstruction error should be close to the level of machine epsilon ($`10^{-14}`$ or smaller). This identity underlies many applications: once you have $`V`$ and $`\Lambda`$, expressions like $`A^k`$, $`e^A`$, and $`A^{-1}`$ reduce to $`V f(\Lambda) V^T`$, a diagonal operation sandwiched between cheap orthogonal multiplications.
 
 ---
 
@@ -400,7 +400,7 @@ Both eigenvalues of this matrix are real, negative, and widely separated ($`\lam
 |:-------|:------|:-----|:------|
 | `np.linalg.eig(A)` | All $`n`$ eigenpairs | $`O(n^3)`$ | General matrices; may give complex values |
 | `np.linalg.eigh(A)` | All $`n`$ eigenpairs | $`O(n^3)`$ | Symmetric only; real, sorted ascending |
-| **Power Method** (Chapter 12 Lab) | Dominant $`\lambda`$ | $`O(n^2)`$/iter | Rate $`\approx \|\lambda_2/\lambda_1\|`$ |
+| **Power Method** (Chapter 12 Lab) | Dominant $`\lambda`$ | $`O(n^2)`$/iter | Rate $`\approx \vert\lambda_2/\lambda_1\vert`$ |
 | **Inverse and Shifted Power** (Chapter 12 Lab) | Smallest or nearest-to-$`\sigma`$ $`\lambda`$ | $`O(n^2)`$/iter (after LU) | Use for interior eigenvalues |
 | `sc.linalg.eigh(K, M)` | Generalized $`K\mathbf{v} = \lambda M\mathbf{v}`$ | $`O(n^3)`$ | SPD pair; natural frequencies |
 
@@ -425,7 +425,7 @@ Both eigenvalues of this matrix are real, negative, and widely separated ($`\lam
 |:------------|:-------------------|:--------------------|
 | Structural vibration | $`\lambda = \omega^2`$ (squared natural freq.) | Mode shape |
 | ODE system | Decay / growth rate $`e^{\lambda t}`$ | Mode direction in state space |
-| Iterative solvers (Chapter 12) | Spectral radius $`\rho(T)`$ of the iteration matrix $`T`$ ($`M`$ in Chapter 12) | Convergence direction |
+| Iterative solvers (Chapter 12) | Spectral radius $`\rho(M)`$ of the iteration matrix $`M`$ | Convergence direction |
 | Condition number (Chapter 11) | $`\kappa_2 = \vert\lambda\vert_{\max} / \vert\lambda\vert_{\min}`$ (symmetric matrix, 2-norm) | Not applicable |
 
 *Table 5. Meaning of eigenvalues and eigenvectors in engineering applications*
