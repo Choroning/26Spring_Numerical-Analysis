@@ -2,9 +2,9 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
 > **Learning Objectives:**
 > 1. Choose a stopping tolerance with the Scarborough criterion and apply it to iterative computations
@@ -70,7 +70,7 @@ x_{n+1} = \frac{1}{2}\left(x_n + \frac{S}{x_n}\right)
 
 The intuition is simple: if $`x_n`$ is an overestimate of $`\sqrt{S}`$, then $`S/x_n`$ is an underestimate, and vice versa. Averaging the two gives an estimate that is closer to $`\sqrt{S}`$ than either value alone.
 
-> **Note:** **Relation to Newton's method.** The Babylonian method is a special case of Newton's method (Chapter 6) applied to $`f(x) = x^2 - S`$. Newton's method gives $`x_{n+1} = x_n - f(x_n)/f'(x_n) = x_n - (x_n^2 - S)/(2x_n) = (x_n + S/x_n)/2`$. This relation explains its quadratic convergence (the error at each iteration is roughly proportional to the square of the previous error).
+> **Note:** **Relation to the Newton-Raphson method.** The Babylonian method is a special case of the Newton-Raphson method (Chapter 6) applied to $`f(x) = x^2 - S`$. The Newton-Raphson iteration gives $`x_{n+1} = x_n - f(x_n)/f'(x_n) = x_n - (x_n^2 - S)/(2x_n) = (x_n + S/x_n)/2`$. This relation explains its quadratic convergence (the error at each iteration is roughly proportional to the square of the previous error).
 
 The following code demonstrates how quickly the method converges, tracking both the true percent relative error $`\varepsilon_t`$ and the approximate percent relative error $`\varepsilon_a`$.
 
@@ -252,6 +252,8 @@ The algorithm works by repeatedly doubling the fraction. If the result is at lea
 
 The pattern $`0.0\overline{0011}`$ repeats infinitely. Since double precision stores only 52 bits of mantissa (53 bits including the implicit leading 1), the representation is rounded to a finite number of bits, introducing a small error. For example, the value stored for 0.1 is exactly 0.1000000000000000055511151231257827.... This is why `0.1 + 0.2 != 0.3` occurs in virtually every programming language that uses IEEE 754 floating point.
 
+> **[Computer Architecture]** The IEEE 754 double-precision format stores a number as a binary bit pattern of 1 sign bit, 11 exponent bits, and 52 mantissa bits, so a fraction can be represented exactly with finitely many bits only if its denominator is a power of 2 (0.5, 0.25, 0.375, and so on). A decimal fraction such as 0.1 = 1/10, whose denominator has a prime factor other than 2, has a non-terminating binary expansion as shown above and is rounded at the last mantissa bit when stored; this rounding at storage time is the source of the error described in this section.
+
 ### 3.3 Accumulation of Round-Off Error
 
 When many small round-off errors accumulate over thousands of operations, the total error can become significant. This is demonstrated by summing $`0.0001`$ ten thousand times. The mathematical result is exactly $`1.0`$, but floating-point arithmetic introduces a discrepancy.
@@ -307,7 +309,7 @@ The standard quadratic formula for $`ax^2 + bx + c = 0`$ is:
 x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
 ```
 
-It suffers from **catastrophic cancellation** when $`b^2 \gg 4ac`$. In this case, $`\sqrt{b^2 - 4ac} \approx |b|`$, so one of the two roots involves subtracting two nearly equal numbers.
+It suffers from **catastrophic cancellation** (the subtractive cancellation of Section 6.1 of the lecture note) when $`b^2 \gg 4ac`$. In this case, $`\sqrt{b^2 - 4ac} \approx |b|`$, so one of the two roots involves subtracting two nearly equal numbers.
 
 Specifically, when $`b > 0`$, the root $`x_1 = \frac{-b + \sqrt{b^2 - 4ac}}{2a}`$ involves subtracting $`b`$ from $`\sqrt{b^2 - 4ac}`$, two numbers that are nearly identical when $`b`$ is large.
 
@@ -360,7 +362,7 @@ for exp in range(2, 11):
     print(f'{b:12.0e} {x1_std:22.15e} {x1_stable:22.15e} {rel_err:15.6e}%')
 ```
 
-> **Note:** **Vieta's formulas.** The stable formula uses Vieta's formulas: for $`ax^2 + bx + c = 0`$, the product of roots is $`x_1 \cdot x_2 = c/a`$. So if one root (call it $`x_1`$) has been computed accurately, we get the other as $`x_2 = c/(a \cdot x_1)`$ without subtraction.
+> **Note:** **Direction of Vieta's formula.** The product of roots $`x_1 \cdot x_2 = c/a`$ gives either root from the other without subtraction, but the root used as the starting point must be one computed accurately without cancellation. For $`b > 0`$, the corrected code starts from the accurate large root $`x_2`$ and obtains the small root as $`x_1 = c/(a \cdot x_2)`$.
 
 As $`b`$ increases, the standard formula loses more and more significant digits in $`x_1`$ (the root computed with the $`-b + \sqrt{b^2 - 4ac}`$ subtraction), while the stable alternative maintains full precision. In the corrected code, the standard $`x_1`$ has a relative error of about 25% at $`b = 10^8`$ and becomes 0 for $`b \geq 10^9`$, losing all significant digits, while the Vieta $`x_1`$ stays accurate at about $`-1/b`$ for every $`b`$.
 

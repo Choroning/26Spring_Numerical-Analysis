@@ -2,9 +2,9 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 1
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
 
 > **Learning Objectives:**
 > 1. Create and index arrays, vectors, and matrices with NumPy
@@ -65,7 +65,7 @@ c = 2 + 4j
 print(type(c))  # <class 'complex'>
 ```
 
-> **[Computer Programming]** Python's dynamic typing means variables do not need explicit type declarations. The type is determined at runtime based on the assigned value. This is different from statically typed languages like C++ or Java.
+> **[Computer Programming]** Statically typed languages such as C++ and Java declare the type of a variable and check it at compile time, whereas in a dynamically typed language such as Python the type belongs to the value rather than the variable and is determined at runtime. Hence the same variable can be reassigned a value of another type, and an error from an operation on mismatched types appears only when that line is executed.
 
 ### 1.2 Mathematical Constants and Formatted Output
 
@@ -101,7 +101,7 @@ print('{0:12.4e}'.format(pc.h))  # Planck's constant: 6.6261e-34
 - **Vectorization**: Operations are applied element-wise to entire arrays without explicit Python loops.
 - **Broadcasting**: Allows arithmetic between arrays of different shapes following well-defined rules.
 
-> **[Computer Programming]** NumPy arrays are stored in contiguous memory blocks (unlike Python lists), enabling vectorized operations that run at C speed. Broadcasting allows operations between arrays of different shapes without explicit loops.
+> **[Computer Programming]** A Python list is an array of pointers to separately allocated objects, so reading each element requires following a pointer and checking its type, whereas a NumPy array stores values of a single type directly in a contiguous memory block. A loop compiled in C can therefore process the whole array at once, which is the source of the speed difference described above.
 
 ### 2.2 Creating Arrays
 
@@ -316,7 +316,7 @@ print(v)
 #  50.61...  51.18...  51.45...  51.58...  51.64...]
 ```
 
-> **[Computer Programming]** The `np.tanh()` function operates element-wise on the entire `tm` array, producing a result array of the same shape without any explicit loop. This is vectorization in action.
+> **Note:** The `np.tanh()` function operates element-wise on the entire `tm` array, producing a result array of the same shape without any explicit loop. This is vectorization in action.
 
 ---
 
@@ -372,7 +372,7 @@ plt.savefig('sample.png', bbox_inches='tight')
 plt.show()
 ```
 
-> **[Computer Programming]** The `ls` parameter controls line style (`'-'` solid, `'--'` dashed, `':'` dotted), `marker` controls data point markers (`'o'` circle, `'D'` diamond, `'s'` square), and `label` provides the text for the legend entry. `bbox_inches='tight'` removes excess whitespace when saving.
+> **Note:** The `ls` parameter controls line style (`'-'` solid, `'--'` dashed, `':'` dotted), `marker` controls data point markers (`'o'` circle, `'D'` diamond, `'s'` square), and `label` provides the text for the legend entry. `bbox_inches='tight'` removes excess whitespace when saving.
 
 ---
 

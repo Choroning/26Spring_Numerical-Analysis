@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-18
+> **최종 수정일:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 22
 
@@ -744,27 +744,27 @@ $`z = \lambda h`$이고 $`h > 0`$이므로, 다음이 요구된다:
 **후진 오일러 방법(Backward Euler method)**(음적 방법)은 *다음* 시간 스텝에서의 기울기를 평가한다:
 
 ```math
-x_{n+1} = x_n + h\,f(x_{n+1})
+y_{n+1} = y_n + h\,f(t_{n+1}, y_{n+1})
 ```
 
-$`\frac{dx}{dt} = \lambda x`$에 적용하면:
+$`\frac{dy}{dt} = \lambda y`$에 적용하면:
 
 ```math
-x_{n+1} = x_n + \lambda h\,x_{n+1}
-```
-
-```math
-(1 - \lambda h)\,x_{n+1} = x_n
+y_{n+1} = y_n + \lambda h\,y_{n+1}
 ```
 
 ```math
-x_{n+1} = \frac{1}{1 - \lambda h}\,x_n
+(1 - \lambda h)\,y_{n+1} = y_n
+```
+
+```math
+y_{n+1} = \frac{1}{1 - \lambda h}\,y_n
 ```
 
 귀납법에 의해:
 
 ```math
-x_n = (1 - \lambda h)^{-n}\,x_0
+y_n = (1 - \lambda h)^{-n}\,y_0
 ```
 
 안정성 함수는 $`\phi(z) = \frac{1}{1 - z}`$이다. 안정성을 위해:
@@ -777,30 +777,30 @@ x_n = (1 - \lambda h)^{-n}\,x_0
 
 임의의 $`\lambda < 0`$에 대해 스텝 크기 $`h`$를 **임의로 크게** 선택해도 방법은 안정적이다. 즉 후진 오일러 방법은 안정성을 위한 스텝 크기 제한이 없으며, 오직 정확도만이 $`h`$를 제한한다.
 
-> **주의:** 이 무조건적 안정성의 대가는 후진 오일러가 **음적(implicit)** 방법이라는 것이다. 각 스텝에서 $`x_{n+1}`$에 대한 방정식(비선형일 수 있음)을 풀어야 한다. 선형 시험 문제에서는 단순한 대수적 풀이로 귀결되지만, 일반적인 비선형 $`f`$에 대해서는 뉴턴 방법이나 유사한 기법이 필요하다.
+> **주의:** 이 무조건적 안정성의 대가는 후진 오일러가 **음적(implicit)** 방법이라는 것이다. 각 스텝에서 $`y_{n+1}`$에 대한 방정식(비선형일 수 있음)을 풀어야 한다. 선형 시험 문제에서는 단순한 대수적 풀이로 귀결되지만, 일반적인 비선형 $`f`$에 대해서는 뉴턴 방법이나 유사한 기법이 필요하다.
 
 ### 8.6 사다리꼴 방법의 안정성
 
 **사다리꼴 방법(Trapezoidal method)** 은 양 끝점에서의 평균 기울기를 사용한다:
 
 ```math
-x_{n+1} = x_n + \frac{h}{2}(f_n + f_{n+1})
+y_{n+1} = y_n + \frac{h}{2}(f_n + f_{n+1})
 ```
 
-$`\frac{dx}{dt} = \lambda x`$에 적용하면:
+$`\frac{dy}{dt} = \lambda y`$에 적용하면:
 
 ```math
-x_{n+1} = x_n + \frac{\lambda h}{2}(x_n + x_{n+1})
+y_{n+1} = y_n + \frac{\lambda h}{2}(y_n + y_{n+1})
 ```
 
 ```math
-\left(1 - \frac{\lambda h}{2}\right)x_{n+1} = \left(1 + \frac{\lambda h}{2}\right)x_n
+\left(1 - \frac{\lambda h}{2}\right)y_{n+1} = \left(1 + \frac{\lambda h}{2}\right)y_n
 ```
 
 귀납법에 의해:
 
 ```math
-x_n = \left(\frac{1 + \frac{\lambda h}{2}}{1 - \frac{\lambda h}{2}}\right)^n x_0
+y_n = \left(\frac{1 + \frac{\lambda h}{2}}{1 - \frac{\lambda h}{2}}\right)^n y_0
 ```
 
 안정성 함수는 $`\phi(z) = \frac{1 + z/2}{1 - z/2}`$이다. 안정성을 위해:

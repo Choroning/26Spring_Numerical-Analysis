@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 9
 
@@ -142,7 +142,7 @@ print(f'Output perturbation: {np.linalg.norm(x_perturbed - x_exact):.2e}')
 # Output perturbation >> input perturbation!
 ```
 
-The output perturbation is orders of magnitude larger than the input perturbation, with the amplification factor bounded by the condition number. For `hilbert(10)`, $`\kappa \approx 1.6 \times 10^{13}`$, meaning a perturbation of $`10^{-10}`$ in $`b`$ can produce a change of up to about $`10^{3}`$ in $`x`$. Even errors of order $`10^{-10}`$ in the data therefore make the solution of this system essentially meaningless.
+The output perturbation is orders of magnitude larger than the input perturbation, with the amplification factor bounded by the condition number. For `hilbert(10)`, $`\kappa \approx 1.6 \times 10^{13}`$, meaning a relative perturbation of $`10^{-10}`$ in $`b`$ can produce a relative change of up to about $`10^{3}`$ in $`x`$. Even errors of order $`10^{-10}`$ in the data therefore make the solution of this system essentially meaningless.
 
 > **Note:** When $`\kappa(A) \cdot \varepsilon_{\text{mach}} \gtrsim 1`$, the system is so ill-conditioned that no numerical method can produce a meaningful solution in standard double precision. The Hilbert matrix reaches this threshold at $`n \geq 12`$ ($`\kappa(H_{12}) \approx 1.7 \times 10^{16}`$).
 
@@ -202,7 +202,7 @@ def thomas(e, f, g, r):
 
 Copying the inputs is essential: without a copy, the function would modify the caller's arrays because NumPy arrays are passed by reference. Since `astype(float)` already returns a new array by default, the `.copy()` here is redundant and only makes the intent explicit. The forward sweep eliminates the sub-diagonal entries one by one, and the back substitution recovers the solution from bottom to top.
 
-> **[Computer Programming]** The `.astype(float).copy()` pattern ensures two things: (1) the computation uses floating-point arithmetic even if integer arrays are passed, and (2) the original arrays are not modified. This is a common defensive programming pattern in numerical Python.
+> **[Computer Programming]** Python passes object references to functions, so changing the elements of an array inside a function also changes the caller's array. `.astype(float).copy()` is a common defensive programming pattern in numerical Python that (1) converts integer arrays to floating-point arrays so that fractional parts are not truncated when elimination results are assigned back, and (2) works on a new array so that the original array is not modified.
 
 ### 3.2 1D Steady-State Heat Conduction Application
 

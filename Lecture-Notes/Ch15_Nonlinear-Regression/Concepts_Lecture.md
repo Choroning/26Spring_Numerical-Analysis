@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 15
 
@@ -226,7 +226,7 @@ This gives a linear form: $`\frac{1}{y} = \underbrace{\frac{\beta_3}{\alpha_3}}_
 
 When data shows a curvilinear pattern (e.g., parabolic), a linear line is not sufficient. We extend the linear regression idea to **polynomial regression**.
 
-The goal of this section is to extend the linear regression idea to polynomial regression and to obtain confidence intervals for the estimated parameters (Section 5.6).
+Confidence intervals for the parameters estimated by polynomial regression are obtained from the covariance matrix in Section 5.6.
 
 Given a set of data $`\{x_i, y_i\}_{i=1}^{n}`$, find $`\beta_0, \beta_1, \beta_2`$ such that:
 
@@ -450,6 +450,8 @@ To minimize, take the derivative with respect to $`\boldsymbol{\beta}`$ and set 
 = \frac{\partial}{\partial \boldsymbol{\beta}} (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})^T (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})
 = (-2\mathbf{X})^T (\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) = \mathbf{0}
 ```
+
+> **[Calculus]** The gradient of a multivariable function is the vector of its partial derivatives, and all partial derivatives of a differentiable function vanish at a local minimum. Since SSE is a quadratic function of $`\boldsymbol{\beta}`$, writing the componentwise partial derivatives of Section 3.2 as one vector gives the gradient above, and setting it to zero gives the normal equations.
 
 This yields the **normal equation**:
 

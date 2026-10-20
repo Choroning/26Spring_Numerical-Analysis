@@ -2,9 +2,9 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
 > **Learning Objectives:**
 > 1. Formulate engineering problems as linear algebraic equations
@@ -61,8 +61,6 @@ These systems arise naturally across a wide range of disciplines:
 - **Mass-spring systems**: Hooke's law ($`F = kx`$) applied to each spring, combined with force equilibrium at each mass, produces a system of linear equations. The coefficient matrix is the **stiffness matrix** $`[K]`$ encoding spring constants and connectivity.
 - **Structural truss analysis**: Equilibrium of forces at each joint of a truss structure yields linear equations relating member forces to applied loads.
 - **Circuit analysis**: Kirchhoff's current and voltage laws applied to electrical networks produce linear systems relating currents and voltages through resistances.
-
-> **Note:** **Physical background.** In a mass-spring system, Hooke's law ($`F = kx`$) for each spring combined with force equilibrium at each mass yields a system of linear equations. The stiffness matrix $`[K]`$ encodes the spring constants and connectivity.
 
 The size of these systems can range from a handful of equations (simple textbook problems) to millions of equations (finite element models of aircraft structures or computational fluid dynamics simulations). Efficient and reliable methods for solving such systems are therefore essential tools in the engineer's toolkit.
 
@@ -125,7 +123,7 @@ The determinant provides a single scalar that characterizes the solvability of t
 
 - **$`D`$ very small relative to the coefficients**: The system is **ill-conditioned**. A unique solution technically exists, but it is extremely sensitive to small perturbations in the coefficients or the right-hand side. Tiny round-off errors in the input data or during computation can produce wildly inaccurate results. Because the magnitude of the determinant changes when an equation is merely multiplied by a constant, the comparison is meaningful only after each equation is normalized.
 
-> **[Linear Algebra]** The absolute value of the determinant is the area of the parallelogram (2D) or the volume of the parallelepiped (3D) formed by the row (or column) vectors. A zero determinant means the vectors are linearly dependent, so the rows of the coefficient matrix are redundant.
+> **[Linear Algebra]** The absolute value of the determinant is the area of the parallelogram (2D) or the volume of the parallelepiped (3D) formed by the row (or column) vectors. A zero determinant means the vectors are linearly dependent and the area or volume collapses to zero; the redundant rows of the coefficient matrix in the singular systems above are exactly this case.
 
 Geometrically, ill-conditioning for a $`2 \times 2`$ system means the two lines intersect at a very shallow angle. In such cases, small changes in the coefficients (shifting a line slightly) can move the intersection point dramatically. This sensitivity is quantified by the **condition number**, which in the 2-norm is the ratio of the largest to the smallest singular value of $`[A]`$. The condition number is discussed further in Chapter 11.
 
@@ -336,6 +334,8 @@ The number of multiplications/divisions is given below, and there are $`\sum_{i=
 ```
 
 For large $`n`$, the total cost is **dominated by the $`(2/3)n^3`$ term** from forward elimination. Back substitution contributes only an $`O(n^2)`$ term, which is negligible for large systems.
+
+> **[Algorithms]** Asymptotic notation $`O(\cdot)`$ keeps only the growth rate as the input size $`n`$ increases and ignores constant factors and lower-order terms. In the operation count $`\frac{2}{3}n^3 + O(n^2)`$ above, $`O(n^2)`$ collects the terms that grow in proportion to $`n^2`$, so for large $`n`$ the cubic term determines the cost, and multiplying $`n`$ by 10 multiplies the cost by about 1000.
 
 | Phase | Dominant Term (total operations) | Growth |
 |:------|:-------------|:-------|

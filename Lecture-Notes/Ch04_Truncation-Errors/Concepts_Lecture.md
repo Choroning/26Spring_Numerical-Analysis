@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
@@ -10,6 +10,8 @@
 > 1. Estimate truncation errors using Taylor series
 > 2. Bound the truncation error with the remainder term
 > 3. Analyze the order of accuracy of approximation methods and finite difference formulas
+> 4. Explain the optimal step size as the balance between truncation and round-off error
+> 5. Decide from the condition number of a function whether a problem is ill-conditioned
 
 ---
 
@@ -66,7 +68,7 @@ f(x_i + h) = f(x_i) + f'(x_i)h + \frac{f''(x_i)}{2!}h^2 + \frac{f'''(x_i)}{3!}h^
 
 Each successive term in the series includes a higher-order derivative of $`f`$ at $`x_i`$, divided by the corresponding factorial, and multiplied by a higher power of $`h`$. The more terms we include, the better the approximation, provided $`h`$ is small enough.
 
-> **[Calculus]** Taylor's theorem is one of the most fundamental results in calculus. It states that a sufficiently smooth function can be approximated near a point by a polynomial. The remainder term $`R_n`$ quantifies exactly how good this approximation is. The unknown $`\xi`$ makes $`R_n`$ impossible to compute exactly, but we can bound it using the maximum value of $`f^{(n+1)}`$ on the interval.
+> **[Calculus]** Taylor's theorem is the calculus result that a function that is $`(n+1)`$ times continuously differentiable can be written exactly, near a point, as an $`n`$th-degree polynomial plus a remainder term. The truncation error analysis in this chapter starts by reading the remainder term of this theorem (Section 1.2) as the error of the polynomial approximation.
 
 ### 1.2 The Remainder Term (Truncation Error)
 
@@ -96,7 +98,7 @@ Key properties of the remainder are as follows.
 
 ### 2.1 Zeroth Through nth Order
 
-Truncating the Taylor series at different points yields approximations of different orders. Each additional term improves the approximation.
+Truncating the Taylor series at different points yields approximations of different orders. Each additional term raises the order of the truncation error by one, so the approximation improves when $`h`$ is small enough.
 
 | Order | Approximation | Truncation Error |
 |:------|:-------------|:-----------------|
@@ -393,7 +395,7 @@ These two error sources have **opposite** dependencies on the step size $`h`$.
 | Component | As $`h`$ decreases | Cause |
 |:----------|:-----------------|:------|
 | Truncation error | **Decreases** | Finite difference better approximates the derivative |
-| Round-off error | **Increases** | Subtracting nearly equal floating-point numbers (catastrophic cancellation) |
+| Round-off error | **Increases** | Subtracting nearly equal floating-point numbers (subtractive cancellation, Chapter 3) |
 
 *Table 4. Change in truncation and round-off error as the step size decreases*
 
@@ -403,7 +405,7 @@ When $`h`$ is large, the truncation error dominates. When $`h`$ is very small, t
 
 ### 5.2 Optimal Step Size
 
-There exists an **optimal step size** $`h^*`$ that minimizes the total error. The optimal value depends on the finite difference formula being used and the machine epsilon $`\varepsilon_{mach}`$.
+There exists an **optimal step size** $`h^*`$ that minimizes the total error. The optimal value depends on the finite difference formula being used and the machine epsilon $`\varepsilon_{mach}`$ (Section 5.4 of Chapter 3).
 
 **For forward difference** ($`O(h)`$ truncation error):
 
@@ -457,7 +459,7 @@ For example, consider $`f(x) = \frac{1}{x - 1}`$ near $`x = 1.00001`$:
 
 At $`x = 1.00001`$, $`\text{Cond} \approx 10^5`$, so the problem is extremely ill-conditioned. A tiny perturbation in $`x`$ causes a massive relative change in $`f(x)`$.
 
-> **[Linear Algebra]** The condition number concept extends to matrices ($`\kappa(A) = \|A\| \cdot \|A^{-1}\|`$), which Chapter 11 covers. Both measure sensitivity to perturbations.
+> **Note:** The matrix condition number $`\kappa(A) = \|A\| \cdot \|A^{-1}\|`$, which extends the same sensitivity concept to matrices, is covered in Chapter 11. Just as the condition number of a function measures the sensitivity of the output to input perturbations, the matrix condition number measures the sensitivity of the solution of a linear system to perturbations in the coefficients and the right-hand side.
 
 ---
 
@@ -533,7 +535,7 @@ h_vals, errors = step_size_analysis(f, df_true, 0.5)
 
 Running this code prints `Optimal h ≈ 1.00e-08, min error ≈ 8.89e-09`. Among the grid values $`10^{-1}, 10^{-2}, \ldots, 10^{-15}`$, the value $`10^{-8}`$, which is closest to the expected $`\sqrt{\varepsilon_{mach}} \approx 1.5 \times 10^{-8}`$, is selected as optimal.
 
-> **Note:** The optimal step size for forward difference is approximately $`h^* \approx \sqrt{\varepsilon_{mach}} \approx 1.5 \times 10^{-8}`$, and for central difference it is approximately $`h^* \approx \varepsilon_{mach}^{1/3} \approx 6 \times 10^{-6}`$. Central difference has a larger optimal $`h`$ because its truncation error decreases faster ($`O(h^2)`$ vs. $`O(h)`$), so the balance point with round-off error occurs at a larger step size.
+> **Note:** As analyzed in Section 5.2, the optimal step size is about $`h^* \approx \sqrt{\varepsilon_{mach}} \approx 1.5 \times 10^{-8}`$ for the forward difference and about $`h^* \approx \varepsilon_{mach}^{1/3} \approx 6 \times 10^{-6}`$ for the central difference. In the experiment of Section 7.1, the central difference error is also smallest at $`h = 10^{-6}`$, in agreement with this prediction.
 
 ---
 

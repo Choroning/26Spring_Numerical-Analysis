@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14
 
@@ -39,7 +39,7 @@
 - [5. Quantifying the Fit Quality](#5-quantifying-the-fit-quality)
   - [5.1 SST, SSE, and SSR Decomposition](#51-sst-sse-and-ssr-decomposition)
   - [5.2 Proof that SST = SSE + SSR](#52-proof-that-sst--sse--ssr)
-  - [5.3 Coefficient of Determination (r^2)](#53-coefficient-of-determination-r2)
+  - [5.3 Coefficient of Determination ($`r^2`$)](#53-coefficient-of-determination-r2)
   - [5.4 Standard Error of the Estimate](#54-standard-error-of-the-estimate)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -52,7 +52,7 @@
 
 ## 1. Overview
 
-Linear regression is a fundamental technique in **curve fitting** (Part IV of the textbook, Chapters 14-18). The goal is to derive a **best-fit straight line** through a set of data points using the **least-squares** criterion.
+Linear regression is a fundamental technique in **curve fitting** (Part 4 of the textbook, Chapters 14-18). The goal is to derive a **best-fit straight line** through a set of data points using the **least-squares** criterion.
 
 This chapter reviews basic statistics (mean, standard deviation, distributions), then computes the slope and intercept of a best-fit straight line, and computes the standard error of the estimate to analyze the residual error.
 
@@ -111,7 +111,7 @@ The **standard deviation** measures how much data points spread out from the mea
 
 where $`\mu`$ is the **true mean** of the entire population, and $`n`$ is the total number of the population.
 
-> **[Probability and Statistics]** The population standard deviation uses $`n`$ in the denominator because all members of the population are accounted for, so no degree of freedom is lost.
+> **[Probability and Statistics]** The population standard deviation uses $`n`$ in the denominator because all members of the population are accounted for and the true mean $`\mu`$ is used as is, so no degree of freedom is lost. The sample formula below, which uses the sample mean in place of $`\mu`$, has a different denominator for this reason.
 
 #### Sample Standard Deviation
 
@@ -169,7 +169,7 @@ MAD = \text{median}(|y_i - \tilde{y}|)
 
 ### 3.1 Central Limit Theorem
 
-Take many independent random variables (r.v.s), each with finite mean and variance, and add them up. Then the sum of a large number of i.i.d. random variables **approximately follows a normal distribution**, no matter what the distribution of the individual random variables is. Precisely, the distribution of the standardized sum converges to the standard normal distribution.
+If many i.i.d. (independent and identically distributed) random variables with finite mean and variance are added, the sum **approximately follows a normal distribution**, no matter what the distribution of the individual random variables is. Precisely, the distribution of the standardized sum converges to the standard normal distribution.
 
 > **[Probability and Statistics]** The Central Limit Theorem (CLT) is the foundational reason why the normal distribution is so prevalent. Measurement errors, which are sums of many small independent effects, are typically normally distributed.
 
@@ -279,7 +279,7 @@ F(x) = P(X \le x) = P\left(\frac{X - \mu}{\sigma} \le \frac{x - \mu}{\sigma}\rig
 f(x) = F'(x) = \varphi\left(\frac{x - \mu}{\sigma}\right) \cdot \frac{1}{\sigma} = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{(x - \mu)^2}{2\sigma^2}}
 ```
 
-> **[Probability and Statistics]** The $`\frac{1}{\sigma}`$ factor in the PDF comes from the chain rule when differentiating the CDF. This ensures the total area under the PDF remains 1 regardless of $`\sigma`$.
+> **[Calculus]** By the chain rule, differentiating the composite function $`\Phi((x - \mu)/\sigma)`$ with respect to $`x`$ multiplies the derivative of the outer function, $`\varphi`$, by the derivative of the inner function, $`1/\sigma`$; the $`\frac{1}{\sigma}`$ factor in the PDF comes from this. This factor keeps the total area under the PDF equal to 1 regardless of $`\sigma`$.
 
 <br>
 
@@ -345,7 +345,7 @@ Problems: **Non-differentiable**, and heavily **sensitive to outliers** since it
 \min_{a_0, a_1} \sum e_i^2 = \min_{a_0, a_1} \sum (y_i - a_0 - a_1 x_i)^2
 ```
 
-This is the **least squares** approach, which yields the **Sum of Squared Errors (SSE)**. It is differentiable and, provided the $`x_i`$ are not all equal, yields a **unique** line for a given set of data.
+This is the **least squares** approach, and the quantity it minimizes is the **Sum of Squared Errors (SSE)**. It is differentiable and, provided the $`x_i`$ are not all equal, yields a **unique** line for a given set of data.
 
 > **[Probability and Statistics]** The least squares criterion is preferred because: (1) squaring removes sign issues, (2) the objective function is smooth and differentiable, (3) it has a unique closed-form solution, and (4) under the assumption of normally distributed errors, it corresponds to the maximum likelihood estimate.
 
@@ -438,7 +438,7 @@ Since $`\bar{y} = \frac{\sum y_i}{n}`$ and $`\bar{x} = \frac{\sum x_i}{n}`$ are 
 \boxed{a_0 = \bar{y} - \bar{x} \cdot a_1} \quad (\ast\ast)
 ```
 
-> **[Probability and Statistics]** This result has an elegant geometric interpretation. The regression line **always passes through the point $`(\bar{x}, \bar{y})`$**, the centroid of the data.
+> **Note:** This result has an elegant geometric interpretation. The regression line **always passes through the point $`(\bar{x}, \bar{y})`$**, the centroid of the data.
 
 <br>
 
@@ -470,7 +470,7 @@ The fundamental decomposition:
 \text{Total Variability} = \text{Unexplained Variability} + \text{Explained Variability}
 ```
 
-> **[Probability and Statistics]** If $`SSR > SSE`$, then $`r^2 > 0.5`$ (Section 5.3), so the regression model explains more variability than it leaves unexplained. This comparison only describes the degree of fit; the statistical significance of the model is judged by a separate test.
+> **Note:** If $`SSR > SSE`$, then $`r^2 > 0.5`$ (Section 5.3), so the regression model explains more variability than it leaves unexplained. This comparison only describes the degree of fit; the statistical significance of the model is judged by a separate test.
 
 <br>
 

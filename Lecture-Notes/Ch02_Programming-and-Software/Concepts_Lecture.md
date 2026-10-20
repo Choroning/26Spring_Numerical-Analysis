@@ -2,14 +2,15 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2, 3
 
 > **Learning Objectives:**
-> 1. Write structured programs for numerical computation
-> 2. Apply modular programming principles
-> 3. Debug and test numerical algorithms
+> 1. Describe the numerical computing environment made up of Python, NumPy, SciPy, and Matplotlib
+> 2. Perform element-wise and matrix operations on NumPy arrays and tell them apart
+> 3. Write structured programs for numerical computation with loops, conditionals, and functions
+> 4. Implement the bungee jumper problem with Euler's method and compare the result with the analytical solution
 
 ---
 
@@ -43,7 +44,7 @@
 
 ## 1. Programming Environment
 
-This course uses **Python** as the primary programming language, together with the scientific computing ecosystem:
+Numerical computation here uses **Python** as the primary programming language, together with the scientific computing ecosystem:
 
 - **NumPy**: provides numerical arrays, linear algebra, and mathematical functions.
 - **SciPy**: provides advanced scientific computing (ODE solvers, optimization, interpolation, etc.).
@@ -59,7 +60,7 @@ This course uses **Python** as the primary programming language, together with t
 
 *Table 1. Comparison of MATLAB and Python*
 
-> **Note:** Most textbooks on numerical methods were historically written for MATLAB. The concepts and algorithms are identical regardless of the programming language; only the syntax differs. This course follows the Python edition of the textbook.
+> **Note:** Most textbooks on numerical methods were historically written for MATLAB. The concepts and algorithms are identical regardless of the programming language; only the syntax differs. The textbook implements the algorithms in Python.
 
 ---
 
@@ -177,7 +178,7 @@ print(A.T)
 
 ## 4. Useful NumPy/SciPy Functions
 
-The following functions are used frequently throughout this course.
+The following functions are used frequently throughout the numerical computations that follow.
 
 **Array creation:**
 

@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../README.ko.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **최종 수정일:** 2026-10-19
+> **최종 수정일:** 2026-10-20
 
 ## 1부 모델링, 컴퓨터, 오차 분석
 
@@ -21,7 +21,7 @@
 | [6장 근: 개방법](Ch06_Roots-Open-Methods/) | 고정점 반복, Wegstein 방법, 뉴턴-랩슨법, 할선법, 역 이차 보간, 브렌트 방법 | [강의 노트](Ch06_Roots-Open-Methods/Concepts_Lecture.ko.md) |
 | [7장 최적화](Ch07_Optimization/) | 국소 최적성과 전역 최적성, 최적해의 존재, 1차원 최적화, 황금 분할 탐색, 포물선 보간, 등고선과 기울기, 볼록 문제, 최급 하강법 | [강의 노트](Ch07_Optimization/Concepts_Lecture.ko.md) |
 
-## 3부 선형 대수 방정식
+## 3부 선형계
 
 | 단원 | 주제 | 문서 |
 |:-----|:-----|:-----|
@@ -29,7 +29,7 @@
 | [9장 가우스 소거법: 개선된 방법](Ch09_Gauss-Elimination/) | 부분 피봇팅과 스케일링된 부분 피봇팅, 가우스-조르단 방법, 삼중대각 시스템과 토마스 알고리즘, 조건수, 열전도 문제 | [강의 노트](Ch09_Gauss-Elimination/Concepts_Lecture.ko.md), [실습 노트](Ch09_Gauss-Elimination/Concepts_Lab.ko.md) |
 | [10장 LU 분해](Ch10_LU-Factorization/) | 가우스 소거법과 LU 분해의 관계, 전진 대입과 후진 대입, 피봇팅을 적용한 LU 분해, 촐레스키 분해, Doolittle 알고리즘, 다중 우변 문제와 열저항 네트워크 | [강의 노트](Ch10_LU-Factorization/Concepts_Lecture.ko.md), [실습 노트](Ch10_LU-Factorization/Concepts_Lab.ko.md) |
 | [11장 역행렬과 조건수](Ch11_Matrix-Inverse-and-Condition/) | 역행렬과 LU 분해를 이용한 계산, 질량-스프링 시스템의 물리적 해석, 악조건의 판별, 벡터 노름과 행렬 노름, 행렬 조건수와 오차 한계 정리, 힐베르트 행렬 | [강의 노트](Ch11_Matrix-Inverse-and-Condition/Concepts_Lecture.ko.md), [실습 노트](Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md) |
-| [12장 선형계의 반복법](Ch12_Iterative-Methods/) | 가우스-자이델 방법, 대각 우위와 수렴, 야코비 반복법, 완화법, 전처리, 고유값 계산을 위한 거듭제곱법, 역 거듭제곱법과 편이 거듭제곱법 | [강의 노트](Ch12_Iterative-Methods/Concepts_Lecture.ko.md), [실습 노트](Ch12_Iterative-Methods/Concepts_Lab.ko.md) |
+| [12장 선형계의 반복법](Ch12_Iterative-Methods/) | 가우스-자이델 방법, 대각 우위와 수렴, 야코비 반복법, 완화법, 전처리, 고유값 계산을 위한 거듭제곱법, 역거듭제곱법과 편이 거듭제곱법 | [강의 노트](Ch12_Iterative-Methods/Concepts_Lecture.ko.md), [실습 노트](Ch12_Iterative-Methods/Concepts_Lab.ko.md) |
 | [13장 고유값 방법: 대칭 행렬](Ch13_Eigenvalues-Symmetric-Matrices/) | 고유값과 고유벡터의 계산, 고유값과 상미분방정식의 안정성, 결합 2차 ODE 시스템, 질량-스프링 시스템, 거듭제곱법, 대칭 행렬의 스펙트럼 분해, 진동 해석 | [강의 노트](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.ko.md), [실습 노트](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md) |
 
 ## 4부 곡선 적합

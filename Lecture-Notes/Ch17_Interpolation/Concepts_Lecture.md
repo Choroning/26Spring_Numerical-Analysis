@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 17
 
@@ -139,6 +139,8 @@ In general, for a 2nd-order polynomial with data at $`x_1, x_2, x_3`$:
 ```
 
 The coefficient matrix $`V`$ is known as the **Vandermonde matrix**. Solve $`V \mathbf{p} = \mathbf{f}`$ to find the polynomial coefficients.
+
+> **[Linear Algebra]** A linear system with a square coefficient matrix has a unique solution when the determinant of the matrix is nonzero. The determinant of the Vandermonde matrix is the product of the differences $`(x_j - x_i)`$ between distinct points, so it is nonzero when all $`x`$-values are distinct; this is why $`n + 1`$ data points with distinct $`x`$-values determine the interpolating polynomial of degree $`n`$ uniquely, as stated in Section 1.2.
 
 > **Caution:** The Vandermonde matrix is often **ill-conditioned** when the $`x`$-values are large. For the example above, $`\text{cond}(V) \approx 5.9 \times 10^6`$ (in the 2-norm), which causes numerical instability.
 
@@ -534,7 +536,7 @@ In standard interpolation, we are given $`x`$ and estimate $`f(x)`$. In **invers
 
 Given data points $`(x_0, f(x_0)), (x_1, f(x_1)), (x_2, f(x_2)), \ldots`$, we want to find $`x`$ such that $`f(x) = y`$.
 
-**Key idea:** No explicit inverse function $`f^{-1}(x)`$ is needed. Instead, **reverse the roles** of $`x`$ and $`f(x)`$. That is, treat $`f(x_i)`$ as the independent variable and $`x_i`$ as the dependent variable, then apply standard interpolation. This requires $`f`$ to be monotonic (one-to-one) over the data range.
+**Key idea:** No explicit inverse function $`f^{-1}(y)`$ is needed. Instead, **reverse the roles** of $`x`$ and $`f(x)`$. That is, treat $`f(x_i)`$ as the independent variable and $`x_i`$ as the dependent variable, then apply standard interpolation. This requires $`f`$ to be monotonic (one-to-one) over the data range.
 
 ```math
 x(y) = \sum_{i=0}^{n} x_i \, L_i(y)

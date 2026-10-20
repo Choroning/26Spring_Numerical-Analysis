@@ -2,14 +2,14 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 9
 
 > **Learning Objectives:**
 > 1. Perform Gaussian elimination with partial pivoting
 > 2. Analyze computational complexity of elimination
-> 3. Implement back substitution algorithms
+> 3. Explain the principle and use of scaled partial pivoting and the Gauss-Jordan method
 > 4. Solve tridiagonal systems with the Thomas algorithm
 
 ---
@@ -228,7 +228,7 @@ The Thomas algorithm requires $`3(n-1)`$ multiplications/divisions and $`2(n-1)`
 
 This is a dramatic improvement over the $`O(n^3)`$ cost of general Gauss elimination. For a system of size $`n = 100{,}000`$, the ratio of operation counts is $`(2n^3/3)/(8n) = n^2/12 \approx 8 \times 10^8`$, so the Thomas algorithm is about $`10^9`$ times faster (comparing orders alone gives $`n^2 = 10^{10}`$).
 
-> **[Data Structures]** The Thomas algorithm exploits the banded structure of the matrix. Only 3 diagonals are stored and processed, analogous to how sparse matrix formats save memory. This is a recurring theme: exploiting structure in the problem leads to dramatic efficiency gains.
+> **[Data Structures]** Sparse matrix storage formats save memory by storing only the nonzero entries together with their positions and skip operations on the zero entries. The Thomas algorithm follows the same idea by storing and processing only the three diagonals as the vectors $`e`$, $`f`$, and $`g`$; since it handles about $`3n`$ values instead of $`n^2`$, both memory and work are $`O(n)`$.
 
 ---
 

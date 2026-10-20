@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 7
 
@@ -698,6 +698,8 @@ Given $`x^{(0)} \in \mathbb{R}^n`$ and a direction $`d \in \mathbb{R}^n`$, the *
 ```math
 \nabla f\big|_{x=x^{(0)}}^T d
 ```
+
+> **[Calculus]** The directional derivative is defined as the instantaneous rate of change $`\lim_{t \to 0} \frac{f(x^{(0)} + t d) - f(x^{(0)})}{t}`$ when moving from $`x^{(0)}`$ in the direction $`d`$, and when $`f`$ is differentiable the chain rule makes it equal to the inner product $`\nabla f^T d`$ of the gradient and the direction. Finding the direction of fastest decrease therefore becomes finding, among directions $`d`$ of the same length, the one that makes this inner product smallest, and the Cauchy-Schwarz inequality below determines that direction.
 
 If $`\|d\| = 1`$, this is the rate of increase of $`f`$ when moving from $`x^{(0)}`$ in the direction $`d`$.
 

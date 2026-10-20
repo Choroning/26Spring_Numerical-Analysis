@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-20
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -1070,7 +1070,7 @@ print(f"Eigenvector: {x_min}")
 | Eigenvector property | An eigenvector $`\{x\}`$ is parallel to $`[A]\{x\}`$. |
 | Scalar ODE $`dx/dt = ax`$ | The solution is $`x(t) = Ce^{at}`$. |
 | Matrix ODE $`d\mathbf{x}/dt = A\mathbf{x}`$ | The solution is $`\mathbf{x}(t) = e^{At}\mathbf{C}`$, and $`e^{At} = Ue^{Dt}U^T`$ when $`A`$ is symmetric. |
-| Stability | The system is stable if $`\text{Re}(\lambda) < 0`$, unstable if $`\text{Re}(\lambda) > 0`$, and oscillatory if $`\text{Re}(\lambda) = 0`$. |
+| Stability | The system is stable if $`\text{Re}(\lambda) < 0`$, unstable if $`\text{Re}(\lambda) > 0`$, and oscillatory if the eigenvalues are pure imaginary ($`\text{Re}(\lambda) = 0`$, $`\lambda \neq 0`$). |
 | 2nd-order ODE to eigenvalue | For $`\ddot{y} = Ay`$, $`\lambda = -\omega^2`$, so $`\omega = \sqrt{-\lambda}`$. |
 | Frequency relation | The period is $`2\pi/\omega`$ and the frequency is $`f = \omega/(2\pi)`$. |
 | Mass-spring system | Equations of motion of the form $`m\ddot{x} = -kx + k(x_{\text{neighbor}} - x)`$ lead to an eigenvalue problem. |

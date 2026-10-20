@@ -2,14 +2,15 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-18
+> **최종 수정일:** 2026-10-20
 >
-> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
+> Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2, 3
 
 > **학습 목표:**
-> 1. 수치 계산을 위한 구조화된 프로그램을 작성할 수 있다
-> 2. 모듈화 프로그래밍 원칙을 적용할 수 있다
-> 3. 수치 알고리즘을 디버그하고 테스트할 수 있다
+> 1. Python과 NumPy, SciPy, Matplotlib으로 이루어진 수치 계산 환경의 구성을 설명할 수 있다
+> 2. NumPy 배열로 요소별 연산과 행렬 연산을 구분하여 수행할 수 있다
+> 3. 반복문, 조건문, 함수를 사용하여 수치 계산을 위한 구조화된 프로그램을 작성할 수 있다
+> 4. 번지 점프 문제를 오일러 방법으로 구현하고 결과를 해석해와 비교할 수 있다
 
 ---
 
@@ -43,7 +44,7 @@
 
 ## 1. 프로그래밍 환경
 
-이 과목은 **Python**을 주요 프로그래밍 언어로 사용하며, 과학 계산 생태계와 함께 활용한다:
+수치 계산에는 **Python**을 주요 프로그래밍 언어로 사용하며, 과학 계산 생태계를 함께 활용한다:
 
 - **NumPy**: 수치 배열, 선형대수, 수학 함수를 제공한다.
 - **SciPy**: 고급 과학 계산(ODE 풀이, 최적화, 보간 등)을 제공한다.
@@ -59,7 +60,7 @@
 
 *표 1. MATLAB과 Python의 비교*
 
-> **참고:** 수치 해법에 대한 대부분의 교재는 역사적으로 MATLAB용으로 작성되었다. 개념과 알고리즘은 프로그래밍 언어에 관계없이 동일하며, 문법만 다르다. 이 과목은 Python 판 교재를 따른다.
+> **참고:** 수치 해법에 대한 대부분의 교재는 역사적으로 MATLAB용으로 작성되었다. 개념과 알고리즘은 프로그래밍 언어에 관계없이 동일하며, 문법만 다르다. 교재는 알고리즘을 Python으로 구현한다.
 
 ---
 
@@ -177,7 +178,7 @@ print(A.T)
 
 ## 4. 유용한 NumPy/SciPy 함수
 
-다음 함수들은 이 과목 전반에서 자주 사용된다.
+다음 함수들은 이후의 수치 계산 전반에서 자주 사용된다.
 
 **배열 생성:**
 
@@ -419,7 +420,7 @@ plt.show()
 
 ### 8.3 scipy.integrate.solve_ivp 사용
 
-더 정확한 ODE 풀이를 위해 SciPy는 적응 스텝 크기 방법을 사용하는 `solve_ivp`를 제공한다:
+더 정확한 ODE 풀이를 위해 SciPy는 적응적 스텝 크기 방법을 사용하는 `solve_ivp`를 제공한다:
 
 ```python
 from scipy.integrate import solve_ivp
@@ -442,7 +443,7 @@ plt.grid(True)
 plt.show()
 ```
 
-> **참고:** `scipy.integrate.solve_ivp`는 기본적으로 적응형 Runge-Kutta 방법(RK45)을 사용하며, 오일러 방법보다 훨씬 정확하다. Runge-Kutta 방법은 22장에서, 적응적 스텝 크기 제어는 23장에서 자세히 다룬다.
+> **참고:** `scipy.integrate.solve_ivp`는 기본적으로 적응적 룽게-쿠타 방법(RK45)을 사용하며, 오일러 방법보다 훨씬 정확하다. 룽게-쿠타 방법은 22장에서, 적응적 스텝 크기 제어는 23장에서 자세히 다룬다.
 
 ---
 
@@ -461,7 +462,7 @@ plt.show()
 | 그래프 | `plt.plot(x, y)`로 그리고 `plt.xlabel(...)`, `plt.title(...)`로 꾸민 뒤 `plt.show()`로 표시한다. |
 | 제어 구조 | `for`, `while`, `if`/`elif`/`else`로 반복과 분기를 제어한다. |
 | 함수 | `def func(args): return result` 형태로 정의하며, 튜플로 여러 값을 반환할 수 있다. |
-| ODE 풀이 | 오일러 방법은 직접 구현하는 간단한 방법이고, `scipy.integrate.solve_ivp`는 적응형 스텝으로 더 정확한 해를 준다. |
+| ODE 풀이 | 오일러 방법은 직접 구현하는 간단한 방법이고, `scipy.integrate.solve_ivp`는 적응적 스텝 크기로 더 정확한 해를 준다. |
 
 ---
 
