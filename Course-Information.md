@@ -2,7 +2,7 @@
 
 [Repository Guide](README.md) | [English](Course-Information.md) | [한국어](Course-Information.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-26
 
 ## Table of Contents
 
@@ -69,22 +69,22 @@
 
 | Week | Class Dates (Tue) | Planned Topic | Lecture Decks Covered |
 |:---:|:-----|:-----|:-----|
-| 1 | 3/3 | Python basics (Chapters 1-3) | N00_Orientation<br>N01_Ch1 (modeling)<br>N02_Ch2 (Python fundamentals)<br>N03_Ch3 (Python programming) |
-| 2 | 3/10 | Source of errors (Chapter 4) | N04_Ch4 (roundoff and truncation errors) |
-| 3 | 3/17 | Linear systems of equations (Chapters 8-9) | N05_Ch8 (linear systems)<br>N06_Ch9 (Gauss elimination) |
-| 4 | 3/24 | Linear systems of equations (Chapters 10-11) | N07_Ch10 (LU factorization)<br>N08_Ch11 (matrix inverse and condition number) |
-| 5 | 3/31 | Eigenvalues and eigenvectors (Chapter 13) | N09_Ch12 (iterative methods for linear systems)<br>N10_Ch13 (eigenvalues) |
-| 6 | 4/7 | Nonlinear equations (Chapters 5-6) | N11_Ch5 (root finding: bracketing methods)<br>N12_Ch6 (root finding: open methods) |
-| 7 | 4/14 | Optimization (Chapter 7) | N13_Ch7-Optimization-1<br>N14_Ch7-Optimization-2 |
-| 8 | 4/21 | Midterm exam | - |
-| 9 | 4/28 | Linear and nonlinear regression (Chapters 14-15) | N15_Ch14-Regression<br>N16_Ch15-NonLinearRegression |
-| 10 | 5/5 | Fourier analysis (Chapter 16) | N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
-| 11 | 5/12 | Data interpolation (Chapters 17-18) | N19_Ch17-Interpolation<br>N20_Ch18-Spline |
-| 12 | 5/19 | Numerical integration (Chapters 19-20) | N21_Ch19-Integration-1<br>N22_Ch20-Integration-2 |
-| 13 | 5/26 | Numerical differentiation (Chapter 21) | N23_Ch21-Differentiation<br>N24_Ch22-IVP |
-| 14 | 6/2 | Solving differential equations (Chapters 22-23) | N25_Ch22-IVP-2<br>N26_Ch22-IVP-3 |
-| 15 | 6/9 | Solving differential equations (Chapter 24) | N27_Ch23-StiffODE<br>N28_Ch24-BVP |
-| 16 | 6/16 | Final exam | - |
+| W01 | 3/3 | Python basics (Chapters 1-3) | N00_Orientation<br>N01_Ch1 (modeling)<br>N02_Ch2 (Python fundamentals)<br>N03_Ch3 (Python programming) |
+| W02 | 3/10 | Source of errors (Chapter 4) | N04_Ch4 (roundoff and truncation errors) |
+| W03 | 3/17 | Linear systems of equations (Chapters 8-9) | N05_Ch8 (linear systems)<br>N06_Ch9 (Gauss elimination) |
+| W04 | 3/24 | Linear systems of equations (Chapters 10-11) | N07_Ch10 (LU factorization)<br>N08_Ch11 (matrix inverse and condition number) |
+| W05 | 3/31 | Eigenvalues and eigenvectors (Chapter 13) | N09_Ch12 (iterative methods for linear systems)<br>N10_Ch13 (eigenvalues) |
+| W06 | 4/7 | Nonlinear equations (Chapters 5-6) | N11_Ch5 (root finding: bracketing methods)<br>N12_Ch6 (root finding: open methods) |
+| W07 | 4/14 | Optimization (Chapter 7) | N13_Ch7-Optimization-1<br>N14_Ch7-Optimization-2 |
+| W08 | 4/21 | Midterm exam | - |
+| W09 | 4/28 | Linear and nonlinear regression (Chapters 14-15) | N15_Ch14-Regression<br>N16_Ch15-NonLinearRegression |
+| W10 | 5/5 | Fourier analysis (Chapter 16) | N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
+| W11 | 5/12 | Data interpolation (Chapters 17-18) | N19_Ch17-Interpolation<br>N20_Ch18-Spline |
+| W12 | 5/19 | Numerical integration (Chapters 19-20) | N21_Ch19-Integration-1<br>N22_Ch20-Integration-2 |
+| W13 | 5/26 | Numerical differentiation (Chapter 21) | N23_Ch21-Differentiation<br>N24_Ch22-IVP |
+| W14 | 6/2 | Solving differential equations (Chapters 22-23) | N25_Ch22-IVP-2<br>N26_Ch22-IVP-3 |
+| W15 | 6/9 | Solving differential equations (Chapter 24) | N27_Ch23-StiffODE<br>N28_Ch24-BVP |
+| W16 | 6/16 | Final exam | - |
 
 - The planned topics and the chapter numbers in parentheses follow the syllabus, and the lecture decks follow the materials actually distributed. The parentheses after a deck name give the content of that deck.
 - In the actual progress, Chapter 12 (iterative methods for linear systems), which was not in the plan, was covered together in Week 5, Chapter 22 (initial-value problems) started in Week 13 and continued through Week 14, and Chapter 23 (stiff ODEs) was covered in Week 15 together with Chapter 24 (boundary-value problems).
