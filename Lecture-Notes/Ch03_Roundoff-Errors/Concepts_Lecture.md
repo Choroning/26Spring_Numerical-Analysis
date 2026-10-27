@@ -8,7 +8,7 @@
 
 > **Learning Objectives:**
 > 1. Count significant figures and distinguish accuracy from precision
-> 2. Analyze round-off errors in floating-point arithmetic
+> 2. Analyze roundoff errors in floating-point arithmetic
 > 3. Apply the IEEE 754 floating-point representation
 
 ---
@@ -26,12 +26,12 @@
   - [3.2 Approximate Percent Relative Error](#32-approximate-percent-relative-error)
   - [3.3 Stopping Criterion](#33-stopping-criterion)
 - [4. Scarborough Criterion](#4-scarborough-criterion)
-- [5. Round-Off Errors](#5-round-off-errors)
-  - [5.1 Source of Round-Off Errors](#51-source-of-round-off-errors)
+- [5. Roundoff Errors](#5-roundoff-errors)
+  - [5.1 Source of Roundoff Errors](#51-source-of-roundoff-errors)
   - [5.2 Floating-Point Representation](#52-floating-point-representation)
   - [5.3 IEEE 754 Double Precision](#53-ieee-754-double-precision)
   - [5.4 Machine Epsilon](#54-machine-epsilon)
-  - [5.5 Truncation Error vs. Round-Off Error](#55-truncation-error-vs-round-off-error)
+  - [5.5 Truncation Error vs. Roundoff Error](#55-truncation-error-vs-roundoff-error)
 - [6. Problems with Floating-Point Arithmetic](#6-problems-with-floating-point-arithmetic)
   - [6.1 Subtractive Cancellation](#61-subtractive-cancellation)
   - [6.2 Adding Large and Small Numbers](#62-adding-large-and-small-numbers)
@@ -179,11 +179,11 @@ For example, if we need our result to be correct to **3 significant figures**, w
 
 <br>
 
-## 5. Round-Off Errors
+## 5. Roundoff Errors
 
-### 5.1 Source of Round-Off Errors
+### 5.1 Source of Roundoff Errors
 
-Round-off errors arise because computers can only store a **finite number of digits**. Since most real numbers have infinitely many digits (e.g., $`\pi = 3.14159265...`$, $`1/3 = 0.33333...`$), the computer must truncate or round the representation, introducing a small error every time a number is stored or a calculation is performed.
+Roundoff errors arise because computers can only store a **finite number of digits**. Since most real numbers have infinitely many digits (e.g., $`\pi = 3.14159265...`$, $`1/3 = 0.33333...`$), the computer must truncate or round the representation, introducing a small error every time a number is stored or a calculation is performed.
 
 ### 5.2 Floating-Point Representation
 
@@ -223,7 +223,7 @@ The **IEEE 754** standard defines the universal format for floating-point arithm
 
 Because binary floating-point numbers are normalized to have a leading 1 (i.e., $`1.xxxxx \times 2^e`$), the leading 1 is **implicit** and does not need to be stored. This gives an effective 53 bits of precision in the mantissa.
 
-> **[Computer Architecture]** The floating-point unit of a CPU adds and multiplies IEEE 754 bit patterns directly in hardware and rounds each result to the 53-bit mantissa before storing it. This hardware rounding is where the round-off error studied in this chapter originates, and the 53-bit mantissa corresponds to about 15-17 significant decimal digits.
+> **[Computer Architecture]** The floating-point unit of a CPU adds and multiplies IEEE 754 bit patterns directly in hardware and rounds each result to the 53-bit mantissa before storing it. This hardware rounding is where the roundoff error studied in this chapter originates, and the 53-bit mantissa corresponds to about 15-17 significant decimal digits.
 
 ### 5.4 Machine Epsilon
 
@@ -241,22 +241,22 @@ in floating-point arithmetic. For IEEE 754 double precision:
 
 Machine epsilon represents the **relative precision** of the floating-point system. It tells us the smallest relative change that a floating-point number can resolve. Under the default round-to-nearest mode, adding to 1 any number whose size relative to 1 is at most $`\varepsilon_{\text{mach}}/2`$ gives a result that rounds back to 1.
 
-This means that double precision provides approximately **15-17 significant decimal digits** of precision. Beyond that, the digits are unreliable due to round-off.
+This means that double precision provides approximately **15-17 significant decimal digits** of precision. Beyond that, the digits are unreliable due to roundoff.
 
-### 5.5 Truncation Error vs. Round-Off Error
+### 5.5 Truncation Error vs. Roundoff Error
 
 These two types of error have fundamentally different origins.
 
-| Property | Truncation Error | Round-Off Error |
+| Property | Truncation Error | Roundoff Error |
 |:---------|:----------------|:----------------|
 | **Source** | Approximating a mathematical procedure (e.g., truncating an infinite Taylor series after finitely many terms) | Representing numbers with finite digits in computer memory |
 | **Depends on** | Algorithm and step size | Computer hardware and number format |
 | **Behavior with more terms/steps** | Generally decreases | May accumulate |
 | **Example** | Using $`e^x \approx 1 + x + x^2/2`$ instead of the full infinite series | Storing $`1/3 = 0.333...`$ as $`0.333333333333333`$ |
 
-*Table 4. Comparison of truncation error and round-off error*
+*Table 4. Comparison of truncation error and roundoff error*
 
-Understanding both types of error is essential because they often interact. Reducing the step size to decrease truncation error requires more arithmetic operations, which can increase accumulated round-off error.
+Understanding both types of error is essential because they often interact. Reducing the step size to decrease truncation error requires more arithmetic operations, which can increase accumulated roundoff error.
 
 ---
 
@@ -290,7 +290,7 @@ Applying the same estimate to $`10^{15}`$, the size of a number that can change 
 
 ### 6.3 Smearing
 
-**Smearing** occurs when an alternating series is summed and the intermediate partial sums are much larger in magnitude than the final answer. Each intermediate addition or subtraction introduces a round-off error that is proportional to the magnitude of the intermediate result. Since the intermediate results are much larger than the final answer, these round-off errors can be comparable to or larger than the final result itself.
+**Smearing** occurs when an alternating series is summed and the intermediate partial sums are much larger in magnitude than the final answer. Each intermediate addition or subtraction introduces a roundoff error that is proportional to the magnitude of the intermediate result. Since the intermediate results are much larger than the final answer, these roundoff errors can be comparable to or larger than the final result itself.
 
 For example, computing $`e^{-20}`$ directly with the Maclaurin series gives the following.
 
@@ -298,7 +298,7 @@ For example, computing $`e^{-20}`$ directly with the Maclaurin series gives the 
 e^{-20} = 1 - 20 + \frac{400}{2!} - \frac{8000}{3!} + \cdots
 ```
 
-The terms grow very large before eventually decreasing (the largest term is about $`4.3 \times 10^7`$), and the alternating signs mean that massive cancellation occurs. The intermediate partial sums reach magnitudes of about $`2.2 \times 10^7`$, while the final answer is approximately $`2.06 \times 10^{-9}`$. The round-off errors accumulated during the intermediate sums overwhelm the tiny final result, so adding the terms in order in double precision gives a value far from the true one.
+The terms grow very large before eventually decreasing (the largest term is about $`4.3 \times 10^7`$), and the alternating signs mean that massive cancellation occurs. The intermediate partial sums reach magnitudes of about $`2.2 \times 10^7`$, while the final answer is approximately $`2.06 \times 10^{-9}`$. The roundoff errors accumulated during the intermediate sums overwhelm the tiny final result, so adding the terms in order in double precision gives a value far from the true one.
 
 A better approach is to compute $`e^{20}`$ (no smearing because all terms are positive) and then take the reciprocal: $`e^{-20} = 1/e^{20}`$.
 
@@ -322,7 +322,7 @@ The key points that Chapter 4 develops are the following.
 
 - The **remainder term** (truncation error) depends on the step size $`h`$ raised to some power. Keeping more terms in the series means the error decreases faster as $`h`$ shrinks.
 - Taylor series provides the theoretical basis for most numerical methods. Taylor expansions are used to derive or analyze the error of finite differences, interpolation, integration, and ODE solvers.
-- The trade-off between truncation error (fewer terms or larger $`h`$) and round-off error (more computation with smaller $`h`$) is a central theme in numerical analysis.
+- The trade-off between truncation error (fewer terms or larger $`h`$) and roundoff error (more computation with smaller $`h`$) is a central theme in numerical analysis.
 
 ---
 
@@ -340,7 +340,7 @@ The key points that Chapter 4 develops are the following.
 | Scarborough Criterion | If $`\vert\varepsilon_a\vert < (0.5 \times 10^{2-n})\%`$, the result is correct to at least $`n`$ significant figures. |
 | IEEE 754 Double Precision | It splits 64 bits into 1 sign bit, 11 exponent bits, and 52 mantissa bits, and $`\varepsilon_{\text{mach}} = 2^{-52} \approx 2.22 \times 10^{-16}`$. |
 | Subtractive Cancellation | Subtracting two nearly equal numbers cancels the leading digits and loses most significant digits. |
-| Smearing | In an alternating series whose partial sums are much larger than the final answer, accumulated round-off overwhelms the result. |
+| Smearing | In an alternating series whose partial sums are much larger than the final answer, accumulated roundoff overwhelms the result. |
 | Taylor Series | It is the foundation for truncation error analysis and is treated in detail in Chapter 4. |
 
 ---
@@ -390,6 +390,6 @@ The key points that Chapter 4 develops are the following.
    <details>
    <summary>Answer</summary>
 
-   The intermediate partial sums reach about $`2.2 \times 10^7`$, so the round-off error of each addition is about $`2.2 \times 10^7 \times 1.11 \times 10^{-16} \approx 2.4 \times 10^{-9}`$, comparable to the final answer $`2.06 \times 10^{-9}`$. Computing $`e^{20}`$, whose terms are all positive, by the series and then taking the reciprocal $`1/e^{20}`$ avoids smearing.
+   The intermediate partial sums reach about $`2.2 \times 10^7`$, so the roundoff error of each addition is about $`2.2 \times 10^7 \times 1.11 \times 10^{-16} \approx 2.4 \times 10^{-9}`$, comparable to the final answer $`2.06 \times 10^{-9}`$. Computing $`e^{20}`$, whose terms are all positive, by the series and then taking the reciprocal $`1/e^{20}`$ avoids smearing.
 
    </details>

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 9
 
@@ -52,7 +52,7 @@ b_bad = np.array([1, 1, 1], dtype=float)
 # gauss_naive(A_bad, b_bad) would fail — division by zero!
 ```
 
-The first pivot $`a_{11} = 0`$ causes immediate failure. Even if the pivot is not exactly zero but very small, the resulting large multipliers amplify round-off errors catastrophically.
+The first pivot $`a_{11} = 0`$ causes immediate failure. Even if the pivot is not exactly zero but very small, the resulting large multipliers amplify roundoff errors catastrophically.
 
 ### 1.2 Gauss Elimination with Partial Pivoting
 
@@ -257,7 +257,7 @@ plt.grid(True)
 plt.show()
 ```
 
-For the Laplace equation ($`d^2T/dx^2 = 0`$), the exact solution is linear: $`T(x) = T_L + (T_R - T_L) \cdot x / L`$. Because linear functions are represented exactly by the central difference approximation, the numerical solution matches exactly (up to round-off) for any mesh size.
+For the Laplace equation ($`d^2T/dx^2 = 0`$), the exact solution is linear: $`T(x) = T_L + (T_R - T_L) \cdot x / L`$. Because linear functions are represented exactly by the central difference approximation, the numerical solution matches exactly (up to roundoff) for any mesh size.
 
 > **Note:** **Accuracy of the central difference.** The central difference approximation $`T''(x_i) \approx (T_{i-1} - 2T_i + T_{i+1}) / (\Delta x)^2`$ is second-order accurate. For the Laplace equation, it gives exact results because the truncation error involves $`T^{(4)}(x)`$, which is zero for polynomials of degree at most 3 (including linear functions).
 
@@ -332,12 +332,12 @@ At $`n = 100{,}000`$, the pure Python Thomas algorithm completes in tens of mill
 
    </details>
 
-2. **Condition number and reliable digits:** For a system with $`\kappa(A) = 10^6`$, if the relative error in $`b`$ is $`10^{-8}`$, what is the upper bound on the relative error in $`x`$? With only round-off error in double precision ($`\varepsilon_{\text{mach}} \approx 2.2 \times 10^{-16}`$), roughly how many digits can be trusted?
+2. **Condition number and reliable digits:** For a system with $`\kappa(A) = 10^6`$, if the relative error in $`b`$ is $`10^{-8}`$, what is the upper bound on the relative error in $`x`$? With only roundoff error in double precision ($`\varepsilon_{\text{mach}} \approx 2.2 \times 10^{-16}`$), roughly how many digits can be trusted?
 
    <details>
    <summary>Answer</summary>
 
-   The bound is $`\kappa(A) \times 10^{-8} = 10^{-2}`$, that is, 1%. With only round-off error, $`\kappa(A) \cdot \varepsilon_{\text{mach}} \approx 2.2 \times 10^{-10}`$, so about 6 of the roughly 16 digits are lost and about 9-10 digits can be trusted.
+   The bound is $`\kappa(A) \times 10^{-8} = 10^{-2}`$, that is, 1%. With only roundoff error, $`\kappa(A) \cdot \varepsilon_{\text{mach}} \approx 2.2 \times 10^{-10}`$, so about 6 of the roughly 16 digits are lost and about 9-10 digits can be trusted.
 
    </details>
 

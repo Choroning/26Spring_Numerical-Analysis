@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 11
 
@@ -214,7 +214,7 @@ for n in [4, 8, 12]:
           f'solve error={rel_err:.2e}, perturbation effect={pert_err:.2e}')
 ```
 
-The results show a clear pattern: as $`n`$ increases, the condition number grows exponentially, and both the solve error and the perturbation sensitivity grow nearly in proportion to it. Because $`b`$ is built from $`x_{true}`$, the solve error would be zero in exact arithmetic; it appears because round-off is amplified by the condition number. In a sample run, the solve errors for $`n = 4, 8, 12`$ were about $`10^{-14}`$, $`10^{-7}`$, and $`10^{-1}`$. For $`n = 12`$, a perturbation of order $`10^{-10}`$ in $`\{b\}`$ can produce changes of order $`10^6`$ in $`\{x\}`$, a magnification factor of about $`10^{16}`$ that matches the condition number.
+The results show a clear pattern: as $`n`$ increases, the condition number grows exponentially, and both the solve error and the perturbation sensitivity grow nearly in proportion to it. Because $`b`$ is built from $`x_{true}`$, the solve error would be zero in exact arithmetic; it appears because roundoff is amplified by the condition number. In a sample run, the solve errors for $`n = 4, 8, 12`$ were about $`10^{-14}`$, $`10^{-7}`$, and $`10^{-1}`$. For $`n = 12`$, a perturbation of order $`10^{-10}`$ in $`\{b\}`$ can produce changes of order $`10^6`$ in $`\{x\}`$, a magnification factor of about $`10^{16}`$ that matches the condition number.
 
 ---
 

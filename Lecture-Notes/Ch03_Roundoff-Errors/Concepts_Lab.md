@@ -2,15 +2,15 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
 > **Learning Objectives:**
 > 1. Choose a stopping tolerance with the Scarborough criterion and apply it to iterative computations
 > 2. Verify by computation how the truncation error of a Taylor series shrinks with the number of terms
-> 3. Analyze round-off errors in floating-point arithmetic using machine epsilon and the binary representation of decimals
-> 4. Reduce accumulated round-off error and catastrophic cancellation with Kahan summation and algebraic reformulation
+> 3. Analyze roundoff errors in floating-point arithmetic using machine epsilon and the binary representation of decimals
+> 4. Reduce accumulated roundoff error and catastrophic cancellation with Kahan summation and algebraic reformulation
 
 ---
 
@@ -23,10 +23,10 @@
   - [2.1 Maclaurin Series for e^x: Term-by-Term](#21-maclaurin-series-for-ex-term-by-term)
   - [2.2 Iterative Computation with Stopping Criterion](#22-iterative-computation-with-stopping-criterion)
   - [2.3 Visualization of Truncation Error Convergence](#23-visualization-of-truncation-error-convergence)
-- [3. Round-Off Error and Floating-Point](#3-round-off-error-and-floating-point)
+- [3. Roundoff Error and Floating-Point](#3-roundoff-error-and-floating-point)
   - [3.1 Machine Epsilon](#31-machine-epsilon)
   - [3.2 Binary Representation of Decimals](#32-binary-representation-of-decimals)
-  - [3.3 Accumulation of Round-Off Error](#33-accumulation-of-round-off-error)
+  - [3.3 Accumulation of Roundoff Error](#33-accumulation-of-roundoff-error)
   - [3.4 Kahan Summation Algorithm](#34-kahan-summation-algorithm)
   - [3.5 Catastrophic Cancellation: Quadratic Formula](#35-catastrophic-cancellation-quadratic-formula)
 - [Summary](#summary)
@@ -194,13 +194,13 @@ plt.show()
 
 **On the semilog plot, the error follows a curve that falls more steeply than a straight line.** The factor by which each additional term reduces the error shrinks from about 0.16 to 0.04, so the decrease is even faster than geometric decay at a constant ratio. The reason is that the next term $`x^{n+1}/(n+1)!`$ has a factorial in its denominator, which is characteristic of Taylor series of analytic functions such as $`e^x`$ that converge for all $`x`$.
 
-The horizontal axis of the code holds the order $`n`$, and the number of terms is $`n + 1`$. For $`e^{0.5}`$, the absolute error reaches about $`6.7 \times 10^{-16}`$ at order 13 (14 terms), the level of machine epsilon ($`\approx 2.22 \times 10^{-16}`$), and at order 14 the computed value equals `math.exp(0.5)`, so the error is 0 (a zero cannot be drawn on a semilog plot, so this point does not appear). Adding more terms beyond this point provides no further improvement because round-off error dominates. This is the point where truncation error and round-off error meet.
+The horizontal axis of the code holds the order $`n`$, and the number of terms is $`n + 1`$. For $`e^{0.5}`$, the absolute error reaches about $`6.7 \times 10^{-16}`$ at order 13 (14 terms), the level of machine epsilon ($`\approx 2.22 \times 10^{-16}`$), and at order 14 the computed value equals `math.exp(0.5)`, so the error is 0 (a zero cannot be drawn on a semilog plot, so this point does not appear). Adding more terms beyond this point provides no further improvement because roundoff error dominates. This is the point where truncation error and roundoff error meet.
 
 ---
 
 <br>
 
-## 3. Round-Off Error and Floating-Point
+## 3. Roundoff Error and Floating-Point
 
 ### 3.1 Machine Epsilon
 
@@ -224,7 +224,7 @@ The second test (`1 + eps == 1`) returns `False`. The number $`1 + \varepsilon`$
 
 ### 3.2 Binary Representation of Decimals
 
-Many decimal fractions that appear simple to humans (like $`0.1`$ or $`0.3`$) have **non-terminating representations in binary**, just as $`1/3 = 0.333...`$ is non-terminating in decimal. This is a fundamental source of round-off error in floating-point arithmetic.
+Many decimal fractions that appear simple to humans (like $`0.1`$ or $`0.3`$) have **non-terminating representations in binary**, just as $`1/3 = 0.333...`$ is non-terminating in decimal. This is a fundamental source of roundoff error in floating-point arithmetic.
 
 ```python
 def decimal_to_binary(num, bits=52):
@@ -254,9 +254,9 @@ The pattern $`0.0\overline{0011}`$ repeats infinitely. Since double precision st
 
 > **[Computer Architecture]** The IEEE 754 double-precision format stores a number as a binary bit pattern of 1 sign bit, 11 exponent bits, and 52 mantissa bits, so a fraction can be represented exactly with finitely many bits only if its denominator is a power of 2 (0.5, 0.25, 0.375, and so on). A decimal fraction such as 0.1 = 1/10, whose denominator has a prime factor other than 2, has a non-terminating binary expansion as shown above and is rounded at the last mantissa bit when stored; this rounding at storage time is the source of the error described in this section.
 
-### 3.3 Accumulation of Round-Off Error
+### 3.3 Accumulation of Roundoff Error
 
-When many small round-off errors accumulate over thousands of operations, the total error can become significant. This is demonstrated by summing $`0.0001`$ ten thousand times. The mathematical result is exactly $`1.0`$, but floating-point arithmetic introduces a discrepancy.
+When many small roundoff errors accumulate over thousands of operations, the total error can become significant. This is demonstrated by summing $`0.0001`$ ten thousand times. The mathematical result is exactly $`1.0`$, but floating-point arithmetic introduces a discrepancy.
 
 ```python
 # Summing 0.0001 ten thousand times
@@ -267,11 +267,11 @@ print(f'Error: {abs(1.0 - total_naive):.2e}')  # ~9.38e-14
 
 > **Note:** **Differences between Python versions.** The comment `~9.38e-14` in the code above is the result in Python 3.11 and earlier. Since Python 3.12, the built-in `sum()` uses compensated summation for floating-point sums, so this code prints `1.0` and an error of `0.00e+00`. To see the error of naive summation, start from `total = 0.0` and repeat `total += 0.0001` ten thousand times in a `for` loop; the result is then `0.9999999999999062`, with an error of about `9.38e-14`.
 
-Each addition of $`0.0001`$ introduces a tiny round-off error (because $`0.0001`$ cannot be represented exactly in binary). Over 10,000 additions, these errors accumulate to approximately $`10^{-13}`$. This is small in absolute terms, but potentially problematic in applications that require high accuracy or that use this sum in further calculations, where the error may be amplified.
+Each addition of $`0.0001`$ introduces a tiny roundoff error (because $`0.0001`$ cannot be represented exactly in binary). Over 10,000 additions, these errors accumulate to approximately $`10^{-13}`$. This is small in absolute terms, but potentially problematic in applications that require high accuracy or that use this sum in further calculations, where the error may be amplified.
 
 ### 3.4 Kahan Summation Algorithm
 
-The **Kahan summation algorithm** is a technique that dramatically reduces the accumulation of round-off errors in large summations, and is also called **compensated summation**. The key idea is to maintain a separate compensation variable that tracks the running round-off error and corrects for it in the next addition.
+The **Kahan summation algorithm** is a technique that dramatically reduces the accumulation of roundoff errors in large summations, and is also called **compensated summation**. The key idea is to maintain a separate compensation variable that tracks the running roundoff error and corrects for it in the next addition.
 
 ```python
 def kahan_sum(values):
@@ -293,11 +293,11 @@ print(f'Error: {abs(1.0 - total_kahan):.2e}')  # 0.00e+00 — perfect!
 The algorithm works step by step as follows.
 
 1. `y = val - compensation`: Adjust the next value to add by subtracting the accumulated compensation (the error from previous steps).
-2. `temp = total + y`: Perform the addition (this introduces a new round-off error).
-3. `compensation = (temp - total) - y`: Compute the round-off error introduced in step 2. Since `temp = total + y` in exact arithmetic, `(temp - total) - y` should be zero, but in floating point it captures exactly the round-off error that was lost.
+2. `temp = total + y`: Perform the addition (this introduces a new roundoff error).
+3. `compensation = (temp - total) - y`: Compute the roundoff error introduced in step 2. Since `temp = total + y` in exact arithmetic, `(temp - total) - y` should be zero, but in floating point it captures exactly the roundoff error that was lost.
 4. `total = temp`: Update the running total.
 
-> **Note:** Kahan summation adds a compensation variable that tracks the accumulated round-off error and corrects for it in the next addition. This is one of the most important numerical techniques for maintaining accuracy in large summations.
+> **Note:** Kahan summation adds a compensation variable that tracks the accumulated roundoff error and corrects for it in the next addition. This is one of the most important numerical techniques for maintaining accuracy in large summations.
 
 The result is remarkable: in this test, naive summation produces an error of $`\sim 10^{-13}`$ (with the `for` loop of the note above), while Kahan summation achieves **zero error**. The compensation mechanism effectively gives close to double the precision of a single floating-point variable.
 
@@ -384,7 +384,7 @@ The lesson is general: whenever we encounter a subtraction of nearly equal quant
 | Babylonian Method | It computes $`\sqrt{S}`$ by $`x_{n+1} = (x_n + S/x_n)/2`$ and converges quadratically. |
 | Taylor Series | The terms of $`e^x = \sum x^k/k!`$ are added iteratively until the stopping criterion is met. |
 | Machine Epsilon | `np.finfo(float).eps` $`\approx 2.22 \times 10^{-16}`$ is the gap between 1 and the next floating-point number. |
-| Kahan Summation | It tracks the lost round-off error in a compensation variable to make large sums accurate. |
+| Kahan Summation | It tracks the lost roundoff error in a compensation variable to make large sums accurate. |
 | Catastrophic Cancellation | It is avoided with algebraic alternatives (rationalizing, Vieta's formulas, Taylor expansion) that remove the subtraction of nearly equal numbers. |
 
 ---

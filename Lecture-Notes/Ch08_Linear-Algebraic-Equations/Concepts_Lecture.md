@@ -458,7 +458,7 @@ x = np.linalg.solve(A, b)  # solve without forming the inverse
 print(x)
 ```
 
-Both `print` calls output `[-0.8  0.6]`, the solution found in Section 2.10. `np.linalg.inv(A)` computes the entire inverse, which amounts to solving one system for each column of $`[I]`$, and then the result is multiplied by `b`. `np.linalg.solve(A, b)` factors $`[A]`$ once by LU factorization with partial pivoting (Chapter 10) and obtains $`\{x\}`$ by forward and back substitution, so it needs fewer operations and is the more efficient choice. Avoiding the explicit inverse also generally reduces the round-off error.
+Both `print` calls output `[-0.8  0.6]`, the solution found in Section 2.10. `np.linalg.inv(A)` computes the entire inverse, which amounts to solving one system for each column of $`[I]`$, and then the result is multiplied by `b`. `np.linalg.solve(A, b)` factors $`[A]`$ once by LU factorization with partial pivoting (Chapter 10) and obtains $`\{x\}`$ by forward and back substitution, so it needs fewer operations and is the more efficient choice. Avoiding the explicit inverse also generally reduces the roundoff error.
 
 > **Caution:** For NumPy arrays, `*` multiplies element by element. `np.linalg.inv(A) * b` therefore multiplies each row of the inverse element by element by `b` and returns a $`2 \times 2`$ array instead of the matrix-vector product. The matrix product of arrays is written with `@` (or `np.dot`).
 
@@ -554,7 +554,7 @@ The last step multiplies by $`a_{12}a_{22} \neq 0`$. The final condition contain
 
 - **$`D = 0`$**: The system is **singular**, and no unique solution exists. The rows of $`[A]`$ are linearly dependent (one row is a scalar multiple of the other), and the system is either inconsistent or dependent.
 
-- **$`D`$ very small relative to the coefficients**: The system is **ill-conditioned**. A unique solution technically exists, but it is extremely sensitive to small perturbations in the coefficients or the right-hand side. Tiny round-off errors in the input data or during computation can produce wildly inaccurate results. Because the magnitude of the determinant changes when an equation is merely multiplied by a constant, the comparison is meaningful only after each equation is normalized.
+- **$`D`$ very small relative to the coefficients**: The system is **ill-conditioned**. A unique solution technically exists, but it is extremely sensitive to small perturbations in the coefficients or the right-hand side. Tiny roundoff errors in the input data or during computation can produce wildly inaccurate results. Because the magnitude of the determinant changes when an equation is merely multiplied by a constant, the comparison is meaningful only after each equation is normalized.
 
 > **[Linear Algebra]** The absolute value of the determinant is the area of the parallelogram (2D) or the volume of the parallelepiped (3D) formed by the row (or column) vectors. A zero determinant means the vectors are linearly dependent and the area or volume collapses to zero; the redundant rows of the coefficient matrix in the singular systems above are exactly this case.
 
@@ -896,7 +896,7 @@ x_1 = \frac{b_1 - a_{12}x_2 - a_{13}x_3}{a_{11}} = \frac{7.85 - (-0.1)(-2.50000)
 x_1 = 3.00000, \quad x_2 = -2.50000, \quad x_3 = 7.00003
 ```
 
-> **Note:** $`x_3`$ comes out as 7.00003 instead of the exact value 7 because of round-off error accumulated by rounding to six significant digits at each step. The exact solution of this system is $`x_1 = 3`$, $`x_2 = -2.5`$, $`x_3 = 7`$, and the computed solution is very close to it.
+> **Note:** $`x_3`$ comes out as 7.00003 instead of the exact value 7 because of roundoff error accumulated by rounding to six significant digits at each step. The exact solution of this system is $`x_1 = 3`$, $`x_2 = -2.5`$, $`x_3 = 7`$, and the computed solution is very close to it.
 
 ---
 
@@ -921,9 +921,9 @@ If $`a_{ii}^{(i-1)} = 0`$ at any step, the algorithm fails because it attempts t
 
 The solution is $`x_1 = 1, x_2 = 2`$, but naive Gauss elimination fails at the first step because the pivot $`a_{11} = 0`$.
 
-**2. Near-zero pivots amplify round-off error:**
+**2. Near-zero pivots amplify roundoff error:**
 
-When a pivot element is very small but nonzero, the computed factor $`a_{ji}/a_{ii}`$ becomes very large. Multiplying row $`i`$ by this large factor and subtracting magnifies any round-off errors present in row $`i`$, potentially corrupting the result severely.
+When a pivot element is very small but nonzero, the computed factor $`a_{ji}/a_{ii}`$ becomes very large. Multiplying row $`i`$ by this large factor and subtracting magnifies any roundoff errors present in row $`i`$, potentially corrupting the result severely.
 
 **3. Large factor values magnify errors:**
 

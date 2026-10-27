@@ -216,7 +216,7 @@ print(np.linalg.det(A))    # 1.0000000000000002
 print(np.linalg.inv(A))    # [[ 3. -1.] [-5.  2.]]
 ```
 
-The determinant of this matrix is exactly $`2 \times 3 - 1 \times 5 = 1`$, but `np.linalg.det` computes it in floating point through an LU factorization, so a round-off error appears in the last digit, as in 1.0000000000000002. Round-off error is covered in Chapter 3.
+The determinant of this matrix is exactly $`2 \times 3 - 1 \times 5 = 1`$, but `np.linalg.det` computes it in floating point through an LU factorization, so a roundoff error appears in the last digit, as in 1.0000000000000002. Roundoff error is covered in Chapter 3.
 
 ---
 

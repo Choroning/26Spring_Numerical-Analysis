@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10
 
@@ -345,7 +345,7 @@ x_1 = \frac{d_1 - U_{12} \, x_2 - U_{13} \, x_3}{U_{11}} = \frac{7.85 - (-0.1)(-
 x_1 = 3.00000, \quad x_2 = -2.50001, \quad x_3 = 7.00003
 ```
 
-This matches the solution obtained by direct Gaussian elimination in Chapter 8, confirming the equivalence of the two approaches. The small deviations from the exact values $`(3, -2.5, 7)`$ are due to round-off in the intermediate calculations.
+This matches the solution obtained by direct Gaussian elimination in Chapter 8, confirming the equivalence of the two approaches. The small deviations from the exact values $`(3, -2.5, 7)`$ are due to roundoff in the intermediate calculations.
 
 ---
 
@@ -358,7 +358,7 @@ This matches the solution obtained by direct Gaussian elimination in Chapter 8, 
 Just as with Gaussian elimination, LU factorization without pivoting can fail or produce inaccurate results in the following cases.
 
 - A zero pivot causes division by zero.
-- A very small pivot amplifies round-off errors.
+- A very small pivot amplifies roundoff errors.
 
 Partial pivoting, which selects the entry of largest absolute value in the current column as the pivot, resolves both issues when the matrix is nonsingular.
 
@@ -538,7 +538,7 @@ U_{33} = \sqrt{a_{33} - U_{13}^2 - U_{23}^2} = \sqrt{979 - (22.4537)^2 - (20.916
 = \sqrt{979 - 504.1667 - 437.5000} = \sqrt{37.3333} = 6.1101
 ```
 
-To keep round-off from accumulating, $`U_{13}^2 = 55^2/6 = 504.1667`$ and $`U_{23}^2 = 87.5^2/17.5 = 437.5`$ are computed exactly.
+To keep roundoff from accumulating, $`U_{13}^2 = 55^2/6 = 504.1667`$ and $`U_{23}^2 = 87.5^2/17.5 = 437.5`$ are computed exactly.
 
 **Result:**
 
