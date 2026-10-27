@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
@@ -215,7 +215,7 @@ Key implementation details:
 
 ### 3.2 Testing with the Textbook Example
 
-We test the implementation on the $`3 \times 3`$ system solved by hand in Section 7 of the Chapter 8 lecture note:
+We test the implementation on the $`3 \times 3`$ system solved by hand in Section 8 of the Chapter 8 lecture note:
 
 ```python
 # Test with the 3x3 system from the lecture

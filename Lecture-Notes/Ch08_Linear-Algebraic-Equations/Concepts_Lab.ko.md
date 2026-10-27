@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
@@ -215,7 +215,7 @@ def gauss_naive(A, b):
 
 ### 3.2 교과서 예제로 테스트
 
-8장 강의 정리본 7절에서 손으로 푼 $`3 \times 3`$ 시스템으로 구현을 시험한다:
+8장 강의 정리본 8절에서 손으로 푼 $`3 \times 3`$ 시스템으로 구현을 시험한다:
 
 ```python
 # Test with the 3x3 system from the lecture
