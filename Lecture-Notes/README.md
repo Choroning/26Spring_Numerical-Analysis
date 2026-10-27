@@ -47,7 +47,7 @@
 | Unit | Topics | Documents |
 |:-----|:-----|:-----|
 | [Chapter 19 Numerical Integration Formulas](Ch19_Numerical-Integration-Formulas/) | The trapezoidal rule, Simpson's 1/3 and 3/8 rules, composite integration formulas, combining integration rules | [Lecture notes](Ch19_Numerical-Integration-Formulas/Concepts_Lecture.md) |
-| [Chapter 20 Numerical Integration of Equations](Ch20_Numerical-Integration-of-Equations/) | Romberg integration, Gauss quadrature | [Lecture notes](Ch20_Numerical-Integration-of-Equations/Concepts_Lecture.md) |
+| [Chapter 20 Numerical Integration of Functions](Ch20_Numerical-Integration-of-Functions/) | Romberg integration, Gauss quadrature | [Lecture notes](Ch20_Numerical-Integration-of-Functions/Concepts_Lecture.md) |
 | [Chapter 21 Numerical Differentiation](Ch21_Numerical-Differentiation/) | Finite-difference approximations of first and second derivatives, higher-order forward differences, Richardson extrapolation, derivatives of unequally spaced data, numerical partial derivatives, the method of undetermined coefficients, differentiable programming | [Lecture notes](Ch21_Numerical-Differentiation/Concepts_Lecture.md) |
 
 ## Part 6 Ordinary Differential Equations

@@ -1,8 +1,8 @@
-# Chapter 20 — Numerical Integration of Equations
+# Chapter 20 — Numerical Integration of Functions
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-18
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 20
 

@@ -47,7 +47,7 @@
 | 단원 | 주제 | 문서 |
 |:-----|:-----|:-----|
 | [19장 수치 적분 공식](Ch19_Numerical-Integration-Formulas/) | 사다리꼴 법칙, 심프슨의 1/3 법칙과 3/8 법칙, 복합 적분 공식, 적분 법칙의 결합 | [강의 노트](Ch19_Numerical-Integration-Formulas/Concepts_Lecture.ko.md) |
-| [20장 방정식의 수치 적분](Ch20_Numerical-Integration-of-Equations/) | 롬버그 적분, 가우스 구적법 | [강의 노트](Ch20_Numerical-Integration-of-Equations/Concepts_Lecture.ko.md) |
+| [20장 함수의 수치 적분](Ch20_Numerical-Integration-of-Functions/) | 롬버그 적분, 가우스 구적법 | [강의 노트](Ch20_Numerical-Integration-of-Functions/Concepts_Lecture.ko.md) |
 | [21장 수치 미분](Ch21_Numerical-Differentiation/) | 1계 도함수와 2계 도함수의 유한 차분 근사, 고차 전진 차분, 리처드슨 외삽법, 비등간격 데이터의 도함수, 수치 편도함수, 미정 계수법, 미분 가능 프로그래밍 | [강의 노트](Ch21_Numerical-Differentiation/Concepts_Lecture.ko.md) |
 
 ## 6부 상미분방정식
