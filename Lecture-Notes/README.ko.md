@@ -2,16 +2,16 @@
 
 [레포지토리 안내](../README.ko.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-10-27
 
 ## 1부 모델링, 컴퓨터, 오차 분석
 
 | 단원 | 주제 | 문서 |
 |:-----|:-----|:-----|
 | [1장 수학적 모델링과 공학 문제 해결](Ch01_Mathematical-Modeling/) | 수학적 모델, 뉴턴의 제2법칙과 번지 점프 예제, 오일러 방법, 수치적으로 푸는 공학 문제의 유형, NumPy 배열과 행렬 연산, Matplotlib 시각화, NumPy의 뷰와 복사본 | [강의 노트](Ch01_Mathematical-Modeling/Concepts_Lecture.ko.md), [실습 노트](Ch01_Mathematical-Modeling/Concepts_Lab.ko.md) |
-| [2장 Python 기초](Ch02_Programming-and-Software/) | 프로그래밍 환경, Python 기본 문법과 NumPy, SciPy 함수, 제어 구조와 함수, Python으로 구현한 번지 점프 예제, 변수 스코프와 LEGB 규칙, 구조적 프로그래밍, 예외 처리, 데코레이터, 객체 지향 기초, 타입 힌트, 제너레이터 | [강의 노트](Ch02_Programming-and-Software/Concepts_Lecture.ko.md), [실습 노트](Ch02_Programming-and-Software/Concepts_Lab.ko.md) |
-| [3장 근사와 반올림 오차](Ch03_Approximations-and-Round-Off-Errors/) | 유효 숫자, 정확도와 정밀도, 오차의 정의와 스카보로 기준, 반올림 오차와 부동 소수점 산술의 문제점, 오차 지표, 절단 오차와 테일러 급수 | [강의 노트](Ch03_Approximations-and-Round-Off-Errors/Concepts_Lecture.ko.md), [실습 노트](Ch03_Approximations-and-Round-Off-Errors/Concepts_Lab.ko.md) |
-| [4장 절단 오차와 테일러 급수](Ch04_Truncation-Errors/) | 테일러 급수 전개, 근사의 차수, 테일러 급수를 이용한 수치 미분, 총 수치 오차, 안정성과 조건수, 유한 차분의 Python 구현 | [강의 노트](Ch04_Truncation-Errors/Concepts_Lecture.ko.md) |
+| [2장 Python 기초와 프로그래밍](Ch02_Python-Fundamentals-and-Programming/) | 프로그래밍 환경, Python 기본 문법과 NumPy, SciPy 함수, 제어 구조와 함수, Python으로 구현한 번지 점프 예제, 변수 스코프와 LEGB 규칙, 구조적 프로그래밍, 예외 처리, 데코레이터, 객체 지향 기초, 타입 힌트, 제너레이터 | [강의 노트](Ch02_Python-Fundamentals-and-Programming/Concepts_Lecture.ko.md), [실습 노트](Ch02_Python-Fundamentals-and-Programming/Concepts_Lab.ko.md) |
+| [3장 반올림 오차](Ch03_Roundoff-Errors/) | 유효 숫자, 정확도와 정밀도, 오차의 정의와 스카보로 기준, 반올림 오차와 부동 소수점 산술의 문제점, 오차 지표, 절단 오차와 테일러 급수 | [강의 노트](Ch03_Roundoff-Errors/Concepts_Lecture.ko.md), [실습 노트](Ch03_Roundoff-Errors/Concepts_Lab.ko.md) |
+| [4장 절단 오차](Ch04_Truncation-Errors/) | 테일러 급수 전개, 근사의 차수, 테일러 급수를 이용한 수치 미분, 총 수치 오차, 안정성과 조건수, 유한 차분의 Python 구현 | [강의 노트](Ch04_Truncation-Errors/Concepts_Lecture.ko.md) |
 
 ## 2부 근과 최적화
 
@@ -47,7 +47,7 @@
 | 단원 | 주제 | 문서 |
 |:-----|:-----|:-----|
 | [19장 수치 적분 공식](Ch19_Numerical-Integration-Formulas/) | 사다리꼴 법칙, 심프슨의 1/3 법칙과 3/8 법칙, 복합 적분 공식, 적분 법칙의 결합 | [강의 노트](Ch19_Numerical-Integration-Formulas/Concepts_Lecture.ko.md) |
-| [20장 방정식의 수치 적분](Ch20_Numerical-Integration-of-Equations/) | 롬버그 적분, 가우스 구적법 | [강의 노트](Ch20_Numerical-Integration-of-Equations/Concepts_Lecture.ko.md) |
+| [20장 함수의 수치 적분](Ch20_Numerical-Integration-of-Functions/) | 롬버그 적분, 가우스 구적법 | [강의 노트](Ch20_Numerical-Integration-of-Functions/Concepts_Lecture.ko.md) |
 | [21장 수치 미분](Ch21_Numerical-Differentiation/) | 1계 도함수와 2계 도함수의 유한 차분 근사, 고차 전진 차분, 리처드슨 외삽법, 비등간격 데이터의 도함수, 수치 편도함수, 미정 계수법, 미분 가능 프로그래밍 | [강의 노트](Ch21_Numerical-Differentiation/Concepts_Lecture.ko.md) |
 
 ## 6부 상미분방정식

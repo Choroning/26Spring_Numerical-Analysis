@@ -1,8 +1,8 @@
-# Chapter 4 — Truncation Errors and the Taylor Series
+# Chapter 4 — Truncation Errors
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
