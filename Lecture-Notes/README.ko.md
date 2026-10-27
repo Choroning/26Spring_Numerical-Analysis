@@ -25,7 +25,7 @@
 
 | 단원 | 주제 | 문서 |
 |:-----|:-----|:-----|
-| [8장 연립 일차 대수방정식의 풀이](Ch08_Linear-Algebraic-Equations/) | 소규모 시스템의 그래프 방법, 행렬식과 크래머 법칙, 단순 가우스 소거법과 계산 비용, 단순 가우스 소거법의 함정, 질량-스프링 시스템 응용 | [강의 노트](Ch08_Linear-Algebraic-Equations/Concepts_Lecture.ko.md), [실습 노트](Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md) |
+| [8장 연립 일차 대수방정식의 풀이](Ch08_Linear-Algebraic-Equations/) | 행렬 표기와 특수 행렬, 행렬 연산 규칙, 연립방정식의 행렬 형태, 소규모 시스템의 그래프 방법과 열 관점, 행렬식과 크래머 법칙, 단순 가우스 소거법과 계산 비용, 단순 가우스 소거법의 함정, 질량-스프링 시스템 응용 | [강의 노트](Ch08_Linear-Algebraic-Equations/Concepts_Lecture.ko.md), [실습 노트](Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md) |
 | [9장 가우스 소거법: 개선된 방법](Ch09_Gauss-Elimination/) | 부분 피봇팅과 스케일링된 부분 피봇팅, 가우스-조르단 방법, 삼중대각 시스템과 토마스 알고리즘, 조건수, 열전도 문제 | [강의 노트](Ch09_Gauss-Elimination/Concepts_Lecture.ko.md), [실습 노트](Ch09_Gauss-Elimination/Concepts_Lab.ko.md) |
 | [10장 LU 분해](Ch10_LU-Factorization/) | 가우스 소거법과 LU 분해의 관계, 전진 대입과 후진 대입, 피봇팅을 적용한 LU 분해, 촐레스키 분해, Doolittle 알고리즘, 다중 우변 문제와 열저항 네트워크 | [강의 노트](Ch10_LU-Factorization/Concepts_Lecture.ko.md), [실습 노트](Ch10_LU-Factorization/Concepts_Lab.ko.md) |
 | [11장 역행렬과 조건수](Ch11_Matrix-Inverse-and-Condition/) | 역행렬과 LU 분해를 이용한 계산, 질량-스프링 시스템의 물리적 해석, 악조건의 판별, 벡터 노름과 행렬 노름, 행렬 조건수와 오차 한계 정리, 힐베르트 행렬 | [강의 노트](Ch11_Matrix-Inverse-and-Condition/Concepts_Lecture.ko.md), [실습 노트](Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md) |
