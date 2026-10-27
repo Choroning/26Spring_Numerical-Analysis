@@ -1,8 +1,8 @@
-# 2장 — Python 기초
+# 2장 — Python 기초와 프로그래밍
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2, 3
 

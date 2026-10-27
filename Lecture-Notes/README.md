@@ -2,16 +2,16 @@
 
 [Repository Guide](../README.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 
 ## Part 1 Modeling, Computers, and Error Analysis
 
 | Unit | Topics | Documents |
 |:-----|:-----|:-----|
 | [Chapter 1 Mathematical Modeling and Engineering Problem Solving](Ch01_Mathematical-Modeling/) | Mathematical models, Newton's second law and the bungee jumper example, Euler's method, types of engineering problems solved numerically, NumPy arrays and matrix operations, Matplotlib visualization, views and copies in NumPy | [Lecture notes](Ch01_Mathematical-Modeling/Concepts_Lecture.md), [Lab notes](Ch01_Mathematical-Modeling/Concepts_Lab.md) |
-| [Chapter 2 Python Fundamentals](Ch02_Programming-and-Software/) | Programming environment, Python basics and NumPy and SciPy functions, control structures and functions, the bungee jumper example in Python, variable scope and the LEGB rule, structured programming, exception handling, decorators, object-oriented basics, type hints, generators | [Lecture notes](Ch02_Programming-and-Software/Concepts_Lecture.md), [Lab notes](Ch02_Programming-and-Software/Concepts_Lab.md) |
-| [Chapter 3 Approximations and Round-Off Errors](Ch03_Approximations-and-Round-Off-Errors/) | Significant figures, accuracy and precision, error definitions and the Scarborough criterion, round-off errors and problems with floating-point arithmetic, error metrics, truncation error and the Taylor series | [Lecture notes](Ch03_Approximations-and-Round-Off-Errors/Concepts_Lecture.md), [Lab notes](Ch03_Approximations-and-Round-Off-Errors/Concepts_Lab.md) |
-| [Chapter 4 Truncation Errors and the Taylor Series](Ch04_Truncation-Errors/) | Taylor series expansion, order of approximation, numerical differentiation using the Taylor series, total numerical error, stability and condition number, finite differences in Python | [Lecture notes](Ch04_Truncation-Errors/Concepts_Lecture.md) |
+| [Chapter 2 Python Fundamentals and Programming](Ch02_Python-Fundamentals-and-Programming/) | Programming environment, Python basics and NumPy and SciPy functions, control structures and functions, the bungee jumper example in Python, variable scope and the LEGB rule, structured programming, exception handling, decorators, object-oriented basics, type hints, generators | [Lecture notes](Ch02_Python-Fundamentals-and-Programming/Concepts_Lecture.md), [Lab notes](Ch02_Python-Fundamentals-and-Programming/Concepts_Lab.md) |
+| [Chapter 3 Roundoff Errors](Ch03_Roundoff-Errors/) | Significant figures, accuracy and precision, error definitions and the Scarborough criterion, round-off errors and problems with floating-point arithmetic, error metrics, truncation error and the Taylor series | [Lecture notes](Ch03_Roundoff-Errors/Concepts_Lecture.md), [Lab notes](Ch03_Roundoff-Errors/Concepts_Lab.md) |
+| [Chapter 4 Truncation Errors](Ch04_Truncation-Errors/) | Taylor series expansion, order of approximation, numerical differentiation using the Taylor series, total numerical error, stability and condition number, finite differences in Python | [Lecture notes](Ch04_Truncation-Errors/Concepts_Lecture.md) |
 
 ## Part 2 Roots and Optimization
 

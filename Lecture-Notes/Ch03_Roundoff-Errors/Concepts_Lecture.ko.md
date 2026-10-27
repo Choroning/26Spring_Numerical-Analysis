@@ -1,8 +1,8 @@
-# 3장 — 근사와 반올림 오차
+# 3장 — 반올림 오차
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 

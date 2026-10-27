@@ -2,11 +2,11 @@
 
 [Repository Guide](../README.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 
 | Item | Description | Documents |
 |:-----|:-----|:-----|
-| [HW01_Sources-of-Numerical-Errors](HW01_Sources-of-Numerical-Errors/) | Week 2 homework. The Jupyter notebook submitted after completing the lab notebook (Lab02) on sources of numerical errors, related to Chapters 3 and 4 | [Notebook](HW01_Sources-of-Numerical-Errors/Solution/Lab02-SourceOfErrors_Completed.ipynb), [Chapter 3 lab note](../Lecture-Notes/Ch03_Approximations-and-Round-Off-Errors/Concepts_Lab.md), [Chapter 4 lecture note](../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md) |
+| [HW01_Sources-of-Numerical-Errors](HW01_Sources-of-Numerical-Errors/) | Week 2 homework. The Jupyter notebook submitted after completing the lab notebook (Lab02) on sources of numerical errors, related to Chapters 3 and 4 | [Notebook](HW01_Sources-of-Numerical-Errors/Solution/Lab02-SourceOfErrors_Completed.ipynb), [Chapter 3 lab note](../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lab.md), [Chapter 4 lecture note](../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md) |
 | [HW02_Linear-Systems-and-Gaussian-Elimination](HW02_Linear-Systems-and-Gaussian-Elimination/) | Week 3 homework. The Jupyter notebook submitted after completing the lab notebook (Lab03) on linear systems and Gaussian elimination, related to Chapters 8 and 9 | [Notebook](HW02_Linear-Systems-and-Gaussian-Elimination/Solution/Lab03-LinearSystem_Completed.ipynb), [Chapter 8 lab note](../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lab.md), [Chapter 9 lab note](../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lab.md) |
 | [HW03_LU-Factorization-and-Matrix-Inverse](HW03_LU-Factorization-and-Matrix-Inverse/) | Week 4 homework. The Jupyter notebook submitted after completing the lab notebook (Lab04) on LU factorization and the matrix inverse, related to Chapters 10 and 11 | [Notebook](HW03_LU-Factorization-and-Matrix-Inverse/Solution/Lab04-LU_Completed.ipynb), [Chapter 10 lab note](../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.md), [Chapter 11 lab note](../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.md) |
 | [HW04_Iterative-Solvers](HW04_Iterative-Solvers/) | Week 5 homework. The Jupyter notebook submitted after completing the lab notebook (Lab05) on iterative solvers for linear systems, related to Chapter 12 | [Notebook](HW04_Iterative-Solvers/Solution/Lab05-IterativeSolver_Completed.ipynb), [Chapter 12 lab note](../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.md) |
