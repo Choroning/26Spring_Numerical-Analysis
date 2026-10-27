@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 21
 
@@ -665,7 +665,7 @@ Its main features are:
 - **JAX** (Python, by Google)
 - **Zygote** (Julia)
 
-> **Note:** **Automatic versus numerical differentiation.** Automatic differentiation is fundamentally different from numerical differentiation. Numerical differentiation approximates derivatives using finite differences and therefore suffers from truncation and round-off errors. AD instead computes derivatives to the accuracy of machine epsilon by systematically applying the chain rule through every operation in the program.
+> **Note:** **Automatic versus numerical differentiation.** Automatic differentiation is fundamentally different from numerical differentiation. Numerical differentiation approximates derivatives using finite differences and therefore suffers from truncation and roundoff errors. AD instead computes derivatives to the accuracy of machine epsilon by systematically applying the chain rule through every operation in the program.
 
 ---
 
@@ -830,7 +830,7 @@ print(f"  df/dy (central):      {partial_y_central(g, x0, y0, h):.8f}")
 print(f"  d^2f/(dx dy) (mixed): {mixed_partial_xy(g, x0, y0, h, h):.8f}")
 ```
 
-The computed $`\partial f/\partial x`$ and $`\partial f/\partial y`$ agree to eight decimal places with the analytical values $`2xy + y\cos(xy) = 4 + 2\cos 2 \approx 3.16770633`$ and $`x^2 + x\cos(xy) = 1 + \cos 2 \approx 0.58385316`$. The mixed partial result $`-0.23474334`$ differs by about $`1.7 \times 10^{-6}`$ from the analytical value $`2x + \cos(xy) - xy\sin(xy) = 2 + \cos 2 - 2\sin 2 \approx -0.23474169`$, because the very small denominator $`4h^2 = 4 \times 10^{-10}`$ amplifies round-off error.
+The computed $`\partial f/\partial x`$ and $`\partial f/\partial y`$ agree to eight decimal places with the analytical values $`2xy + y\cos(xy) = 4 + 2\cos 2 \approx 3.16770633`$ and $`x^2 + x\cos(xy) = 1 + \cos 2 \approx 0.58385316`$. The mixed partial result $`-0.23474334`$ differs by about $`1.7 \times 10^{-6}`$ from the analytical value $`2x + \cos(xy) - xy\sin(xy) = 2 + \cos 2 - 2\sin 2 \approx -0.23474169`$, because the very small denominator $`4h^2 = 4 \times 10^{-10}`$ amplifies roundoff error.
 
 ---
 
@@ -901,6 +901,6 @@ The computed $`\partial f/\partial x`$ and $`\partial f/\partial y`$ agree to ei
    <details>
    <summary>Answer</summary>
 
-   The truncation errors are $`O(h)`$, $`O(h^2)`$, and $`O(h^4)`$, so they change by factors of roughly $`\frac{1}{2}`$, $`\frac{1}{4}`$, and $`\frac{1}{16}`$. If $`h`$ becomes too small, however, dividing the difference of two nearly equal values such as $`f(x+h) - f(x-h)`$ by a small number amplifies round-off error, so the total error can increase.
+   The truncation errors are $`O(h)`$, $`O(h^2)`$, and $`O(h^4)`$, so they change by factors of roughly $`\frac{1}{2}`$, $`\frac{1}{4}`$, and $`\frac{1}{16}`$. If $`h`$ becomes too small, however, dividing the difference of two nearly equal values such as $`f(x+h) - f(x-h)`$ by a small number amplifies roundoff error, so the total error can increase.
 
    </details>

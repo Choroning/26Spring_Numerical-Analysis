@@ -10,7 +10,7 @@
 > 1. Estimate truncation errors using Taylor series
 > 2. Bound the truncation error with the remainder term
 > 3. Analyze the order of accuracy of approximation methods and finite difference formulas
-> 4. Explain the optimal step size as the balance between truncation and round-off error
+> 4. Explain the optimal step size as the balance between truncation and roundoff error
 > 5. Decide from the condition number of a function whether a problem is ill-conditioned
 
 ---
@@ -35,7 +35,7 @@
   - [4.2 Results with $`h = 0.5`$](#42-results-with-h--05)
   - [4.3 Effect of Reducing $`h`$](#43-effect-of-reducing-h)
 - [5. Total Numerical Error](#5-total-numerical-error)
-  - [5.1 Truncation Error vs. Round-Off Error](#51-truncation-error-vs-round-off-error)
+  - [5.1 Truncation Error vs. Roundoff Error](#51-truncation-error-vs-roundoff-error)
   - [5.2 Optimal Step Size](#52-optimal-step-size)
 - [6. Stability and Condition Number](#6-stability-and-condition-number)
 - [7. Lab: Finite Differences in Python](#7-lab-finite-differences-in-python)
@@ -382,12 +382,12 @@ Halving $`h`$ from $`0.5`$ to $`0.25`$ reduced the central difference error from
 
 ## 5. Total Numerical Error
 
-### 5.1 Truncation Error vs. Round-Off Error
+### 5.1 Truncation Error vs. Roundoff Error
 
 When performing numerical differentiation on a computer, the total error has two components.
 
 ```math
-\text{Total error} = \text{Truncation error} + \text{Round-off error}
+\text{Total error} = \text{Truncation error} + \text{Roundoff error}
 ```
 
 These two error sources have **opposite** dependencies on the step size $`h`$.
@@ -395,13 +395,13 @@ These two error sources have **opposite** dependencies on the step size $`h`$.
 | Component | As $`h`$ decreases | Cause |
 |:----------|:-----------------|:------|
 | Truncation error | **Decreases** | Finite difference better approximates the derivative |
-| Round-off error | **Increases** | Subtracting nearly equal floating-point numbers (subtractive cancellation, Chapter 3) |
+| Roundoff error | **Increases** | Subtracting nearly equal floating-point numbers (subtractive cancellation, Chapter 3) |
 
-*Table 4. Change in truncation and round-off error as the step size decreases*
+*Table 4. Change in truncation and roundoff error as the step size decreases*
 
-When $`h`$ is large, the truncation error dominates. When $`h`$ is very small, the function values $`f(x+h)`$ and $`f(x)`$ become nearly identical, and their difference is contaminated by floating-point round-off. The total error curve has a characteristic **V-shape** on a log-log plot.
+When $`h`$ is large, the truncation error dominates. When $`h`$ is very small, the function values $`f(x+h)`$ and $`f(x)`$ become nearly identical, and their difference is contaminated by floating-point roundoff. The total error curve has a characteristic **V-shape** on a log-log plot.
 
-> **Note:** This is one of the most important practical insights in numerical analysis. We cannot make $`h`$ arbitrarily small to improve accuracy. At some point, round-off error takes over and the result actually gets worse.
+> **Note:** This is one of the most important practical insights in numerical analysis. We cannot make $`h`$ arbitrarily small to improve accuracy. At some point, roundoff error takes over and the result actually gets worse.
 
 ### 5.2 Optimal Step Size
 
@@ -425,7 +425,7 @@ h^* \sim \sqrt{\varepsilon_{mach}} \approx 1.5 \times 10^{-8}
 h^* \sim \varepsilon_{mach}^{1/3} \approx 6 \times 10^{-6}
 ```
 
-The central difference has a larger optimal $`h`$ because its truncation error decreases faster ($`O(h^2)`$ vs. $`O(h)`$), so the balance point between truncation and round-off shifts to a larger step size.
+The central difference has a larger optimal $`h`$ because its truncation error decreases faster ($`O(h^2)`$ vs. $`O(h)`$), so the balance point between truncation and roundoff shifts to a larger step size.
 
 | Formula | Truncation Error | Optimal $`h^*`$ | Minimum Total Error |
 |:--------|:----------------|:---------------|:--------------------|
@@ -469,7 +469,7 @@ At $`x = 1.00001`$, $`\text{Cond} \approx 10^5`$, so the problem is extremely il
 
 ### 7.1 Comparing Forward and Central Differences
 
-The following code compares the error of forward and central difference formulas across a range of step sizes, demonstrating both the accuracy advantage of central differences and the effect of round-off error at very small step sizes.
+The following code compares the error of forward and central difference formulas across a range of step sizes, demonstrating both the accuracy advantage of central differences and the effect of roundoff error at very small step sizes.
 
 ```python
 import numpy as np
@@ -506,7 +506,7 @@ plt.show()
 The resulting log-log plot shows two key features.
 
 1. **For large $`h`$:** Both errors decrease as $`h`$ decreases, with the central difference error decreasing faster (the slopes on the plot are about 2 versus 1). For example, reducing $`h`$ from $`10^{-1}`$ to $`10^{-4}`$ reduces the forward difference error from $`9.1 \times 10^{-2}`$ to $`8.8 \times 10^{-5}`$ and the central difference error from $`3.5 \times 10^{-3}`$ to $`3.5 \times 10^{-9}`$.
-2. **For very small $`h`$:** Both errors increase again due to round-off, forming the characteristic V-shape. The minimum error for the central difference (about $`5.4 \times 10^{-12}`$ at $`h = 10^{-6}`$) is much lower than that of the forward difference (about $`8.9 \times 10^{-9}`$ at $`h = 10^{-8}`$) and occurs at a larger $`h`$.
+2. **For very small $`h`$:** Both errors increase again due to roundoff, forming the characteristic V-shape. The minimum error for the central difference (about $`5.4 \times 10^{-12}`$ at $`h = 10^{-6}`$) is much lower than that of the forward difference (about $`8.9 \times 10^{-9}`$ at $`h = 10^{-8}`$) and occurs at a larger $`h`$.
 
 ### 7.2 Step Size Analysis and Optimal $`h`$
 
@@ -552,7 +552,7 @@ Running this code prints `Optimal h ≈ 1.00e-08, min error ≈ 8.89e-09`. Among
 | Central Difference | $`f'(x) = [f(x+h) - f(x-h)] / (2h) + O(h^2)`$ is second-order accurate. |
 | Central Difference for the 2nd Derivative | $`f''(x) = [f(x+h) - 2f(x) + f(x-h)] / h^2 + O(h^2)`$ is second-order accurate. |
 | Higher-Order Forward Difference | $`f'(x) = [-f(x+2h) + 4f(x+h) - 3f(x)] / (2h) + O(h^2)`$ reaches second-order accuracy without points behind $`x`$. |
-| Optimal Step Size (Forward) | The balance point between truncation and round-off error is $`h^* \sim \sqrt{\varepsilon_{mach}} \approx 1.5 \times 10^{-8}`$. |
+| Optimal Step Size (Forward) | The balance point between truncation and roundoff error is $`h^* \sim \sqrt{\varepsilon_{mach}} \approx 1.5 \times 10^{-8}`$. |
 | Optimal Step Size (Central) | The truncation error shrinks faster, so the balance point grows to $`h^* \sim \varepsilon_{mach}^{1/3} \approx 6 \times 10^{-6}`$. |
 | Condition Number | It is $`\text{Cond} = \vert x f'(x) / f(x) \vert`$, and the problem is ill-conditioned when $`\text{Cond} \gg 1`$. |
 
@@ -580,7 +580,7 @@ Running this code prints `Optimal h ≈ 1.00e-08, min error ≈ 8.89e-09`. Among
 
    </details>
 
-3. **Using the order of accuracy:** The central difference error was $`4.0 \times 10^{-3}`$ at $`h = 0.2`$. Ignoring round-off, what error do you expect at $`h = 0.05`$?
+3. **Using the order of accuracy:** The central difference error was $`4.0 \times 10^{-3}`$ at $`h = 0.2`$. Ignoring roundoff, what error do you expect at $`h = 0.05`$?
 
    <details>
    <summary>Answer</summary>
@@ -594,7 +594,7 @@ Running this code prints `Optimal h ≈ 1.00e-08, min error ≈ 8.89e-09`. Among
    <details>
    <summary>Answer</summary>
 
-   The round-off error divides a difference of two function values by $`h`$, so it is proportional to about $`\varepsilon_{mach}/h`$. The total error of the forward difference has the form $`C_1 h + C_2 \varepsilon_{mach}/h`$, which is smallest where the two terms balance, at $`h \sim \sqrt{\varepsilon_{mach}}`$. The central difference has the form $`C_1 h^2 + C_2 \varepsilon_{mach}/h`$, which is smallest at $`h^3 \sim \varepsilon_{mach}`$, that is, $`h \sim \varepsilon_{mach}^{1/3}`$, where the minimum error is of order $`\varepsilon_{mach}^{2/3}`$.
+   The roundoff error divides a difference of two function values by $`h`$, so it is proportional to about $`\varepsilon_{mach}/h`$. The total error of the forward difference has the form $`C_1 h + C_2 \varepsilon_{mach}/h`$, which is smallest where the two terms balance, at $`h \sim \sqrt{\varepsilon_{mach}}`$. The central difference has the form $`C_1 h^2 + C_2 \varepsilon_{mach}/h`$, which is smallest at $`h^3 \sim \varepsilon_{mach}`$, that is, $`h \sim \varepsilon_{mach}^{1/3}`$, where the minimum error is of order $`\varepsilon_{mach}^{2/3}`$.
 
    </details>
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -487,7 +487,7 @@ The closer a shift is to an eigenvalue, the more $`|1/(\lambda_i - \sigma)|`$ do
    <details>
    <summary>Answer</summary>
 
-   In the expansion of Section 2.1, $`c_1 = 0`$ removes the $`\lambda_1^k`$ term, so in exact arithmetic the iteration converges to the eigenvalue of largest magnitude among the remaining components (e.g., $`\lambda_2`$ if $`c_2 \neq 0`$ and $`\vert\lambda_2\vert > \vert\lambda_3\vert`$). In floating-point computation, round-off error gradually introduces a $`\mathbf{v}_1`$ component, so the iteration usually converges to $`\lambda_1`$ in the end, although it may need many more iterations.
+   In the expansion of Section 2.1, $`c_1 = 0`$ removes the $`\lambda_1^k`$ term, so in exact arithmetic the iteration converges to the eigenvalue of largest magnitude among the remaining components (e.g., $`\lambda_2`$ if $`c_2 \neq 0`$ and $`\vert\lambda_2\vert > \vert\lambda_3\vert`$). In floating-point computation, roundoff error gradually introduces a $`\mathbf{v}_1`$ component, so the iteration usually converges to $`\lambda_1`$ in the end, although it may need many more iterations.
 
    </details>
 

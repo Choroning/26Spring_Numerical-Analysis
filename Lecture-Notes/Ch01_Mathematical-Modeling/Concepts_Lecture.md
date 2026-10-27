@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 1
 
@@ -248,7 +248,7 @@ The accuracy of Euler's method depends heavily on the **step size** $`h`$:
 
 In Table 3, each halving of $`h`$ roughly halves the error, while the number of steps doubles from 6 to 12 to 24. This is because the global error of Euler's method is proportional to $`h`$ (first-order accuracy).
 
-Ignoring round-off error, the numerical solution converges to the exact analytical solution as $`h \to 0`$. On a real computer, an excessively small $`h`$ lets round-off error accumulate, which is covered in Chapter 3.
+Ignoring roundoff error, the numerical solution converges to the exact analytical solution as $`h \to 0`$. On a real computer, an excessively small $`h`$ lets roundoff error accumulate, which is covered in Chapter 3.
 
 ---
 

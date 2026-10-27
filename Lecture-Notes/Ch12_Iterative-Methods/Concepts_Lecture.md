@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 12
 
@@ -68,7 +68,7 @@ Iterative methods solve a linear system $`[A]\{x\} = \{b\}`$ by generating a seq
 \mathbf{x}^{k+1} := \Psi(\mathbf{x}^k), \quad k \geq 0
 ```
 
-Starting from an initial guess $`\mathbf{x}^0`$, the method repeatedly applies a mapping $`\Psi`$ until convergence to the true solution. Unlike direct methods (Gauss elimination, LU decomposition) that produce an exact answer in a finite number of operations when round-off error is ignored, iterative methods approach the solution gradually and can be stopped when the approximation is sufficiently accurate.
+Starting from an initial guess $`\mathbf{x}^0`$, the method repeatedly applies a mapping $`\Psi`$ until convergence to the true solution. Unlike direct methods (Gauss elimination, LU decomposition) that produce an exact answer in a finite number of operations when roundoff error is ignored, iterative methods approach the solution gradually and can be stopped when the approximation is sufficiently accurate.
 
 > **Note:** **Cost of direct and iterative methods.** Direct methods cost $`O(n^3)`$ and work well for small-to-moderate systems. For very large, sparse systems (common in engineering and scientific computing), iterative methods are often far more efficient because they only require work on the order of matrix-vector products and can exploit sparsity.
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-10-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 9
 
@@ -46,7 +46,7 @@
 In naive Gauss elimination, the pivot element $`a_{ii}`$ is used directly as the divisor during each elimination step. This causes two critical problems:
 
 1. **Division by zero**: If $`a_{ii} = 0`$, the algorithm fails outright.
-2. **Large round-off errors**: If $`a_{ii}`$ is very small (close to zero), the multiplier $`a_{ki}/a_{ii}`$ becomes very large, amplifying every round-off error in subsequent operations by that factor.
+2. **Large roundoff errors**: If $`a_{ii}`$ is very small (close to zero), the multiplier $`a_{ki}/a_{ii}`$ becomes very large, amplifying every roundoff error in subsequent operations by that factor.
 
 Both problems stem from the same root cause: the pivot element is too small relative to other elements in the column.
 
@@ -140,9 +140,9 @@ Now:
 - After elimination: $`2.9997x_2 = 1.9998`$.
 - Back substitution gives $`x_2 = 0.6667`$, then $`x_1 = (1.0000 - 1.0000 \times 0.6667) / 1.0000 = 0.3333`$.
 
-The result is much more accurate because the small factor (0.0003 instead of 3333.3) does not amplify round-off errors.
+The result is much more accurate because the small factor (0.0003 instead of 3333.3) does not amplify roundoff errors.
 
-> **Note:** This example dramatically shows why pivoting matters. A factor of 3333.3 amplifies every round-off error by that amount. Pivoting keeps factors $`\leq 1`$, controlling error growth. In practice, partial pivoting is always used, and naive Gauss elimination is taught only for pedagogical purposes.
+> **Note:** This example dramatically shows why pivoting matters. A factor of 3333.3 amplifies every roundoff error by that amount. Pivoting keeps factors $`\leq 1`$, controlling error growth. In practice, partial pivoting is always used, and naive Gauss elimination is taught only for pedagogical purposes.
 
 ---
 
