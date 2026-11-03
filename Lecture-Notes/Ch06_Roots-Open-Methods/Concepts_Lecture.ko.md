@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-04
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 6
 
@@ -128,10 +128,11 @@ x_{i+1} = g(x_i)
 
 이것은 **순환 계산(circular calculation)** 이다. 한 단계의 출력 $`x_{i+1}`$이 다음 단계의 입력 $`x_i`$가 된다.
 
-```text
-input x_i  -->  [ g ]  -->  output x_{i+1}
-     ^                            |
-     |____________________________|
+```mermaid
+flowchart LR
+    I["입력 x_i"] --> G["g"]
+    G --> O["출력 x_{i+1}"]
+    O --> I
 ```
 
 *그림 1. 고정점 반복의 순환 계산*

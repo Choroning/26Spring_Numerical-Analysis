@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-04
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 6
 
@@ -128,10 +128,11 @@ x_{i+1} = g(x_i)
 
 This is a **circular calculation**: the output $`x_{i+1}`$ from one step becomes the input $`x_i`$ for the next.
 
-```text
-input x_i  -->  [ g ]  -->  output x_{i+1}
-     ^                            |
-     |____________________________|
+```mermaid
+flowchart LR
+    I["input x_i"] --> G["g"]
+    G --> O["output x_{i+1}"]
+    O --> I
 ```
 
 *Figure 1. The circular calculation of fixed-point iteration*

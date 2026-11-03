@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-04
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 21
 
@@ -421,14 +421,26 @@ $`16 \times (\text{첫 번째}) - (\text{두 번째})`$를 계산하면:
 
 스텝 크기 $`h`$, $`2h`$, $`4h`$의 중심 차분으로 두 수준의 외삽을 수행하는 과정은 그림 2와 같다. 10.2절의 `richardson_diff` 함수는 이 표를 계산한다.
 
-```text
-  O(h^2)       O(h^4)                               O(h^6)
-
-  D(4h) ──┐
-          ├──> D̄(2h) = [4 D(2h) - D(4h)] / 3 ──┐
-  D(2h) ──┤                                    ├──> [16 D̄(h) - D̄(2h)] / 15
-          ├──> D̄(h)  = [4 D(h) - D(2h)] / 3  ──┘
-  D(h)  ──┘
+```mermaid
+flowchart LR
+    subgraph c1["O(h^2)"]
+        d4h["D(4h)"]
+        d2h["D(2h)"]
+        dh["D(h)"]
+    end
+    subgraph c2["O(h^4)"]
+        e2h["D̄(2h) = [4 D(2h) - D(4h)] / 3"]
+        eh["D̄(h) = [4 D(h) - D(2h)] / 3"]
+    end
+    subgraph c3["O(h^6)"]
+        r["[16 D̄(h) - D̄(2h)] / 15"]
+    end
+    d4h --> e2h
+    d2h --> e2h
+    d2h --> eh
+    dh --> eh
+    e2h --> r
+    eh --> r
 ```
 
 *그림 2. 리처드슨 외삽 표의 구성*

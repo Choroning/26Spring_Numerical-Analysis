@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-11-04
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 21
 
@@ -421,14 +421,26 @@ This is now **$`O(h^6)`$** accurate. In principle the process can be continued, 
 
 Figure 2 shows how two levels of extrapolation are built from central differences with step sizes $`h`$, $`2h`$, and $`4h`$. The `richardson_diff` function in Section 10.2 computes this table.
 
-```text
-  O(h^2)       O(h^4)                               O(h^6)
-
-  D(4h) ──┐
-          ├──> D̄(2h) = [4 D(2h) - D(4h)] / 3 ──┐
-  D(2h) ──┤                                    ├──> [16 D̄(h) - D̄(2h)] / 15
-          ├──> D̄(h)  = [4 D(h) - D(2h)] / 3  ──┘
-  D(h)  ──┘
+```mermaid
+flowchart LR
+    subgraph c1["O(h^2)"]
+        d4h["D(4h)"]
+        d2h["D(2h)"]
+        dh["D(h)"]
+    end
+    subgraph c2["O(h^4)"]
+        e2h["D̄(2h) = [4 D(2h) - D(4h)] / 3"]
+        eh["D̄(h) = [4 D(h) - D(2h)] / 3"]
+    end
+    subgraph c3["O(h^6)"]
+        r["[16 D̄(h) - D̄(2h)] / 15"]
+    end
+    d4h --> e2h
+    d2h --> e2h
+    d2h --> eh
+    dh --> eh
+    e2h --> r
+    eh --> r
 ```
 
 *Figure 2. Structure of the Richardson extrapolation table*
