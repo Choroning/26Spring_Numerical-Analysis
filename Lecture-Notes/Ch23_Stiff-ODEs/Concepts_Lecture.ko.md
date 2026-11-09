@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-10
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 23
 
@@ -386,7 +386,7 @@ $`f''(\xi_p) \approx f''(\xi_c)`$라 가정한다(두 $`\xi`$ 값이 가까움).
 
 **강성 시스템(stiff system)** 은 고유한 특성으로 인해 수치적으로 풀기 어려운 ODE 시스템이다. 형식적으로 정의하면 다음과 같다:
 
-> **용어 정의:** 강성 시스템은 **고유값의 범위가 넓은**(시간 척도가 크게 다른) 시스템이다. 가장 큰 고유값 크기와 가장 작은 고유값 크기의 비율(**강성비, stiffness ratio**)이 매우 크다.
+> **용어 정의:** **강성 시스템(stiff system)** 은 **고유값의 범위가 넓은**(시간 척도가 크게 다른) 시스템이다. 가장 큰 고유값 크기와 가장 작은 고유값 크기의 비율(**강성비, stiffness ratio**)이 매우 크다.
 
 강성은 해가 크게 다른 속도로 감소하는 성분들을 포함할 때 발생한다. 양적 방법(explicit methods)은 **가장 느린** 성분이 해의 거동을 지배할 때도, 안정성을 위해 **가장 빠르게** 감소하는 성분에 의해 결정되는 스텝 크기를 사용해야 한다.
 

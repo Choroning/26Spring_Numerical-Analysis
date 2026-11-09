@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-10
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 22
 
@@ -679,7 +679,7 @@ The behavior of the exact solution depends on $`\lambda`$:
 | $`\lambda = 0`$ | Constant (neutrally stable) |
 | $`\lambda < 0`$ | Exponential decay (stable) |
 
-*Table 1. Behavior of the exact solution by the sign of $`\lambda`$*
+*Table 1. Behavior of the exact solution by $`\lambda`$ sign*
 
 The solution asymptotically approaches zero when $`\lambda < 0`$. A **stable** numerical method should reproduce this decaying behavior for $`\lambda < 0`$.
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-10
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 23
 
@@ -386,7 +386,7 @@ This is the key equation ($`\ast`$). Dividing ($`\ast`$) by 5 and rearranging:
 
 A **stiff system** is an ODE system that is difficult to solve numerically due to its inherent characteristics. Formally:
 
-> **Definition:** A stiff system has a **wide range of eigenvalues** (time scales). The ratio of the largest to smallest eigenvalue magnitude (the **stiffness ratio**) is very large.
+> **Definition:** A **stiff system** has a **wide range of eigenvalues** (time scales). The ratio of the largest to smallest eigenvalue magnitude (the **stiffness ratio**) is very large.
 
 Stiffness arises when the solution contains components that decay at vastly different rates. Explicit methods are forced to use a step size dictated by the **fastest** decaying component (for stability), even when the **slowest** component dominates the solution's behavior.
 

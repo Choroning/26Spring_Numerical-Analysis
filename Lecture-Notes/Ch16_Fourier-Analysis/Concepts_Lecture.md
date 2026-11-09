@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-10
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -333,7 +333,7 @@ b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad 
 | $`2\pi`$ | $`\frac{1}{2}, 1, \frac{3}{2}, 2, \ldots`$ |
 | $`10\pi`$ | $`0.1, 0.2, 0.3, 0.4, \ldots`$ |
 
-*Table 1. Spacing of the frequencies $`n\pi/\ell`$ for each half-period $`\ell`$*
+*Table 1. Spacing of the frequencies $`n\pi/\ell`$ by half-period $`\ell`$ value*
 
 In the limit, the discrete sum becomes a continuous integral:
 
