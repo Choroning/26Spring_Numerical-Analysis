@@ -3,7 +3,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/Choroning/26Spring_Numerical-Analysis)
 ![Languages](https://img.shields.io/github/languages/top/Choroning/26Spring_Numerical-Analysis)
 
-This repository archives bilingual lecture notes and coursework for the Numerical Analysis course.
+This repository archives lecture notes and coursework for the Numerical Analysis course.
 
 *Author: Cheolwon Park (Korea University Sejong, CSE) - Year 3 (Junior) as of 2026*
 <br><br>
@@ -26,9 +26,8 @@ This repository archives bilingual lecture notes and coursework for the Numerica
 - `Coursework/` holds the 12 lab notebooks (Jupyter) submitted as weekly assignments.
 - Every note comes as an English (`.md`) and Korean (`.ko.md`) pair.
 
-> **🤖 AI Agent Usage**
-> This course encourages the use of AI agents.
-> [Claude Code](https://claude.ai/download) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) were used as coding assistants throughout the course.
+> **🤖 Use of Generative AI Tools**
+> This course encourages the use of generative AI tools; this repository uses [Claude Code](https://claude.ai/download) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) for code implementation.
 
 <br><a name="course-information"></a>
 ## 📚 Course Information
