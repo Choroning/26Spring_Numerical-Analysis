@@ -23,7 +23,7 @@
 ## 📝 레포지토리 소개
 
 - `Lecture-Notes/`에는 교재의 장 번호(`Ch##`)를 따른 강의 노트가 있고, 일부 장에는 실습 노트가 함께 있습니다.
-- `Coursework/`에는 주간 과제로 제출한 실습 노트북(Jupyter) 12개가 있습니다.
+- `Coursework/`에는 주간 과제 12개의 과제 안내문과 해설, 배포된 빈 실습 노트북과 빈칸을 채워 제출한 노트북(Jupyter)이 있습니다.
 - 모든 노트는 영어(`.md`)와 한국어(`.ko.md`) 파일이 짝을 이룹니다.
 
 > **🤖 생성형 AI 도구 사용**
@@ -66,7 +66,7 @@
 ```plaintext
 26Spring_Numerical-Analysis
 ├── Lecture-Notes               교재 장별 강의 노트와 실습 노트
-├── Coursework                  주간 과제 노트북
+├── Coursework                  주간 과제의 안내문, 해설, 노트북
 ├── Course-Information.ko.md    수업 운영 정보
 ├── Course-Information.md
 ├── LICENSE                     문서 라이선스 (CC BY-NC-SA 4.0)
