@@ -105,11 +105,11 @@ f(x) = x - g(x) = 0 \quad \Longrightarrow \quad x = g(x)
 
 The iteration $`x_{i+1} = g(x_i)`$ is called **fixed-point iteration**.
 
-**Definition:** A **fixed point** of a function $`g`$ is a real number $`x^*`$ such that:
-
-```math
-g(x^*) = x^*
-```
+> **Definition:** A **fixed point** of a function $`g`$ is a real number $`x^*`$ such that:
+>
+> ```math
+> g(x^*) = x^*
+> ```
 
 > **Note:** **Difference from bracketing methods.** While bracketing methods (Chapter 5) work directly with $`f(x) = 0`$, fixed-point iteration reformulates the problem as $`x = g(x)`$, which can be viewed as finding the intersection of $`y = g(x)`$ and $`y = x`$.
 
