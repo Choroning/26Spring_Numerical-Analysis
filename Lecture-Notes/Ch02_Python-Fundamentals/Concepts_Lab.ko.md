@@ -20,7 +20,7 @@
   - [1.1 동적 타이핑](#11-동적-타이핑)
   - [1.2 수학 상수와 서식 출력](#12-수학-상수와-서식-출력)
 - [2. NumPy 배열, 벡터, 행렬](#2-numpy-배열-벡터-행렬)
-  - [2.1 왜 NumPy인가?](#21-왜-numpy인가)
+  - [2.1 NumPy를 쓰는 이유](#21-numpy를-쓰는-이유)
   - [2.2 배열 생성](#22-배열-생성)
   - [2.3 인덱싱과 슬라이싱](#23-인덱싱과-슬라이싱)
   - [2.4 시퀀스 생성: arange, linspace, logspace](#24-시퀀스-생성-arange-linspace-logspace)
@@ -93,7 +93,7 @@ print('{0:12.4e}'.format(pc.h))  # Planck's constant: 6.6261e-34
 
 ## 2. NumPy 배열, 벡터, 행렬
 
-### 2.1 왜 NumPy인가?
+### 2.1 NumPy를 쓰는 이유
 
 **NumPy**(Numerical Python)는 Python에서 과학 계산을 위한 기반 라이브러리이다. 주요 장점은 다음과 같다:
 

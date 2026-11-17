@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 17
 
@@ -20,7 +20,7 @@
 ## Table of Contents
 
 - [1. Polynomial Interpolation](#1-polynomial-interpolation)
-  - [1.1 What Is Interpolation?](#11-what-is-interpolation)
+  - [1.1 The Concept of Interpolation](#11-the-concept-of-interpolation)
   - [1.2 Polynomial Form and Unknowns](#12-polynomial-form-and-unknowns)
   - [1.3 Determining Coefficients](#13-determining-coefficients)
   - [1.4 Vandermonde Matrix](#14-vandermonde-matrix)
@@ -52,7 +52,7 @@
 
 ## 1. Polynomial Interpolation
 
-### 1.1 What Is Interpolation?
+### 1.1 The Concept of Interpolation
 
 Interpolation is the technique of estimating the value of a function at an intermediate point, given a set of discrete data points. The core question is how to fill in **the values between two known data points**.
 

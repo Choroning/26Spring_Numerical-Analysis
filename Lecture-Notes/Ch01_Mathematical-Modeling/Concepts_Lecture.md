@@ -16,7 +16,7 @@
 
 ## Table of Contents
 
-- [1. What is a Mathematical Model?](#1-what-is-a-mathematical-model)
+- [1. The Concept of a Mathematical Model](#1-the-concept-of-a-mathematical-model)
   - [1.1 Definition and General Form](#11-definition-and-general-form)
   - [1.2 Analytical vs. Numerical Solutions](#12-analytical-vs-numerical-solutions)
 - [2. Newton's 2nd Law: Bungee Jumper Example](#2-newtons-2nd-law-bungee-jumper-example)
@@ -35,7 +35,7 @@
 
 <br>
 
-## 1. What is a Mathematical Model?
+## 1. The Concept of a Mathematical Model
 
 ### 1.1 Definition and General Form
 

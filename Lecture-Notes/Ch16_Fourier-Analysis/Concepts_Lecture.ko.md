@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -169,7 +169,7 @@ f(x) = \sum_{n=0}^{\infty} (a_n \cos nx + b_n \sin nx)
 f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
 ```
 
-> **참고:** **왜 $`a_0/2`$인가?** $`n = 0`$일 때, $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$이다. $`a_0`$의 공식이 $`n \ge 1`$인 $`a_n`$과 같은 형태를 갖도록 편의상 $`\frac{1}{2}`$ 인자를 도입한다.
+> **참고:** **$`a_0/2`$를 쓰는 이유.** $`n = 0`$일 때, $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$이다. $`a_0`$의 공식이 $`n \ge 1`$인 $`a_n`$과 같은 형태를 갖도록 편의상 $`\frac{1}{2}`$ 인자를 도입한다.
 
 이 식은 다음과 같은 구조를 갖는다:
 
@@ -796,7 +796,7 @@ freqs = np.fft.fftfreq(len(t), d=t[1] - t[0])
 recovered = np.fft.ifft(F)
 ```
 
-> **참고:** **왜 $`n = 2^p`$인가?** 기수 2(radix-2) 쿨리-튜키(Cooley-Tukey) FFT 알고리즘은 $`n`$이 2의 거듭제곱일 때 가장 효율적으로 작동한다. 반으로의 재귀적 분할이 $`\log_2 n`$번 균등하게 수행될 수 있기 때문이다.
+> **참고:** **$`n = 2^p`$인 이유.** 기수 2(radix-2) 쿨리-튜키(Cooley-Tukey) FFT 알고리즘은 $`n`$이 2의 거듭제곱일 때 가장 효율적으로 작동한다. 반으로의 재귀적 분할이 $`\log_2 n`$번 균등하게 수행될 수 있기 때문이다.
 
 ---
 

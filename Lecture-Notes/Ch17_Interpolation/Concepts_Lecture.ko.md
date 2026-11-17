@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 17
 
@@ -20,7 +20,7 @@
 ## 목차
 
 - [1. 다항식 보간(Polynomial Interpolation)](#1-다항식-보간polynomial-interpolation)
-  - [1.1 보간이란 무엇인가?](#11-보간이란-무엇인가)
+  - [1.1 보간의 개념](#11-보간의-개념)
   - [1.2 다항식 형태와 미지수](#12-다항식-형태와-미지수)
   - [1.3 계수 결정](#13-계수-결정)
   - [1.4 반데르몬드 행렬(Vandermonde Matrix)](#14-반데르몬드-행렬vandermonde-matrix)
@@ -52,7 +52,7 @@
 
 ## 1. 다항식 보간(Polynomial Interpolation)
 
-### 1.1 보간이란 무엇인가?
+### 1.1 보간의 개념
 
 보간(Interpolation)은 이산 데이터 점들이 주어졌을 때 중간 지점에서 함수의 값을 추정하는 기법이다. 핵심 질문은 **알려진 두 데이터 점 사이의 값**을 어떻게 채우는가이다.
 

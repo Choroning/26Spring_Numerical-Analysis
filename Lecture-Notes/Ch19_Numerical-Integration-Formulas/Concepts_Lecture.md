@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 19
 
@@ -19,7 +19,7 @@
 ## Table of Contents
 
 - [1. Introduction to Numerical Integration](#1-introduction-to-numerical-integration)
-  - [1.1 Motivation: Why Numerical Integration?](#11-motivation-why-numerical-integration)
+  - [1.1 Motivation: The Need for Numerical Integration](#11-motivation-the-need-for-numerical-integration)
   - [1.2 The General Idea: Polynomial Approximation](#12-the-general-idea-polynomial-approximation)
   - [1.3 Lagrange Polynomial Review](#13-lagrange-polynomial-review)
   - [1.4 Quadrature Formulas and Newton-Cotes](#14-quadrature-formulas-and-newton-cotes)
@@ -65,7 +65,7 @@
 
 ## 1. Introduction to Numerical Integration
 
-### 1.1 Motivation: Why Numerical Integration?
+### 1.1 Motivation: The Need for Numerical Integration
 
 Numerical integration deals with the problem of approximating the definite integral of a function over an interval:
 
@@ -389,9 +389,9 @@ Like Simpson's 1/3 rule, the 3/8 rule is also **exact for polynomials up to degr
 
 ### 5.1 Idea: Subdivide the Interval
 
-**Q: How can we reduce the error of the trapezoidal rule?**
+**Reducing the error of the trapezoidal rule**
 
-**A:** Divide the interval $`[a, b]`$ into $`n`$ subintervals (segments) and apply the trapezoidal rule to each segment. Smaller subintervals mean the linear approximation is more accurate on each piece.
+Divide the interval $`[a, b]`$ into $`n`$ subintervals (segments) and apply the trapezoidal rule to each segment. Smaller subintervals mean the linear approximation is more accurate on each piece.
 
 With $`n`$ segments:
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 7
 
@@ -19,7 +19,7 @@
 ## Table of Contents
 
 - [1. Introduction to Optimization](#1-introduction-to-optimization)
-  - [1.1 What Is Optimization?](#11-what-is-optimization)
+  - [1.1 The Concept of Optimization](#11-the-concept-of-optimization)
   - [1.2 Motivating Example: Aluminum Can Design](#12-motivating-example-aluminum-can-design)
   - [1.3 Mathematical Description](#13-mathematical-description)
   - [1.4 Minimization vs. Maximization](#14-minimization-vs-maximization)
@@ -70,7 +70,7 @@
 
 ## 1. Introduction to Optimization
 
-### 1.1 What Is Optimization?
+### 1.1 The Concept of Optimization
 
 **Optimization** is a methodology to find the **best** among all **feasible solutions**. An **optimal solution** is the feasible solution that yields the best objective function value.
 

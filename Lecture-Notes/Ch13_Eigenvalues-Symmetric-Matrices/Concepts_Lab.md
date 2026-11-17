@@ -189,7 +189,7 @@ If `trace ≠ sum(lambda)` or `det ≠ prod(lambda)`, something has gone wrong: 
 
 `np.linalg.eig` computes all $`n`$ eigenpairs, an $`O(n^3)`$ operation. For large matrices, only the **dominant** eigenvalue (the one with the largest $`|\lambda|`$) is often needed. The **power method** finds it in $`O(n^2)`$ per iteration using only matrix-vector products.
 
-**Why does it work?** Assume that $`A`$ has $`n`$ linearly independent eigenvectors and expand the starting vector in the eigenbasis:
+**Reason it works.** Assume that $`A`$ has $`n`$ linearly independent eigenvectors and expand the starting vector in the eigenbasis:
 
 ```math
 \mathbf{x}^{(0)} = c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + \cdots + c_n\mathbf{v}_n

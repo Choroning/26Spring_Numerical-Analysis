@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 20
 
@@ -353,7 +353,7 @@ Since the integrand is a fifth-degree polynomial and the estimates of the third 
 
 ### 2.7 Stopping Criterion
 
-**Q: When do we stop the Romberg procedure?**
+**Stopping point of the Romberg procedure**
 
 Use the **percent relative error** between the best estimate at the current level and the best estimate at the previous level:
 

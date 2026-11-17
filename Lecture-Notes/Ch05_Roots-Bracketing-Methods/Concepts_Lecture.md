@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 5
 
@@ -16,7 +16,7 @@
 ## Table of Contents
 
 - [1. Motivation: The Quadratic Formula](#1-motivation-the-quadratic-formula)
-- [2. What Are Roots Problems?](#2-what-are-roots-problems)
+- [2. The Concept of Roots Problems](#2-the-concept-of-roots-problems)
 - [3. Graphical Methods](#3-graphical-methods)
   - [3.1 Savings Account Example](#31-savings-account-example)
   - [3.2 Graphical Root Estimation](#32-graphical-root-estimation)
@@ -93,7 +93,7 @@ However, for higher-degree polynomials and transcendental equations, **no closed
 
 <br>
 
-## 2. What Are Roots Problems?
+## 2. The Concept of Roots Problems
 
 A roots problem occurs when some function $`f`$ can be written in terms of one or more dependent variables $`x`$, where the solutions to $`f(x) = 0`$ yield the solution to the problem.
 

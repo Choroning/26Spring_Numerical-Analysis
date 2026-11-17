@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-27
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 20
 
@@ -353,7 +353,7 @@ Exact value:   1.640533
 
 ### 2.7 종료 기준
 
-**Q: 롬버그 절차를 언제 중단하는가?**
+**롬버그 절차의 중단 시점**
 
 현재 수준의 최선 추정값과 이전 수준의 최선 추정값 사이의 **백분율 상대 오차**를 사용한다:
 

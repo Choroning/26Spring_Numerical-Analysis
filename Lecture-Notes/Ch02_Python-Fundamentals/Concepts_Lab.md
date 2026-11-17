@@ -20,7 +20,7 @@
   - [1.1 Dynamic Typing](#11-dynamic-typing)
   - [1.2 Mathematical Constants and Formatted Output](#12-mathematical-constants-and-formatted-output)
 - [2. NumPy Arrays, Vectors, and Matrices](#2-numpy-arrays-vectors-and-matrices)
-  - [2.1 Why NumPy?](#21-why-numpy)
+  - [2.1 Reasons to Use NumPy](#21-reasons-to-use-numpy)
   - [2.2 Creating Arrays](#22-creating-arrays)
   - [2.3 Indexing and Slicing](#23-indexing-and-slicing)
   - [2.4 Sequence Generation: arange, linspace, logspace](#24-sequence-generation-arange-linspace-logspace)
@@ -93,7 +93,7 @@ The format specifier `{0:7.4f}` breaks down as: `0` = first argument, `7` = mini
 
 ## 2. NumPy Arrays, Vectors, and Matrices
 
-### 2.1 Why NumPy?
+### 2.1 Reasons to Use NumPy
 
 **NumPy** (Numerical Python) is the foundational library for scientific computing in Python. Its key advantages are:
 

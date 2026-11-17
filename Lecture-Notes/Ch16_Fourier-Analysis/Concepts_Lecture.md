@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-17
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -169,7 +169,7 @@ Rewriting with the conventional $`\frac{a_0}{2}`$ notation:
 f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} (a_n \cos nx + b_n \sin nx)
 ```
 
-> **Note:** **Why $`a_0/2`$?** When $`n = 0`$, we have $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$. We introduce the factor $`\frac{1}{2}`$ for convenience so that the formula for $`a_0`$ has the same form as $`a_n`$ for $`n \ge 1`$.
+> **Note:** **Reason for $`a_0/2`$.** When $`n = 0`$, we have $`a_0 \cos(0) + b_0 \sin(0) = a_0 \cdot 1 + 0 = a_0`$. We introduce the factor $`\frac{1}{2}`$ for convenience so that the formula for $`a_0`$ has the same form as $`a_n`$ for $`n \ge 1`$.
 
 This expression has the following structure:
 
@@ -796,7 +796,7 @@ freqs = np.fft.fftfreq(len(t), d=t[1] - t[0])
 recovered = np.fft.ifft(F)
 ```
 
-> **Note:** **Why $`n = 2^p`$?** The radix-2 Cooley-Tukey FFT algorithm works most efficiently when $`n`$ is a power of 2, as the recursive splitting into halves can be done $`\log_2 n`$ times evenly.
+> **Note:** **Reason for $`n = 2^p`$.** The radix-2 Cooley-Tukey FFT algorithm works most efficiently when $`n`$ is a power of 2, as the recursive splitting into halves can be done $`\log_2 n`$ times evenly.
 
 ---
 
