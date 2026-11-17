@@ -85,7 +85,7 @@ import scipy.constants as pc
 print('{0:12.4e}'.format(pc.h))  # Planck's constant: 6.6261e-34
 ```
 
-> **Note:** The format specifier `{0:7.4f}` breaks down as: `0` = first argument, `7` = minimum total width (including decimal point), `.4` = four decimal places, `f` = fixed-point notation. For scientific notation, use `e` instead of `f`.
+The format specifier `{0:7.4f}` breaks down as: `0` = first argument, `7` = minimum total width (including decimal point), `.4` = four decimal places, `f` = fixed-point notation. For scientific notation, use `e` instead of `f`.
 
 ---
 
@@ -316,7 +316,7 @@ print(v)
 #  50.61...  51.18...  51.45...  51.58...  51.64...]
 ```
 
-> **Note:** The `np.tanh()` function operates element-wise on the entire `tm` array, producing a result array of the same shape without any explicit loop. This is vectorization in action.
+The `np.tanh()` function operates element-wise on the entire `tm` array, producing a result array of the same shape without any explicit loop. This is vectorization in action.
 
 ---
 
@@ -372,7 +372,7 @@ plt.savefig('sample.png', bbox_inches='tight')
 plt.show()
 ```
 
-> **Note:** The `ls` parameter controls line style (`'-'` solid, `'--'` dashed, `':'` dotted), `marker` controls data point markers (`'o'` circle, `'D'` diamond, `'s'` square), and `label` provides the text for the legend entry. `bbox_inches='tight'` removes excess whitespace when saving.
+The `ls` parameter controls line style (`'-'` solid, `'--'` dashed, `':'` dotted), `marker` controls data point markers (`'o'` circle, `'D'` diamond, `'s'` square), and `label` provides the text for the legend entry. `bbox_inches='tight'` removes excess whitespace when saving.
 
 ---
 

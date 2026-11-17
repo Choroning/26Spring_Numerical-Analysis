@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 15
 
@@ -74,7 +74,7 @@ where:
 - Sample mean $`\bar{y} = 172`$ cm
 - $`s_y = 3.16`$ cm
 
-> **Note:** **Interpretation.** Individual height measurements differ from the mean by roughly 3.16 cm.
+**Interpretation:** Individual height measurements differ from the mean by roughly 3.16 cm.
 
 ### 1.2 Standard Error of the Mean (SE)
 
@@ -87,7 +87,7 @@ SE = \frac{s_y}{\sqrt{n}}
 **Example (continued):**
 - $`SE = \frac{3.16}{\sqrt{5}} = 1.41`$ cm
 
-> **Note:** **Interpretation.** The average height is estimated to be 172 cm, with a standard error of $`\pm 1.41`$ cm.
+**Interpretation:** The average height is estimated to be 172 cm, with a standard error of $`\pm 1.41`$ cm.
 
 ### 1.3 Standard Error of Regression
 
@@ -105,7 +105,7 @@ where:
 
 - $`s_e = \sqrt{\frac{SSE}{n-2}} = 2.61`$ cm
 
-> **Note:** **Interpretation.** The observed $`y`$-values deviate from the regression line by about 2.61 cm.
+**Interpretation:** The observed $`y`$-values deviate from the regression line by about 2.61 cm.
 
 ### 1.4 Coefficient of Determination (R-squared)
 
@@ -144,7 +144,7 @@ where:
 
 **Example (textbook Example 14.6):** $`R^2 = 88\%`$
 
-> **Note:** **Interpretation.** The relationship between the two variables explains 88% (approximately 90%) of the variation in the data.
+**Interpretation:** The relationship between the two variables explains 88% (approximately 90%) of the variation in the data.
 
 ---
 
@@ -170,7 +170,7 @@ y = \alpha_1 e^{\beta_1 x}
 
 This gives a linear form: $`\ln y = \underbrace{\ln \alpha_1}_{\text{intercept}} + \underbrace{\beta_1}_{\text{slope}} \cdot x`$
 
-> **Note:** **Graphical Effect.** A plot of $`y`$ vs $`x`$ shows an exponential curve. A plot of $`\ln y`$ vs $`x`$ becomes a straight line with slope $`\beta_1`$ and intercept $`\ln \alpha_1`$.
+**Graphical Effect:** A plot of $`y`$ vs $`x`$ shows an exponential curve. A plot of $`\ln y`$ vs $`x`$ becomes a straight line with slope $`\beta_1`$ and intercept $`\ln \alpha_1`$.
 
 ### 2.2 Power Model
 
@@ -188,7 +188,7 @@ y = \alpha_2 x^{\beta_2}
 
 This gives a linear form: $`\ln y = \underbrace{\ln \alpha_2}_{\text{intercept}} + \underbrace{\beta_2}_{\text{slope}} \cdot \ln x`$
 
-> **Note:** **Graphical Effect.** A plot of $`y`$ vs $`x`$ shows a power curve. A plot of $`\ln y`$ vs $`\ln x`$ becomes a straight line with slope $`\beta_2`$ and intercept $`\ln \alpha_2`$.
+**Graphical Effect:** A plot of $`y`$ vs $`x`$ shows a power curve. A plot of $`\ln y`$ vs $`\ln x`$ becomes a straight line with slope $`\beta_2`$ and intercept $`\ln \alpha_2`$.
 
 ### 2.3 Saturation-Growth-Rate Model
 
@@ -206,7 +206,7 @@ y = \frac{\alpha_3 x}{\beta_3 + x}
 
 This gives a linear form: $`\frac{1}{y} = \underbrace{\frac{\beta_3}{\alpha_3}}_{\text{slope}} \cdot \frac{1}{x} + \underbrace{\frac{1}{\alpha_3}}_{\text{intercept}}`$
 
-> **Note:** **Graphical Effect.** A plot of $`y`$ vs $`x`$ shows a saturation curve. A plot of $`\frac{1}{y}`$ vs $`\frac{1}{x}`$ becomes a straight line with slope $`\frac{\beta_3}{\alpha_3}`$ and intercept $`\frac{1}{\alpha_3}`$.
+**Graphical Effect:** A plot of $`y`$ vs $`x`$ shows a saturation curve. A plot of $`\frac{1}{y}`$ vs $`\frac{1}{x}`$ becomes a straight line with slope $`\frac{\beta_3}{\alpha_3}`$ and intercept $`\frac{1}{\alpha_3}`$.
 
 | Model | Original Form | Transformed Variables | Slope | Intercept |
 |---|---|---|---|---|
@@ -305,7 +305,7 @@ SSE = \sum e_i^2
 s_e = \sqrt{\frac{SSE}{n - 3}}
 ```
 
-> **Note:** **Degrees of Freedom.** The denominator is $`n - 3`$ because three parameters ($`\beta_0, \beta_1, \beta_2`$) are used to construct $`\hat{y}`$. In general, for an $`m`$-th degree polynomial, the degrees of freedom are $`n - (m+1)`$.
+**Degrees of Freedom:** The denominator is $`n - 3`$ because three parameters ($`\beta_0, \beta_1, \beta_2`$) are used to construct $`\hat{y}`$. In general, for an $`m`$-th degree polynomial, the degrees of freedom are $`n - (m+1)`$.
 
 ---
 
@@ -433,7 +433,7 @@ where:
 
 Here $`f_{ji}`$ denotes the value of basis function $`f_j`$ evaluated at data point $`i`$, and $`\mathbf{e}`$ is the residual (error) vector.
 
-> **Note:** **Notation.** $`\mathbf{X}`$ has $`n`$ rows (data points) and $`m+1`$ columns (number of parameters including $`\beta_0`$).
+**Notation:** $`\mathbf{X}`$ has $`n`$ rows (data points) and $`m+1`$ columns (number of parameters including $`\beta_0`$).
 
 ### 5.3 Deriving the Normal Equations (Matrix Calculus)
 
@@ -503,7 +503,7 @@ SSE = SST - SSR
 s_e = \sqrt{\frac{SSE}{n - (m+1)}}
 ```
 
-> **Note:** **Degrees of Freedom.** The denominator $`n - (m+1)`$ accounts for the $`m+1`$ parameters used to fit the model.
+**Degrees of Freedom:** The denominator $`n - (m+1)`$ accounts for the $`m+1`$ parameters used to fit the model.
 
 ### 5.6 Covariance Matrix of Parameter Estimates
 
@@ -515,7 +515,7 @@ The covariance matrix of the estimated parameters:
 
 where $`\sigma_e^2`$ is estimated by $`s_e^2 = \frac{SSE}{n-(m+1)}`$.
 
-> **Note:** **Practical Use.** The diagonal elements of $`\text{cov}(\hat{\boldsymbol{\beta}})`$ give the variance of each individual parameter estimate, and their square roots provide the standard errors of the parameters. These can be used to construct confidence intervals.
+**Practical Use:** The diagonal elements of $`\text{cov}(\hat{\boldsymbol{\beta}})`$ give the variance of each individual parameter estimate, and their square roots provide the standard errors of the parameters. These can be used to construct confidence intervals.
 
 ---
 
@@ -574,7 +574,7 @@ result = minimize(objective, initial_guess, method='L-BFGS-B')
 A_opt, B_opt, C_opt = result.x
 ```
 
-> **Note:** **Method.** The `scipy.optimize.minimize` function with `method='L-BFGS-B'` uses a quasi-Newton optimization algorithm. An initial guess is required, and the algorithm iteratively refines the parameters to minimize $`SSE`$.
+**Method:** The `scipy.optimize.minimize` function with `method='L-BFGS-B'` uses a quasi-Newton optimization algorithm. An initial guess is required, and the algorithm iteratively refines the parameters to minimize $`SSE`$.
 
 > **Caution:** **Initial Guess Sensitivity.** Nonlinear regression methods depend on the initial guess. A poor initial guess may lead to convergence to a local minimum rather than the global minimum. In the code above, the parameters also differ greatly in scale, and L-BFGS-B declares convergence at a point where $`B`$ has stayed near its initial value of 1500. From the same initial guess, the Levenberg-Marquardt method, an improvement of the Gauss-Newton method and the default of `scipy.optimize.curve_fit`, reaches $`A \approx 8.01`$, $`B \approx 1697`$, $`C \approx 230.6`$ with a smaller SSE.
 
