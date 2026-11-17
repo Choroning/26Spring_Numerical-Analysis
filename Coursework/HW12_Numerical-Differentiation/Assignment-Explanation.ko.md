@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4, 21
 
@@ -43,7 +43,7 @@
 
 *표 1. 과제를 이루는 빈칸*
 
-전진, 후진, 중심 차분의 유도와 오차의 차수는 [4장 강의 노트](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.ko.md)의 3절과 [21장 강의 노트](../../Lecture-Notes/Ch21_Numerical-Differentiation/Concepts_Lecture.ko.md)의 2절에, 미분을 위한 리처드슨 외삽법은 21장 강의 노트의 5절에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
+전진, 후진, 중심 차분의 유도와 오차의 차수는 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 10절과 [21장 강의 노트](../../Lecture-Notes/Ch21_Numerical-Differentiation/Concepts_Lecture.ko.md)의 2절에, 미분을 위한 리처드슨 외삽법은 21장 강의 노트의 5절에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
 
 ---
 

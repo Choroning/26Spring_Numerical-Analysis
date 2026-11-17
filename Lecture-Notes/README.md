@@ -2,16 +2,16 @@
 
 [Repository Guide](../README.md) | [English](README.md) | [한국어](README.ko.md)
 
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-11-18
 
 ## Part 1 Modeling, Computers, and Error Analysis
 
 | Unit | Topics | Documents |
 |:-----|:-----|:-----|
-| [Chapter 1 Mathematical Modeling and Engineering Problem Solving](Ch01_Mathematical-Modeling/) | Mathematical models, Newton's second law and the bungee jumper example, Euler's method, types of engineering problems solved numerically, NumPy arrays and matrix operations, Matplotlib visualization, views and copies in NumPy | [Lecture notes](Ch01_Mathematical-Modeling/Concepts_Lecture.md), [Lab notes](Ch01_Mathematical-Modeling/Concepts_Lab.md) |
-| [Chapter 2 Python Fundamentals and Programming](Ch02_Python-Fundamentals-and-Programming/) | Programming environment, Python basics and NumPy and SciPy functions, control structures and functions, the bungee jumper example in Python, variable scope and the LEGB rule, structured programming, exception handling, decorators, object-oriented basics, type hints, generators | [Lecture notes](Ch02_Python-Fundamentals-and-Programming/Concepts_Lecture.md), [Lab notes](Ch02_Python-Fundamentals-and-Programming/Concepts_Lab.md) |
-| [Chapter 3 Roundoff Errors](Ch03_Roundoff-Errors/) | Significant figures, accuracy and precision, error definitions and the Scarborough criterion, roundoff errors and problems with floating-point arithmetic, error metrics, truncation error and the Taylor series | [Lecture notes](Ch03_Roundoff-Errors/Concepts_Lecture.md), [Lab notes](Ch03_Roundoff-Errors/Concepts_Lab.md) |
-| [Chapter 4 Truncation Errors](Ch04_Truncation-Errors/) | Taylor series expansion, order of approximation, numerical differentiation using the Taylor series, total numerical error, stability and condition number, finite differences in Python | [Lecture notes](Ch04_Truncation-Errors/Concepts_Lecture.md) |
+| [Chapter 1 Mathematical Modeling and Engineering Problem Solving](Ch01_Mathematical-Modeling/) | Mathematical models, Newton's second law and the bungee jumper example, Euler's method, types of engineering problems solved numerically | [Lecture notes](Ch01_Mathematical-Modeling/Concepts_Lecture.md) |
+| [Chapter 2 Python Fundamentals](Ch02_Python-Fundamentals/) | Programming environment, Python basic syntax and data types, element-wise and matrix operations on NumPy arrays, NumPy and SciPy functions, Matplotlib plots, views and copies in NumPy | [Lecture notes](Ch02_Python-Fundamentals/Concepts_Lecture.md), [Lab notes](Ch02_Python-Fundamentals/Concepts_Lab.md) |
+| [Chapter 3 Python Programming](Ch03_Python-Programming/) | Control structures and functions, the bungee jumper example in Python, variable scope and the LEGB rule, structured programming, file input and output, exception handling, decorators, object-oriented basics, type hints, generators | [Lecture notes](Ch03_Python-Programming/Concepts_Lecture.md), [Lab notes](Ch03_Python-Programming/Concepts_Lab.md) |
+| [Chapter 4 Roundoff and Truncation Errors](Ch04_Roundoff-and-Truncation-Errors/) | Significant figures, accuracy and precision, error definitions and the Scarborough criterion, roundoff errors and problems with floating-point arithmetic, error metrics, Taylor series expansion, order of approximation, numerical differentiation using the Taylor series, total numerical error, stability and condition number, finite differences in Python | [Lecture notes](Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md), [Lab notes](Ch04_Roundoff-and-Truncation-Errors/Concepts_Lab.md) |
 
 ## Part 2 Roots and Optimization
 
@@ -29,8 +29,8 @@
 | [Chapter 9 Gauss Elimination: Improved Methods](Ch09_Gauss-Elimination/) | Partial pivoting and scaled partial pivoting, the Gauss-Jordan method, tridiagonal systems and the Thomas algorithm, condition number, heat conduction | [Lecture notes](Ch09_Gauss-Elimination/Concepts_Lecture.md), [Lab notes](Ch09_Gauss-Elimination/Concepts_Lab.md) |
 | [Chapter 10 LU Factorization](Ch10_LU-Factorization/) | Gauss elimination as LU factorization, forward and back substitution, LU factorization with pivoting, Cholesky factorization, Doolittle's algorithm, multiple right-hand sides and a thermal resistor network | [Lecture notes](Ch10_LU-Factorization/Concepts_Lecture.md), [Lab notes](Ch10_LU-Factorization/Concepts_Lab.md) |
 | [Chapter 11 Matrix Inverse and Condition Number](Ch11_Matrix-Inverse-and-Condition/) | The matrix inverse and its computation via LU factorization, physical interpretation with a mass-spring system, detecting ill-conditioning, vector and matrix norms, the matrix condition number and the error bound theorem, the Hilbert matrix | [Lecture notes](Ch11_Matrix-Inverse-and-Condition/Concepts_Lecture.md), [Lab notes](Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.md) |
-| [Chapter 12 Iterative Methods for Linear Systems](Ch12_Iterative-Methods/) | The Gauss-Seidel method, diagonal dominance and convergence, Jacobi iteration, relaxation, preconditioning, the power method for eigenvalues, the inverse and shifted power methods | [Lecture notes](Ch12_Iterative-Methods/Concepts_Lecture.md), [Lab notes](Ch12_Iterative-Methods/Concepts_Lab.md) |
-| [Chapter 13 Eigenvalue Methods: Symmetric Matrices](Ch13_Eigenvalues-Symmetric-Matrices/) | Computing eigenvalues and eigenvectors, eigenvalues and the stability of ordinary differential equations, coupled second-order ODE systems, mass-spring systems, the power method, spectral decomposition of symmetric matrices, vibration analysis | [Lecture notes](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md), [Lab notes](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md) |
+| [Chapter 12 Iterative Methods for Linear Systems](Ch12_Iterative-Methods/) | The Gauss-Seidel method, diagonal dominance and convergence, Jacobi iteration, relaxation, preconditioning | [Lecture notes](Ch12_Iterative-Methods/Concepts_Lecture.md) |
+| [Chapter 13 Eigenvalue Methods: Symmetric Matrices](Ch13_Eigenvalues-Symmetric-Matrices/) | Computing eigenvalues and eigenvectors, eigenvalues and the stability of ordinary differential equations, coupled second-order ODE systems, mass-spring systems, the power method, the inverse and shifted power methods, spectral decomposition of symmetric matrices, vibration analysis | [Lecture notes](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md), [Lab notes](Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md) |
 
 ## Part 4 Curve Fitting
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-17
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
@@ -61,7 +61,7 @@ The assignment is to fill in the five blanks of the lab notebook `Lab02-SourceOf
 
 *Table 1. The five blanks that make up the assignment*
 
-Error definitions, the Scarborough criterion, floating-point representation, and subtractive cancellation are covered in the [Chapter 3 lecture note](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lecture.md) and the [Chapter 3 lab note](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lab.md), and Taylor series, finite differences, and the total numerical error are covered in the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md). This document repeats only what the solutions need.
+Error definitions, the Scarborough criterion, floating-point representation, and subtractive cancellation are covered in Sections 1-7 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md) and in the [Chapter 4 lab note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lab.md), and Taylor series, finite differences, and the total numerical error are covered in Sections 8-12 of the same lecture note. This document repeats only what the solutions need.
 
 ---
 
@@ -91,7 +91,7 @@ $$
 S_k = \sum_{i=0}^{k} \frac{x^i}{i!} = S_{k-1} + \frac{x^k}{k!}
 $$
 
-Each entry is therefore the previous entry plus one new term. The given line `f_approx[2] = f_approx[1] + x**2 / math.factorial(2)` follows this form, so the blanks add the terms for $`k = 3, 4, 5`$ in the same way. Taylor series and the order of approximation are covered in Sections 1 and 2 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md).
+Each entry is therefore the previous entry plus one new term. The given line `f_approx[2] = f_approx[1] + x**2 / math.factorial(2)` follows this form, so the blanks add the terms for $`k = 3, 4, 5`$ in the same way. Taylor series and the order of approximation are covered in Sections 8 and 9 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md).
 
 ### 3.2 Code Written
 
@@ -135,7 +135,7 @@ $$
 \varepsilon_a = \frac{|S_k - S_{k-1}|}{|S_k|} \times 100 = \frac{x^k / k!}{S_k} \times 100
 $$
 
-In other words, $`\varepsilon_a`$ is the share of the newly added term in the partial sum, and the loop stops once this value falls below `es`. The approximate percent relative error and the Scarborough criterion are covered in Sections 3 and 4 of the [Chapter 3 lecture note](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lecture.md).
+In other words, $`\varepsilon_a`$ is the share of the newly added term in the partial sum, and the loop stops once this value falls below `es`. The approximate percent relative error and the Scarborough criterion are covered in Sections 3 and 4 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md).
 
 ### 4.2 Code Written
 
@@ -186,7 +186,7 @@ $$
 x_2 = \frac{c}{a x_1}
 $$
 
-It applies only one division to the accurately computed $`x_1`$, so the relative error does not grow. The blank `x1_s` therefore takes the formula with the plus sign, and `x2_stab` takes the form in the comment. Subtractive cancellation is covered in Section 6.1 of the [Chapter 3 lecture note](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lecture.md) and Section 3.5 of the [Chapter 3 lab note](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lab.md).
+It applies only one division to the accurately computed $`x_1`$, so the relative error does not grow. The blank `x1_s` therefore takes the formula with the plus sign, and `x2_stab` takes the form in the comment. Subtractive cancellation is covered in Section 6.1 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md) and Section 3.5 of the [Chapter 4 lab note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lab.md).
 
 ### 5.2 Code Written
 
@@ -226,7 +226,7 @@ The output matches the output in the distributed notebook. The results are inter
 
 ### 6.1 Approach
 
-The preceding cell computed `fm` $`= f(x-h)`$, `fi` $`= f(x)`$, and `fp` $`= f(x+h)`$, so the three formulas of Table 1 become differences of these values divided by the step size. The forward difference is $`(f(x+h) - f(x))/h`$, the backward difference is $`(f(x) - f(x-h))/h`$, and the central difference is $`(f(x+h) - f(x-h))/(2h)`$. Their derivations and error orders are covered in Section 3 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md).
+The preceding cell computed `fm` $`= f(x-h)`$, `fi` $`= f(x)`$, and `fp` $`= f(x+h)`$, so the three formulas of Table 1 become differences of these values divided by the step size. The forward difference is $`(f(x+h) - f(x))/h`$, the backward difference is $`(f(x) - f(x-h))/h`$, and the central difference is $`(f(x+h) - f(x-h))/(2h)`$. Their derivations and error orders are covered in Section 10 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md).
 
 ### 6.2 Code Written
 
@@ -263,7 +263,7 @@ This equals $`-1.45 - (-0.9125)`$. In the central difference the even-order term
 
 ### 7.1 Approach
 
-The loop records the current step size with `H[i] = h`, passes through the blanks, and finally shrinks the step size with `h /= 10`. The blanks therefore compute both differences with the current `h` and store the absolute difference from the true value. This is the same approach that the notebook's `step_size_analysis` uses for the central difference, and the forward difference divides the difference between $`f(0.5+h)`$ and $`f(0.5)`$ by $`h`$. The balance between truncation and roundoff errors and the optimal step size are covered in Section 5 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md).
+The loop records the current step size with `H[i] = h`, passes through the blanks, and finally shrinks the step size with `h /= 10`. The blanks therefore compute both differences with the current `h` and store the absolute difference from the true value. This is the same approach that the notebook's `step_size_analysis` uses for the central difference, and the forward difference divides the difference between $`f(0.5+h)`$ and $`f(0.5)`$ by $`h`$. The balance between truncation and roundoff errors and the optimal step size are covered in Section 12 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md).
 
 ### 7.2 Code Written
 

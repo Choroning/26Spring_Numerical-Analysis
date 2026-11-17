@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -62,7 +62,7 @@ The assignment is to fill in the five blanks of the lab notebook `Lab06-Eigen.ip
 
 *Table 1. The five blanks that make up the assignment*
 
-The power, inverse power, and shifted power methods are covered in the [Chapter 12 lab note](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.md), and symmetric eigenvalue problems, vibration analysis, and the stability of ODE systems are covered in the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md) and the [Chapter 13 lecture note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md). This document repeats only what the solutions need.
+The power, inverse power, and shifted power methods are covered in Sections 1-4 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md), and symmetric eigenvalue problems, vibration analysis, and the stability of ODE systems are covered in Sections 5-8 of the same lab note and in the [Chapter 13 lecture note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md). This document repeats only what the solutions need.
 
 ---
 
@@ -127,7 +127,7 @@ The eigenvalues and eigenvectors match the output of the distributed notebook. T
 
 ### 4.1 Approach
 
-The blanks transcribe steps 2 and 3 of the algorithm. The index $`i^* = \arg\max_i |y_i|`$ is `np.argmax(np.abs(y))`, and the eigenvalue estimate is the component at that index itself, `y[i*]`. Using the signed component rather than its absolute value matters. When the dominant eigenvalue is negative, the sign of $`\mathbf{y} = A\mathbf{x}`$ flips at every iteration, and only division by the signed component keeps the sign of $`\mathbf{x}`$ fixed and lets the estimate converge to the negative eigenvalue. Dividing with `x = y / lam` makes the largest component 1, which keeps $`\|\mathbf{x}\|_\infty = 1`$ and prevents overflow however many iterations run. The power method is covered in Section 2 of the [Chapter 12 lab note](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.md).
+The blanks transcribe steps 2 and 3 of the algorithm. The index $`i^* = \arg\max_i |y_i|`$ is `np.argmax(np.abs(y))`, and the eigenvalue estimate is the component at that index itself, `y[i*]`. Using the signed component rather than its absolute value matters. When the dominant eigenvalue is negative, the sign of $`\mathbf{y} = A\mathbf{x}`$ flips at every iteration, and only division by the signed component keeps the sign of $`\mathbf{x}`$ fixed and lets the estimate converge to the negative eigenvalue. Dividing with `x = y / lam` makes the largest component 1, which keeps $`\|\mathbf{x}\|_\infty = 1`$ and prevents overflow however many iterations run. The power method is covered in Section 2 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md).
 
 ### 4.2 Code Written
 
@@ -168,7 +168,7 @@ $$
 \mu = \frac{1}{\lambda - \sigma} \quad\Longrightarrow\quad \lambda = \sigma + \frac{1}{\mu}
 $$
 
-The inverse and shifted power methods are covered in Section 3 of the [Chapter 12 lab note](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.md).
+The inverse and shifted power methods are covered in Section 3 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md).
 
 ### 5.2 Code Written
 
@@ -222,7 +222,7 @@ $$
 \omega_n = \sqrt{\lambda}, \qquad f = \frac{\omega_n}{2\pi}, \qquad T = \frac{1}{f}
 $$
 
-`omega_sq` is an array, so `np.sqrt` computes all three modes at once. Generalized eigenvalue problems and natural frequencies are covered in Section 2 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md).
+`omega_sq` is an array, so `np.sqrt` computes all three modes at once. Generalized eigenvalue problems and natural frequencies are covered in Section 6 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md).
 
 ### 6.2 Code Written
 
@@ -262,7 +262,7 @@ The output matches the output of the distributed notebook. Checking the first mo
 
 ### 7.1 Approach
 
-At $`t = 0`$ the solution is $`\mathbf{y}(0) = \sum_i c_i \mathbf{v}_i = V\mathbf{c}`$, so the modal constants are the solution of the linear system $`V\mathbf{c} = \mathbf{y}_0`$. Solving it directly with `np.linalg.solve` instead of forming $`V^{-1}`$ and multiplying costs less and introduces less roundoff error. This is the same golden rule, solve instead of inverting, covered in Section 1.2 of the [Chapter 11 lab note](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.md). The stability of ODE systems is covered in Section 3 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md) and in the [Chapter 13 lecture note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md).
+At $`t = 0`$ the solution is $`\mathbf{y}(0) = \sum_i c_i \mathbf{v}_i = V\mathbf{c}`$, so the modal constants are the solution of the linear system $`V\mathbf{c} = \mathbf{y}_0`$. Solving it directly with `np.linalg.solve` instead of forming $`V^{-1}`$ and multiplying costs less and introduces less roundoff error. This is the same golden rule, solve instead of inverting, covered in Section 1.2 of the [Chapter 11 lab note](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.md). The stability of ODE systems is covered in Section 7 of the [Chapter 13 lab note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.md) and in the [Chapter 13 lecture note](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.md).
 
 ### 7.2 Code Written
 

@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 24
 
@@ -433,7 +433,7 @@ T_0 = T_a                                         T_n = T_b
 \left. \frac{d^2 T}{dx^2} \right|_{x_i} \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}
 ```
 
-> **참고:** 이 근사는 4장 3.4절과 21장 3.1절에서 유도한 2계도함수의 중심 차분 공식으로, $`x_i`$ 주변의 전진 및 후진 테일러 전개를 더하여 얻는다. 선행 오차 항은 $`O((\Delta x)^2)`$이며, 이는 근사가 2차 정확도를 가짐을 의미한다.
+> **참고:** 이 근사는 4장 10.4절과 21장 3.1절에서 유도한 2계도함수의 중심 차분 공식으로, $`x_i`$ 주변의 전진 및 후진 테일러 전개를 더하여 얻는다. 선행 오차 항은 $`O((\Delta x)^2)`$이며, 이는 근사가 2차 정확도를 가짐을 의미한다.
 
 ### 4.3 유한 차분 방정식 생성
 

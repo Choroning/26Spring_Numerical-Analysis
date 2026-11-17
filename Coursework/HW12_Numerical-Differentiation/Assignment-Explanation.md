@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-17
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4, 21
 
@@ -43,7 +43,7 @@ The assignment is to fill in the single blank of the lab notebook `Lab13-diff.ip
 
 *Table 1. The blank that makes up the assignment*
 
-The derivations and error orders of the forward, backward, and central differences are covered in Section 3 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.md) and Section 2 of the [Chapter 21 lecture note](../../Lecture-Notes/Ch21_Numerical-Differentiation/Concepts_Lecture.md), and Richardson extrapolation for derivatives in Section 5 of the Chapter 21 lecture note. This document repeats only what the solution needs.
+The derivations and error orders of the forward, backward, and central differences are covered in Section 10 of the [Chapter 4 lecture note](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.md) and Section 2 of the [Chapter 21 lecture note](../../Lecture-Notes/Ch21_Numerical-Differentiation/Concepts_Lecture.md), and Richardson extrapolation for derivatives in Section 5 of the Chapter 21 lecture note. This document repeats only what the solution needs.
 
 ---
 

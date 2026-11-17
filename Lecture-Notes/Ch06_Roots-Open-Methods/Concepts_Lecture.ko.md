@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-11-04
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 6
 
@@ -801,7 +801,7 @@ print(root)  # 1.0
    <details>
    <summary>정답</summary>
 
-   $`f'(x) = 2x`$이므로 $`x_1 = 1 - (-1)/2 = 1.5`$이고 $`x_2 = 1.5 - 0.25/3 \approx 1.416667`$이다. 이 반복은 3장 실습의 바빌로니아 방법과 같은 값을 낸다.
+   $`f'(x) = 2x`$이므로 $`x_1 = 1 - (-1)/2 = 1.5`$이고 $`x_2 = 1.5 - 0.25/3 \approx 1.416667`$이다. 이 반복은 4장 실습의 바빌로니아 방법과 같은 값을 낸다.
 
    </details>
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-04
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 6
 
@@ -801,7 +801,7 @@ print(root)  # 1.0
    <details>
    <summary>Answer</summary>
 
-   Since $`f'(x) = 2x`$, $`x_1 = 1 - (-1)/2 = 1.5`$ and $`x_2 = 1.5 - 0.25/3 \approx 1.416667`$. This iteration gives the same values as the Babylonian method of the Chapter 3 lab.
+   Since $`f'(x) = 2x`$, $`x_1 = 1 - (-1)/2 = 1.5`$ and $`x_2 = 1.5 - 0.25/3 \approx 1.416667`$. This iteration gives the same values as the Babylonian method of the Chapter 4 lab.
 
    </details>
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 24
 
@@ -433,7 +433,7 @@ The **central difference approximation** for the second derivative at node $`x_i
 \left. \frac{d^2 T}{dx^2} \right|_{x_i} \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}
 ```
 
-> **Note:** This approximation is the central difference formula for the second derivative derived in Section 3.4 of Chapter 4 and Section 3.1 of Chapter 21, obtained by adding the forward and backward Taylor expansions around $`x_i`$. The leading error term is $`O((\Delta x)^2)`$, meaning the approximation has second-order accuracy.
+> **Note:** This approximation is the central difference formula for the second derivative derived in Section 10.4 of Chapter 4 and Section 3.1 of Chapter 21, obtained by adding the forward and backward Taylor expansions around $`x_i`$. The leading error term is $`O((\Delta x)^2)`$, meaning the approximation has second-order accuracy.
 
 ### 4.3 Generating the Finite Difference Equations
 

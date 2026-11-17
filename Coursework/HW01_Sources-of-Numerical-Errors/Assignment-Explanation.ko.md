@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
@@ -61,7 +61,7 @@
 
 *표 1. 과제를 이루는 다섯 빈칸*
 
-오차의 정의와 스카보로 기준, 부동 소수점 표현과 뺄셈 소거는 [3장 강의 노트](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lecture.ko.md)와 [3장 실습 노트](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lab.ko.md)에, 테일러 급수와 유한 차분, 총 수치 오차는 [4장 강의 노트](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
+오차의 정의와 스카보로 기준, 부동 소수점 표현과 뺄셈 소거는 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 1\~7절과 [4장 실습 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lab.ko.md)에, 테일러 급수와 유한 차분, 총 수치 오차는 같은 강의 노트의 8\~12절에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
 
 ---
 
@@ -91,7 +91,7 @@ $$
 S_k = \sum_{i=0}^{k} \frac{x^i}{i!} = S_{k-1} + \frac{x^k}{k!}
 $$
 
-따라서 각 칸은 바로 앞 칸에 새 항 하나를 더해 구한다. 이미 채워진 `f_approx[2] = f_approx[1] + x**2 / math.factorial(2)`가 이 형식을 따르므로, 빈칸도 같은 형식으로 $`k = 3, 4, 5`$의 항을 더한다. 테일러 급수와 근사의 차수는 [4장 강의 노트](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.ko.md)의 1, 2절에서 다룬다.
+따라서 각 칸은 바로 앞 칸에 새 항 하나를 더해 구한다. 이미 채워진 `f_approx[2] = f_approx[1] + x**2 / math.factorial(2)`가 이 형식을 따르므로, 빈칸도 같은 형식으로 $`k = 3, 4, 5`$의 항을 더한다. 테일러 급수와 근사의 차수는 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 8, 9절에서 다룬다.
 
 ### 3.2 작성한 코드
 
@@ -135,7 +135,7 @@ $$
 \varepsilon_a = \frac{|S_k - S_{k-1}|}{|S_k|} \times 100 = \frac{x^k / k!}{S_k} \times 100
 $$
 
-즉 $`\varepsilon_a`$는 새로 더한 항이 부분합에서 차지하는 비율이며, 이 값이 `es`보다 작아지면 반복을 멈춘다. 근사 백분율 상대 오차와 스카보로 기준은 [3장 강의 노트](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lecture.ko.md)의 3, 4절에서 다룬다.
+즉 $`\varepsilon_a`$는 새로 더한 항이 부분합에서 차지하는 비율이며, 이 값이 `es`보다 작아지면 반복을 멈춘다. 근사 백분율 상대 오차와 스카보로 기준은 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 3, 4절에서 다룬다.
 
 ### 4.2 작성한 코드
 
@@ -186,7 +186,7 @@ $$
 x_2 = \frac{c}{a x_1}
 $$
 
-정확하게 구한 $`x_1`$에 나눗셈 한 번만 더하므로 상대 오차가 커지지 않는다. 그래서 `x1_s`에는 덧셈 부호의 공식을, `x2_stab`에는 주석의 형태를 쓴다. 뺄셈 소거는 [3장 강의 노트](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lecture.ko.md)의 6.1절과 [3장 실습 노트](../../Lecture-Notes/Ch03_Roundoff-Errors/Concepts_Lab.ko.md)의 3.5절에서 다룬다.
+정확하게 구한 $`x_1`$에 나눗셈 한 번만 더하므로 상대 오차가 커지지 않는다. 그래서 `x1_s`에는 덧셈 부호의 공식을, `x2_stab`에는 주석의 형태를 쓴다. 뺄셈 소거는 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 6.1절과 [4장 실습 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lab.ko.md)의 3.5절에서 다룬다.
 
 ### 5.2 작성한 코드
 
@@ -226,7 +226,7 @@ $$
 
 ### 6.1 풀이 방법
 
-앞 셀이 `fm` $`= f(x-h)`$, `fi` $`= f(x)`$, `fp` $`= f(x+h)`$를 계산해 두었으므로, 표 1의 세 공식은 이 값들의 차를 스텝 크기로 나눈 식이 된다. 전진 차분은 $`(f(x+h) - f(x))/h`$, 후진 차분은 $`(f(x) - f(x-h))/h`$, 중심 차분은 $`(f(x+h) - f(x-h))/(2h)`$이다. 세 공식의 유도와 오차의 차수는 [4장 강의 노트](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.ko.md)의 3절에서 다룬다.
+앞 셀이 `fm` $`= f(x-h)`$, `fi` $`= f(x)`$, `fp` $`= f(x+h)`$를 계산해 두었으므로, 표 1의 세 공식은 이 값들의 차를 스텝 크기로 나눈 식이 된다. 전진 차분은 $`(f(x+h) - f(x))/h`$, 후진 차분은 $`(f(x) - f(x-h))/h`$, 중심 차분은 $`(f(x+h) - f(x-h))/(2h)`$이다. 세 공식의 유도와 오차의 차수는 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 10절에서 다룬다.
 
 ### 6.2 작성한 코드
 
@@ -263,7 +263,7 @@ $$
 
 ### 7.1 풀이 방법
 
-루프는 `H[i] = h`로 현재 스텝 크기를 기록한 뒤 빈칸을 거쳐 마지막에 `h /= 10`으로 스텝 크기를 줄인다. 따라서 빈칸은 현재의 `h`로 두 차분을 계산하고 참값과의 차의 절댓값을 저장한다. 노트북의 `step_size_analysis`가 중심 차분에 쓴 방식과 같으며, 전진 차분은 $`f(0.5+h)`$와 $`f(0.5)`$의 차를 $`h`$로 나눈다. 절단 오차와 반올림 오차의 균형, 최적 스텝 크기는 [4장 강의 노트](../../Lecture-Notes/Ch04_Truncation-Errors/Concepts_Lecture.ko.md)의 5절에서 다룬다.
+루프는 `H[i] = h`로 현재 스텝 크기를 기록한 뒤 빈칸을 거쳐 마지막에 `h /= 10`으로 스텝 크기를 줄인다. 따라서 빈칸은 현재의 `h`로 두 차분을 계산하고 참값과의 차의 절댓값을 저장한다. 노트북의 `step_size_analysis`가 중심 차분에 쓴 방식과 같으며, 전진 차분은 $`f(0.5+h)`$와 $`f(0.5)`$의 차를 $`h`$로 나눈다. 절단 오차와 반올림 오차의 균형, 최적 스텝 크기는 [4장 강의 노트](../../Lecture-Notes/Ch04_Roundoff-and-Truncation-Errors/Concepts_Lecture.ko.md)의 12절에서 다룬다.
 
 ### 7.2 작성한 코드
 

@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -62,7 +62,7 @@
 
 *표 1. 과제를 이루는 다섯 빈칸*
 
-거듭제곱법, 역거듭제곱법, 편이 거듭제곱법은 [12장 실습 노트](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.ko.md)에, 대칭 고유값 문제와 진동 해석, ODE 시스템의 안정성은 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)와 [13장 강의 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
+거듭제곱법, 역거듭제곱법, 편이 거듭제곱법은 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 1\~4절에, 대칭 고유값 문제와 진동 해석, ODE 시스템의 안정성은 같은 실습 노트의 5\~8절과 [13장 강의 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
 
 ---
 
@@ -127,7 +127,7 @@ Verification  max|A v - lambda v|:
 
 ### 4.1 풀이 방법
 
-알고리즘의 2, 3단계를 그대로 옮긴다. $`i^* = \arg\max_i |y_i|`$는 `np.argmax(np.abs(y))`로 구하고, 고유값 추정은 그 위치의 성분 자체 `y[i*]`이다. 절댓값이 아니라 부호가 있는 성분을 쓰는 것이 중요하다. 지배 고유값이 음수이면 $`\mathbf{y} = A\mathbf{x}`$의 부호가 반복마다 바뀌는데, 부호 있는 성분으로 나누어야 $`\mathbf{x}`$의 부호가 고정되고 추정값이 음의 고유값으로 수렴한다. `x = y / lam`으로 나누면 가장 큰 성분이 1이 되어 $`\|\mathbf{x}\|_\infty = 1`$이 유지되고, 반복이 많아져도 오버플로가 생기지 않는다. 거듭제곱법은 [12장 실습 노트](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.ko.md)의 2절에서 다룬다.
+알고리즘의 2, 3단계를 그대로 옮긴다. $`i^* = \arg\max_i |y_i|`$는 `np.argmax(np.abs(y))`로 구하고, 고유값 추정은 그 위치의 성분 자체 `y[i*]`이다. 절댓값이 아니라 부호가 있는 성분을 쓰는 것이 중요하다. 지배 고유값이 음수이면 $`\mathbf{y} = A\mathbf{x}`$의 부호가 반복마다 바뀌는데, 부호 있는 성분으로 나누어야 $`\mathbf{x}`$의 부호가 고정되고 추정값이 음의 고유값으로 수렴한다. `x = y / lam`으로 나누면 가장 큰 성분이 1이 되어 $`\|\mathbf{x}\|_\infty = 1`$이 유지되고, 반복이 많아져도 오버플로가 생기지 않는다. 거듭제곱법은 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 2절에서 다룬다.
 
 ### 4.2 작성한 코드
 
@@ -168,7 +168,7 @@ $$
 \mu = \frac{1}{\lambda - \sigma} \quad\Longrightarrow\quad \lambda = \sigma + \frac{1}{\mu}
 $$
 
-역거듭제곱법과 편이 거듭제곱법은 [12장 실습 노트](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lab.ko.md)의 3절에서 다룬다.
+역거듭제곱법과 편이 거듭제곱법은 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 3절에서 다룬다.
 
 ### 5.2 작성한 코드
 
@@ -222,7 +222,7 @@ $$
 \omega_n = \sqrt{\lambda}, \qquad f = \frac{\omega_n}{2\pi}, \qquad T = \frac{1}{f}
 $$
 
-`omega_sq`는 배열이므로 `np.sqrt`로 세 모드를 한 번에 계산한다. 일반화 고유값 문제와 고유 주파수는 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 2절에서 다룬다.
+`omega_sq`는 배열이므로 `np.sqrt`로 세 모드를 한 번에 계산한다. 일반화 고유값 문제와 고유 주파수는 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 6절에서 다룬다.
 
 ### 6.2 작성한 코드
 
@@ -262,7 +262,7 @@ Verification  max|K v - omega^2 M v|:
 
 ### 7.1 풀이 방법
 
-$`t = 0`$에서 해는 $`\mathbf{y}(0) = \sum_i c_i \mathbf{v}_i = V\mathbf{c}`$이므로 모드 상수는 선형 시스템 $`V\mathbf{c} = \mathbf{y}_0`$의 해이다. $`V^{-1}`$을 만들어 곱하지 않고 `np.linalg.solve`로 직접 푸는 편이 계산량이 적고 반올림 오차도 작다. 이는 [11장 실습 노트](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md)의 1.2절에서 다룬, 역행렬 대신 직접 풀라는 황금 규칙과 같다. ODE 시스템의 안정성은 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 3절과 [13장 강의 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.ko.md)에서 다룬다.
+$`t = 0`$에서 해는 $`\mathbf{y}(0) = \sum_i c_i \mathbf{v}_i = V\mathbf{c}`$이므로 모드 상수는 선형 시스템 $`V\mathbf{c} = \mathbf{y}_0`$의 해이다. $`V^{-1}`$을 만들어 곱하지 않고 `np.linalg.solve`로 직접 푸는 편이 계산량이 적고 반올림 오차도 작다. 이는 [11장 실습 노트](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md)의 1.2절에서 다룬, 역행렬 대신 직접 풀라는 황금 규칙과 같다. ODE 시스템의 안정성은 [13장 실습 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lab.ko.md)의 7절과 [13장 강의 노트](../../Lecture-Notes/Ch13_Eigenvalues-Symmetric-Matrices/Concepts_Lecture.ko.md)에서 다룬다.
 
 ### 7.2 작성한 코드
 

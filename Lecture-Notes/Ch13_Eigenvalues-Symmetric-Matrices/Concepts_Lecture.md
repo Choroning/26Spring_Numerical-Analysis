@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -181,7 +181,7 @@ Using the quadratic formula:
 \lambda = \frac{(a_{11} + a_{22}) \pm \sqrt{(a_{11} + a_{22})^2 - 4(a_{11}a_{22} - a_{12}a_{21})}}{2}
 ```
 
-> **[Linear Algebra]** The quantity $`a_{11} + a_{22}`$ is the **trace** of $`A`$, and $`a_{11}a_{22} - a_{12}a_{21}`$ is the **determinant** of $`A`$. For any $`2 \times 2`$ matrix, the sum of eigenvalues equals the trace and the product of eigenvalues equals the determinant, and these relations hold for general $`n \times n`$ matrices as well (Chapter 12 Lab, Section 1.1).
+> **[Linear Algebra]** The quantity $`a_{11} + a_{22}`$ is the **trace** of $`A`$, and $`a_{11}a_{22} - a_{12}a_{21}`$ is the **determinant** of $`A`$. For any $`2 \times 2`$ matrix, the sum of eigenvalues equals the trace and the product of eigenvalues equals the determinant, and these relations hold for general $`n \times n`$ matrices as well (Chapter 13 Lab, Section 1.1).
 
 ### 2.3 Example: Finding Eigenvalues and Eigenvectors
 
@@ -1015,7 +1015,7 @@ print("Eigenvectors:\n", eigenvectors)
 
 ### 11.4 Inverse Power Method for smallest eigenvalue
 
-Instead of forming the inverse, each iteration solves $`A\mathbf{y} = \mathbf{x}`$ with `np.linalg.solve`. Applied to the matrix of Example 13.5, it gives the smallest eigenvalue 11.71573 ($`= 40 - 20\sqrt{2}`$) and the eigenvector $`[0.70710681, 1, 0.70710681]`$ after 9 iterations. Because `np.linalg.solve` factors the matrix again on every call, factoring once by LU as in the Chapter 12 Lab is more efficient for large matrices.
+Instead of forming the inverse, each iteration solves $`A\mathbf{y} = \mathbf{x}`$ with `np.linalg.solve`. Applied to the matrix of Example 13.5, it gives the smallest eigenvalue 11.71573 ($`= 40 - 20\sqrt{2}`$) and the eigenvector $`[0.70710681, 1, 0.70710681]`$ after 9 iterations. Because `np.linalg.solve` factors the matrix again on every call, factoring once by LU as in Section 3.3 of the Chapter 13 Lab is more efficient for large matrices.
 
 ```python
 import numpy as np

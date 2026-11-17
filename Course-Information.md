@@ -2,7 +2,7 @@
 
 [Repository Guide](README.md) | [English](Course-Information.md) | [한국어](Course-Information.ko.md)
 
-> **Last Updated:** 2026-10-26
+> **Last Updated:** 2026-11-18
 
 ## Table of Contents
 
@@ -89,7 +89,8 @@
 - The planned topics and the chapter numbers in parentheses follow the syllabus, and the lecture decks follow the materials actually distributed. The parentheses after a deck name give the content of that deck.
 - In the actual progress, Chapter 12 (iterative methods for linear systems), which was not in the plan, was covered together in Week 5, Chapter 22 (initial-value problems) started in Week 13 and continued through Week 14, and Chapter 23 (stiff ODEs) was covered in Week 15 together with Chapter 24 (boundary-value problems).
 - The syllabus planned one weekly homework assignment per week in Weeks 2-7 and 9-14 (hw 1-hw 12).
-- The chapter number in each deck name matches the textbook chapter number. `N02` and `N03` are summarized in Ch02, `N04` is split between Ch03 and Ch04, and the other decks are summarized in the `Ch##` unit with the same number. `N13` and `N14` are summarized together in Ch07, `N17` and `N18` in Ch16, and `N24`-`N26` in Ch22. The units and the part grouping of the textbook are listed in the [`Lecture-Notes` index](Lecture-Notes/README.md).
+- The chapter number in each deck name matches the textbook chapter number, and each deck is summarized in the `Ch##` unit with the same number. `N13` and `N14` are summarized together in Ch07, `N17` and `N18` in Ch16, and `N24`-`N26` in Ch22. The units and the part grouping of the textbook are listed in the [`Lecture-Notes` index](Lecture-Notes/README.md).
+- Lab notes are summarized in the unit with the same number as the textbook chapter that the lab notebook covers. The Python fundamentals and Python programming notebooks of `Lab01` are in Ch02 and Ch03, `Lab02` is in Ch04, `Lab03` is in Ch08 and Ch09, `Lab04` is in Ch10 and Ch11, and `Lab06` is in Ch13.
 - `N00_Orientation` is the course introduction and course administration guide, so no lecture note was made for it.
 
 ---

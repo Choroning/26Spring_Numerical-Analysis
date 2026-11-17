@@ -1,8 +1,8 @@
-# 1장 실습 — 과학 계산을 위한 Python 기초
+# 2장 실습 — 과학 계산을 위한 Python 기초
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
 

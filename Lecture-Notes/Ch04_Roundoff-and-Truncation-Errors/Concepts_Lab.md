@@ -1,8 +1,8 @@
-# Chapter 3 Lab — Sources of Numerical Errors
+# Chapter 4 Lab — Sources of Numerical Errors
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-11-10
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 

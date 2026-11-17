@@ -1,8 +1,8 @@
-# Chapter 2 Lab — Python Programming
+# Chapter 3 Lab — Python Programming
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-11-17
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
 

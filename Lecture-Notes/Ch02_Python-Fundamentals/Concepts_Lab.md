@@ -1,8 +1,8 @@
-# Chapter 1 Lab — Python Fundamentals for Scientific Computing
+# Chapter 2 Lab — Python Fundamentals for Scientific Computing
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-18
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
 
