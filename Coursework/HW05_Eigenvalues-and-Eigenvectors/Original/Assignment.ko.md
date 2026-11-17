@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../../README.ko.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-17
 
 수치해석 6주차 과제이다. 교수자가 배포한 실습 노트북 `Lab06-Eigen.ipynb`의 빈칸을 채워 실행한다. 노트북은 고유값과 고유벡터, 거듭제곱법, 역거듭제곱법과 편이 거듭제곱법, 대칭 행렬과 스펙트럼 분해, 진동 해석 응용, ODE 시스템과 안정성 응용의 여섯 부분으로 이루어지며, 빈칸은 `COMPLETE`라고 적힌 두 주석 줄 사이에 모두 5곳 있다. 노트북의 첫 코드 셀은 `numpy`를 `np`로, `scipy`를 `sc`로, `matplotlib.pyplot`을 `plt`로 불러온다.
 
@@ -333,9 +333,9 @@ Verification  max|K v - omega^2 M v|:
 
 $`\dot{\mathbf{y}} = A\mathbf{y}`$, $`\mathbf{y}(0) = \mathbf{y}_0`$의 해는 다음과 같다.
 
-$$
+```math
 \mathbf{y}(t) = \sum_{i=1}^{n} c_i\, \mathbf{v}_i\, e^{\lambda_i t}, \qquad \mathbf{c} = V^{-1}\mathbf{y}_0
-$$
+```
 
 안정성은 고유값의 실수부로 판정한다.
 

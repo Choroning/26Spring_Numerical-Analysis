@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 17, 18
 
@@ -34,7 +34,7 @@
 
 > **Try It First:** This document contains the answers and solutions. Solve the problems in the [assignment handout](Original/Assignment.md) yourself before reading on.
 
-The assignment is to fill in the single blank of the lab notebook `Lab11-Spline.ipynb` distributed by the instructor and run it. The notebook has seven parts: why interpolation is needed, Newton's divided differences, Lagrange interpolation, Runge's phenomenon, quadratic splines, cubic splines, and `CubicSpline`, and the other cells were distributed with their code filled in. The function completed in the blank is used in the cell of Section 3 that plots the basis functions and compares them with Newton interpolation, and in Exercise 3.1. The problem statement is in the [assignment handout](Original/Assignment.md), the distributed blank notebook is [Original/Lab11-Spline.ipynb](Original/Lab11-Spline.ipynb), and the notebook with the blank filled in and run is [Solution/Lab11-Spline_Completed.ipynb](Solution/Lab11-Spline_Completed.ipynb).
+The assignment is to fill in the single blank of the lab notebook `Lab11-Spline.ipynb` distributed by the instructor and run it. The notebook has seven parts: why interpolation is needed, Newton's divided differences, Lagrange interpolation, Runge's phenomenon, quadratic splines, cubic splines, and `CubicSpline`, and the other cells were distributed with their code filled in. The function completed in the blank is used in the cell of Section 3 of the notebook that plots the basis functions and compares them with Newton interpolation, and in Exercise 3.1. The problem statement is in the [assignment handout](Original/Assignment.md), the distributed blank notebook is [Original/Lab11-Spline.ipynb](Original/Lab11-Spline.ipynb), and the notebook with the blank filled in and run is [Solution/Lab11-Spline_Completed.ipynb](Solution/Lab11-Spline_Completed.ipynb).
 
 | Problem | Notebook section | Blanks to fill |
 |:-----|:-----|:-----|

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14
 
@@ -39,7 +39,7 @@
 - [5. Quantifying the Fit Quality](#5-quantifying-the-fit-quality)
   - [5.1 SST, SSE, and SSR Decomposition](#51-sst-sse-and-ssr-decomposition)
   - [5.2 Proof that SST = SSE + SSR](#52-proof-that-sst--sse--ssr)
-  - [5.3 Coefficient of Determination ($`r^2`$)](#53-coefficient-of-determination-r2)
+  - [5.3 Coefficient of Determination (r²)](#53-coefficient-of-determination-r2)
   - [5.4 Standard Error of the Estimate](#54-standard-error-of-the-estimate)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)

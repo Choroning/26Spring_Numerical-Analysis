@@ -2,7 +2,7 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 
 This is the Week 6 homework of Numerical Analysis. The task is to fill in the blanks of the lab notebook `Lab06-Eigen.ipynb` distributed by the instructor and run it. The notebook has six parts: eigenvalues and eigenvectors, the power method, the inverse and shifted power methods, symmetric matrices and spectral decomposition, an application to vibration analysis, and an application to ODE systems and stability. There are five blanks in total, each between two comment lines marked `COMPLETE`. The first code cell of the notebook imports `numpy` as `np`, `scipy` as `sc`, and `matplotlib.pyplot` as `plt`.
 
@@ -333,9 +333,9 @@ Verification  max|K v - omega^2 M v|:
 
 The solution of $`\dot{\mathbf{y}} = A\mathbf{y}`$ with $`\mathbf{y}(0) = \mathbf{y}_0`$ is as follows.
 
-$$
+```math
 \mathbf{y}(t) = \sum_{i=1}^{n} c_i\, \mathbf{v}_i\, e^{\lambda_i t}, \qquad \mathbf{c} = V^{-1}\mathbf{y}_0
-$$
+```
 
 Stability is determined by the real parts of the eigenvalues.
 

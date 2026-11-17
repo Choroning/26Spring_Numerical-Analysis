@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14, 15
 
@@ -72,10 +72,10 @@
 
 빈칸을 채운 노트북은 다음 요구를 만족해야 한다. 각 셀의 나머지 코드는 배포된 그대로 두고 빈칸만 채운다.
 
-1. **문제 1:** `linreg`는 노트북 2.1절의 최소제곱 공식으로 기울기 `a1`과 절편 `a0`을 계산해 `(a0, a1)` 순서로 돌려주어야 한다. 이 함수는 3절의 거듭제곱 모델과 지수 모델 적합에도 쓰인다.
+1. **문제 1:** `linreg`는 노트북 2.1절의 최소제곱 공식으로 기울기 `a1`과 절편 `a0`을 계산해 `(a0, a1)` 순서로 돌려주어야 한다. 이 함수는 노트북 3절의 거듭제곱 모델과 지수 모델 적합에도 쓰인다.
 2. **문제 2:** `goodness_of_fit`은 표 1의 정의대로 `SST`, `SSE`, `SSR`, `R2`를 계산해야 하며, 빈칸 뒤의 코드가 이 값으로 `se`와 `R2adj`를 계산한다.
 3. **문제 3:** `power_fit`은 자료를 상용로그 공간으로 변환하고, `linreg`로 구한 로그 공간의 절편과 기울기에서 `alpha`와 `beta`를 되찾아야 한다.
-4. **문제 4:** `poly_lstsq`는 $`j`$번째 열이 $`x^j`$인 설계 행렬을 만들고 정규 방정식 $`\mathbf{X}^T\mathbf{X}\mathbf{c} = \mathbf{X}^T\mathbf{y}`$를 풀어 계수 `c`를 돌려주어야 한다. 이 함수는 6절의 모델 비교에도 쓰인다.
+4. **문제 4:** `poly_lstsq`는 $`j`$번째 열이 $`x^j`$인 설계 행렬을 만들고 정규 방정식 $`\mathbf{X}^T\mathbf{X}\mathbf{c} = \mathbf{X}^T\mathbf{y}`$를 풀어 계수 `c`를 돌려주어야 한다. 이 함수는 노트북 6절의 모델 비교에도 쓰인다.
 5. **문제 5:** 주어진 초기 추정값 `p0_ant`에서 시작하는 `curve_fit`으로 앙투안 방정식의 최적 매개변수와 공분산 행렬을 구해야 한다.
 
 ---

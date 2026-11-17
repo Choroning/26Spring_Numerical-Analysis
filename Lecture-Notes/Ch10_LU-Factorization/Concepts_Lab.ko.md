@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10
 
@@ -173,11 +173,11 @@ print(f'Residual: {np.linalg.norm(A @ x - b):.2e}')
 
 ```mermaid
 flowchart LR
-    N1["노드 1<br>T₁ = 100°C (고정)"] ---|"R₁₂ = 10 K/W"| N2["노드 2<br>T₂"]
-    N2 ---|"R₂₃ = 20 K/W"| N3["노드 3<br>T₃"]
-    N3 ---|"R₃₄ = 15 K/W"| N4["노드 4<br>T₄ = 20°C (고정)"]
-    Q2(["Q₂ = 50 W"]) --> N2
-    Q3(["Q₃ = 30 W"]) --> N3
+    N1["노드 1<br>T1 = 100°C (고정)"] ---|"R12 = 10 K/W"| N2["노드 2<br>T2"]
+    N2 ---|"R23 = 20 K/W"| N3["노드 3<br>T3"]
+    N3 ---|"R34 = 15 K/W"| N4["노드 4<br>T4 = 20°C (고정)"]
+    Q2(["Q2 = 50 W"]) --> N2
+    Q3(["Q3 = 30 W"]) --> N3
 ```
 
 *그림 1. 4노드 열저항 네트워크의 구조*
@@ -352,10 +352,10 @@ def forward_sub_general(L, b):
 
 ```mermaid
 flowchart LR
-    W1["고정단<br>(노드 0)"] ---|"k₀ = 100"| N1["노드 1"]
-    N1 ---|"k₁ = 200"| N2["노드 2"]
-    N2 ---|"k₂ = 150"| N3["노드 3"]
-    N3 ---|"k₃ = 250"| W2["고정단<br>(노드 4)"]
+    W1["고정단<br>(노드 0)"] ---|"k0 = 100"| N1["노드 1"]
+    N1 ---|"k1 = 200"| N2["노드 2"]
+    N2 ---|"k2 = 150"| N3["노드 3"]
+    N3 ---|"k3 = 250"| W2["고정단<br>(노드 4)"]
 ```
 
 *그림 2. 양 끝이 고정된 3노드 스프링 네트워크*

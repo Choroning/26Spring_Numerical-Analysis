@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -34,7 +34,7 @@
 
 > **Try It First:** This document contains the answers and solutions. Solve the problems in the [assignment handout](Original/Assignment.md) yourself before reading on.
 
-The assignment is to fill in the single blank of the lab notebook `Lab10-Fourier.ipynb` distributed by the instructor and run it. The notebook has six parts: time and frequency domains, Fourier series, the discrete Fourier transform (DFT), the power spectrum, signal filtering and noise removal, and vibration analysis, and the other cells were distributed with their code filled in. The function completed in the blank is used not only in the example of Section 4 but also in Exercise 4.1, the noisy signal of Section 5, and the vibration analysis of Section 6. The problem statement is in the [assignment handout](Original/Assignment.md), the distributed blank notebook is [Original/Lab10-Fourier.ipynb](Original/Lab10-Fourier.ipynb), and the notebook with the blank filled in and run is [Solution/Lab10-Fourier_Completed.ipynb](Solution/Lab10-Fourier_Completed.ipynb).
+The assignment is to fill in the single blank of the lab notebook `Lab10-Fourier.ipynb` distributed by the instructor and run it. The notebook has six parts: time and frequency domains, Fourier series, the discrete Fourier transform (DFT), the power spectrum, signal filtering and noise removal, and vibration analysis, and the other cells were distributed with their code filled in. The function completed in the blank is used not only in the example of Section 4 of the notebook but also in Exercise 4.1, the noisy signal of Section 5, and the vibration analysis of Section 6. The problem statement is in the [assignment handout](Original/Assignment.md), the distributed blank notebook is [Original/Lab10-Fourier.ipynb](Original/Lab10-Fourier.ipynb), and the notebook with the blank filled in and run is [Solution/Lab10-Fourier_Completed.ipynb](Solution/Lab10-Fourier_Completed.ipynb).
 
 | Problem | Notebook section | Blanks to fill |
 |:-----|:-----|:-----|
@@ -54,7 +54,7 @@ The completed notebook must satisfy the following requirements. The rest of the 
 
 1. `fP` must hold the frequencies of the one-sided spectrum, that is, the frequencies for $`k = 1, 2, \ldots, N/2`$, from $`\Delta f`$ to the Nyquist frequency.
 2. `Pyy` must hold the powers $`|Y_k|^2`$ for the same values of $`k`$, with the same length as `fP` and with entries that refer to the same $`k`$ position by position.
-3. The function takes as input `Y` (length $`N`$) and `freq` (the frequencies for indices $`1 \ldots N-1`$, length $`N-1`$) as returned by `compute_dft`. This format is followed by the example of Section 4, by Exercise 4.1, and by the cells of Sections 5 and 6 that build `Y` and `freq` themselves.
+3. The function takes as input `Y` (length $`N`$) and `freq` (the frequencies for indices $`1 \ldots N-1`$, length $`N-1`$) as returned by `compute_dft`. This format is followed by the example of Section 4 of the notebook, by Exercise 4.1, and by the cells of Sections 5 and 6 that build `Y` and `freq` themselves.
 
 ---
 
@@ -127,7 +127,7 @@ Match? YES
 
 The peak lies at $`1/T = 0.6667`$ Hz, and the power 0.250047 equals $`C_1^2/4`$ computed from the combined amplitude $`C_1 = 1.0001`$ of the first-order Fourier series in Section 2 of the notebook. This holds because sampling one period at equal spacing gives $`Y_1 = (A_1 - iB_1)/2`$, so $`|Y_1|^2 = (A_1^2 + B_1^2)/4`$. Since $`N = 10`$, $`n_2 = 5`$, and the last frequency 3.3333 Hz is $`f_s / 2 = (1/0.15)/2`$, the Nyquist frequency.
 
-The vibration analysis of Section 6 applies the function to an acceleration signal with $`f_s = 500`$ Hz and $`N = 512`$ and finds the frequency with the largest power in the first half of the spectrum (up to 125 Hz).
+The vibration analysis of Section 6 of the notebook applies the function to an acceleration signal with $`f_s = 500`$ Hz and $`N = 512`$ and finds the frequency with the largest power in the first half of the spectrum (up to 125 Hz).
 
 ```text
 Dominant frequency: 25.4 Hz  ->  1523 RPM
@@ -135,7 +135,7 @@ Dominant frequency: 25.4 Hz  ->  1523 RPM
 
 The rotation component of the signal is 25 Hz, yet the result is 25.4 Hz. The frequency resolution is $`\Delta f = 500/512 = 0.977`$ Hz, so 25 Hz falls between the neighboring frequencies 24.41 Hz and 25.39 Hz. Repeating the computation gives powers of 0.250 and 0.557 at these two frequencies: the power of the 25 Hz component is split between the neighboring frequencies, and the larger one, 25.39 Hz, is selected.
 
-> **Note:** The noisy-signal cell of Section 5 uses 64 samples on $`t \in [0, 2\pi)`$, so the unit of `freq` is cycles per unit time. The two peaks of the signal $`\cos(10t) + \sin(3t)`$ therefore appear in `fP` at $`3/(2\pi) = 0.477`$ and $`10/(2\pi) = 1.592`$. The values 3 and 10 mentioned by the axis label (cycles per 2pi) and the printed sentence are not these values but the DFT indices $`k`$.
+> **Note:** The noisy-signal cell of Section 5 of the notebook uses 64 samples on $`t \in [0, 2\pi)`$, so the unit of `freq` is cycles per unit time. The two peaks of the signal $`\cos(10t) + \sin(3t)`$ therefore appear in `fP` at $`3/(2\pi) = 0.477`$ and $`10/(2\pi) = 1.592`$. The values 3 and 10 mentioned by the axis label (cycles per 2pi) and the printed sentence are not these values but the DFT indices $`k`$.
 
 ---
 

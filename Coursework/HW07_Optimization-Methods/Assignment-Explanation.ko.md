@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 7
 
@@ -180,7 +180,7 @@ Iterations        : 200
 
 ## 6. 노트북의 추가 연습 문제
 
-완성한 노트북에서는 두 Exercise의 코드 셀이 비어 있다. 아래 코드는 이 해설을 위해 작성한 것으로, 빈칸을 채워 완성한 `goldmin`과 `steepest_descent`를 그대로 호출하며 결과는 실제로 실행해 얻었다.
+완성한 노트북에서는 두 Exercise의 코드 셀이 비어 있다. 아래 코드는 이 해설을 위해 작성한 것으로, 빈칸을 채워 완성한 `goldmin`과 `steepest_descent`를 그대로 호출한다.
 
 ### 6.1 연습 A: 국소 최솟값
 
@@ -296,6 +296,6 @@ $`f`$는 이차 함수이고 헤세 행렬은 $`H = \begin{bmatrix} 4 & 2 \\ 2 &
    <details>
    <summary>정답</summary>
 
-   $`|1 - 0.3 \times 0.764| = 0.771`$, $`|1 - 0.3 \times 5.236| = 0.571`$이므로 감소 비율은 0.771로 1보다 작아 수렴한다. 상한 $`2/\lambda_{\max} = 0.382`$보다 작기 때문이다.
+   $`|1 - 0.3 \times 0.764| = 0.771`$, $`|1 - 0.3 \times 5.236| = 0.571`$이므로 감소 비율은 0.771로 1보다 작아 수렴한다. 0.3이 상한 $`2/\lambda_{\max} = 0.382`$보다 작기 때문이다.
 
    </details>

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4, 21
 
@@ -114,7 +114,7 @@ $$
 D(h) - f'(x_0) = \frac{f'''}{6}h^2 + \frac{f^{(5)}}{120}h^4 = 2.85h^2 + 0.1h^4
 $$
 
-The backward difference differs from the forward difference only in the sign of the odd-order terms: $`-6.325h + 2.85h^2 - 0.05h^3 + 0.1h^4`$. Rerunning the extracted code to compute the signed errors gives the following.
+The backward difference differs from the forward difference only in the sign of the odd-order terms: $`-6.325h + 2.85h^2 - 0.05h^3 + 0.1h^4`$. The signed errors are as follows.
 
 | $`h`$ | Forward difference error | Backward difference error | Central difference error | $`2.85h^2 + 0.1h^4`$ |
 |:-----|:-----|:-----|:-----|:-----|
@@ -133,7 +133,7 @@ The central-difference error agrees with $`2.85h^2 + 0.1h^4`$ in every row. The 
 
 ### 3.4 Results Used by Later Cells
 
-The function `richardson_extrap` of Section 3.2 computes $`D(h)`$ and $`D(h/2)`$ with `central_diff` and combines them as $`\frac{4D(h/2) - D(h)}{3}`$. The output of the completed notebook is as follows.
+The function `richardson_extrap` of Section 3.2 of the notebook computes $`D(h)`$ and $`D(h/2)`$ with `central_diff` and combines them as $`\frac{4D(h/2) - D(h)}{3}`$. The output of the completed notebook is as follows.
 
 ```text
 Derivative estimates at x0=0.5  (exact = 3.1812500000)
@@ -155,7 +155,7 @@ $$
 \frac{4D(k) - D(2k)}{3} = \frac{8\left[f(x+k) - f(x-k)\right] - \left[f(x+2k) - f(x-2k)\right]}{12k}
 $$
 
-The function is also used in the convergence plot of Section 2.1, the estimate of $`f'(1.5)`$ in Exercise 2.1, the comparison of higher-order formulas in Section 3, and the step-size analysis and comparison with the complex-step method in Section 5. The cells of Section 5 print the optimal step size of the central difference as $`2.24 \times 10^{-6}`$ and show a central-difference error of $`2.78 \times 10^{-10}`$ at $`h = 10^{-5}`$.
+The function is also used in the convergence plot of Section 2.1 of the notebook, the estimate of $`f'(1.5)`$ in Exercise 2.1, the comparison of higher-order formulas in Section 3, and the step-size analysis and comparison with the complex-step method in Section 5. The cells of Section 5 print the optimal step size of the central difference as $`2.24 \times 10^{-6}`$ and show a central-difference error of $`2.78 \times 10^{-10}`$ at $`h = 10^{-5}`$.
 
 ---
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
@@ -215,6 +215,8 @@ The output matches the output in the distributed notebook. The results are inter
 - **The zero error of the stable form:** The reference `x2_ref = 1.0 / x1_s` is the same expression as `x2_stab = c_ / (a_ * x1_s)` when $`a = c = 1`$, so the last column is exactly 0 by definition. The accuracy of the stable form rests not on this column but on the reasoning of Section 5.1: `x1_s` involves no cancellation and the division does not amplify the relative error.
 
 > **Note:** In this cell $`b < 0`$, so the formula with the plus sign gives the large root. If $`b > 0`$, the expression $`-b - \sqrt{b^2 - 4ac}`$ becomes the same-sign addition, so in general one first computes the root that adds the square root with the same sign as $`-b`$ and then obtains the other root as $`c / (a x_1)`$.
+
+> **Note:** The first example cell of Problem 3 in the assignment handout sets the true roots of $`x^2 - 100000.0001x + 1 = 0`$ to $`x_1 = 100000.00000999990`$ and $`x_2 = 0.000010000000100000`$, but the actual roots of this equation are $`x_1 = 100000.00009000\ldots`$ and $`x_2 = 9.999999991 \times 10^{-6}`$. The error $`8.00 \times 10^{-5}`$ that the cell prints for the standard-formula $`x_1`$ therefore comes from the misstated true value, and against the actual root the standard-formula $`x_1`$ is accurate to roundoff level. Against the actual root, the error in $`x_2`$ is $`3.9 \times 10^{-12}`$ for the standard formula and below $`10^{-20}`$ for the stable form, so the conclusion that the stable form is more accurate still holds.
 
 ---
 

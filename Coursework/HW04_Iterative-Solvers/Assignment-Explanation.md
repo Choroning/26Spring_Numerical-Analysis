@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 12
 
@@ -267,9 +267,9 @@ Comparing with the spectral radii of Section 4.2 of the notebook shows what the 
 
 The SOR formula can be written as a weighted combination of the Gauss-Seidel value $`\tilde{x}_i`$ and the old value.
 
-$$
+```math
 x_i^{(k+1)} = (1 - \omega)\, x_i^{(k)} + \omega\, \tilde{x}_i
-$$
+```
 
 The distributed code already computes the Gauss-Seidel value `x_gs_i`, so the blank is this formula written out, `(1 - omega) * x_old[i] + omega * x_gs_i`. When component $`i`$ is updated, `x_old[i]` and `x[i]` hold the same value (not yet changed in this iteration), so either can be used. With $`\omega = 1`$ the update becomes `x_gs_i` itself, which is the Gauss-Seidel method. Relaxation is covered in Section 6 of the [Chapter 12 lecture note](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lecture.md).
 

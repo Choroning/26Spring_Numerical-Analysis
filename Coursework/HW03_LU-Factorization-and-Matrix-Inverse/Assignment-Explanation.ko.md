@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10, 11
 
@@ -218,7 +218,7 @@ Superposition check ||x_comb - (x_grav + x_wind)||: 4.97e-16
 
 ### 6.1 풀이 방법
 
-$`A = LL^T`$이면 $`A\mathbf{x} = \mathbf{b}`$는 $`L\mathbf{d} = \mathbf{b}`$와 $`L^T\mathbf{x} = \mathbf{d}`$의 두 삼각 시스템이 된다. 빈칸 위의 주석은 첫 시스템에 1절에서 정의한 `forward_sub`를 쓰고 둘째 시스템에서는 $`L^T`$가 상삼각 행렬임에 주목하라고 지시하며, 작성한 코드는 이에 따라 `forward_sub(L, b)`와 `backward_sub(L.T, d)`를 쓴다. 촐레스키 분해는 [10장 강의 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.ko.md)의 9절과 [10장 실습 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md)의 5절에서 다룬다.
+$`A = LL^T`$이면 $`A\mathbf{x} = \mathbf{b}`$는 $`L\mathbf{d} = \mathbf{b}`$와 $`L^T\mathbf{x} = \mathbf{d}`$의 두 삼각 시스템이 된다. 빈칸 위의 주석은 첫 시스템에 노트북 1절에서 정의한 `forward_sub`를 쓰고 둘째 시스템에서는 $`L^T`$가 상삼각 행렬임에 주목하라고 지시하며, 작성한 코드는 이에 따라 `forward_sub(L, b)`와 `backward_sub(L.T, d)`를 쓴다. 촐레스키 분해는 [10장 강의 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.ko.md)의 9절과 [10장 실습 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md)의 5절에서 다룬다.
 
 ### 6.2 작성한 코드
 
@@ -250,7 +250,7 @@ Solve time (n=500):  Cholesky = 0.0063s,  LU = 0.0012s,  speedup = 0.2x
 
 원인은 `forward_sub`의 가정에 있다. 문제 2의 `forward_sub`는 독스트링에 적힌 대로 대각 성분이 1인 단위 하삼각 행렬을 가정하여 `d[i] = b[i] - L[i, :i] @ d[:i]`로 끝나고 $`\ell_{ii}`$로 나누지 않는다. LU 분해의 $`L`$은 이 가정을 만족하지만, 촐레스키 인수 $`L`$의 대각 성분은 이 행렬에서 $`141.42, 122.47, 115.47, 50`$이어서 1이 아니다. 따라서 첫 단계의 $`\mathbf{d}`$가 틀리고, 그 뒤의 후진 대입은 올바르게 동작해도 결과가 틀린다. `backward_sub`는 `U[i, i]`로 나누므로 대각 성분이 1이 아닌 $`L^T`$에 그대로 쓸 수 있다.
 
-> **참고:** 빈칸 위의 주석이 지시한 대로 1절의 `forward_sub`를 써서 `forward_sub(L, b)`로 풀면 촐레스키 인수에서는 성립하지 않는다. 대각 성분으로 나누는 전진 대입을 쓰면 정확한 변위 $`[150, 300, 450, 550]`$ mm가 나오고, `np.linalg.solve`와의 차이는 $`3.3 \times 10^{-16}`$ m이다. 아래는 그렇게 고친 구현이며, 제출한 노트북의 코드가 아니다.
+> **참고:** 빈칸 위의 주석이 지시한 대로 노트북 1절의 `forward_sub`를 써서 `forward_sub(L, b)`로 풀면 촐레스키 인수에서는 성립하지 않는다. 대각 성분으로 나누는 전진 대입을 쓰면 정확한 변위 $`[150, 300, 450, 550]`$ mm가 나오고, `np.linalg.solve`와의 차이는 $`3.3 \times 10^{-16}`$ m이다. 아래는 그렇게 고친 구현이며, 제출한 노트북의 코드가 아니다.
 
 ```python
 def forward_sub_general(L, b):

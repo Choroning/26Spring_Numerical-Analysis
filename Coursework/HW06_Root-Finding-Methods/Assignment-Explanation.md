@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 5, 6
 
@@ -163,9 +163,9 @@ The 31-row iteration table matches the output of the distributed notebook, so se
 
 Setting $`y = 0`$ in the line $`y = f_u + \frac{f_l - f_u}{x_l - x_u}(x - x_u)`$ through $`(x_l, f_l)`$ and $`(x_u, f_u)`$ and solving for $`x`$ gives the formula of the notebook.
 
-$$
+```math
 x_r = x_u - f_u\,\frac{x_l - x_u}{f_l - f_u}
-$$
+```
 
 The top of the iteration already computes `fl, fu = func(xl), func(xu)`, so the blank uses those values directly. False position and the one-sidedness problem are covered in Section 8 of the [Chapter 5 lecture note](../../Lecture-Notes/Ch05_Roots-Bracketing-Methods/Concepts_Lecture.md).
 
@@ -234,9 +234,9 @@ The true error shrinks as $`6.7 \times 10^{-2}`$, $`8.3 \times 10^{-4}`$, $`1.3 
 
 Replacing $`f'(x_1)`$ in the Newton-Raphson formula with the slope $`(f_0 - f_1)/(x_0 - x_1)`$ of the secant through $`(x_0, f_0)`$ and $`(x_1, f_1)`$ gives the following formula.
 
-$$
+```math
 x_2 = x_1 - f_1\,\frac{x_0 - x_1}{f_0 - f_1}
-$$
+```
 
 Its form is the same as that of false position, but the secant method uses the two most recent points without a sign test, so the points do not need to bracket the root. The line `x0, x1 = x1, x2` at the end of the iteration shifts the points by one. The secant method is covered in Section 6 of the [Chapter 6 lecture note](../../Lecture-Notes/Ch06_Roots-Open-Methods/Concepts_Lecture.md).
 

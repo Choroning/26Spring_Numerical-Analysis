@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10, 11
 
@@ -218,7 +218,7 @@ The cell of Section 2.1 of the notebook compares, as the number of right-hand si
 
 ### 6.1 Approach
 
-With $`A = LL^T`$, the system $`A\mathbf{x} = \mathbf{b}`$ becomes the two triangular systems $`L\mathbf{d} = \mathbf{b}`$ and $`L^T\mathbf{x} = \mathbf{d}`$. The comments above the blanks instruct using `forward_sub` defined in Section 1 for the first system and noting that $`L^T`$ is upper triangular for the second, and the code written accordingly uses `forward_sub(L, b)` and `backward_sub(L.T, d)`. The Cholesky factorization is covered in Section 9 of the [Chapter 10 lecture note](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.md) and Section 5 of the [Chapter 10 lab note](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.md).
+With $`A = LL^T`$, the system $`A\mathbf{x} = \mathbf{b}`$ becomes the two triangular systems $`L\mathbf{d} = \mathbf{b}`$ and $`L^T\mathbf{x} = \mathbf{d}`$. The comments above the blanks instruct using `forward_sub` defined in Section 1 of the notebook for the first system and noting that $`L^T`$ is upper triangular for the second, and the code written accordingly uses `forward_sub(L, b)` and `backward_sub(L.T, d)`. The Cholesky factorization is covered in Section 9 of the [Chapter 10 lecture note](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.md) and Section 5 of the [Chapter 10 lab note](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.md).
 
 ### 6.2 Code Written
 
@@ -250,7 +250,7 @@ The displacements reach hundreds of meters and the largest difference from `np.l
 
 The cause lies in the assumption of `forward_sub`. As its docstring states, the `forward_sub` of Problem 2 assumes a unit lower triangular matrix with 1s on the diagonal, so it stops at `d[i] = b[i] - L[i, :i] @ d[:i]` and does not divide by $`\ell_{ii}`$. The $`L`$ of the LU factorization satisfies this assumption, but the diagonal entries of the Cholesky factor $`L`$ are $`141.42, 122.47, 115.47, 50`$ for this matrix, not 1. The $`\mathbf{d}`$ of the first step is therefore wrong, and the result is wrong even though the backward substitution that follows works correctly. `backward_sub` divides by `U[i, i]`, so it can be used as is for $`L^T`$, whose diagonal entries are not 1.
 
-> **Note:** Solving with `forward_sub(L, b)`, using the Section 1 `forward_sub` as the comment above the blank instructs, does not hold for a Cholesky factor. Forward substitution that divides by the diagonal entries gives the correct displacements $`[150, 300, 450, 550]`$ mm, with a difference of $`3.3 \times 10^{-16}`$ m from `np.linalg.solve`. The implementation below is corrected that way and is not the code of the submitted notebook.
+> **Note:** Solving with `forward_sub(L, b)`, using the `forward_sub` of Section 1 of the notebook as the comment above the blank instructs, does not hold for a Cholesky factor. Forward substitution that divides by the diagonal entries gives the correct displacements $`[150, 300, 450, 550]`$ mm, with a difference of $`3.3 \times 10^{-16}`$ m from `np.linalg.solve`. The implementation below is corrected that way and is not the code of the submitted notebook.
 
 ```python
 def forward_sub_general(L, b):

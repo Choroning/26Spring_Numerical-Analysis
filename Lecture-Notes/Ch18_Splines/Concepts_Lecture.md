@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 18
 
@@ -32,7 +32,7 @@
 - [5. Cubic Spline](#5-cubic-spline)
   - [5.1 General Form](#51-general-form)
   - [5.2 Deriving the Conditions (i-iv)](#52-deriving-the-conditions-i-iv)
-  - [5.3 Eliminating Unknowns: The Tridiagonal System for $`c_i`$](#53-eliminating-unknowns-the-tridiagonal-system-for-c_i)
+  - [5.3 Eliminating Unknowns: The Tridiagonal System for cᵢ](#53-eliminating-unknowns-the-tridiagonal-system-for-c_i)
   - [5.4 End Conditions (Textbook Section 18.4.2)](#54-end-conditions-textbook-section-1842)
   - [5.5 Example 18.3: Cubic Spline](#55-example-183-cubic-spline)
 - [6. Bilinear Interpolation](#6-bilinear-interpolation)

@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 18
 
@@ -32,7 +32,7 @@
 - [5. 삼차 스플라인(Cubic Spline)](#5-삼차-스플라인cubic-spline)
   - [5.1 일반 형태](#51-일반-형태)
   - [5.2 조건 유도 (i~iv)](#52-조건-유도-iiv)
-  - [5.3 미지수 소거: $`c_i`$에 대한 삼중대각 시스템](#53-미지수-소거-c_i에-대한-삼중대각-시스템)
+  - [5.3 미지수 소거: cᵢ에 대한 삼중대각 시스템](#53-미지수-소거-c_i에-대한-삼중대각-시스템)
   - [5.4 끝 조건(End Conditions, 교재 18.4.2절)](#54-끝-조건end-conditions-교재-1842절)
   - [5.5 예제 18.3: 삼차 스플라인](#55-예제-183-삼차-스플라인)
 - [6. 쌍선형 보간(Bilinear Interpolation)](#6-쌍선형-보간bilinear-interpolation)

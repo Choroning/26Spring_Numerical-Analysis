@@ -2,7 +2,7 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 
 This is the Week 7 homework of Numerical Analysis. The task is to fill in the blanks of the lab notebook `Lab07-RootSolving.ipynb` distributed by the instructor and run it. The notebook has seven parts: motivation and the graphical approach, incremental search, bisection, false position, Newton-Raphson, the secant method, and `scipy.optimize` with a method comparison. There are five blanks in total, each between two comment lines marked `COMPLETE`. The two Exercise cells that apply bisection and Newton-Raphson to the savings problem were distributed with their code filled in. The first code cell of the notebook imports `numpy` as `np`, `matplotlib.pyplot` as `plt`, `brentq` and `root_scalar` from `scipy.optimize`, and `partial` from `functools`.
 
@@ -243,9 +243,9 @@ Iterations : 31
 
 Instead of bisecting at the **midpoint**, false position (regula falsi) finds the x-intercept of the **line** connecting $`(x_l, f(x_l))`$ and $`(x_u, f(x_u))`$.
 
-$$
+```math
 x_r = x_u - f(x_u)\,\frac{x_l - x_u}{f(x_l) - f(x_u)}
-$$
+```
 
 This is equivalent to linear interpolation, so if $`f`$ is approximately linear on $`[x_l, x_u]`$, it gives a better estimate than the midpoint. The bracket update rule (sign test) is the same as in bisection. The geometry is sketched below.
 

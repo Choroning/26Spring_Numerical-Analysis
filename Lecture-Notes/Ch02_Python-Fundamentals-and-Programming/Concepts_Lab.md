@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
 
@@ -27,8 +27,8 @@
   - [2.3 The global Keyword](#23-the-global-keyword)
 - [3. Arguments](#3-arguments)
   - [3.1 Keyword Arguments and Defaults](#31-keyword-arguments-and-defaults)
-  - [3.2 Variable Positional Arguments (*args)](#32-variable-positional-arguments-args)
-  - [3.3 Variable Keyword Arguments (**kwargs)](#33-variable-keyword-arguments-kwargs)
+  - [3.2 Variable Positional Arguments (`*args`)](#32-variable-positional-arguments-args)
+  - [3.3 Variable Keyword Arguments (`**kwargs`)](#33-variable-keyword-arguments-kwargs)
 - [4. File I/O with NumPy](#4-file-io-with-numpy)
   - [4.1 Text Files (CSV/TXT)](#41-text-files-csvtxt)
   - [4.2 Binary Files (NPY/NPZ)](#42-binary-files-npynpz)
@@ -294,7 +294,7 @@ print(describe('Alice', city='Sejong', age=22))
 # Alice, age 22, from Sejong
 ```
 
-### 3.2 Variable Positional Arguments (*args)
+### 3.2 Variable Positional Arguments (`*args`)
 
 The `*args` syntax allows a function to accept any number of positional arguments. Inside the function, `args` is a tuple:
 
@@ -315,7 +315,7 @@ def mean(*values):
 print(mean(1, 2, 3, 4, 5))  # 3.0
 ```
 
-### 3.3 Variable Keyword Arguments (**kwargs)
+### 3.3 Variable Keyword Arguments (`**kwargs`)
 
 The `**kwargs` syntax allows a function to accept any number of keyword arguments. Inside the function, `kwargs` is a dictionary:
 

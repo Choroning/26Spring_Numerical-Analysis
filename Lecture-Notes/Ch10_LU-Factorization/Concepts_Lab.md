@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-20
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10
 
@@ -173,11 +173,11 @@ A practical application of linear systems is the analysis of thermal resistor ne
 
 ```mermaid
 flowchart LR
-    N1["Node 1<br>T₁ = 100°C (fixed)"] ---|"R₁₂ = 10 K/W"| N2["Node 2<br>T₂"]
-    N2 ---|"R₂₃ = 20 K/W"| N3["Node 3<br>T₃"]
-    N3 ---|"R₃₄ = 15 K/W"| N4["Node 4<br>T₄ = 20°C (fixed)"]
-    Q2(["Q₂ = 50 W"]) --> N2
-    Q3(["Q₃ = 30 W"]) --> N3
+    N1["Node 1<br>T1 = 100°C (fixed)"] ---|"R12 = 10 K/W"| N2["Node 2<br>T2"]
+    N2 ---|"R23 = 20 K/W"| N3["Node 3<br>T3"]
+    N3 ---|"R34 = 15 K/W"| N4["Node 4<br>T4 = 20°C (fixed)"]
+    Q2(["Q2 = 50 W"]) --> N2
+    Q3(["Q3 = 30 W"]) --> N3
 ```
 
 *Figure 1. Structure of the 4-node thermal resistor network*
@@ -352,10 +352,10 @@ The stiffness matrix of a spring network assembled by the finite element method 
 
 ```mermaid
 flowchart LR
-    W1["Fixed support<br>(node 0)"] ---|"k₀ = 100"| N1["Node 1"]
-    N1 ---|"k₁ = 200"| N2["Node 2"]
-    N2 ---|"k₂ = 150"| N3["Node 3"]
-    N3 ---|"k₃ = 250"| W2["Fixed support<br>(node 4)"]
+    W1["Fixed support<br>(node 0)"] ---|"k0 = 100"| N1["Node 1"]
+    N1 ---|"k1 = 200"| N2["Node 2"]
+    N2 ---|"k2 = 150"| N3["Node 3"]
+    N3 ---|"k3 = 250"| W2["Fixed support<br>(node 4)"]
 ```
 
 *Figure 2. Three-node spring network fixed at both ends*

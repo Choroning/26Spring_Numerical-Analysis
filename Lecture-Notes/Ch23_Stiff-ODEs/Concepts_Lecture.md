@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-10
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 23
 
@@ -24,14 +24,14 @@
   - [1.2 Error Estimation and Step Size Control](#12-error-estimation-and-step-size-control)
   - [1.3 Two Approaches for Adaptive Stepping](#13-two-approaches-for-adaptive-stepping)
 - [2. Embedded RK Methods: RKF45](#2-embedded-rk-methods-rkf45)
-  - [2.1 The Six Stages ($`k_1`$ through $`k_6`$)](#21-the-six-stages-k_1-through-k_6)
+  - [2.1 The Six Stages (k₁ through k₆)](#21-the-six-stages-k_1-through-k_6)
   - [2.2 Fourth- and Fifth-Order Solutions](#22-fourth--and-fifth-order-solutions)
   - [2.3 Local Relative Error](#23-local-relative-error)
   - [2.4 Scale Factor and Step Size Adjustment](#24-scale-factor-and-step-size-adjustment)
 - [3. Detailed Derivation of Step Size Control](#3-detailed-derivation-of-step-size-control)
   - [3.1 Truncation Error Orders of RKF45](#31-truncation-error-orders-of-rkf45)
-  - [3.2 Estimating the Error Constant $`C`$](#32-estimating-the-error-constant-c)
-  - [3.3 Choosing the New Step Size $`h_{\text{new}}`$](#33-choosing-the-new-step-size-h_textnew)
+  - [3.2 Estimating the Error Constant C](#32-estimating-the-error-constant-c)
+  - [3.3 Choosing the New Step Size h_new](#33-choosing-the-new-step-size-h_textnew)
 - [4. Multistep Methods](#4-multistep-methods)
   - [4.1 Multistage vs. Multistep](#41-multistage-vs-multistep)
   - [4.2 Non-Self-Starting Heun Method (Predictor-Corrector)](#42-non-self-starting-heun-method-predictor-corrector)
@@ -386,7 +386,9 @@ This is the key equation ($`\ast`$). Dividing ($`\ast`$) by 5 and rearranging:
 
 A **stiff system** is an ODE system that is difficult to solve numerically due to its inherent characteristics. Formally:
 
-> **Definition:** A **stiff system** has a **wide range of eigenvalues** (time scales). The ratio of the largest to smallest eigenvalue magnitude (the **stiffness ratio**) is very large.
+> **Definition:** A **stiff system** has a wide range of eigenvalues (time scales).
+
+> **Definition:** The **stiffness ratio** is the ratio of the largest to the smallest eigenvalue magnitude, and it is very large for a stiff system.
 
 Stiffness arises when the solution contains components that decay at vastly different rates. Explicit methods are forced to use a step size dictated by the **fastest** decaying component (for stability), even when the **slowest** component dominates the solution's behavior.
 

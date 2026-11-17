@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
 
@@ -27,8 +27,8 @@
   - [2.3 global 키워드](#23-global-키워드)
 - [3. 인수](#3-인수)
   - [3.1 키워드 인수와 기본값](#31-키워드-인수와-기본값)
-  - [3.2 가변 위치 인수 (*args)](#32-가변-위치-인수-args)
-  - [3.3 가변 키워드 인수 (**kwargs)](#33-가변-키워드-인수-kwargs)
+  - [3.2 가변 위치 인수 (`*args`)](#32-가변-위치-인수-args)
+  - [3.3 가변 키워드 인수 (`**kwargs`)](#33-가변-키워드-인수-kwargs)
 - [4. NumPy를 이용한 파일 입출력](#4-numpy를-이용한-파일-입출력)
   - [4.1 텍스트 파일 (CSV/TXT)](#41-텍스트-파일-csvtxt)
   - [4.2 바이너리 파일 (NPY/NPZ)](#42-바이너리-파일-npynpz)
@@ -294,7 +294,7 @@ print(describe('Alice', city='Sejong', age=22))
 # Alice, age 22, from Sejong
 ```
 
-### 3.2 가변 위치 인수 (*args)
+### 3.2 가변 위치 인수 (`*args`)
 
 `*args` 구문을 사용하면 함수가 임의 개수의 위치 인수를 받을 수 있다. 함수 내에서 `args`는 튜플이다:
 
@@ -315,7 +315,7 @@ def mean(*values):
 print(mean(1, 2, 3, 4, 5))  # 3.0
 ```
 
-### 3.3 가변 키워드 인수 (**kwargs)
+### 3.3 가변 키워드 인수 (`**kwargs`)
 
 `**kwargs` 구문을 사용하면 함수가 임의 개수의 키워드 인수를 받을 수 있다. 함수 내에서 `kwargs`는 딕셔너리이다:
 

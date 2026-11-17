@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14, 15
 
@@ -72,10 +72,10 @@ The least-squares line and the quantification of the fit are covered in Sections
 
 The completed notebook must satisfy the following requirements. The rest of each cell stays as distributed, and only the blanks are filled in.
 
-1. **Problem 1:** `linreg` must compute the slope `a1` and the intercept `a0` with the least-squares formulas of Section 2.1 of the notebook and return them in the order `(a0, a1)`. The function is also used for the power-model and exponential-model fits in Section 3.
+1. **Problem 1:** `linreg` must compute the slope `a1` and the intercept `a0` with the least-squares formulas of Section 2.1 of the notebook and return them in the order `(a0, a1)`. The function is also used for the power-model and exponential-model fits in Section 3 of the notebook.
 2. **Problem 2:** `goodness_of_fit` must compute `SST`, `SSE`, `SSR`, and `R2` as defined in Table 1, and the code after the blanks uses these values to compute `se` and `R2adj`.
 3. **Problem 3:** `power_fit` must transform the data to common-logarithm space and recover `alpha` and `beta` from the log-space intercept and slope obtained with `linreg`.
-4. **Problem 4:** `poly_lstsq` must build the design matrix whose $`j`$th column is $`x^j`$, solve the normal equations $`\mathbf{X}^T\mathbf{X}\mathbf{c} = \mathbf{X}^T\mathbf{y}`$, and return the coefficients `c`. The function is also used in the model comparison of Section 6.
+4. **Problem 4:** `poly_lstsq` must build the design matrix whose $`j`$th column is $`x^j`$, solve the normal equations $`\mathbf{X}^T\mathbf{X}\mathbf{c} = \mathbf{X}^T\mathbf{y}`$, and return the coefficients `c`. The function is also used in the model comparison of Section 6 of the notebook.
 5. **Problem 5:** The optimal parameters of the Antoine equation and their covariance matrix must be obtained with `curve_fit`, starting from the given initial guess `p0_ant`.
 
 ---

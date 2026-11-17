@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-11-10
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -27,13 +27,13 @@
 - [3. 주기 함수(Periodic Functions)](#3-주기-함수periodic-functions)
   - [3.1 정의](#31-정의)
   - [3.2 예제: 구형파(Square Wave)](#32-예제-구형파square-wave)
-- [4. 푸리에 급수(주기 $`2\pi`$)](#4-푸리에-급수주기-2pi)
+- [4. 푸리에 급수(주기 2π)](#4-푸리에-급수주기-2pi)
   - [4.1 푸리에의 주장](#41-푸리에의-주장)
   - [4.2 푸리에 계수의 유도](#42-푸리에-계수의-유도)
   - [4.3 직교성 관계(Orthogonality Relations)](#43-직교성-관계orthogonality-relations)
   - [4.4 계수 공식](#44-계수-공식)
 - [5. 구형파의 푸리에 급수](#5-구형파의-푸리에-급수)
-- [6. $`2\pi`$ 이외의 주기](#6-2pi-이외의-주기)
+- [6. 2π 이외의 주기](#6-2pi-이외의-주기)
 - [7. 푸리에 적분(비주기 함수)](#7-푸리에-적분비주기-함수)
 - [8. 푸리에 변환(Fourier Transform)](#8-푸리에-변환fourier-transform)
   - [8.1 정의](#81-정의)

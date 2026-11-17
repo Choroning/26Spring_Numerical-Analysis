@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 17, 18
 
@@ -34,7 +34,7 @@
 
 > **풀어 보기:** 이 문서는 정답과 풀이를 담고 있다. 먼저 [과제 안내문](Original/Assignment.ko.md)의 문제를 직접 풀어 본 뒤 읽는다.
 
-과제는 교수자가 배포한 실습 노트북 `Lab11-Spline.ipynb`의 빈칸 한 곳을 채워 실행하는 것이다. 노트북은 보간의 필요성, 뉴턴의 분할 차분, 라그랑주 보간, 룽게 현상, 이차 스플라인, 삼차 스플라인, `CubicSpline`의 일곱 부분으로 이루어지며, 나머지 셀은 코드가 채워진 채로 배포되었다. 빈칸을 채운 함수는 3절에서 기저 함수를 그리고 뉴턴 보간과 비교하는 셀과 Exercise 3.1에서 쓰인다. 문제 원문은 [과제 안내문](Original/Assignment.ko.md)에, 배포된 빈 노트북은 [Original/Lab11-Spline.ipynb](Original/Lab11-Spline.ipynb)에, 빈칸을 채워 실행한 노트북은 [Solution/Lab11-Spline_Completed.ipynb](Solution/Lab11-Spline_Completed.ipynb)에 있다.
+과제는 교수자가 배포한 실습 노트북 `Lab11-Spline.ipynb`의 빈칸 한 곳을 채워 실행하는 것이다. 노트북은 보간의 필요성, 뉴턴의 분할 차분, 라그랑주 보간, 룽게 현상, 이차 스플라인, 삼차 스플라인, `CubicSpline`의 일곱 부분으로 이루어지며, 나머지 셀은 코드가 채워진 채로 배포되었다. 빈칸을 채운 함수는 노트북 3절에서 기저 함수를 그리고 뉴턴 보간과 비교하는 셀과 Exercise 3.1에서 쓰인다. 문제 원문은 [과제 안내문](Original/Assignment.ko.md)에, 배포된 빈 노트북은 [Original/Lab11-Spline.ipynb](Original/Lab11-Spline.ipynb)에, 빈칸을 채워 실행한 노트북은 [Solution/Lab11-Spline_Completed.ipynb](Solution/Lab11-Spline_Completed.ipynb)에 있다.
 
 | 문제 | 노트북 절 | 채울 빈칸 |
 |:-----|:-----|:-----|

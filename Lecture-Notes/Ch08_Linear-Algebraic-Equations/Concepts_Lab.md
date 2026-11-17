@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
@@ -18,7 +18,7 @@
 
 ## Table of Contents
 
-- [1. Setting Up $`Ax = b`$](#1-setting-up-ax--b)
+- [1. Setting Up Ax = b](#1-setting-up-ax--b)
   - [1.1 Matrix Form](#11-matrix-form)
   - [1.2 Geometric Interpretation (2x2)](#12-geometric-interpretation-2x2)
 - [2. Spring-Mass System Application](#2-spring-mass-system-application)
@@ -29,7 +29,7 @@
   - [3.2 Testing with the Textbook Example](#32-testing-with-the-textbook-example)
 - [4. Computational Cost Analysis](#4-computational-cost-analysis)
   - [4.1 Empirical Timing](#41-empirical-timing)
-  - [4.2 Verifying $`O(n^3)`$ Scaling](#42-verifying-on3-scaling)
+  - [4.2 Verifying O(n³) Scaling](#42-verifying-on3-scaling)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
 

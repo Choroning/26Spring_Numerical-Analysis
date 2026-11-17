@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-10
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 16
 
@@ -27,13 +27,13 @@
 - [3. Periodic Functions](#3-periodic-functions)
   - [3.1 Definition](#31-definition)
   - [3.2 Example: Square Wave](#32-example-square-wave)
-- [4. Fourier Series (Period $`2\pi`$)](#4-fourier-series-period-2pi)
+- [4. Fourier Series (Period 2π)](#4-fourier-series-period-2pi)
   - [4.1 Fourier's Claim](#41-fouriers-claim)
   - [4.2 Derivation of the Fourier Coefficients](#42-derivation-of-the-fourier-coefficients)
   - [4.3 Orthogonality Relations](#43-orthogonality-relations)
   - [4.4 Coefficient Formulas](#44-coefficient-formulas)
 - [5. Fourier Series of the Square Wave](#5-fourier-series-of-the-square-wave)
-- [6. Period Other Than $`2\pi`$](#6-period-other-than-2pi)
+- [6. Period Other Than 2π](#6-period-other-than-2pi)
 - [7. Fourier Integral (Non-Periodic Functions)](#7-fourier-integral-non-periodic-functions)
 - [8. Fourier Transform](#8-fourier-transform)
   - [8.1 Definition](#81-definition)

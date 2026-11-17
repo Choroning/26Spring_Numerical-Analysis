@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-10-20
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14
 
@@ -39,7 +39,7 @@
 - [5. 적합도 정량화](#5-적합도-정량화)
   - [5.1 SST, SSE, SSR 분해](#51-sst-sse-ssr-분해)
   - [5.2 SST = SSE + SSR 증명](#52-sst--sse--ssr-증명)
-  - [5.3 결정 계수(Coefficient of Determination, $`r^2`$)](#53-결정-계수coefficient-of-determination-r2)
+  - [5.3 결정 계수(Coefficient of Determination, r²)](#53-결정-계수coefficient-of-determination-r2)
   - [5.4 추정의 표준 오차(Standard Error of the Estimate)](#54-추정의-표준-오차standard-error-of-the-estimate)
 - [요약](#요약)
 - [점검 문제](#점검-문제)

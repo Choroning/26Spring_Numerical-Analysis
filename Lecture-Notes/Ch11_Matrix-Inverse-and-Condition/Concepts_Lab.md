@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-11-10
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 11
 
@@ -251,7 +251,7 @@ flowchart LR
     N2 ---|"10⁶"| N3["Node 3"]
     N3 ---|"10⁶"| N4["Node 4"]
     N4 ---|"10⁻²"| G["Fixed support"]
-    F(["f₂ = 100"]) --> N2
+    F(["f2 = 100"]) --> N2
 ```
 
 *Figure 1. Spring chain corresponding to the suspicious stiffness matrix*

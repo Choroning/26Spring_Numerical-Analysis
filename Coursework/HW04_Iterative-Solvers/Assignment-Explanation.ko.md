@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 12
 
@@ -267,9 +267,9 @@ A_ex   — strictly diagonally dominant: True,  margins: [2.7 6.6 9.5]
 
 SOR 공식은 가우스-자이델 값 $`\tilde{x}_i`$와 이전 값의 가중 결합으로 쓸 수 있다.
 
-$$
+```math
 x_i^{(k+1)} = (1 - \omega)\, x_i^{(k)} + \omega\, \tilde{x}_i
-$$
+```
 
 배포된 코드가 가우스-자이델 값 `x_gs_i`를 이미 계산하므로, 빈칸은 이 식을 그대로 옮긴 `(1 - omega) * x_old[i] + omega * x_gs_i`이다. 성분 $`i`$를 갱신하는 시점에 `x_old[i]`와 `x[i]`는 같은 값(이번 반복에서 아직 바뀌지 않은 값)이므로 어느 쪽을 써도 된다. $`\omega = 1`$이면 갱신이 `x_gs_i` 자체가 되어 가우스-자이델 방법과 같다. 완화법은 [12장 강의 노트](../../Lecture-Notes/Ch12_Iterative-Methods/Concepts_Lecture.ko.md)의 6절에서 다룬다.
 

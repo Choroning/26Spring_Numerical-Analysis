@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-11-10
+> **최종 수정일:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 11
 
@@ -251,7 +251,7 @@ flowchart LR
     N2 ---|"10⁶"| N3["노드 3"]
     N3 ---|"10⁶"| N4["노드 4"]
     N4 ---|"10⁻²"| G["고정단"]
-    F(["f₂ = 100"]) --> N2
+    F(["f2 = 100"]) --> N2
 ```
 
 *그림 1. 의심스러운 강성 행렬에 대응하는 스프링 사슬*

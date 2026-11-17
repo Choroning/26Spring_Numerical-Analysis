@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 7
 
@@ -180,7 +180,7 @@ In other words, backtracking judges descent by differences of function values an
 
 ## 6. Additional Exercises in the Notebook
 
-The code cells of the two Exercises are empty in the completed notebook. The code below was written for this explanation; it calls the completed `goldmin` and `steepest_descent` as they are, and the results were obtained by actually running it.
+The code cells of the two Exercises are empty in the completed notebook. The code below was written for this explanation; it calls the completed `goldmin` and `steepest_descent` as they are.
 
 ### 6.1 Exercise A: Local Minimum
 

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 4
 
@@ -23,7 +23,7 @@
 - [2. Order of Approximation](#2-order-of-approximation)
   - [2.1 Zeroth Through nth Order](#21-zeroth-through-nth-order)
   - [2.2 Big-O Notation and Its Meaning](#22-big-o-notation-and-its-meaning)
-  - [2.3 Example: Taylor Series of $`e^x`$](#23-example-taylor-series-of-ex)
+  - [2.3 Example: Taylor Series of eˣ](#23-example-taylor-series-of-ex)
 - [3. Numerical Differentiation Using Taylor Series](#3-numerical-differentiation-using-taylor-series)
   - [3.1 Forward Difference (First Derivative)](#31-forward-difference-first-derivative)
   - [3.2 Backward Difference (First Derivative)](#32-backward-difference-first-derivative)
@@ -32,15 +32,15 @@
   - [3.5 Higher-Order Forward Difference](#35-higher-order-forward-difference)
 - [4. Detailed Example: Numerical Differentiation](#4-detailed-example-numerical-differentiation)
   - [4.1 Problem Setup](#41-problem-setup)
-  - [4.2 Results with $`h = 0.5`$](#42-results-with-h--05)
-  - [4.3 Effect of Reducing $`h`$](#43-effect-of-reducing-h)
+  - [4.2 Results with h = 0.5](#42-results-with-h--05)
+  - [4.3 Effect of Reducing h](#43-effect-of-reducing-h)
 - [5. Total Numerical Error](#5-total-numerical-error)
   - [5.1 Truncation Error vs. Roundoff Error](#51-truncation-error-vs-roundoff-error)
   - [5.2 Optimal Step Size](#52-optimal-step-size)
 - [6. Stability and Condition Number](#6-stability-and-condition-number)
 - [7. Lab: Finite Differences in Python](#7-lab-finite-differences-in-python)
   - [7.1 Comparing Forward and Central Differences](#71-comparing-forward-and-central-differences)
-  - [7.2 Step Size Analysis and Optimal $`h`$](#72-step-size-analysis-and-optimal-h)
+  - [7.2 Step Size Analysis and Optimal h](#72-step-size-analysis-and-optimal-h)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
 

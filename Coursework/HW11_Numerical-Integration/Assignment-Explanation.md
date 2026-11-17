@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-17
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 19, 20
 
@@ -110,7 +110,7 @@ The output matches the output in the distributed notebook. Three checks confirm 
 
 **Hand calculation.** $`f(0) = 0.2`$, $`f(0.4) = 2.456`$, and $`f(0.8) = 0.232`$. For $`n = 1`$, $`h = 0.8`$, so $`I = 0.4 \times (0.2 + 0.232) = 0.1728`$, which equals the single-segment trapezoidal value. For $`n = 2`$, $`h = 0.4`$, so $`I = 0.2 \times (0.2 + 2 \times 2.456 + 0.232) = 0.2 \times 5.344 = 1.0688`$. Both values match the output.
 
-**Convergence ratio of the error.** Rerunning the extracted code to compute the error $`E = I_{\text{exact}} - I`$ and the error ratio when $`n`$ doubles gives the following.
+**Convergence ratio of the error.** The error $`E = I_{\text{exact}} - I`$ and the error ratio when $`n`$ doubles are as follows.
 
 | $`n`$ | $`h`$ | $`I`$ | Error $`E`$ | Ratio | $`4h^2`$ |
 |:-----|:-----|:-----|:-----|:-----|:-----|
@@ -132,7 +132,7 @@ The ratio approaches 4, in agreement with the theory that the error is proportio
 
 ### 3.4 Results Used by Later Cells
 
-The function is reused throughout the notebook. The function `romberg` of Section 4 fills the first column of the Romberg table with values of `composite_trap` for $`n = 2^k`$ sub-intervals and then applies Richardson extrapolation. The output of the completed notebook is as follows.
+The function is reused throughout the notebook. The function `romberg` of Section 4 of the notebook fills the first column of the Romberg table with values of `composite_trap` for $`n = 2^k`$ sub-intervals and then applies Richardson extrapolation. The output of the completed notebook is as follows.
 
 ```text
 Romberg Table:
@@ -152,7 +152,7 @@ Error                  = 2.89e-15
 - **Second column:** `R[1,1]` $`= (4 \times 1.0688 - 0.1728)/3 = 1.3674667`$, which equals the composite Simpson's 1/3 value for two sub-intervals, 1.36746667, in Section 3 of the notebook. `R[2,1]` and `R[3,1]` also equal the Simpson's 1/3 values for four and eight sub-intervals, showing that extrapolating two trapezoidal values yields Simpson's 1/3 rule.
 - **Third column:** From `R[2,2]` on, the exact value 1.6405333333 appears. As the note in Section 3.3 shows, the trapezoidal error of this function has only an $`h^2`$ term and an $`h^4`$ term, so two extrapolations remove both.
 
-The function also serves as the reference method in the convergence plot of Section 2, the comparison with Simpson's rules in Section 3, the comparison with Gauss-Legendre quadrature in Section 5, and the heat-flux, arc-length, and thrust-integral applications of Section 8.
+The function also serves as the reference method in the convergence plot of Section 2 of the notebook, the comparison with Simpson's rules in Section 3, the comparison with Gauss-Legendre quadrature in Section 5, and the heat-flux, arc-length, and thrust-integral applications of Section 8.
 
 ---
 
