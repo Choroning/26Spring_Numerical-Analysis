@@ -8,3 +8,8 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Language specific
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
