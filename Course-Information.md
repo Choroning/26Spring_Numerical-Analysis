@@ -78,7 +78,7 @@
 | W07 | 4/14 | Optimization (Chapter 7) | N13_Ch7-Optimization-1<br>N14_Ch7-Optimization-2 |
 | W08 | 4/21 | Midterm exam | - |
 | W09 | 4/28 | Linear and nonlinear regression (Chapters 14-15) | N15_Ch14-Regression<br>N16_Ch15-NonLinearRegression |
-| W10 | 5/5 | Fourier analysis (Chapter 16) | N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
+| W10 | 5/5 | Fourier analysis (Chapter 16) | Public holiday (5/5 Children's Day)<br>N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
 | W11 | 5/12 | Data interpolation (Chapters 17-18) | N19_Ch17-Interpolation<br>N20_Ch18-Spline |
 | W12 | 5/19 | Numerical integration (Chapters 19-20) | N21_Ch19-Integration-1<br>N22_Ch20-Integration-2 |
 | W13 | 5/26 | Numerical differentiation (Chapter 21) | N23_Ch21-Differentiation<br>N24_Ch22-IVP |
@@ -91,6 +91,7 @@
 - The syllabus planned one weekly homework assignment per week in Weeks 2-7 and 9-14 (hw 1-hw 12).
 - The chapter number in each deck name matches the textbook chapter number, and each deck is summarized in the `Ch##` unit with the same number. `N13` and `N14` are summarized together in Ch07, `N17` and `N18` in Ch16, and `N24`-`N26` in Ch22. The units and the part grouping of the textbook are listed in the [`Lecture-Notes` index](Lecture-Notes/README.md).
 - Lab notes are summarized in the unit with the same number as the textbook chapter that the lab notebook covers. The Python fundamentals and Python programming notebooks of `Lab01` are in Ch02 and Ch03, `Lab02` is in Ch04, `Lab03` is in Ch08 and Ch09, `Lab04` is in Ch10 and Ch11, and `Lab06` is in Ch13.
+- In Week 10, 5/5 was Children's Day (a public holiday) and the university's foundation day, so there was no in-person class; the decks of that week were covered by the online lecture videos.
 - `N00_Orientation` is the course introduction and course administration guide, so no lecture note was made for it.
 
 ---

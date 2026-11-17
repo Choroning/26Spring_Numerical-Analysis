@@ -78,7 +78,7 @@
 | 7주차 | 4/14 | 최적화 (7장) | N13_Ch7-Optimization-1<br>N14_Ch7-Optimization-2 |
 | 8주차 | 4/21 | 중간고사 | - |
 | 9주차 | 4/28 | 선형 및 비선형 회귀 (14~15장) | N15_Ch14-Regression<br>N16_Ch15-NonLinearRegression |
-| 10주차 | 5/5 | 푸리에 해석 (16장) | N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
+| 10주차 | 5/5 | 푸리에 해석 (16장) | 공휴일 (5/5 어린이날)<br>N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
 | 11주차 | 5/12 | 데이터 보간 (17~18장) | N19_Ch17-Interpolation<br>N20_Ch18-Spline |
 | 12주차 | 5/19 | 수치 적분 (19~20장) | N21_Ch19-Integration-1<br>N22_Ch20-Integration-2 |
 | 13주차 | 5/26 | 수치 미분 (21장) | N23_Ch21-Differentiation<br>N24_Ch22-IVP |
@@ -91,6 +91,7 @@
 - 강의계획서는 2\~7주차와 9\~14주차에 주간 과제(hw 1\~hw 12)를 한 주에 하나씩 계획했다.
 - 강의자료 이름의 장 번호는 교재의 장 번호와 같고, 각 강의자료는 같은 번호의 `Ch##` 단원에 정리했다. `N13`과 `N14`는 Ch07에, `N17`과 `N18`은 Ch16에, `N24`~`N26`은 Ch22에 함께 정리했다. 단원 목록과 교재의 부(Part) 구분은 [`Lecture-Notes` 색인](Lecture-Notes/README.ko.md)에 있다.
 - 실습 노트는 실습 노트북이 다루는 교재의 장과 같은 번호의 단원에 정리했다. `Lab01`의 Python 기초 노트북과 Python 프로그래밍 노트북은 Ch02와 Ch03에, `Lab02`는 Ch04에, `Lab03`은 Ch08과 Ch09에, `Lab04`는 Ch10과 Ch11에, `Lab06`은 Ch13에 있다.
+- 10주차의 5/5는 어린이날(공휴일)이자 개교기념일이라 대면 수업이 없었고, 이 주차의 강의자료는 온라인 강의 영상으로 다뤘다.
 - `N00_Orientation`은 과목 소개와 수업 운영 안내이므로 강의 노트를 만들지 않았다.
 
 ---
