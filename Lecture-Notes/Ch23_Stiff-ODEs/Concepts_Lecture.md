@@ -24,12 +24,14 @@
   - [1.1 Constant vs. Variable Step Size](#11-constant-vs-variable-step-size)
   - [1.2 Error Estimation and Step Size Control](#12-error-estimation-and-step-size-control)
   - [1.3 Two Approaches for Adaptive Stepping](#13-two-approaches-for-adaptive-stepping)
+  - [1.4 A Worked Example of Step Halving](#14-a-worked-example-of-step-halving)
 - [2. Embedded RK Methods: RKF45](#2-embedded-rk-methods-rkf45)
   - [2.1 The Six Stages (k₁ through k₆)](#21-the-six-stages-k_1-through-k_6)
   - [2.2 Fourth- and Fifth-Order Solutions](#22-fourth--and-fifth-order-solutions)
   - [2.3 Local Relative Error](#23-local-relative-error)
   - [2.4 Scale Factor and Step Size Adjustment](#24-scale-factor-and-step-size-adjustment)
   - [2.5 Tracing the Error Estimate and Step Adjustment of an Embedded Pair](#25-tracing-the-error-estimate-and-step-adjustment-of-an-embedded-pair)
+  - [2.6 Step Sizes in Regions of Rapid Change and Narrow Pulses](#26-step-sizes-in-regions-of-rapid-change-and-narrow-pulses)
 - [3. Detailed Derivation of Step Size Control](#3-detailed-derivation-of-step-size-control)
   - [3.1 Truncation Error Orders of RKF45](#31-truncation-error-orders-of-rkf45)
   - [3.2 Estimating the Error Constant C](#32-estimating-the-error-constant-c)
@@ -39,6 +41,7 @@
   - [4.2 Non-Self-Starting Heun Method (Predictor-Corrector)](#42-non-self-starting-heun-method-predictor-corrector)
   - [4.3 Error Estimates for the Predictor-Corrector](#43-error-estimates-for-the-predictor-corrector)
   - [4.4 Error Estimation Without Derivatives](#44-error-estimation-without-derivatives)
+  - [4.5 A Worked Example of Corrector Iteration and Error Estimation](#45-a-worked-example-of-corrector-iteration-and-error-estimation)
 - [5. Stiff Systems](#5-stiff-systems)
   - [5.1 Definition and Characteristics](#51-definition-and-characteristics)
   - [5.2 Example: Enzyme Kinetics (Michaelis-Menten)](#52-example-enzyme-kinetics-michaelis-menten)
@@ -55,6 +58,10 @@
   - [6.3 Non-Self-Starting Heun Predictor-Corrector](#63-non-self-starting-heun-predictor-corrector)
   - [6.4 Solving Stiff Problems with SciPy](#64-solving-stiff-problems-with-scipy)
   - [6.5 Event Detection in solve_ivp](#65-event-detection-in-solve_ivp)
+- [7. Case Study: Systems Whose Model Changes](#7-case-study-systems-whose-model-changes)
+  - [7.1 A Bungee Jump Where the Cord Becomes Taut](#71-a-bungee-jump-where-the-cord-becomes-taut)
+  - [7.2 An Intermittent Fountain with Hysteresis](#72-an-intermittent-fountain-with-hysteresis)
+- [8. Common Mistakes](#8-common-mistakes)
 - [Concept Applications](#concept-applications)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -95,6 +102,49 @@ There are two main approaches:
 *Table 1. Two error estimation approaches for adaptive step size control*
 
 The **embedded RK approach** (Approach 2) is far more efficient because it reuses function evaluations and is the basis of the widely-used RKF45 method.
+
+### 1.4 A Worked Example of Step Halving
+
+The first approach of Table 1 is checked with the RK4 method of Chapter 22. Let $`y_1`$ be the value after one step of size $`h`$ and $`y_2`$ the value after two steps of size $`h/2`$. If the local error of RK4 is $`Ch^5`$, the error of two half steps is $`2C(h/2)^5 = Ch^5/16`$, so for the true value $`y`$ we have $`y = y_1 + Ch^5 = y_2 + Ch^5/16`$. Subtracting the two equations to eliminate $`Ch^5`$ gives the following estimate.
+
+```math
+y - y_2 \approx \frac{y_2 - y_1}{15}
+```
+
+Adding this estimate to $`y_2`$ is the same idea as the Richardson extrapolation of Chapter 20. The same problem as in Section 2.5, $`y' = -2ty`$, is started from the exact value at $`t = 0.5`$ and computed with two values of $`h`$.
+
+```python
+import numpy as np
+
+f = lambda t, y: -2.0 * t * y
+exact = lambda t: np.exp(-t**2)
+
+def rk4_step(t, y, h):
+    k1 = f(t, y)
+    k2 = f(t + h / 2, y + h * k1 / 2)
+    k3 = f(t + h / 2, y + h * k2 / 2)
+    k4 = f(t + h, y + h * k3)
+    return y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+
+t = 0.5
+for h in [0.5, 0.125]:
+    y1 = rk4_step(t, exact(t), h)                                 # one full step
+    y2 = rk4_step(t + h / 2, rk4_step(t, exact(t), h / 2), h / 2)  # two half steps
+    est = (y2 - y1) / 15                                          # estimated error of y2
+    true = exact(t + h)
+    print(f"h = {h}: error of y1 = {true - y1:+.2e}, error of y2 = {true - y2:+.2e}, "
+          f"estimate = {est:+.2e}, error of y2 + estimate = {true - y2 - est:+.2e}")
+```
+
+```text
+h = 0.5: error of y1 = -2.26e-04, error of y2 = -5.70e-05, estimate = -1.12e-05, error of y2 + estimate = -4.58e-05
+h = 0.125: error of y1 = -1.92e-07, error of y2 = -1.66e-08, estimate = -1.17e-08, error of y2 + estimate = -4.93e-09
+```
+
+- `rk4_step` is the RK4 formula of Chapter 22, Section 6.1, and `y2` is obtained by taking two half steps in succession.
+- `est` is the error estimate from the formula above, and the last value is the error of the value corrected by adding that estimate.
+
+At $`h = 0.125`$ the estimate $`-1.17 \times 10^{-8}`$ has the same sign and order of magnitude as the actual error of $`y_2`$, $`-1.66 \times 10^{-8}`$, and adding the estimate reduces the error to $`-4.9 \times 10^{-9}`$. At $`h = 0.5`$, in contrast, the ratio of the errors of $`y_1`$ and $`y_2`$ is about 4 rather than 16, so the estimate is only one fifth of the actual error. The derivation assumes that $`C`$ is constant within the step, so when the solution changes greatly over one step, the error estimate itself becomes inaccurate. This is why practical solvers choose steps conservatively by multiplying by the safety factor of Section 3.3. Cost is another drawback. Checking one step takes 4 function evaluations for $`y_1`$ and 8 for $`y_2`$, sharing the slope at the starting point, for a total of 11. The RKF45 method of Section 2 completes the error estimate with 6 evaluations.
 
 ---
 
@@ -263,6 +313,43 @@ accepted y(0.62500) = 0.67663388, next h = 0.15896
 The error estimate of the first attempt ($`h = 0.5`$), $`e = 8.0 \times 10^{-4}`$, exceeds the tolerance by a factor of 800, so the step is rejected. The computed scale factor $`0.84 \times (10^{-6}/8.0 \times 10^{-4})^{1/4} = 0.158`$ is below the lower limit 0.25, so $`h`$ is reduced to 0.125. The estimate of the second attempt, $`1.9 \times 10^{-7}`$, is within the tolerance, so the step is accepted, and the next step starts at 0.159, obtained with the scale factor 1.27.
 
 The estimate $`e`$ has the same order of magnitude as the actual error of the fourth-order solution ($`1.64 \times 10^{-3}`$, $`2.47 \times 10^{-7}`$), because $`e`$ essentially estimates the error of the fourth-order solution. The actual error of the accepted fifth-order solution ($`5.69 \times 10^{-8}`$) is smaller, so the result is accurate with margin to spare. This is the local extrapolation mentioned in Section 7.4 of Chapter 22: the error is controlled with the lower-order formula and the step advances with the higher-order formula. The six function evaluations of a rejected attempt are discarded, so an initial step size that is too large costs that much.
+
+### 2.6 Step Sizes in Regions of Rapid Change and Narrow Pulses
+
+The advantage of adaptive methods shows when the solution changes rapidly only in part of the interval. A definite integral $`\int_a^b f(x)\,dx`$ also equals $`y(b)`$ of the initial-value problem $`y' = f(x)`$, $`y(a) = 0`$, so the same advantage applies to integrals of rapidly changing functions. The equation $`y' = 5e^{-((t-2)/w)^2} - 0.4y`$, $`y(0) = 1`$, a decaying quantity with an added short pulse of width $`w`$, is solved on $`t \in [0, 6]`$ with SciPy's RK45.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+def make_rhs(width):                             # decay plus a pulse of the given width at t = 2
+    return lambda t, y: 5.0 * np.exp(-((t - 2.0) / width)**2) - 0.4 * y
+
+sol = solve_ivp(make_rhs(0.1), (0.0, 6.0), [1.0], rtol=1e-6, atol=1e-9)
+h = np.diff(sol.t); mid = 0.5 * (sol.t[:-1] + sol.t[1:])
+near = np.abs(mid - 2.0) < 0.3
+print(f"width 0.1 : {h.size} steps, {near.sum()} of them within 0.3 of t = 2")
+print(f"            h near the pulse {h[near].min():.4f}-{h[near].max():.4f}, largest h elsewhere {h[~near].max():.4f}")
+
+for kw in [dict(rtol=1e-6, atol=1e-9), dict(rtol=1e-6, atol=1e-9, max_step=0.002)]:
+    s = solve_ivp(make_rhs(0.01), (0.0, 6.0), [1.0], **kw)
+    print(f"width 0.01: max_step = {kw.get('max_step', 'inf')}: {s.t.size - 1} steps, y(6) = {s.y[0, -1]:.6f}")
+print(f"decay only: y(6) = {np.exp(-2.4):.6f}")
+```
+
+```text
+width 0.1 : 27 steps, 12 of them within 0.3 of t = 2
+            h near the pulse 0.0383-0.0672, largest h elsewhere 0.5842
+width 0.01: max_step = inf: 14 steps, y(6) = 0.090718
+width 0.01: max_step = 0.002: 3001 steps, y(6) = 0.108611
+decay only: y(6) = 0.090718
+```
+
+- `make_rhs` builds and returns a right-hand side with the pulse width fixed.
+- `near` is a Boolean array that selects the steps whose midpoints lie within 0.3 of the pulse center $`t = 2`$.
+- `max_step` is an upper bound on the step size, and its default is infinity [1].
+
+For the pulse of width 0.1, 12 of the 27 steps cluster near the pulse, where the steps shrink to between 0.04 and 0.07, while steps far from the pulse grow to 0.58. A fixed-step method using the smallest step, 0.038, over the whole interval would need 157 steps. When the width shrinks to 0.01, however, the result equals the value without the pulse, $`e^{-2.4} = 0.090718`$. The exact value is $`e^{-2.4}\left(1 + 5\int_0^6 e^{0.4u}e^{-((u-2)/w)^2}\,du\right) = 0.108611`$, so the whole pulse was missed. The solver enlarged its steps in the smooth region before the pulse, and all stage evaluations of the large steps passed around the pulse, so the error estimate was small as well. The error estimate uses only the information at the points the solver evaluates, so it cannot notice changes hidden between them. If it is known when the input changes, the step size is limited with `max_step` or the integration interval is split before and after the pulse. This is the same phenomenon as `quad` missing a narrow peak in Chapter 20, Section 5.4.
 
 ---
 
@@ -437,6 +524,67 @@ This is the key equation ($`\ast`$). Dividing ($`\ast`$) by 5 and rearranging:
 ```
 
 > **Note:** **Significance of the result.** This is an important result: the **corrector error** $`E_c`$ can be estimated purely from the difference between the predictor $`Y_1`$ and the corrector $`y_{n+1}`$, **without** computing any derivatives of $`f`$. This makes error estimation practical and cheap.
+
+### 4.5 A Worked Example of Corrector Iteration and Error Estimation
+
+The corrector of Section 4.2 may be applied only once, but the corrected value can also be fed back into the right-hand side repeatedly until it no longer changes. The $`j`$th iteration is as follows.
+
+```math
+y_{n+1}^{(j)} = y_n + \frac{h}{2}\left[f(t_n, y_n) + f\bigl(t_{n+1}, y_{n+1}^{(j-1)}\bigr)\right], \qquad y_{n+1}^{(0)} = Y_1
+```
+
+The iteration stops when the approximate relative error $`\lvert\varepsilon_a\rvert = \lvert(y_{n+1}^{(j)} - y_{n+1}^{(j-1)})/y_{n+1}^{(j)}\rvert`$ falls below the tolerance, and the converged value is the solution of the trapezoidal method, an implicit method. The equation $`y' = -0.8y + 2e^{-0.2t}`$, $`y(0) = 1`$ (exact solution $`y = \frac{10}{3}e^{-0.2t} - \frac{7}{3}e^{-0.8t}`$) is advanced two steps with $`h = 0.5`$. The value $`y_{-1}`$ needed by the first predictor is taken from the exact solution at $`t = -0.5`$.
+
+```python
+import numpy as np
+
+f = lambda t, y: -0.8 * y + 2.0 * np.exp(-0.2 * t)
+exact = lambda t: (10.0 / 3.0) * np.exp(-0.2 * t) - (7.0 / 3.0) * np.exp(-0.8 * t)
+
+h, es = 0.5, 1e-4                                  # step size, relative tolerance (0.01 %)
+t_prev, y_prev = -h, exact(-h)                      # extra starting value y_{-1}
+t, y = 0.0, 1.0
+for step in range(2):
+    t_new = t + h
+    y0 = y_prev + 2.0 * h * f(t, y)                 # midpoint predictor
+    yc = y0
+    print(f"t = {t_new}: predictor = {y0:.6f}")
+    for j in range(1, 20):                          # iterate the trapezoidal corrector
+        y_old = yc
+        yc = y + h / 2 * (f(t, y) + f(t_new, y_old))
+        ea = abs((yc - y_old) / yc)
+        print(f"   corrector {j}: {yc:.6f}, |ea| = {100 * ea:.4f} %")
+        if ea < es:
+            break
+    Ec = (y0 - yc) / 5.0                            # error estimate of the corrector
+    print(f"   estimate Ec = {Ec:+.6f}, true error = {exact(t_new) - yc:+.6f}, "
+          f"exact = {exact(t_new):.6f}")
+    t_prev, y_prev, t, y = t, y, t_new, yc
+```
+
+```text
+t = 0.5: predictor = 1.402979
+   corrector 1: 1.471823, |ea| = 4.6775 %
+   corrector 2: 1.458054, |ea| = 0.9443 %
+   corrector 3: 1.460808, |ea| = 0.1885 %
+   corrector 4: 1.460257, |ea| = 0.0377 %
+   corrector 5: 1.460367, |ea| = 0.0075 %
+   estimate Ec = -0.011478, true error = -0.008323, exact = 1.452045
+t = 1.0: predictor = 1.641381
+   corrector 1: 1.701802, |ea| = 3.5504 %
+   corrector 2: 1.689718, |ea| = 0.7152 %
+   corrector 3: 1.692134, |ea| = 0.1428 %
+   corrector 4: 1.691651, |ea| = 0.0286 %
+   corrector 5: 1.691748, |ea| = 0.0057 %
+   estimate Ec = -0.010073, true error = -0.011079, exact = 1.680668
+```
+
+- `y0` is the midpoint predictor $`Y_1 = y_{n-1} + 2hf(t_n, y_n)`$, and the inner loop iterates the trapezoidal corrector until $`\lvert\varepsilon_a\rvert < 0.01\%`$.
+- `Ec` is the estimate $`(Y_1 - y_{n+1})/5`$ of Section 4.4, computed with the converged corrector value.
+
+The $`\lvert\varepsilon_a\rvert`$ of the corrector iteration falls by about a factor of 5 each time, as in $`4.68\%`$, $`0.94\%`$, $`0.19\%`$. This iteration is the fixed-point iteration of Chapter 6, and the derivative of the iteration function is $`\frac{h}{2}\,\partial f/\partial y = 0.25 \times (-0.8) = -0.2`$, so the error is multiplied by 0.2 at each iteration. The iteration converges only if the magnitude of this factor is less than 1, so stiff problems with large $`\lvert\partial f/\partial y\rvert`$ require Newton's method, as the caution in Section 5.7 states.
+
+The error estimate of the first step, $`-0.0115`$, is close in sign and size to the actual error $`-0.0083`$. Since the starting value is exact, this error is the local error of that step. The estimate for the second step, $`-0.0101`$, estimates the local error of that step, whereas the actual error $`-0.0111`$ also contains the error carried over from the first step. The estimate relies on the assumption that $`y'''`$ is nearly constant over the intervals of the predictor and the corrector, so it indicates only the order of magnitude of the error, but this is enough to decide whether to enlarge or reduce the step size.
 
 ---
 
@@ -985,6 +1133,158 @@ Without event detection, solving over the fixed interval `(0, 100)` to the end c
 
 <br>
 
+## 7. Case Study: Systems Whose Model Changes
+
+In some systems, the governing equation itself changes when the state passes a certain value. Examples are a bungee jump, where an elastic force appears the moment the cord becomes taut, and a tank that starts draining when the level reaches a threshold. If the right-hand side is discontinuous or depends on past states, the smoothness assumed by the error estimates of adaptive solvers is lost. It is then safe to find the switching moment with the event detection of Section 6.5 and restart the integration with the new equation at that time.
+
+### 7.1 A Bungee Jump Where the Cord Becomes Taut
+
+A cord of length $`L`$ is attached to the falling model of Section 6.5. When the distance fallen $`x`$ (positive downward) is at most $`L`$, the cord is slack and only gravity and air resistance act; when $`x > L`$, an elastic force proportional to the stretch and a damping force proportional to the velocity are added.
+
+```math
+\frac{dx}{dt} = v, \qquad \frac{dv}{dt} = \begin{cases} g - \mathrm{sign}(v)\,\dfrac{c_d}{m}v^2 & (x \le L) \\[8pt] g - \mathrm{sign}(v)\,\dfrac{c_d}{m}v^2 - \dfrac{k}{m}(x - L) - \dfrac{\gamma}{m}v & (x > L) \end{cases}
+```
+
+$`\mathrm{sign}(v)`$ makes the drag always act opposite to the direction of motion. The damping force $`\frac{\gamma}{m}v`$ appears suddenly from 0 at $`x = L`$, so the right-hand side is discontinuous. The computation runs for 60 seconds with $`m = 75`$ kg, $`c_d = 0.28`$ kg/m, $`L = 25`$ m, $`k = 55`$ N/m, and $`\gamma = 10`$ N s/m. The events where the cord becomes taut (crossing downward) and slack (crossing upward) are distinguished by direction, and the lowest point is found as the event where the velocity changes from positive to negative.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+g, m, cd, L, k, gam = 9.81, 75.0, 0.28, 25.0, 55.0, 10.0   # jumper and cord parameters
+
+def free(t, w):                                  # cord slack: gravity and drag only
+    x, v = w
+    return [v, g - np.sign(v) * cd / m * v**2]
+
+def taut(t, w):                                  # cord stretched: spring and damping added
+    x, v = w
+    return [v, g - np.sign(v) * cd / m * v**2 - k / m * (x - L) - gam / m * v]
+
+def stretch(t, w): return w[0] - L               # x passes L going down: cord becomes taut
+stretch.terminal, stretch.direction = True, 1
+def slack(t, w): return w[0] - L                 # x passes L going up: cord becomes slack
+slack.terminal, slack.direction = True, -1
+def lowest(t, w): return w[1]                    # v changes from + to -: lowest point
+lowest.direction = -1
+
+t0, w0, phase, T = 0.0, [0.0, 0.0], free, 60.0
+while True:
+    events = [stretch] if phase is free else [slack, lowest]
+    s = solve_ivp(phase, (t0, T), w0, events=events, rtol=1e-8, atol=1e-8)
+    if phase is taut:
+        for tl, wl in zip(s.t_events[1], s.y_events[1]):
+            print(f"   lowest point x = {wl[0]:.3f} m at t = {tl:.3f} s")
+    if s.status != 1:                            # reached T without switching
+        break
+    t0, w0 = s.t_events[0][0], s.y_events[0][0]
+    print(f"t = {t0:.4f} s: cord becomes {'taut' if phase is free else 'slack'}, v = {w0[1]:+.4f} m/s")
+    phase = taut if phase is free else free
+print(f"x(60) = {s.y[0, -1]:.3f} m, static equilibrium L + mg/k = {L + m * g / k:.3f} m")
+```
+
+```text
+t = 2.2929 s: cord becomes taut, v = +21.1528 m/s
+   lowest point x = 59.409 m at t = 4.629 s
+t = 7.7760 s: cord becomes slack, v = -6.0508 m/s
+t = 9.0054 s: cord becomes taut, v = +6.0091 m/s
+   lowest point x = 49.518 m at t = 12.107 s
+   lowest point x = 44.641 m at t = 19.479 s
+   lowest point x = 42.030 m at t = 26.844 s
+   lowest point x = 40.551 m at t = 34.208 s
+   lowest point x = 39.685 m at t = 41.569 s
+   lowest point x = 39.170 m at t = 48.930 s
+   lowest point x = 38.859 m at t = 56.290 s
+x(60) = 38.001 m, static equilibrium L + mg/k = 38.377 m
+```
+
+- `free` and `taut` are the right-hand sides of the two regimes. The loop integrates with the right-hand side of the current regime, and when a terminal event occurs, it restarts with the other right-hand side from that time and state `s.y_events[0][0]`.
+- `stretch` and `slack` are the same function $`x - L`$ but have different `direction` values, distinguishing downward and upward crossings. `lowest` is not a terminal event, so it records the times without stopping the integration.
+
+![Figure 5. Position of the bungee jumper and water level of the intermittent fountain, solved by splitting the regimes with events](../../images/Ch23_Switching-Systems.png)
+
+*Figure 5. Position of the bungee jumper and water level of the intermittent fountain, solved by splitting the regimes with events*
+
+The time 2.2929 s and velocity 21.1528 m/s of the first event agree to four decimal places with the values obtained by solving $`x = L`$ in the analytical free-fall solution $`x = \frac{m}{c_d}\ln\cosh\left(\sqrt{gc_d/m}\,t\right)`$. The jumper reaches the lowest point, 59.409 m, at 4.629 s; the cord becomes slack again at 7.776 s and the jumper rises briefly; from 9.005 s on the cord stays taut while the jumper oscillates and approaches the static equilibrium position $`L + mg/k = 38.377`$ m (left panel of Figure 5). Solving with a single function that chooses between the two right-hand sides with an `if` statement at the same tolerances gives positions within $`10^{-5}`$ m for this problem, but the number of function evaluations rises from 2780 to 3278. This is because the solver rejects and shrinks the steps that cross the discontinuity several times.
+
+### 7.2 An Intermittent Fountain with Hysteresis
+
+Water flows at a constant rate $`Q_{\text{in}} = 60`$ cm³/s into a cylindrical tank of radius $`R_T = 0.06`$ m. When the level $`y`$ reaches $`y_{\text{high}} = 0.12`$ m, water starts draining through a siphon pipe of radius $`r = 8`$ mm and the fountain spouts, and when the level falls to $`y_{\text{low}} = 0.02`$ m, air enters the siphon and draining stops. The outflow follows Torricelli's law $`Q_{\text{out}} = C\pi r^2\sqrt{2gy}`$ ($`C = 0.6`$), so the volume balance of the tank, $`\pi R_T^2\,dy/dt = Q_{\text{in}} - Q_{\text{out}}`$, gives the following equation.
+
+```math
+\frac{dy}{dt} = \frac{Q_{\text{in}} - s\,C\pi r^2\sqrt{2gy}}{\pi R_T^2}
+```
+
+$`s`$ is a switch equal to 1 when the siphon is running and 0 otherwise. The switch turns on when the level rises past $`y_{\text{high}}`$ and off when it falls past $`y_{\text{low}}`$, so for levels in between, $`s`$ cannot be determined from the current level alone; it depends on the direction of motion so far. This property, where the same state can give different results depending on its history, is called **hysteresis**. For the level to fall to $`y_{\text{low}}`$, the outflow at that level must still exceed the inflow, and here $`C\pi r^2\sqrt{2gy_{\text{low}}} = 75.6`$ cm³/s exceeds 60 cm³/s.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+g, C, RT, r = 9.81, 0.6, 0.06, 0.008            # tank radius RT and siphon radius r [m]
+Qin, ylow, yhigh = 60e-6, 0.02, 0.12            # inflow [m^3/s], switching levels [m]
+A, a = np.pi * RT**2, C * np.pi * r**2          # tank area, effective siphon area [m^2]
+
+siphon = {"on": False}                          # switch state kept outside the function
+def rhs_with_memory(t, y):
+    h = max(y[0], 0.0)
+    if h < ylow:  siphon["on"] = False
+    if h > yhigh: siphon["on"] = True
+    out = a * np.sqrt(2 * g * h) if siphon["on"] else 0.0
+    return [(Qin - out) / A]
+
+s = solve_ivp(rhs_with_memory, (0.0, 150.0), [0.0])
+y = s.y[0]
+peaks = [y[i] for i in range(1, y.size - 1) if y[i - 1] <= y[i] > y[i + 1]]
+print("switch inside the function: first level maxima", np.round(peaks[:4], 4))
+
+fill = lambda t, y: [Qin / A]                                  # siphon off
+drain = lambda t, y: [(Qin - a * np.sqrt(2 * g * max(y[0], 0.0))) / A]   # siphon on
+def full(t, y): return y[0] - yhigh
+full.terminal, full.direction = True, 1
+def low(t, y): return y[0] - ylow
+low.terminal, low.direction = True, -1
+
+t0, y0, phase, switches = 0.0, [0.0], fill, []
+while True:
+    s = solve_ivp(phase, (t0, 150.0), y0, events=full if phase is fill else low,
+                  rtol=1e-9, atol=1e-12)
+    if s.status != 1:
+        break
+    t0, y0 = s.t_events[0][0], [s.y_events[0][0][0]]
+    switches.append(t0)
+    phase = drain if phase is fill else fill
+print("switching with events: times", np.round(switches, 3))
+print(f"filling time from ylow to yhigh = {(yhigh - ylow) * A / Qin:.3f} s (constant inflow)")
+```
+
+```text
+switch inside the function: first level maxima [0.0941 0.0876 0.0836 0.0814]
+switching with events: times [ 22.619  41.201  60.051  78.633  97.482 116.064 134.914]
+filling time from ylow to yhigh = 18.850 s (constant inflow)
+```
+
+- `rhs_with_memory` stores the switch state in the dictionary `siphon` outside the function and changes it according to the level at every call. The right-hand side is no longer a function of $`(t, y)`$ alone.
+- The solution split by events alternates between the right-hand side `fill` for the regime with the siphon off and `drain` for the regime with it on, switching at the event `full`, where the level crosses $`y_{\text{high}}`$ upward, and the event `low`, where it crosses $`y_{\text{low}}`$ downward.
+
+The solution with the switch inside the right-hand side is wrong. The level starts to fall even though the first maximum, 0.094 m, did not reach $`y_{\text{high}}`$, and the later maxima, 0.088 m and 0.084 m, do not match the threshold either (right panel of Figure 5). A solver does not evaluate the right-hand side only at the points of the accepted solution. One step of RK45 evaluates the right-hand side at trial states in several stages, and rejected steps also make evaluations. If one of these calls occurs at a trial state above $`y_{\text{high}}`$, the switch stays on although the actual solution has not reached the threshold. In the solution split by events, the first draining starts at $`t = 22.619`$ s, equal to the time $`y_{\text{high}}\pi R_T^2/Q_{\text{in}} = 22.619`$ s needed to fill the empty tank to $`y_{\text{high}}`$. After that, draining for 18.582 s and filling for 18.850 s alternate, and the filling time equals $`(y_{\text{high}} - y_{\text{low}})\pi R_T^2/Q_{\text{in}}`$. With RK4 at a small fixed step ($`h = 0.01`$ s), the trial states hardly depart from the actual solution even with the switch inside the right-hand side, and a usable result is obtained in which the level moves between 0.0200 m and 0.1200 m. Splitting by events, however, finds the switching times to the level of the tolerance while keeping the advantage of adaptive steps.
+
+---
+
+<br>
+
+## 8. Common Mistakes
+
+Common mistakes when using adaptive solvers and stiff solvers are the following.
+
+1. **Not passing a tuple to `args`.** Even with a single parameter, `args` must be a tuple with a comma, as in `solve_ivp(f, t_span, y0, args=(c,))` [1]. `args=(2.0)` is just a number in parentheses, so `solve_ivp` cannot unpack it and raises a `TypeError`.
+2. **Controlling the step with the relative error alone.** The $`e = \lvert(y^{[5]} - y^{[4]})/y^{[5]}\rvert`$ of Section 2.3 has a small denominator when the solution approaches 0 and shrinks the steps excessively. `solve_ivp` keeps the local error below `atol + rtol * abs(y)` [1], so when a component passes near 0, `atol` is set to match the size of that component.
+3. **Not setting the direction when restarting at an event.** If the `direction` of the event functions in the loop of Section 7.1 is not set, the restart state lies on a root of the event function, so the solver immediately catches the event at the starting time again. Integrations of zero length repeat and the loop makes no progress. For each regime, the direction of the next expected crossing is specified with `direction`.
+
+---
+
+<br>
+
 ## Concept Applications
 
 **True/False Check:**
@@ -997,6 +1297,10 @@ Without event detection, solving over the fixed interval `(0, 100)` to the end c
 | An explicit RK method can become A-stable if the number of stages is increased enough. | **F.** The stability function of an explicit RK method is a polynomial that grows as $`\lvert z \rvert \to \infty`$, so it cannot contain the whole left half-plane (Section 5.9). |
 | For problems with a large stiffness ratio and a long interval of interest, implicit methods such as BDF or Radau are efficient. | **T.** On the enzyme model, RK45 needed about 23 thousand steps and Radau 64 (Section 6.4). |
 | The event function of `solve_ivp` finds the event time by linear interpolation between output times. | **F.** The solver finds the time within the step where the sign changed with a root-finding algorithm (Section 6.5). |
+| The step-halving error estimate $`(y_2 - y_1)/15`$ is reliable regardless of the step size. | **F.** It requires the coefficient of the local error to be constant within the step, and at $`h = 0.5`$ the estimate was only one fifth of the actual error (Section 1.4). |
+| An adaptive solver does not miss even a narrow pulse input as long as its error estimate is small. | **F.** If all stage evaluations pass around the pulse, the error estimate is also small, and a pulse of width 0.01 was missed entirely (Section 2.6). |
+| The corrector iteration of a predictor-corrector method converges regardless of the step size. | **F.** The error is multiplied by $`\frac{h}{2}\lvert\partial f/\partial y\rvert`$ at each iteration, so it converges only if this value is less than 1 (Section 4.5). |
+| Placing a switch that remembers its state inside the right-hand side lets an adaptive solver flip the switch wrongly at trial states. | **T.** The right-hand side is also called at stage evaluations and in rejected steps, so in the intermittent fountain example draining started before the level reached the threshold (Section 7.2). |
 
 ---
 
@@ -1023,6 +1327,10 @@ Without event detection, solving over the fixed interval `(0, 100)` to the end c
 | Error estimate of an embedded pair | The difference between the fourth- and fifth-order solutions estimates the local error; if it exceeds the tolerance the step is rejected and $`h`$ reduced, and after an accepted step the scale factor sets the next $`h`$. |
 | A-stability and L-stability | Backward Euler, the trapezoidal method, and BDF2 are A-stable, and backward Euler and BDF2, whose factors tend to 0 as $`z \to -\infty`$, remove stiff components quickly. |
 | Event detection | The event function of `solve_ivp` locates the time at which it becomes zero accurately by root finding; `terminal` stops the integration and `direction` selects the crossing direction. |
+| Step halving | The difference between one step and two half steps estimates the RK4 error as $`(y_2 - y_1)/15`$, but checking one step takes 11 function evaluations, more than an embedded pair. |
+| Rapid change and narrow pulses | An adaptive solver clusters its steps in regions of rapid change but can miss a narrow pulse hidden between evaluation points, which `max_step` or splitting the interval prevents. |
+| Corrector iteration | Iterating the trapezoidal corrector to convergence multiplies the error by $`\frac{h}{2}\lvert\partial f/\partial y\rvert`$ at each iteration, and the converged value is used to compute $`E_c \approx (Y_1 - y_{n+1})/5`$. |
+| Systems whose model changes | When the right-hand side changes with the state, a terminal event with a specified direction finds the switching time, and the integration restarts with the new right-hand side at that time. |
 
 ---
 
@@ -1099,6 +1407,24 @@ Without event detection, solving over the fixed interval `(0, 100)` to the end c
    <summary>Answer</summary>
 
    $`z = -100`$. The factor of the trapezoidal method is $`\frac{1 - 50}{1 + 50} = -0.9608`$, so after five steps the component is $`(-0.9608)^5 \approx -0.819`$ times its initial size, changing sign and barely decaying. The factor of backward Euler is $`\frac{1}{101}`$, so after five steps it is about $`9.5 \times 10^{-11}`$ times, effectively gone. Compared with the exact value $`e^{-50} \approx 2 \times 10^{-22}`$, the trapezoidal method is stable but unsuited to handling stiff components.
+
+   </details>
+
+9. **Step halving:** One RK4 step gave $`y_1 = 0.67663404`$ and two half steps gave $`y_2 = 0.67663386`$. Compute the error estimate of $`y_2`$ and the value corrected by it, and compare the number of function evaluations for this check with RKF45.
+
+   <details>
+   <summary>Answer</summary>
+
+   The error estimate is $`(y_2 - y_1)/15 = (-1.8 \times 10^{-7})/15 = -1.2 \times 10^{-8}`$, and the corrected value is $`0.67663386 - 0.000000012 = 0.676633848`$. It takes 4 evaluations for $`y_1`$ and 8 for $`y_2`$, sharing the slope at the starting point, so 11 are needed, whereas RKF45 needs only 6 with its embedded pair (Section 1.4).
+
+   </details>
+
+10. **Events and restarting:** If the loop of Section 7.1 uses a single terminal event $`x - L`$ without a direction instead of `stretch` and `slack`, the loop makes no progress. Explain why and how to fix it.
+
+   <details>
+   <summary>Answer</summary>
+
+   The state from which the integration restarts at an event has $`x = L`$, so it lies on a root of the event function. Without a direction, the solver catches that root as an event again at the starting time and stops immediately, so integrations of zero length repeat. Specifying that only downward crossings count in the slack regime (`direction = 1`) and only upward crossings in the taut regime (`direction = -1`) keeps the root at the starting point from being caught as the next event (Section 8).
 
    </details>
 

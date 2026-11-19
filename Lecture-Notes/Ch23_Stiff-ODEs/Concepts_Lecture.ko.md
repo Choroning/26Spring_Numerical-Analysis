@@ -24,12 +24,14 @@
   - [1.1 고정 스텝 크기 vs. 가변 스텝 크기](#11-고정-스텝-크기-vs-가변-스텝-크기)
   - [1.2 오차 추정과 스텝 크기 제어](#12-오차-추정과-스텝-크기-제어)
   - [1.3 적응적 스텝에 대한 두 가지 접근법](#13-적응적-스텝에-대한-두-가지-접근법)
+  - [1.4 스텝 반감법의 계산 예](#14-스텝-반감법의-계산-예)
 - [2. 내장 RK 방법: RKF45](#2-내장-rk-방법-rkf45)
   - [2.1 6개의 단계 (k₁에서 k₆까지)](#21-6개의-단계-k_1에서-k_6까지)
   - [2.2 4차 및 5차 해](#22-4차-및-5차-해)
   - [2.3 국소 상대 오차](#23-국소-상대-오차)
   - [2.4 스케일 인자와 스텝 크기 조정](#24-스케일-인자와-스텝-크기-조정)
   - [2.5 내장 쌍의 오차 추정과 스텝 조정의 추적](#25-내장-쌍의-오차-추정과-스텝-조정의-추적)
+  - [2.6 급변 구간의 스텝 크기와 좁은 펄스](#26-급변-구간의-스텝-크기와-좁은-펄스)
 - [3. 스텝 크기 제어의 상세 유도](#3-스텝-크기-제어의-상세-유도)
   - [3.1 RKF45의 절단 오차 차수](#31-rkf45의-절단-오차-차수)
   - [3.2 오차 상수 C의 추정](#32-오차-상수-c의-추정)
@@ -39,6 +41,7 @@
   - [4.2 비자기시작 호인 방법(Non-Self-Starting Heun Method) (예측-교정법)](#42-비자기시작-호인-방법non-self-starting-heun-method-예측-교정법)
   - [4.3 예측-교정법의 오차 추정](#43-예측-교정법의-오차-추정)
   - [4.4 도함수 없는 오차 추정](#44-도함수-없는-오차-추정)
+  - [4.5 교정자 반복과 오차 추정의 계산 예](#45-교정자-반복과-오차-추정의-계산-예)
 - [5. 강성 시스템(Stiff Systems)](#5-강성-시스템stiff-systems)
   - [5.1 정의와 특성](#51-정의와-특성)
   - [5.2 예제: 효소 동역학 (미카엘리스-멘텐, Michaelis-Menten)](#52-예제-효소-동역학-미카엘리스-멘텐-michaelis-menten)
@@ -55,6 +58,10 @@
   - [6.3 비자기시작 호인 예측-교정법](#63-비자기시작-호인-예측-교정법)
   - [6.4 SciPy로 강성 문제 풀기](#64-scipy로-강성-문제-풀기)
   - [6.5 solve_ivp의 사건 감지](#65-solve_ivp의-사건-감지)
+- [7. 사례 연구: 모형이 바뀌는 시스템](#7-사례-연구-모형이-바뀌는-시스템)
+  - [7.1 줄이 팽팽해지는 번지 점프](#71-줄이-팽팽해지는-번지-점프)
+  - [7.2 히스테리시스가 있는 간헐 분수](#72-히스테리시스가-있는-간헐-분수)
+- [8. 흔한 실수](#8-흔한-실수)
 - [개념 적용](#개념-적용)
 - [요약](#요약)
 - [점검 문제](#점검-문제)
@@ -95,6 +102,49 @@
 *표 1. 적응적 스텝 크기 제어를 위한 두 가지 오차 추정 접근법*
 
 **내장 RK 접근법**(접근법 2)은 함수 평가를 재사용하므로 훨씬 효율적이며, 널리 사용되는 RKF45 방법의 기초이다.
+
+### 1.4 스텝 반감법의 계산 예
+
+표 1의 첫째 방법을 22장의 RK4로 확인한다. 스텝 크기 $`h`$로 한 번 진행한 값을 $`y_1`$, $`h/2`$로 두 번 진행한 값을 $`y_2`$라 하자. RK4의 국소 오차가 $`Ch^5`$이면 반 스텝 두 번의 오차는 $`2C(h/2)^5 = Ch^5/16`$이므로, 참값 $`y`$에 대해 $`y = y_1 + Ch^5 = y_2 + Ch^5/16`$이다. 두 식을 빼서 $`Ch^5`$를 소거하면 다음 추정을 얻는다.
+
+```math
+y - y_2 \approx \frac{y_2 - y_1}{15}
+```
+
+이 추정값을 $`y_2`$에 더하는 것은 20장의 리처드슨 외삽과 같은 방식이다. 2.5절과 같은 문제 $`y' = -2ty`$를 $`t = 0.5`$의 정확한 값에서 시작하여 두 가지 $`h`$로 계산한다.
+
+```python
+import numpy as np
+
+f = lambda t, y: -2.0 * t * y
+exact = lambda t: np.exp(-t**2)
+
+def rk4_step(t, y, h):
+    k1 = f(t, y)
+    k2 = f(t + h / 2, y + h * k1 / 2)
+    k3 = f(t + h / 2, y + h * k2 / 2)
+    k4 = f(t + h, y + h * k3)
+    return y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+
+t = 0.5
+for h in [0.5, 0.125]:
+    y1 = rk4_step(t, exact(t), h)                                 # one full step
+    y2 = rk4_step(t + h / 2, rk4_step(t, exact(t), h / 2), h / 2)  # two half steps
+    est = (y2 - y1) / 15                                          # estimated error of y2
+    true = exact(t + h)
+    print(f"h = {h}: error of y1 = {true - y1:+.2e}, error of y2 = {true - y2:+.2e}, "
+          f"estimate = {est:+.2e}, error of y2 + estimate = {true - y2 - est:+.2e}")
+```
+
+```text
+h = 0.5: error of y1 = -2.26e-04, error of y2 = -5.70e-05, estimate = -1.12e-05, error of y2 + estimate = -4.58e-05
+h = 0.125: error of y1 = -1.92e-07, error of y2 = -1.66e-08, estimate = -1.17e-08, error of y2 + estimate = -4.93e-09
+```
+
+- `rk4_step`은 22장 6.1절의 RK4 공식이고, `y2`는 반 스텝을 두 번 이어서 얻는다.
+- `est`가 위 식의 오차 추정값이며, 마지막 값은 그 추정값을 더해 고친 값의 오차이다.
+
+$`h = 0.125`$에서는 추정값 $`-1.17 \times 10^{-8}`$이 $`y_2`$의 실제 오차 $`-1.66 \times 10^{-8}`$과 부호와 자릿수가 같고, 추정값을 더하면 오차가 $`-4.9 \times 10^{-9}`$로 준다. 반면 $`h = 0.5`$에서는 $`y_1`$과 $`y_2`$의 오차 비가 16이 아니라 4 정도여서 추정값이 실제 오차의 5분의 1에 그친다. 유도가 $`C`$를 스텝 안에서 일정하다고 가정하므로, 해가 한 스텝 동안 크게 변하면 오차 추정 자체가 부정확해진다. 실제 풀이기가 3.3절의 안전 계수를 곱해 스텝을 보수적으로 고르는 이유이다. 비용도 단점이다. 한 스텝을 확인하는 데 $`y_1`$에 4번, $`y_2`$에 8번의 함수 평가가 들고, 시작점의 기울기 하나를 함께 쓰므로 모두 11번이 필요하다. 2절의 RKF45는 6번의 평가로 오차 추정까지 끝낸다.
 
 ---
 
@@ -263,6 +313,43 @@ accepted y(0.62500) = 0.67663388, next h = 0.15896
 첫 시도($`h = 0.5`$)의 오차 추정값 $`e = 8.0 \times 10^{-4}`$은 허용 오차를 800배 넘으므로 스텝을 기각한다. 계산된 스케일 인자 $`0.84 \times (10^{-6}/8.0 \times 10^{-4})^{1/4} = 0.158`$이 하한 0.25보다 작아 $`h`$는 0.125로 줄어든다. 둘째 시도의 추정값 $`1.9 \times 10^{-7}`$은 허용 오차 이하이므로 스텝을 채택하고, 다음 스텝은 스케일 인자 1.27을 곱한 0.159로 시작한다.
 
 추정값 $`e`$는 4차 해의 실제 오차($`1.64 \times 10^{-3}`$, $`2.47 \times 10^{-7}`$)와 자릿수가 같다. $`e`$가 사실상 4차 해의 오차를 추정하기 때문이다. 채택하는 5차 해의 실제 오차($`5.69 \times 10^{-8}`$)는 그보다 작아, 결과는 허용 오차보다 여유 있게 정확하다. 이것이 22장 7.4절에서 말한 국소 외삽, 곧 오차는 낮은 차수의 공식으로 제어하고 스텝은 높은 차수의 공식으로 진행하는 방식이다. 기각된 시도의 함수 평가 6번은 버려지므로, 처음 스텝 크기를 너무 크게 잡으면 그만큼 비용이 든다.
+
+### 2.6 급변 구간의 스텝 크기와 좁은 펄스
+
+적응적 방법의 이점은 해가 일부 구간에서만 급하게 변할 때 드러난다. 정적분 $`\int_a^b f(x)\,dx`$도 초기값 문제 $`y' = f(x)`$, $`y(a) = 0`$의 $`y(b)`$와 같으므로, 같은 이점이 급하게 변하는 함수의 적분에도 적용된다. 감쇠하는 양에 폭 $`w`$인 짧은 펄스가 더해진 $`y' = 5e^{-((t-2)/w)^2} - 0.4y`$, $`y(0) = 1`$을 $`t \in [0, 6]`$에서 SciPy의 RK45로 푼다.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+def make_rhs(width):                             # decay plus a pulse of the given width at t = 2
+    return lambda t, y: 5.0 * np.exp(-((t - 2.0) / width)**2) - 0.4 * y
+
+sol = solve_ivp(make_rhs(0.1), (0.0, 6.0), [1.0], rtol=1e-6, atol=1e-9)
+h = np.diff(sol.t); mid = 0.5 * (sol.t[:-1] + sol.t[1:])
+near = np.abs(mid - 2.0) < 0.3
+print(f"width 0.1 : {h.size} steps, {near.sum()} of them within 0.3 of t = 2")
+print(f"            h near the pulse {h[near].min():.4f}-{h[near].max():.4f}, largest h elsewhere {h[~near].max():.4f}")
+
+for kw in [dict(rtol=1e-6, atol=1e-9), dict(rtol=1e-6, atol=1e-9, max_step=0.002)]:
+    s = solve_ivp(make_rhs(0.01), (0.0, 6.0), [1.0], **kw)
+    print(f"width 0.01: max_step = {kw.get('max_step', 'inf')}: {s.t.size - 1} steps, y(6) = {s.y[0, -1]:.6f}")
+print(f"decay only: y(6) = {np.exp(-2.4):.6f}")
+```
+
+```text
+width 0.1 : 27 steps, 12 of them within 0.3 of t = 2
+            h near the pulse 0.0383-0.0672, largest h elsewhere 0.5842
+width 0.01: max_step = inf: 14 steps, y(6) = 0.090718
+width 0.01: max_step = 0.002: 3001 steps, y(6) = 0.108611
+decay only: y(6) = 0.090718
+```
+
+- `make_rhs`는 펄스의 폭을 고정한 우변 함수를 만들어 돌려준다.
+- `near`는 스텝의 중점이 펄스 중심 $`t = 2`$에서 0.3 안에 있는 스텝을 고르는 논리 배열이다.
+- `max_step`은 스텝 크기의 상한이며 기본값은 무한대이다[1].
+
+폭 0.1인 펄스에서는 27개의 스텝 가운데 12개가 펄스 근처에 몰려 스텝이 0.04에서 0.07 사이로 줄고, 펄스에서 먼 곳의 스텝은 0.58까지 커진다. 가장 작은 스텝 0.038을 구간 전체에 쓰는 고정 스텝 방법이라면 157스텝이 필요하다. 그러나 폭이 0.01로 좁아지면 결과가 펄스가 없을 때의 값 $`e^{-2.4} = 0.090718`$과 같아진다. 정확한 값은 $`e^{-2.4}\left(1 + 5\int_0^6 e^{0.4u}e^{-((u-2)/w)^2}\,du\right) = 0.108611`$이므로 펄스 전체를 놓친 것이다. 풀이기는 펄스에 이르기 전의 매끄러운 구간에서 스텝을 키웠고, 큰 스텝의 단계 평가가 모두 펄스를 비켜 가서 오차 추정값도 작게 나왔다. 오차 추정은 풀이기가 평가한 점의 정보만 쓰므로, 평가점 사이에 숨은 변화는 알아챌 수 없다. 입력이 언제 변하는지 알면 `max_step`으로 스텝을 제한하거나 적분 구간을 펄스의 앞뒤에서 나누어 푼다. 20장 5.4절에서 `quad`가 좁은 봉우리를 놓친 것과 같은 현상이다.
 
 ---
 
@@ -437,6 +524,67 @@ $`f''(\xi_p) \approx f''(\xi_c)`$라 가정한다(두 $`\xi`$ 값이 가까움).
 ```
 
 > **참고:** **결과의 의미.** 이것은 중요한 결과이다. **교정자 오차** $`E_c`$를 $`f`$의 어떤 도함수도 계산하지 **않고**, 예측자 $`Y_1`$과 교정자 $`y_{n+1}`$의 차이만으로 추정할 수 있다. 이 덕분에 오차 추정이 실용적이고 저비용이 된다.
+
+### 4.5 교정자 반복과 오차 추정의 계산 예
+
+4.2절의 교정자는 한 번만 적용할 수도 있지만, 교정한 값을 우변에 다시 넣어 값이 더 변하지 않을 때까지 반복할 수도 있다. $`j`$번째 반복은 다음과 같다.
+
+```math
+y_{n+1}^{(j)} = y_n + \frac{h}{2}\left[f(t_n, y_n) + f\bigl(t_{n+1}, y_{n+1}^{(j-1)}\bigr)\right], \qquad y_{n+1}^{(0)} = Y_1
+```
+
+근사 상대 오차 $`\lvert\varepsilon_a\rvert = \lvert(y_{n+1}^{(j)} - y_{n+1}^{(j-1)})/y_{n+1}^{(j)}\rvert`$가 허용 오차보다 작아지면 멈추며, 반복이 수렴한 값은 음적 방법인 사다리꼴 방법의 해이다. $`y' = -0.8y + 2e^{-0.2t}`$, $`y(0) = 1`$(정확해 $`y = \frac{10}{3}e^{-0.2t} - \frac{7}{3}e^{-0.8t}`$)을 $`h = 0.5`$로 두 스텝 진행한다. 첫 예측자에 필요한 $`y_{-1}`$은 정확해의 $`t = -0.5`$ 값으로 준다.
+
+```python
+import numpy as np
+
+f = lambda t, y: -0.8 * y + 2.0 * np.exp(-0.2 * t)
+exact = lambda t: (10.0 / 3.0) * np.exp(-0.2 * t) - (7.0 / 3.0) * np.exp(-0.8 * t)
+
+h, es = 0.5, 1e-4                                  # step size, relative tolerance (0.01 %)
+t_prev, y_prev = -h, exact(-h)                      # extra starting value y_{-1}
+t, y = 0.0, 1.0
+for step in range(2):
+    t_new = t + h
+    y0 = y_prev + 2.0 * h * f(t, y)                 # midpoint predictor
+    yc = y0
+    print(f"t = {t_new}: predictor = {y0:.6f}")
+    for j in range(1, 20):                          # iterate the trapezoidal corrector
+        y_old = yc
+        yc = y + h / 2 * (f(t, y) + f(t_new, y_old))
+        ea = abs((yc - y_old) / yc)
+        print(f"   corrector {j}: {yc:.6f}, |ea| = {100 * ea:.4f} %")
+        if ea < es:
+            break
+    Ec = (y0 - yc) / 5.0                            # error estimate of the corrector
+    print(f"   estimate Ec = {Ec:+.6f}, true error = {exact(t_new) - yc:+.6f}, "
+          f"exact = {exact(t_new):.6f}")
+    t_prev, y_prev, t, y = t, y, t_new, yc
+```
+
+```text
+t = 0.5: predictor = 1.402979
+   corrector 1: 1.471823, |ea| = 4.6775 %
+   corrector 2: 1.458054, |ea| = 0.9443 %
+   corrector 3: 1.460808, |ea| = 0.1885 %
+   corrector 4: 1.460257, |ea| = 0.0377 %
+   corrector 5: 1.460367, |ea| = 0.0075 %
+   estimate Ec = -0.011478, true error = -0.008323, exact = 1.452045
+t = 1.0: predictor = 1.641381
+   corrector 1: 1.701802, |ea| = 3.5504 %
+   corrector 2: 1.689718, |ea| = 0.7152 %
+   corrector 3: 1.692134, |ea| = 0.1428 %
+   corrector 4: 1.691651, |ea| = 0.0286 %
+   corrector 5: 1.691748, |ea| = 0.0057 %
+   estimate Ec = -0.010073, true error = -0.011079, exact = 1.680668
+```
+
+- `y0`는 중점 예측자 $`Y_1 = y_{n-1} + 2hf(t_n, y_n)`$이고, 안쪽 반복문이 사다리꼴 교정자를 $`\lvert\varepsilon_a\rvert < 0.01\%`$가 될 때까지 반복한다.
+- `Ec`는 4.4절의 추정값 $`(Y_1 - y_{n+1})/5`$이며, 수렴한 교정자 값으로 계산한다.
+
+교정자 반복의 $`\lvert\varepsilon_a\rvert`$는 $`4.68\%`$, $`0.94\%`$, $`0.19\%`$처럼 매번 약 5분의 1이 된다. 이 반복은 6장의 고정점 반복이고, 반복 함수의 도함수가 $`\frac{h}{2}\,\partial f/\partial y = 0.25 \times (-0.8) = -0.2`$이므로 오차가 반복마다 0.2배가 되기 때문이다. 이 배율의 크기가 1보다 작아야 반복이 수렴하므로, $`\lvert\partial f/\partial y\rvert`$가 큰 강성 문제에서는 5.7절의 주의처럼 뉴턴 방법이 필요하다.
+
+첫 스텝의 오차 추정값 $`-0.0115`$는 실제 오차 $`-0.0083`$과 부호와 크기가 비슷하다. 시작값이 정확하므로 이 오차가 곧 그 스텝의 국소 오차이다. 둘째 스텝의 추정값 $`-0.0101`$은 그 스텝의 국소 오차를 추정한 것이고, 실제 오차 $`-0.0111`$에는 첫 스텝에서 넘어온 오차가 함께 들어 있다. 추정은 $`y'''`$가 예측자와 교정자의 구간에서 거의 일정하다는 가정에 기대므로 오차의 자릿수를 알려 주는 정도이지만, 스텝 크기를 늘리거나 줄일지 정하는 데는 이 정도로 충분하다.
 
 ---
 
@@ -985,6 +1133,158 @@ exact landing time = 22.996380 s, terminal speed = 51.693752 m/s
 
 <br>
 
+## 7. 사례 연구: 모형이 바뀌는 시스템
+
+어떤 시스템은 상태가 특정 값을 지날 때 지배 방정식 자체가 바뀐다. 줄이 팽팽해지는 순간 탄성력이 생기는 번지 점프와, 수위가 기준에 이르면 배수가 시작되는 탱크가 그 예이다. 우변이 불연속이거나 과거의 상태에 의존하면 적응적 풀이기의 오차 추정이 전제하는 매끄러움이 깨진다. 이때는 6.5절의 사건 감지로 바뀌는 순간을 찾고, 그 시각에서 새 방정식으로 적분을 다시 시작하는 것이 안전하다.
+
+### 7.1 줄이 팽팽해지는 번지 점프
+
+6.5절의 낙하 모형에 길이 $`L`$인 줄을 단다. 낙하 거리 $`x`$(아래쪽이 양수)가 $`L`$ 이하이면 줄이 느슨하여 중력과 공기 저항만 작용하고, $`x > L`$이면 늘어난 길이에 비례하는 탄성력과 속도에 비례하는 감쇠력이 더해진다.
+
+```math
+\frac{dx}{dt} = v, \qquad \frac{dv}{dt} = \begin{cases} g - \mathrm{sign}(v)\,\dfrac{c_d}{m}v^2 & (x \le L) \\[8pt] g - \mathrm{sign}(v)\,\dfrac{c_d}{m}v^2 - \dfrac{k}{m}(x - L) - \dfrac{\gamma}{m}v & (x > L) \end{cases}
+```
+
+$`\mathrm{sign}(v)`$는 저항이 언제나 운동 방향의 반대로 작용하게 한다. 감쇠력 $`\frac{\gamma}{m}v`$는 $`x = L`$에서 0에서 갑자기 생기므로 우변이 불연속이다. $`m = 75`$ kg, $`c_d = 0.28`$ kg/m, $`L = 25`$ m, $`k = 55`$ N/m, $`\gamma = 10`$ N s/m로 60초 동안 계산한다. 줄이 팽팽해지는 사건(아래로 지날 때)과 느슨해지는 사건(위로 지날 때)은 방향으로 구별하고, 가장 낮은 지점은 속도가 양수에서 음수로 바뀌는 사건으로 찾는다.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+g, m, cd, L, k, gam = 9.81, 75.0, 0.28, 25.0, 55.0, 10.0   # jumper and cord parameters
+
+def free(t, w):                                  # cord slack: gravity and drag only
+    x, v = w
+    return [v, g - np.sign(v) * cd / m * v**2]
+
+def taut(t, w):                                  # cord stretched: spring and damping added
+    x, v = w
+    return [v, g - np.sign(v) * cd / m * v**2 - k / m * (x - L) - gam / m * v]
+
+def stretch(t, w): return w[0] - L               # x passes L going down: cord becomes taut
+stretch.terminal, stretch.direction = True, 1
+def slack(t, w): return w[0] - L                 # x passes L going up: cord becomes slack
+slack.terminal, slack.direction = True, -1
+def lowest(t, w): return w[1]                    # v changes from + to -: lowest point
+lowest.direction = -1
+
+t0, w0, phase, T = 0.0, [0.0, 0.0], free, 60.0
+while True:
+    events = [stretch] if phase is free else [slack, lowest]
+    s = solve_ivp(phase, (t0, T), w0, events=events, rtol=1e-8, atol=1e-8)
+    if phase is taut:
+        for tl, wl in zip(s.t_events[1], s.y_events[1]):
+            print(f"   lowest point x = {wl[0]:.3f} m at t = {tl:.3f} s")
+    if s.status != 1:                            # reached T without switching
+        break
+    t0, w0 = s.t_events[0][0], s.y_events[0][0]
+    print(f"t = {t0:.4f} s: cord becomes {'taut' if phase is free else 'slack'}, v = {w0[1]:+.4f} m/s")
+    phase = taut if phase is free else free
+print(f"x(60) = {s.y[0, -1]:.3f} m, static equilibrium L + mg/k = {L + m * g / k:.3f} m")
+```
+
+```text
+t = 2.2929 s: cord becomes taut, v = +21.1528 m/s
+   lowest point x = 59.409 m at t = 4.629 s
+t = 7.7760 s: cord becomes slack, v = -6.0508 m/s
+t = 9.0054 s: cord becomes taut, v = +6.0091 m/s
+   lowest point x = 49.518 m at t = 12.107 s
+   lowest point x = 44.641 m at t = 19.479 s
+   lowest point x = 42.030 m at t = 26.844 s
+   lowest point x = 40.551 m at t = 34.208 s
+   lowest point x = 39.685 m at t = 41.569 s
+   lowest point x = 39.170 m at t = 48.930 s
+   lowest point x = 38.859 m at t = 56.290 s
+x(60) = 38.001 m, static equilibrium L + mg/k = 38.377 m
+```
+
+- `free`와 `taut`는 두 구간의 우변이다. 반복문은 현재 구간의 우변으로 적분하다가 종료 사건이 일어나면 그 시각과 상태 `s.y_events[0][0]`에서 다른 우변으로 다시 시작한다.
+- `stretch`와 `slack`은 같은 함수 $`x - L`$이지만 `direction`이 달라 아래로 지날 때와 위로 지날 때를 구별한다. `lowest`는 종료 사건이 아니므로 적분을 멈추지 않고 시각만 기록한다.
+
+![그림 5. 사건으로 구간을 나누어 푼 번지 점프의 위치와 간헐 분수의 수위](../../images/Ch23_Switching-Systems.png)
+
+*그림 5. 사건으로 구간을 나누어 푼 번지 점프의 위치와 간헐 분수의 수위*
+
+첫 사건의 시각 2.2929 s와 속도 21.1528 m/s는 자유 낙하의 해석해 $`x = \frac{m}{c_d}\ln\cosh\left(\sqrt{gc_d/m}\,t\right)`$에서 $`x = L`$을 푼 값과 소수 넷째 자리까지 같다. 점프하는 사람은 4.629 s에 가장 낮은 지점 59.409 m에 이르고, 7.776 s에 줄이 다시 느슨해져 잠시 떠올랐다가 9.005 s부터는 줄이 팽팽한 채로 진동하며 정적 평형 위치 $`L + mg/k = 38.377`$ m에 가까워진다(그림 5의 왼쪽). 두 우변을 `if`문으로 고르는 함수 하나로 같은 허용 오차에서 풀어도 이 문제에서는 위치가 $`10^{-5}`$ m 이내로 같지만, 함수 평가가 2780번에서 3278번으로 늘어난다. 풀이기가 불연속을 지나는 스텝을 여러 번 기각하며 스텝을 줄이기 때문이다.
+
+### 7.2 히스테리시스가 있는 간헐 분수
+
+반지름 $`R_T = 0.06`$ m인 원통형 탱크에 물이 일정한 유량 $`Q_{\text{in}} = 60`$ cm³/s로 들어온다. 수위 $`y`$가 $`y_{\text{high}} = 0.12`$ m에 이르면 반지름 $`r = 8`$ mm인 사이펀 관으로 물이 빠지기 시작하여 분수가 솟고, 수위가 $`y_{\text{low}} = 0.02`$ m로 내려가면 사이펀에 공기가 들어가 배수가 멈춘다. 배수 유량은 토리첼리 법칙 $`Q_{\text{out}} = C\pi r^2\sqrt{2gy}`$($`C = 0.6`$)를 따르므로, 탱크의 부피 수지 $`\pi R_T^2\,dy/dt = Q_{\text{in}} - Q_{\text{out}}`$에서 다음 식을 얻는다.
+
+```math
+\frac{dy}{dt} = \frac{Q_{\text{in}} - s\,C\pi r^2\sqrt{2gy}}{\pi R_T^2}
+```
+
+$`s`$는 사이펀이 작동하면 1, 아니면 0인 스위치이다. 스위치는 수위가 올라가며 $`y_{\text{high}}`$를 지날 때 켜지고 내려가며 $`y_{\text{low}}`$를 지날 때 꺼지므로, 그 사이의 수위에서는 현재 수위만으로 $`s`$를 정할 수 없고 지금까지 어느 쪽으로 움직였는지를 알아야 한다. 상태가 같아도 이력에 따라 결과가 달라지는 이 성질을 **히스테리시스(hysteresis)** 라 한다. 수위가 $`y_{\text{low}}`$까지 내려가려면 그 수위에서도 배수량이 유입량보다 커야 하며, 여기서는 $`C\pi r^2\sqrt{2gy_{\text{low}}} = 75.6`$ cm³/s로 60 cm³/s보다 크다.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+g, C, RT, r = 9.81, 0.6, 0.06, 0.008            # tank radius RT and siphon radius r [m]
+Qin, ylow, yhigh = 60e-6, 0.02, 0.12            # inflow [m^3/s], switching levels [m]
+A, a = np.pi * RT**2, C * np.pi * r**2          # tank area, effective siphon area [m^2]
+
+siphon = {"on": False}                          # switch state kept outside the function
+def rhs_with_memory(t, y):
+    h = max(y[0], 0.0)
+    if h < ylow:  siphon["on"] = False
+    if h > yhigh: siphon["on"] = True
+    out = a * np.sqrt(2 * g * h) if siphon["on"] else 0.0
+    return [(Qin - out) / A]
+
+s = solve_ivp(rhs_with_memory, (0.0, 150.0), [0.0])
+y = s.y[0]
+peaks = [y[i] for i in range(1, y.size - 1) if y[i - 1] <= y[i] > y[i + 1]]
+print("switch inside the function: first level maxima", np.round(peaks[:4], 4))
+
+fill = lambda t, y: [Qin / A]                                  # siphon off
+drain = lambda t, y: [(Qin - a * np.sqrt(2 * g * max(y[0], 0.0))) / A]   # siphon on
+def full(t, y): return y[0] - yhigh
+full.terminal, full.direction = True, 1
+def low(t, y): return y[0] - ylow
+low.terminal, low.direction = True, -1
+
+t0, y0, phase, switches = 0.0, [0.0], fill, []
+while True:
+    s = solve_ivp(phase, (t0, 150.0), y0, events=full if phase is fill else low,
+                  rtol=1e-9, atol=1e-12)
+    if s.status != 1:
+        break
+    t0, y0 = s.t_events[0][0], [s.y_events[0][0][0]]
+    switches.append(t0)
+    phase = drain if phase is fill else fill
+print("switching with events: times", np.round(switches, 3))
+print(f"filling time from ylow to yhigh = {(yhigh - ylow) * A / Qin:.3f} s (constant inflow)")
+```
+
+```text
+switch inside the function: first level maxima [0.0941 0.0876 0.0836 0.0814]
+switching with events: times [ 22.619  41.201  60.051  78.633  97.482 116.064 134.914]
+filling time from ylow to yhigh = 18.850 s (constant inflow)
+```
+
+- `rhs_with_memory`는 스위치 상태를 함수 밖의 딕셔너리 `siphon`에 저장하고 호출될 때마다 수위를 보고 바꾼다. 우변이 더 이상 $`(t, y)`$만의 함수가 아니다.
+- 사건으로 나누는 풀이는 사이펀이 꺼진 구간의 우변 `fill`과 켜진 구간의 우변 `drain`을 번갈아 쓰며, 수위가 위로 $`y_{\text{high}}`$를 지나는 사건 `full`과 아래로 $`y_{\text{low}}`$를 지나는 사건 `low`에서 바꾼다.
+
+스위치를 우변 안에 둔 풀이는 틀린 결과를 준다. 첫 최고 수위 0.094 m가 $`y_{\text{high}}`$에 이르지 못했는데도 수위가 내려가고, 이후의 최고 수위도 0.088 m, 0.084 m로 기준과 맞지 않는다(그림 5의 오른쪽). 풀이기는 받아들인 해의 점에서만 우변을 계산하지 않는다. RK45의 한 스텝은 여러 단계에서 시험적인 상태로 우변을 계산하고, 기각된 스텝의 계산도 있다. 그중 하나가 $`y_{\text{high}}`$를 넘는 시험 상태에서 호출되면, 실제 해가 기준에 이르지 않았는데도 스위치가 켜진 채로 남는다. 사건으로 나눈 풀이에서는 첫 배수가 $`t = 22.619`$ s에 시작하며, 이는 빈 탱크를 $`y_{\text{high}}`$까지 채우는 시간 $`y_{\text{high}}\pi R_T^2/Q_{\text{in}} = 22.619`$ s와 같다. 이후 배수 18.582 s와 채움 18.850 s가 번갈아 되풀이되며, 채움 시간은 $`(y_{\text{high}} - y_{\text{low}})\pi R_T^2/Q_{\text{in}}`$과 같다. 작은 고정 스텝($`h = 0.01`$ s)의 RK4로 풀면 스위치를 우변 안에 두어도 시험 상태가 실제 해에서 거의 벗어나지 않아 수위가 0.0200 m와 0.1200 m 사이를 오가는 쓸 만한 결과를 얻는다. 그러나 사건으로 나누는 방법은 전환 시각을 허용 오차 수준으로 구하면서 적응적 스텝의 이점도 유지한다.
+
+---
+
+<br>
+
+## 8. 흔한 실수
+
+적응적 풀이기와 강성 풀이기를 쓸 때 자주 나오는 실수는 다음과 같다.
+
+1. **`args`에 튜플을 주지 않는 실수.** 매개변수가 하나여도 `solve_ivp(f, t_span, y0, args=(c,))`처럼 쉼표를 넣어 튜플로 주어야 한다[1]. `args=(2.0)`은 괄호로 감싼 수일 뿐이어서 `solve_ivp`가 인수를 풀지 못하고 `TypeError`를 일으킨다.
+2. **상대 오차만으로 스텝을 제어하는 실수.** 2.3절의 $`e = \lvert(y^{[5]} - y^{[4]})/y^{[5]}\rvert`$는 해가 0에 가까워지면 분모가 작아져 스텝을 지나치게 줄인다. `solve_ivp`는 국소 오차를 `atol + rtol * abs(y)` 아래로 유지하므로[1], 0 근처를 지나는 성분이 있으면 그 성분의 크기에 맞게 `atol`을 정한다.
+3. **사건에서 다시 시작할 때 방향을 정하지 않는 실수.** 7.1절의 반복문에서 사건 함수의 `direction`을 정하지 않으면, 다시 시작하는 상태가 사건 함수의 근 위에 있으므로 풀이기가 시작 시각의 사건을 곧바로 다시 잡는다. 적분 구간의 길이가 0인 풀이가 되풀이되어 반복문이 앞으로 나아가지 않는다. 구간마다 다음에 기다리는 교차 방향을 `direction`으로 지정한다.
+
+---
+
+<br>
+
 ## 개념 적용
 
 **T/F 점검:**
@@ -997,6 +1297,10 @@ exact landing time = 22.996380 s, terminal speed = 51.693752 m/s
 | 양적 RK 방법도 단계 수를 충분히 늘리면 A-안정이 될 수 있다. | **F.** 양적 RK 방법의 안정 함수는 다항식이어서 $`\lvert z \rvert \to \infty`$에서 커지므로 왼쪽 반평면 전체를 포함할 수 없다(5.9절). |
 | 강성비가 크고 관심 구간이 긴 문제에는 BDF나 Radau 같은 음적 방법이 효율적이다. | **T.** 효소 모델에서 RK45는 약 2만 3천 스텝, Radau는 64스텝이 필요했다(6.4절). |
 | `solve_ivp`의 사건 함수는 출력 시각들 사이를 선형 보간하여 사건 시각을 구한다. | **F.** 풀이기는 부호가 바뀐 스텝 안에서 근 찾기 알고리즘으로 시각을 구한다(6.5절). |
+| 스텝 반감법의 오차 추정 $`(y_2 - y_1)/15`$는 스텝 크기와 관계없이 믿을 수 있다. | **F.** 국소 오차의 계수가 스텝 안에서 일정하다는 가정이 필요하며, $`h = 0.5`$에서는 추정값이 실제 오차의 5분의 1에 그쳤다(1.4절). |
+| 적응적 풀이기는 오차 추정값이 작으면 좁은 펄스 입력도 놓치지 않는다. | **F.** 단계 평가가 모두 펄스를 비켜 가면 오차 추정값도 작게 나오며, 폭 0.01인 펄스를 통째로 놓쳤다(2.6절). |
+| 예측-교정법의 교정자 반복은 스텝 크기와 관계없이 수렴한다. | **F.** 반복마다 오차가 $`\frac{h}{2}\lvert\partial f/\partial y\rvert`$배가 되므로 이 값이 1보다 작아야 수렴한다(4.5절). |
+| 상태를 기억하는 스위치를 우변 함수 안에 두면 적응적 풀이기가 시험 상태에서 스위치를 잘못 바꿀 수 있다. | **T.** 단계 평가와 기각된 스텝에서도 우변이 호출되므로, 간헐 분수의 예에서 수위가 기준에 이르기 전에 배수가 시작되었다(7.2절). |
 
 ---
 
@@ -1023,6 +1327,10 @@ exact landing time = 22.996380 s, terminal speed = 51.693752 m/s
 | 내장 쌍의 오차 추정 | 4차 해와 5차 해의 차이로 국소 오차를 추정하고, 허용 오차를 넘으면 기각하여 $`h`$를 줄이며, 채택한 스텝 뒤에는 스케일 인자로 다음 $`h`$를 정한다. |
 | A-안정성과 L-안정성 | 후진 오일러, 사다리꼴 방법, BDF2는 A-안정이며, $`z \to -\infty`$에서 인자가 0으로 가는 후진 오일러와 BDF2가 강성 성분을 빨리 없앤다. |
 | 사건 감지 | `solve_ivp`의 사건 함수가 0이 되는 시각을 근 찾기로 정확히 구하며, `terminal`로 적분을 멈추고 `direction`으로 방향을 고른다. |
+| 스텝 반감법 | 한 스텝과 반 스텝 두 번의 차이로 RK4의 오차를 $`(y_2 - y_1)/15`$로 추정하지만, 한 스텝 확인에 함수 평가가 11번 들어 내장 쌍보다 비싸다. |
+| 급변 구간과 좁은 펄스 | 적응적 풀이기는 급변 구간에 스텝을 모으지만 평가점 사이에 숨은 좁은 펄스는 놓칠 수 있으므로 `max_step`이나 구간 분할로 막는다. |
+| 교정자 반복 | 사다리꼴 교정자를 수렴할 때까지 반복하면 오차가 반복마다 $`\frac{h}{2}\lvert\partial f/\partial y\rvert`$배가 되며, 수렴한 값으로 $`E_c \approx (Y_1 - y_{n+1})/5`$를 계산한다. |
+| 모형이 바뀌는 시스템 | 우변이 상태에 따라 바뀌면 방향을 지정한 종료 사건으로 전환 시각을 찾고, 그 시각에서 새 우변으로 적분을 다시 시작한다. |
 
 ---
 
@@ -1099,6 +1407,24 @@ exact landing time = 22.996380 s, terminal speed = 51.693752 m/s
    <summary>정답</summary>
 
    $`z = -100`$이다. 사다리꼴 방법의 인자는 $`\frac{1 - 50}{1 + 50} = -0.9608`$이므로 다섯 스텝 뒤 $`(-0.9608)^5 \approx -0.819`$배로, 부호를 바꾸며 거의 줄지 않는다. 후진 오일러의 인자는 $`\frac{1}{101}`$이므로 다섯 스텝 뒤 약 $`9.5 \times 10^{-11}`$배로 사실상 사라진다. 정확한 값 $`e^{-50} \approx 2 \times 10^{-22}`$와 비교하면 사다리꼴 방법은 안정하지만 강성 성분을 처리하는 데 부적합하다.
+
+   </details>
+
+9. **스텝 반감법:** RK4로 한 스텝 진행한 값이 $`y_1 = 0.67663404`$, 반 스텝 두 번으로 진행한 값이 $`y_2 = 0.67663386`$이었다. $`y_2`$의 오차 추정값과 그것을 반영한 값을 구하고, 이 확인에 드는 함수 평가 횟수를 RKF45와 비교하라.
+
+   <details>
+   <summary>정답</summary>
+
+   오차 추정값은 $`(y_2 - y_1)/15 = (-1.8 \times 10^{-7})/15 = -1.2 \times 10^{-8}`$이고, 반영한 값은 $`0.67663386 - 0.000000012 = 0.676633848`$이다. $`y_1`$에 4번, $`y_2`$에 8번의 평가가 들고 시작점의 기울기를 함께 쓰므로 11번이 필요하며, RKF45는 내장 쌍으로 6번이면 된다(1.4절).
+
+   </details>
+
+10. **사건과 재시작:** 7.1절의 반복문에서 `stretch`와 `slack` 대신 방향을 지정하지 않은 종료 사건 하나 $`x - L`$을 쓰면 반복문이 앞으로 나아가지 않는다. 그 이유와 고치는 방법을 쓰라.
+
+   <details>
+   <summary>정답</summary>
+
+   사건에서 다시 시작하는 상태는 $`x = L`$로 사건 함수의 근 위에 있다. 방향을 지정하지 않으면 풀이기가 시작 시각에서 그 근을 다시 사건으로 잡아 곧바로 멈추므로, 길이가 0인 적분이 되풀이된다. 느슨한 구간에서는 아래로 지나는 교차(`direction = 1`), 팽팽한 구간에서는 위로 지나는 교차(`direction = -1`)만 사건으로 세도록 지정하면, 시작점의 근은 다음 사건으로 잡히지 않는다(8절).
 
    </details>
 
