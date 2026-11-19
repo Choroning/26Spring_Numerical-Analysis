@@ -41,6 +41,7 @@
   - [4.3 Standard Error of the Estimate](#43-standard-error-of-the-estimate)
   - [4.4 Extension to Multivariable Power Models](#44-extension-to-multivariable-power-models)
   - [4.5 Multiple Linear Regression Example](#45-multiple-linear-regression-example)
+  - [4.6 Example of a Multivariable Power Model](#46-example-of-a-multivariable-power-model)
 - [5. General Linear Least Square Regression](#5-general-linear-least-square-regression)
   - [5.1 General Model Formulation](#51-general-model-formulation)
   - [5.2 Matrix Formulation](#52-matrix-formulation)
@@ -51,6 +52,7 @@
   - [5.7 Conditioning of the Normal Equations and QR Factorization](#57-conditioning-of-the-normal-equations-and-qr-factorization)
   - [5.8 Model Selection: Adjusted and Predicted Coefficients of Determination](#58-model-selection-adjusted-and-predicted-coefficients-of-determination)
   - [5.9 General Linear Least-Squares Example with Arbitrary Basis Functions](#59-general-linear-least-squares-example-with-arbitrary-basis-functions)
+  - [5.10 Stepwise Regression and Term Selection](#510-stepwise-regression-and-term-selection)
 - [6. Nonlinear Regression (Gauss-Newton)](#6-nonlinear-regression-gauss-newton)
   - [6.1 Motivation: The Antoine Equation](#61-motivation-the-antoine-equation)
   - [6.2 Python Implementation with scipy.optimize](#62-python-implementation-with-scipyoptimize)
@@ -60,6 +62,7 @@
   - [6.6 curve_fit and least_squares](#66-curve_fit-and-least_squares)
   - [6.7 Minimizing the Sum of Squares with minimize](#67-minimizing-the-sum-of-squares-with-minimize)
   - [6.8 Initial Estimates and Convergence Failure](#68-initial-estimates-and-convergence-failure)
+  - [6.9 Parameter Uncertainty: Linearization and Monte Carlo Simulation](#69-parameter-uncertainty-linearization-and-monte-carlo-simulation)
 - [7. Common Mistakes](#7-common-mistakes)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -344,6 +347,33 @@ SSE = 0.074286, \quad SST = 52.908333, \quad R^2 = 1 - \frac{0.074286}{52.908333
 
 The denominator of the standard error is $`n - (m + 1) = 6 - 3 = 3`$ because three coefficients have been estimated (Section 3.4). The entries of the coefficient matrix have the form $`\sum x_i^{j+k}`$, so as the degree rises their sizes differ more and more sharply, which is the source of the conditioning problem treated in Section 5.7.
 
+The following code performs the same computation with matrices.
+
+```python
+import numpy as np
+
+x = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0])
+y = np.array([5.2, 1.9, 1.1, 2.0, 5.1, 9.8])
+X = np.column_stack([np.ones_like(x), x, x**2])     # columns 1, x, x^2
+A, rhs = X.T @ X, X.T @ y                            # normal-equation matrix and right side
+print(A)
+print(rhs)
+beta = np.linalg.solve(A, rhs)
+print(np.round(beta, 6))
+print(np.round(np.polyfit(x, y, 2), 6))              # highest power first
+```
+
+```text
+[[  6.   3.  19.]
+ [  3.  19.  27.]
+ [ 19.  27. 115.]]
+[ 25.1  29.3 133.3]
+[ 1.057143 -0.035714  0.992857]
+[ 0.992857 -0.035714  1.057143]
+```
+
+Stacking the columns $`1`$, $`x`$, and $`x^2`$ with `np.column_stack` makes `X.T @ X` and `X.T @ y` reproduce exactly the coefficient matrix and right side built from the sums above. `np.polyfit(x, y, 2)` returns the same coefficients highest power first, that is, in the order $`(\beta_2,\ \beta_1,\ \beta_0)`$ (Section 8 of Chapter 14).
+
 ---
 
 <br>
@@ -439,6 +469,47 @@ SSE = 0.019375, \quad SST = 104.06, \quad R^2 = 0.999814, \quad s_e = \sqrt{\fra
 ```
 
 Taking square roots of the diagonal entries of the covariance matrix $`s_e^2(\mathbf{X}^T\mathbf{X})^{-1}`$ of Section 5.6 gives the standard errors of the coefficients, $`0.0776`$, $`0.0343`$, and $`0.0343`$. The standard errors are very small compared with the coefficients, so both variables have a meaningful effect on $`y`$. If the two variables are strongly correlated (for example, if $`x_2`$ is nearly a multiple of $`x_1`$), $`\mathbf{X}^T\mathbf{X}`$ becomes nearly singular, the standard errors grow, and the coefficients become hard to interpret separately.
+
+### 4.6 Example of a Multivariable Power Model
+
+The transformation of Section 4.4 is applied to experimental data. Suppose that the pressure drop $`\Delta p`$ (kPa) of water flowing through a pipe depends on the flow rate $`Q`$ (L/s) and the pipe diameter $`D`$ (cm) as $`\Delta p = b_0Q^{b_1}D^{b_2}`$; taking base-10 logarithms gives $`\log_{10}\Delta p = \log_{10}b_0 + b_1\log_{10}Q + b_2\log_{10}D`$, which is fitted by multiple linear regression. Nine measurements combining three flow rates with three diameters are used.
+
+```python
+import numpy as np
+
+Q = np.array([1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 4.0, 4.0, 4.0])          # flow rate (L/s)
+D = np.array([2.0, 3.0, 4.0, 2.0, 3.0, 4.0, 2.0, 3.0, 4.0])          # pipe diameter (cm)
+dp = np.array([33.49, 4.86, 1.22, 123.25, 16.27, 4.45, 418.92, 64.42, 16.23])  # pressure drop (kPa)
+X = np.column_stack([np.ones_like(Q), np.log10(Q), np.log10(D)])    # columns 1, log Q, log D
+z = np.log10(dp)
+b, *_ = np.linalg.lstsq(X, z, rcond=None)
+e = z - X @ b
+n, p = X.shape
+se = np.sqrt(np.sum(e**2) / (n - p))
+std = se * np.sqrt(np.diag(np.linalg.inv(X.T @ X)))                  # standard errors of b
+print("b =", np.round(b, 4), " std =", np.round(std, 4))
+print(f"b0 = 10^b[0] = {10**b[0]:.1f}, R2 (log space) = {1 - np.sum(e**2) / np.sum((z - z.mean())**2):.5f}, se = {se:.4f}")
+pred = 10**(X @ b)
+print("relative error (%):", np.round((dp - pred) / pred * 100, 1))
+```
+
+```text
+b = [ 2.9519  1.8512 -4.7559]  std = [0.0206 0.0207 0.0411]
+b0 = 10^b[0] = 895.1, R2 (log space) = 0.99972, se = 0.0152
+relative error (%): [ 1.1  0.9 -0.5  3.1 -6.4  0.6 -2.9  2.7  1.7]
+```
+
+The three columns of `X` are $`1`$, $`\log_{10}Q`$, and $`\log_{10}D`$, and the response is $`\log_{10}\Delta p`$. The intercept 2.9519 is $`\log_{10}b_0`$, so the coefficient of the original model must be back-transformed as $`b_0 = 10^{2.9519} = 895.1`$, and the fitted model is the following.
+
+```math
+\Delta p = 895.1\,Q^{1.851}D^{-4.756}
+```
+
+![Figure 1. Measured versus predicted values for the multivariable power model](../../images/Ch15_Power-Model-Parity.png)
+
+*Figure 1. Measured versus predicted values for the multivariable power model*
+
+The standard errors of the exponents are small, 0.021 and 0.041, and with $`t_{0.025,6} = 2.447`$ for $`9 - 3 = 6`$ degrees of freedom the 95% confidence intervals are $`b_1 = 1.851 \pm 0.051`$ and $`b_2 = -4.756 \pm 0.101`$. The pressure drop is proportional to about the 1.85th power of the flow rate and inversely proportional to about the 4.76th power of the diameter, so increasing the diameter from 2 cm to 3 cm reduces the pressure drop by the factor $`1.5^{-4.756} = 0.145`$. The log-space $`s_e = 0.0152`$ corresponds to a relative error of about $`10^{0.0152} - 1 = 3.6\%`$ in the original space, and the relative errors in the last line also lie between $`-6.4\%`$ and $`3.1\%`$. With two or more independent variables a curve against a single $`x`$ cannot be drawn, so the comparison plot of Figure 1, with measured and predicted values on the two axes, is used. The closer the points gather on the diagonal, the better the fit, and a group of points that departs systematically from the diagonal casts doubt on the form of the model. These data were generated by multiplying $`\Delta p = 1000Q^{1.8}D^{-4.8}`$ by relative errors of about 4%. The true values $`-4.8`$ and $`\log_{10}1000 = 3`$ lie within their confidence intervals, but 1.8 falls just outside the lower end 1.8006 of the interval for $`b_1`$. A 95% confidence interval misses the true value on average once in 20 repetitions of the same experiment, so such an outcome in a single experiment is not unusual.
 
 ---
 
@@ -623,7 +694,25 @@ lstsq      max coefficient error = 5.7e-13
 
 $`\kappa(\mathbf{X}) \approx 10^{5}`$ while $`\kappa(\mathbf{X}^T\mathbf{X}) \approx 10^{10}`$, exactly the square. Even though the data are error-free, the coefficients from the normal equations carry an error of about $`3 \times 10^{-7}`$, losing about 10 of the 16 double-precision digits, whereas QR factorization and `np.linalg.lstsq` are accurate to the $`10^{-12}`$ level. `np.linalg.lstsq` takes $`\mathbf{X}`$ directly and returns the least-squares solution; it treats singular values that are small relative to `rcond` as zero in determining the coefficients and also returns the singular values [1]. If the polynomial degree is low and the data are well spread, the normal equations suffice, but if the degree is high or the columns are nearly linearly dependent, QR factorization or `lstsq` is used.
 
-> **Note:** **Centering the variable.** Using $`x - \bar{x}`$ or a variable mapped to $`[-1, 1]`$ instead of $`x`$ reduces the linear dependence among the columns of $`\mathbf{X}`$ and makes the condition number much smaller. This is why data are centered and scaled first in polynomial regression.
+**Centering and standardizing the variable.** The columns $`x, x^2, x^3, \ldots`$ of a polynomial regression are all functions of a single variable and are strongly correlated with one another. This is called **collinearity**, and when the columns are nearly linearly dependent the condition number of $`\mathbf{X}`$ grows. In addition, if $`x`$ runs from 0 to 100, $`x^3`$ reaches $`10^6`$, and the differences in column size also worsen the conditioning. Using instead of $`x`$ the variable $`z = (x - \bar{x})/s_x`$, centered by subtracting the mean and divided by the standard deviation, reduces both problems together.
+
+```python
+import numpy as np
+
+x = np.linspace(0.0, 100.0, 11)                  # e.g. temperatures 0, 10, ..., 100
+z = (x - x.mean()) / x.std(ddof=1)               # standardized variable
+for name, v in (("x", x), ("z", z)):
+    X = np.vander(v, 4, increasing=True)         # columns 1, v, v^2, v^3
+    r = np.corrcoef(v, v**2)[0, 1]               # correlation between two columns
+    print(f"{name}: corr(v, v^2) = {r:.4f}, cond(X^T X) = {np.linalg.cond(X.T @ X):.2e}")
+```
+
+```text
+x: corr(v, v^2) = 0.9631, cond(X^T X) = 1.57e+12
+z: corr(v, v^2) = 0.0000, cond(X^T X) = 3.39e+01
+```
+
+With $`x`$ as is, the correlation coefficient between the $`x`$ and $`x^2`$ columns is 0.9631, and the condition number of $`\mathbf{X}^T\mathbf{X}`$ for a cubic is $`1.57 \times 10^{12}`$, so by the rule of Chapter 11 about 12 of the 16 double-precision digits can be lost. Standardizing equally spaced points makes $`z`$ symmetric about 0, so the correlation between $`z`$ and $`z^2`$ becomes 0, and all columns are brought to sizes near 1, so the condition number drops to 33.9. Odd powers such as $`z`$ and $`z^3`$ remain correlated (0.92), but the condition number is no longer a problem. The coefficients obtained with the standardized variable are those of a polynomial in $`z`$, so a new $`x`$ must first be transformed with the same $`\bar{x}`$ and $`s_x`$ before predicting. This is why the code of Section 5.8 uses $`z`$.
 
 ### 5.8 Model Selection: Adjusted and Predicted Coefficients of Determination
 
@@ -714,6 +803,42 @@ R2 = 0.99500
 
 The code stacks the values of the basis functions as columns to build $`\mathbf{X}`$, solves the normal equations, obtains the standard errors from the covariance matrix of Section 5.6, and computes the half-widths of the 95% confidence intervals with $`t_{0.025,3} = 3.182`$ for $`n - p = 3`$ degrees of freedom. The result is $`y = 2.978 + 0.505x + 2.060e^{-x}`$, and the intervals of the three coefficients, $`[2.731,\ 3.225]`$, $`[0.439,\ 0.570]`$, and $`[1.741,\ 2.380]`$, all exclude 0, so all three terms are needed. These data were in fact generated from $`3 + 0.5x + 2e^{-x}`$ plus small errors, and all the true values lie inside the intervals. Even with nonlinear basis functions, a model that is linear in its coefficients is solved in one pass without iteration, which is the difference from the nonlinear regression of Section 6.
 
+### 5.10 Stepwise Regression and Term Selection
+
+When there are several candidate terms, **stepwise regression** decides systematically which terms to include in the model. Forward selection starts from a simple model and adds terms one at a time, and backward elimination starts from a model with all candidate terms and removes unnecessary terms one at a time. At each step the performance measures of Section 5.8, such as $`R^2_{adj}`$, $`s_e`$, and $`R^2_{pred}`$, are examined together with the adequacy seen in residual plots, and whether to remove a term is judged by the ratio $`b_j/s_{b_j}`$ of the coefficient to its standard error. If the absolute value of this ratio is smaller than $`t_{0.025}`$ with $`n - p`$ degrees of freedom, the coefficient cannot be distinguished from zero. The following example performs backward elimination on 12 data for three candidate variables $`x_1`$, $`x_2`$, and $`x_3`$.
+
+```python
+import numpy as np
+
+x1 = np.array([4.8, 1.0, 4.1, 0.7, 2.6, 0.7, 3.4, 4.2, 2.1, 4.8, 4.1, 1.7])
+x2 = np.array([2.9, 3.8, 4.1, 4.7, 0.7, 3.7, 0.7, 4.5, 1.1, 4.3, 1.5, 4.8])
+x3 = np.array([2.6, 1.6, 1.4, 3.0, 1.7, 3.4, 0.8, 1.2, 4.3, 3.0, 1.3, 0.7])
+y = np.array([8.28, -0.08, 5.12, -2.54, 7.39, -1.25, 8.48, 4.36, 5.86, 6.35, 8.75, -0.34])
+n, sst = y.size, np.sum((y - y.mean())**2)
+
+def fit(cols):
+    X = np.column_stack([np.ones(n)] + cols)
+    b = np.linalg.solve(X.T @ X, X.T @ y)
+    e = y - X @ b
+    p = X.shape[1]
+    se = np.sqrt(np.sum(e**2) / (n - p))
+    sb = se * np.sqrt(np.diag(np.linalg.inv(X.T @ X)))      # standard errors of the coefficients
+    r2adj = 1 - (np.sum(e**2) / (n - p)) / (sst / (n - 1))
+    return b, b / sb, se, r2adj
+
+for name, cols in (("x1, x2, x3", [x1, x2, x3]), ("x1, x2", [x1, x2]), ("x1", [x1])):
+    b, t, se, r2adj = fit(cols)
+    print(f"{name:10s} b = {np.round(b, 3)}, b/s_b = {np.round(t, 1)}, se = {se:.3f}, R2adj = {r2adj:.4f}")
+```
+
+```text
+x1, x2, x3 b = [ 3.208  1.924 -1.474  0.013], b/s_b = [  9.3  32.8 -26.5   0.2], se = 0.295, R2adj = 0.9949
+x1, x2     b = [ 3.244  1.922 -1.475], b/s_b = [ 12.9  35.8 -28.1], se = 0.278, R2adj = 0.9955
+x1         b = [-1.908  2.143], b/s_b = [-1.2  4.5], se = 2.491, R2adj = 0.6374
+```
+
+In the model with all three variables, the ratio for $`x_3`$ is 0.2, far smaller than $`t_{0.025,8} = 2.306`$, so $`x_3`$ contributes nothing to explaining $`y`$. Removing $`x_3`$ reduces $`s_e`$ from 0.295 to 0.278 and raises $`R^2_{adj}`$ from 0.9949 to 0.9955, because the degree of freedom lost in estimating a useless coefficient is recovered. The ratios of the two remaining coefficients, 35.8 and $`-28.1`$, are far larger than $`t_{0.025,9} = 2.262`$, so both are kept. As a check, removing $`x_2`$ as well increases $`s_e`$ nearly ninefold to 2.491 and drops $`R^2_{adj}`$ to 0.637. The final model is $`y = 3.244 + 1.922x_1 - 1.475x_2`$, and these data were generated by adding small random errors to $`y = 3 + 2x_1 - 1.5x_2`$. Stepwise regression judges only one term at a time, so with strongly correlated variables different orders of steps can lead to different models, and the step with the best performance measure can differ from the step at which the residuals become adequate. The principle of **parsimony** that the textbook emphasizes, choosing the simplest of the models that represent the phenomenon adequately, then becomes the criterion for the final decision.
+
 ---
 
 <br>
@@ -774,6 +899,32 @@ A_opt, B_opt, C_opt = result.x
 **Method:** The `scipy.optimize.minimize` function with `method='L-BFGS-B'` uses a quasi-Newton optimization algorithm. An initial guess is required, and the algorithm iteratively refines the parameters to minimize $`SSE`$.
 
 > **Caution:** **Initial Guess Sensitivity.** Nonlinear regression methods depend on the initial guess. A poor initial guess may lead to convergence to a local minimum rather than the global minimum. In the code above, the parameters also differ greatly in scale, and L-BFGS-B declares convergence at a point where $`B`$ has stayed near its initial value of 1500. From the same initial guess, the Levenberg-Marquardt method, an improvement of the Gauss-Newton method and the default of `scipy.optimize.curve_fit`, reaches $`A \approx 8.01`$, $`B \approx 1697`$, $`C \approx 230.6`$ with a smaller SSE.
+
+Running the following after the code above compares the result of L-BFGS-B with that of the Levenberg-Marquardt method.
+
+```python
+from scipy.optimize import curve_fit
+
+print(result.success, result.nit, result.message)
+print(np.round(result.x, 4), f"SSE = {result.fun:.3e}")
+popt, pcov = curve_fit(lambda T, A, B, C: A - B / (C + T), T_data, logP_data, p0=initial_guess)
+print(np.round(popt, 4), f"SSE = {objective(popt):.3e}")
+sd = np.sqrt(np.diag(pcov))                   # standard errors of A, B, C
+print(np.round(sd, 4))
+print(np.round(pcov / np.outer(sd, sd), 4))   # correlation matrix of the estimates
+```
+
+```text
+True 7 CONVERGENCE: NORM OF PROJECTED GRADIENT <= PGTOL
+[   7.6616 1498.8649  213.1954] SSE = 2.781e-06
+[   8.0144 1697.1228  230.6012] SSE = 8.378e-09
+[0.0146 8.4542 0.7201]
+[[1.     0.9998 0.9992]
+ [0.9998 1.     0.9998]
+ [0.9992 0.9998 1.    ]]
+```
+
+L-BFGS-B reports success (`True`), but according to the message it stopped after 7 iterations because the norm of the projected gradient fell below its tolerance, and its $`SSE = 2.78 \times 10^{-6}`$ is about 330 times larger than the $`8.38 \times 10^{-9}`$ of `curve_fit`. Together with the difference in parameter sizes noted in the caution box above, the cause is the last matrix, the correlation matrix obtained by dividing the covariance matrix by the standard errors. The correlation coefficients among the three parameters, 0.9992-0.9998, are very close to 1, so increasing $`B`$ while increasing $`A`$ and $`C`$ together hardly changes the predictions. The contours of $`SSE`$ form a long, narrow valley in this direction, and the gradient along the valley is very small, so a method that judges convergence by the gradient can stop before reaching the valley floor. The coefficients of variation (Section 6.6), the standard errors divided by the estimates, are small for $`A`$, $`B`$, and $`C`$, 0.18%, 0.50%, and 0.31%, but with correlations this strong it is hard to interpret any single parameter in isolation. In this example, reducing the convergence tolerances of L-BFGS-B to `options={"ftol": 1e-15, "gtol": 1e-12}` reaches $`SSE = 8.40 \times 10^{-9}`$ after 66 iterations, so for such models the tolerances are reduced and the result is compared with a dedicated method, or a dedicated method of the Gauss-Newton family is used from the start.
 
 ### 6.3 Deriving the Gauss-Newton Method
 
@@ -964,6 +1115,69 @@ print(np.round(popt, 6))
 
 In the second iteration $`a_1`$ jumps to 4.082 and $`SSE`$ becomes $`5.7 \times 10^{13}`$; afterward $`a_0`$ drops near zero, the parameters swing widely again, and in the eighth iteration the exponential overflows (`inf`) and the computation collapses. The first-order Taylor approximation holds only near the current point, so starting far away makes the correction $`\Delta\mathbf{a}`$ from the normal equations far too large. `errstate` is used only to hide the overflow warnings of this process. From the same initial values, `curve_fit`, which uses the Levenberg-Marquardt method, reaches the solution $`(1.959741,\ 0.467527)`$ because the $`\mu I`$ term shrinks the corrections. In practice, initial values are chosen from a linearized fit (Section 6.5), and methods with safeguards are used, such as halving the correction whenever $`SSE`$ does not decrease.
 
+If the physical range of the parameters is known, bounds can keep the iteration from leaving it. When `bounds` is given, `curve_fit` uses by default the trust region reflective method (`'trf'`), which handles bounds, instead of the Levenberg-Marquardt method [2].
+
+```python
+import numpy as np
+from scipy.optimize import curve_fit
+
+x = np.array([0, 1, 2, 3, 4], dtype=float)
+y = np.array([1.9, 3.1, 4.8, 8.3, 12.6])
+f = lambda x, a0, a1: a0 * np.exp(a1 * x)
+popt, _ = curve_fit(f, x, y, p0=[20.0, 0.01], bounds=([0.0, 0.0], [50.0, 2.0]))   # 0 <= a0 <= 50, 0 <= a1 <= 2
+print(np.round(popt, 6))
+popt, _ = curve_fit(f, x, y, p0=[2.0, 0.4], bounds=([0.0, 0.0], [50.0, 0.4]))     # force a1 <= 0.4
+print(np.round(popt, 6), round(float(np.sum((y - f(x, *popt))**2)), 6))
+```
+
+```text
+[1.959741 0.467527]
+[2.450536 0.4     ] 1.280086
+```
+
+The first call starts from the distant initial guess $`(20,\ 0.01)`$ within the bounds $`0 \leq a_0 \leq 50`$ and $`0 \leq a_1 \leq 2`$ and still reaches the solution $`(1.959741,\ 0.467527)`$. The initial guess must lie within the bounds; outside them, like $`(20,\ -1)`$ above, the function raises an error. The second call narrows the bounds wrongly to $`a_1 \leq 0.4`$, so the solution sticks to the bound $`a_1 = 0.4`$ and $`SSE`$ becomes 1.280, about eight times the unconstrained minimum 0.165333. If an estimate sits on a bound, the bound rather than the data has determined the result, so the basis for the bound must be rechecked.
+
+### 6.9 Parameter Uncertainty: Linearization and Monte Carlo Simulation
+
+`pcov` of Section 6.6 is the covariance $`s_e^2(\mathbf{Z}^T\mathbf{Z})^{-1}`$ obtained by approximating the model as linear near the solution. For models whose partial derivatives are hard to derive by hand, each column of $`\mathbf{Z}`$ is approximated by central differences (Chapter 21) and the same computation is performed. Another approach is the Monte Carlo simulation of Section 7 of Chapter 14. Synthetic data are generated many times by adding normal errors with standard deviation $`s_e`$ to the fitted model, the model is refitted each time, and the uncertainty is measured directly from the scatter of the estimates. Both methods are applied to the exponential model of Section 6.4.
+
+```python
+import numpy as np
+from scipy.optimize import curve_fit
+
+x = np.array([0, 1, 2, 3, 4], dtype=float)
+y = np.array([1.9, 3.1, 4.8, 8.3, 12.6])
+f = lambda x, a0, a1: a0 * np.exp(a1 * x)
+a, _ = curve_fit(f, x, y, p0=[2.0, 0.4])
+se2 = np.sum((y - f(x, *a))**2) / (x.size - 2)
+
+h = 1e-6                                           # finite-difference step
+Z = np.column_stack([(f(x, a[0] + h, a[1]) - f(x, a[0] - h, a[1])) / (2 * h),
+                     (f(x, a[0], a[1] + h) - f(x, a[0], a[1] - h)) / (2 * h)])
+cov = se2 * np.linalg.inv(Z.T @ Z)                 # linearized covariance s_e^2 (Z^T Z)^(-1)
+sd = np.sqrt(np.diag(cov))
+print("std (linearized) =", np.round(sd, 6), " correlation =", round(cov[0, 1] / (sd[0] * sd[1]), 4))
+
+rng = np.random.default_rng(0)
+est = np.array([curve_fit(f, x, f(x, *a) + rng.normal(0, np.sqrt(se2), x.size), p0=a)[0]
+                for _ in range(2000)])            # refit 2000 synthetic data sets
+print("std (Monte Carlo) =", np.round(est.std(axis=0, ddof=1), 6),
+      " correlation =", round(np.corrcoef(est.T)[0, 1], 4))
+print("95% range of a1 (Monte Carlo):", np.round(np.percentile(est[:, 1], [2.5, 97.5]), 4))
+```
+
+```text
+std (linearized) = [0.109695 0.015901]  correlation = -0.9661
+std (Monte Carlo) = [0.107287 0.015616]  correlation = -0.9633
+95% range of a1 (Monte Carlo): [0.4378 0.4994]
+```
+
+![Figure 2. Distribution of the parameters re-estimated from 2000 synthetic data sets](../../images/Ch15_Parameter-Monte-Carlo.png)
+
+*Figure 2. Distribution of the parameters re-estimated from 2000 synthetic data sets*
+
+The standard deviations in the first line equal the `curve_fit` results 0.109695 and 0.015901 of Section 6.6. With the central-difference step $`h = 10^{-6}`$, both truncation and roundoff errors are small (Section 12 of Chapter 4), so there is no difference from the analytical partial derivatives. The Monte Carlo standard deviations 0.1073 and 0.0156 also agree with the linearized approximation to within about 2%, so the linearized approximation is reliable in this example. Both methods give a very strong correlation coefficient of about $`-0.96`$ between $`a_0`$ and $`a_1`$. As Figure 2 shows, the estimates form a narrow band running from upper left to lower right, because when $`a_0`$ is estimated larger, $`a_1`$ becomes smaller to fit the same data. The rectangle drawn from $`a_0 \pm 2s_{a_0}`$ and $`a_1 \pm 2s_{a_1}`$ separately is therefore much wider than the region of combinations that are actually possible. The 95% range $`[0.4378,\ 0.4994]`$ in the last line fixes the error standard deviation at $`s_e`$, so it should be compared with $`a_1 \pm 1.96s_{a_1} = [0.4364,\ 0.4987]`$, and the $`t`$ interval $`\pm 0.0506`$ of Section 6.6, which also accounts for the uncertainty of the standard deviation, is wider. The Monte Carlo method can be used even when the nonlinearity is too strong for the linear approximation or the errors do not follow the normal distribution.
+
 ---
 
 <br>
@@ -977,6 +1191,9 @@ The following mistakes are common in general linear and nonlinear regression.
 3. **Reading the $`R^2`$ of a linearized fit as the goodness of fit of the original model.** The $`R^2`$ in log space is the fraction of the variation of the logarithms that is explained and differs from the $`SSE`$ or $`R^2`$ in the original space.
 4. **Starting nonlinear regression without an initial estimate.** If `p0` is not given, `curve_fit` sets all initial values to 1 [2]. If the parameters differ greatly from 1 in size, the iteration may fail to converge or go to another minimum, so choose the initial values from a linearized fit or from physical meaning.
 5. **Using the wrong degrees of freedom in the standard error.** With $`m + 1`$ parameters, $`s_e = \sqrt{SSE/(n - (m + 1))}`$. If the number of parameters approaches the number of data points, the model may be overfitted even when $`SSE`$ is small.
+6. **Using the intercept of a log regression directly as the coefficient of the original model.** The intercept 2.9519 of Section 4.6 is $`\log_{10}b_0`$, so it is back-transformed as $`b_0 = 10^{2.9519} = 895.1`$. If natural logarithms were used, the coefficient is the exponential of the intercept.
+7. **Interpreting the standard errors of strongly correlated parameters one by one.** When the correlation coefficient is close to 1, as in Sections 6.2 and 6.9, the region of possible combinations is much narrower than the rectangle of the individual intervals, so the whole covariance matrix is examined.
+8. **Selecting terms by a single performance measure.** Stepwise regression looks at the ratios $`b_j/s_{b_j}`$, $`R^2_{adj}`$, $`R^2_{pred}`$, and the adequacy of the residuals together, and prefers the simpler model when the performance is similar (Section 5.10).
 
 ---
 
@@ -999,6 +1216,10 @@ The following mistakes are common in general linear and nonlinear regression.
 | Interpreting multiple regression coefficients | The normal equations fit a plane, and each coefficient is a partial effect with the other variables held fixed. |
 | Model selection | $`R^2`$ always grows with more terms, so choose the degree with $`R^2_{adj}`$ and the $`R^2_{pred}`$ computed from PRESS, then check adequacy with the residuals. |
 | Regression with `minimize` | Minimizing $`SSE`$ as an objective works for any model but is slower than dedicated methods and gives no standard errors. |
+| Multivariable power model | Multiple linear regression on $`\log y = \log b_0 + \sum b_j\log x_j`$ is followed by back-transforming the intercept to $`b_0`$, and the fit is checked with a plot of measured versus predicted values. |
+| Stepwise regression | Forward selection and backward elimination add or remove terms one at a time, and a term with $`\vert b_j/s_{b_j}\vert < t_{0.025}`$ is removed because it cannot be distinguished from zero. |
+| Parameter correlation | A correlation coefficient close to 1 means that the parameters compensate each other, making the $`SSE`$ valley long and narrow, and general-purpose optimizers may stop early. |
+| Monte Carlo uncertainty | Refitting synthetic data generated by adding errors to the fitted model gives the distribution of the parameters without a linear approximation. |
 
 ---
 
@@ -1084,6 +1305,15 @@ The following mistakes are common in general linear and nonlinear regression.
    <summary>Answer</summary>
 
    The left-out prediction residual is $`e_i/(1 - h_{ii}) = 0.2/0.4 = 0.5`$, 2.5 times the ordinary residual. If $`h_{ii}`$ is close to 1, the point pulls the fit strongly toward itself, so its ordinary residual looks small, but the prediction goes badly wrong when the point is left out. Such a point is a high-leverage point with a large influence on the model and should be checked separately.
+
+   </details>
+
+10. **Parameter correlation:** Two parameters have standard errors $`s_{a_0} = 0.11`$ and $`s_{a_1} = 0.016`$ and covariance $`-0.0017`$. Find the correlation coefficient and explain what it implies about the uncertainty of the two parameters.
+
+   <details>
+   <summary>Answer</summary>
+
+   The correlation coefficient is $`-0.0017/(0.11 \times 0.016) = -0.0017/0.00176 = -0.966`$. The correlation is negative and close to 1 in magnitude, so a larger estimate of one parameter comes with a smaller estimate of the other, and the possible combinations gather in a narrow tilted band. A combination that puts both parameters at the upper ends of their intervals at once is therefore unlikely, and reporting only the individual intervals can misrepresent the uncertainty.
 
    </details>
 
