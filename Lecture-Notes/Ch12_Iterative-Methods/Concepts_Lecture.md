@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-10
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 12
 
@@ -11,6 +11,8 @@
 > 2. Assess diagonal dominance and explain its role as a convergence condition
 > 3. Explain and apply how relaxation improves the convergence of iterative methods
 > 4. Analyze the convergence of iterative methods through the preconditioner and the spectral radius of the iteration matrix
+> 5. Show that diagonal dominance makes the norm of the iteration matrix less than 1 and compare convergence rates for different relaxation factors
+> 6. Solve systems of nonlinear equations by successive substitution and the Newton-Raphson method
 
 ---
 
@@ -29,6 +31,7 @@
   - [3.1 Diagonal Dominance Condition](#31-diagonal-dominance-condition)
   - [3.2 Example: 3x3 Diagonal Dominance Check](#32-example-3x3-diagonal-dominance-check)
   - [3.3 Sufficient vs. Necessary Condition](#33-sufficient-vs-necessary-condition)
+  - [3.4 Why Diagonal Dominance Guarantees Convergence](#34-why-diagonal-dominance-guarantees-convergence)
 - [4. Gauss-Seidel Method in Matrix Form](#4-gauss-seidel-method-in-matrix-form)
   - [4.1 Matrix Splitting: L, D, U Decomposition](#41-matrix-splitting-l-d-u-decomposition)
   - [4.2 Matrix Form of the Iteration](#42-matrix-form-of-the-iteration)
@@ -36,12 +39,14 @@
   - [5.1 Comparison with Gauss-Seidel](#51-comparison-with-gauss-seidel)
   - [5.2 Component Form](#52-component-form)
   - [5.3 Matrix Form](#53-matrix-form)
+  - [5.4 Jacobi Iteration Example](#54-jacobi-iteration-example)
 - [6. Relaxation Method](#6-relaxation-method)
   - [6.1 Relaxation Formula](#61-relaxation-formula)
   - [6.2 Types of Relaxation](#62-types-of-relaxation)
   - [6.3 Relaxation Applied to 3x3 System](#63-relaxation-applied-to-3x3-system)
   - [6.4 Matrix Form of Relaxation (SOR)](#64-matrix-form-of-relaxation-sor)
   - [6.5 Example 12.2: Relaxation with lambda = 1.2](#65-example-122-relaxation-with-lambda--12)
+  - [6.6 Relaxation Factor and Convergence Rate](#66-relaxation-factor-and-convergence-rate)
 - [7. Preconditioning](#7-preconditioning)
   - [7.1 General Framework](#71-general-framework)
   - [7.2 Preconditioners for Each Method](#72-preconditioners-for-each-method)
@@ -53,8 +58,16 @@
   - [8.2 Jacobi Method](#82-jacobi-method)
   - [8.3 Relaxation Method (SOR)](#83-relaxation-method-sor)
   - [8.4 Diagonal Dominance Check](#84-diagonal-dominance-check)
+- [9. Systems of Nonlinear Equations](#9-systems-of-nonlinear-equations)
+  - [9.1 Successive Substitution](#91-successive-substitution)
+  - [9.2 Newton-Raphson Method](#92-newton-raphson-method)
+  - [9.3 Newton-Raphson Example](#93-newton-raphson-example)
+  - [9.4 scipy.optimize.root](#94-scipyoptimizeroot)
+  - [9.5 Convergence Tests and Error Estimates](#95-convergence-tests-and-error-estimates)
+- [10. Common Mistakes](#10-common-mistakes)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -276,6 +289,26 @@ Diagonal dominance is a **sufficient condition** but **not a necessary condition
 
 > **Note:** **Achieving diagonal dominance by swapping rows.** If the system is not diagonally dominant in its original form, it may be possible to swap rows (pivot) to achieve diagonal dominance. This is the strategy used in Example 12.2 (Section 6.5).
 
+### 3.4 Why Diagonal Dominance Guarantees Convergence
+
+The iteration matrix of the Jacobi method, $`M_J = -\tilde{D}^{-1}(\tilde{L} + \tilde{U})`$ (Sections 4 and 7), has zero diagonal entries and off-diagonal entries $`(M_J)_{ij} = -a_{ij}/a_{ii}`$. The absolute sum of row $`i`$ is therefore the following.
+
+```math
+\sum_{j \neq i}\left|\frac{a_{ij}}{a_{ii}}\right| = \frac{\sum_{j \neq i}|a_{ij}|}{|a_{ii}|}
+```
+
+If the coefficient matrix is strictly diagonally dominant, this value is below 1 in every row, so in the row-sum norm (Chapter 11) $`\|M_J\|_\infty < 1`$. On the other hand, no eigenvalue can exceed any induced norm: if $`M\mathbf{v} = \mu\mathbf{v}`$, then $`|\mu|\,\|\mathbf{v}\| = \|M\mathbf{v}\| \leq \|M\|\,\|\mathbf{v}\|`$. Hence $`\rho(M_J) \leq \|M_J\|_\infty < 1`$, and by the condition of Section 7.4 the Jacobi method converges from any initial guess. The inequality also gives the quantitative guarantee that the error shrinks by at least the factor $`\|M_J\|_\infty`$ in each iteration, that is, $`\|\mathbf{e}^{k+1}\|_\infty \leq \|M_J\|_\infty\,\|\mathbf{e}^k\|_\infty`$.
+
+For the matrix of Example 12.1 the rows give $`0.3/3 = 0.1`$, $`0.4/7 \approx 0.057`$, and $`0.5/10 = 0.05`$, so $`\|M_J\|_\infty = 0.1`$. The error shrinks to at most one tenth per iteration, and the actual spectral radius, $`\rho(M_J) \approx 0.048`$, is even smaller than this bound.
+
+A similar argument holds for the Gauss-Seidel method. Writing the relative sizes of the entries before and after the diagonal in row $`i`$ as $`\alpha_i = \sum_{j<i}|a_{ij}|/|a_{ii}|`$ and $`\beta_i = \sum_{j>i}|a_{ij}|/|a_{ii}|`$, the leading components use new values, so $`|e_i^{k+1}| \leq \alpha_i\|\mathbf{e}^{k+1}\|_\infty + \beta_i\|\mathbf{e}^k\|_\infty`$. Rearranging this inequality in the row where the largest error component occurs gives $`\|\mathbf{e}^{k+1}\|_\infty \leq \max_i \frac{\beta_i}{1 - \alpha_i}\,\|\mathbf{e}^k\|_\infty`$. With strict diagonal dominance $`\alpha_i + \beta_i < 1`$, so $`\beta_i/(1 - \alpha_i) < 1`$, and the Gauss-Seidel method converges as well. In Example 12.1 this value is 0.1, 0.0435, and 0 for the three rows, so the bound is 0.1, while the actual $`\rho(M_{GS}) \approx 0.0065`$.
+
+The results so far can be summarized with their conditions as follows. The textbook also presents diagonal dominance as a sufficient condition for the convergence of the Gauss-Seidel method.
+
+**Theorem.** If the coefficient matrix $`A`$ is strictly row diagonally dominant, that is, $`|a_{ii}| > \sum_{j \neq i}|a_{ij}|`$ for every $`i`$, then the Jacobi and Gauss-Seidel methods converge to the unique solution of $`A\mathbf{x} = \mathbf{b}`$ from any initial guess. Moreover, if $`A`$ is symmetric positive definite, the Gauss-Seidel method converges even without diagonal dominance.
+
+Three conditions in this theorem need attention. First, the inequality must hold strictly in every row (weak diagonal dominance with equality in some rows, as in the matrix of Section 6.6, does not guarantee convergence without further conditions). Second, the condition is sufficient, so matrices that do not satisfy the theorem can still converge, as in Section 3.3. Third, the symmetric positive definite condition concerns the Gauss-Seidel method; under the same condition the Jacobi method may fail to converge. The theorem also contains the facts that a strictly diagonally dominant matrix has nonzero diagonal entries, so the divisions in the iteration are always defined, and that it is nonsingular, so the solution is unique.
+
 ---
 
 <br>
@@ -371,6 +404,33 @@ Note that **all** right-hand side values use the superscript $`j-1`$. This means
 
 Since $`\tilde{D}`$ is diagonal, its inverse is obtained directly from the reciprocals of the diagonal elements: $`[\tilde{D}]^{-1}_{ii} = 1/a_{ii}`$.
 
+### 5.4 Jacobi Iteration Example
+
+The system of Example 12.1 is solved by the Jacobi method from the same initial guess $`\{x\}^0 = \{0, 0, 0\}`$. In the first iteration all previous values are zero, so $`x_1^1 = 7.85/3 = 2.616667`$, $`x_2^1 = -19.3/7 = -2.757143`$, and $`x_3^1 = 71.4/10 = 7.14`$. Unlike the Gauss-Seidel method, $`x_2^1`$ does not use $`x_1^1`$, so $`x_2^1`$ is not $`-2.794524`$. The second iteration uses only the values of the first iteration.
+
+```math
+x_1^2 = \frac{7.85 + 0.1(-2.757143) + 0.2(7.14)}{3} = 3.000762, \quad x_2^2 = \frac{-19.3 - 0.1(2.616667) + 0.3(7.14)}{7} = -2.488524
+```
+
+```math
+x_3^2 = \frac{71.4 - 0.3(2.616667) + 0.2(-2.757143)}{10} = 7.006357
+```
+
+Continuing the iteration and comparing the maximum error from the true solution $`(3,\ -2.5,\ 7)`$ with that of the Gauss-Seidel method gives the following.
+
+| $`k`$ | Jacobi $`x_1^k`$ | Jacobi $`x_2^k`$ | Jacobi $`x_3^k`$ | Jacobi maximum error | Gauss-Seidel maximum error |
+|-----:|-----:|-----:|-----:|-----:|-----:|
+| 1 | 2.616667 | -2.757143 | 7.140000 | $`3.83 \times 10^{-1}`$ | $`3.83 \times 10^{-1}`$ |
+| 2 | 3.000762 | -2.488524 | 7.006357 | $`1.15 \times 10^{-2}`$ | $`9.44 \times 10^{-3}`$ |
+| 3 | 3.000806 | -2.499738 | 7.000207 | $`8.06 \times 10^{-4}`$ | $`3.19 \times 10^{-5}`$ |
+| 4 | 3.000022 | -2.500003 | 6.999981 | $`2.25 \times 10^{-5}`$ | $`3.52 \times 10^{-7}`$ |
+| 5 | 2.999999 | -2.500001 | 6.999999 | $`1.35 \times 10^{-6}`$ | - |
+| 6 | 3.000000 | -2.500000 | 7.000000 | $`8.63 \times 10^{-8}`$ | - |
+
+*Table 2. Jacobi iterates for Example 12.1 and maximum errors of the two methods*
+
+The error of the Jacobi method shrinks roughly by the factor $`\rho(M_J) \approx 0.048`$ per iteration, and that of the Gauss-Seidel method by $`\rho(M_{GS}) \approx 0.0065`$. The number of correct digits gained per iteration is $`-\log_{10}\rho`$, about 1.3 and 2.2 digits respectively, so the Gauss-Seidel method needs only about 60% as many iterations for the same accuracy. In return, the computations within one Jacobi iteration are independent of one another and can be processed in parallel.
+
 ---
 
 <br>
@@ -395,7 +455,7 @@ where $`\lambda`$ is a weighting factor assigned a value between $`0`$ and $`2`$
 | $`0 < \lambda < 1`$ | **Under-relaxation** | Dampens oscillations; may help non-convergent systems |
 | $`1 < \lambda < 2`$ | **Over-relaxation** (SOR) | Accelerates convergence when Gauss-Seidel is slow |
 
-*Table 2. Types of relaxation by the range of the relaxation factor*
+*Table 3. Types of relaxation by the range of the relaxation factor*
 
 > **Note:** **Optimal relaxation factor.** The optimal value of $`\lambda`$ depends on the specific problem and is generally not known in advance. For the SOR (Successive Over-Relaxation) method, theoretical results exist for special matrix structures (e.g., tridiagonal systems), but in practice $`\lambda`$ is often determined experimentally. If $`\lambda`$ lies outside $`0 < \lambda < 2`$, the SOR iteration does not converge.
 
@@ -549,6 +609,32 @@ x_2^3 = 0.999586, \quad \varepsilon_{a,2} = 2.13\%
 
 Both errors are below $`10\%`$, so the iteration stops. The true solution is $`x_1 = 1`$, $`x_2 = 1`$.
 
+### 6.6 Relaxation Factor and Convergence Rate
+
+The effect of the relaxation factor on the convergence rate shows clearly in a larger problem. The coefficient matrix is the $`20 \times 20`$ tridiagonal matrix with diagonal entries 2 and super- and sub-diagonal entries $`-1`$ (Chapter 9), $`b`$ is chosen so that the solution is all ones, and the iteration starts from zero and stops when the maximum error falls below $`10^{-6}`$. This matrix is only weakly diagonally dominant, its diagonal entry equaling the sum of the off-diagonal entries, so the iterations converge but slowly.
+
+| Method | Spectral radius $`\rho(M)`$ | Iterations |
+|:-----|-----:|-----:|
+| Jacobi | 0.9888 | 1252 |
+| Gauss-Seidel ($`\lambda = 1`$) | 0.9778 | 627 |
+| SOR, $`\lambda = 1.2`$ | 0.9666 | 416 |
+| SOR, $`\lambda = 1.5`$ | 0.9317 | 201 |
+| SOR, $`\lambda = 1.7`$ | 0.8479 | 90 |
+| SOR, $`\lambda = 1.7406`$ (optimal) | 0.7406 | 61 |
+| SOR, $`\lambda = 1.9`$ | 0.9000 | 127 |
+
+*Table 4. Spectral radius and number of iterations versus relaxation factor for the 20x20 tridiagonal problem*
+
+![Figure 1. Error history for the 20x20 tridiagonal problem and spectral radius of the SOR iteration matrix versus relaxation factor](../../images/Ch12_SOR-Convergence.png)
+
+*Figure 1. Error history for the 20x20 tridiagonal problem and spectral radius of the SOR iteration matrix versus relaxation factor*
+
+The number of iterations needed to reduce the error by a factor of $`10^{-6}`$ is $`k \approx \log(10^{-6})/\log\rho`$, so the closer $`\rho`$ is to 1, the more sharply the count grows. For the Jacobi method with $`\rho = 0.9888`$ the prediction is $`6/0.00488 \approx 1230`$ iterations, and for optimal SOR with $`\rho = 0.7406`$ it is $`6/0.130 \approx 46`$; the actual counts (1252 and 61) are somewhat larger because of the size of the initial error and transient behavior in the early iterations. The spectral radius of the Gauss-Seidel method is the square of that of the Jacobi method ($`0.9888^2 = 0.9778`$), so its iteration count is almost exactly half.
+
+On the right of Figure 1, $`\rho(M)`$ decreases slowly as $`\lambda`$ grows, reaches a sharp minimum near the optimal value, and then rises along the straight line $`\rho = \lambda - 1`$ (0.9 at $`\lambda = 1.9`$). Choosing slightly below the optimum slows convergence greatly, while choosing slightly above slows it less, so when the exact optimum is unknown it is safer to overestimate slightly.
+
+> **Note:** **Optimal relaxation factor for tridiagonal matrices.** For matrices with a block tridiagonal structure like this example (consistently ordered matrices), there is a classical result that the optimal relaxation factor can be computed in advance from the spectral radius $`\rho_J`$ of the Jacobi method. Its value is $`\lambda_{opt} = 2/\bigl(1 + \sqrt{1 - \rho_J^2}\bigr)`$, and then $`\rho(M) = \lambda_{opt} - 1`$. Substituting this example's $`\rho_J = \cos(\pi/21) \approx 0.98883`$ gives $`\lambda_{opt} \approx 1.7406`$ and $`\rho \approx 0.7406`$, in agreement with Table 4. General matrices have no such formula, and the factor is chosen experimentally as in the note of Section 6.2.
+
 ---
 
 <br>
@@ -587,7 +673,7 @@ Each iterative method corresponds to a specific choice of preconditioner $`P`$:
 | **Jacobi** | $`P = \tilde{D}`$ | $`P - A = -\tilde{L} - \tilde{U}`$ |
 | **Relaxation (SOR)** | $`P = \frac{1}{\lambda}(\tilde{D} + \lambda\tilde{L})`$ | $`P - A = \frac{1-\lambda}{\lambda}\tilde{D} - \tilde{U}`$ |
 
-*Table 3. Preconditioner and P - A for each iterative method*
+*Table 5. Preconditioner and P - A for each iterative method*
 
 The factor $`1/\lambda`$ in the relaxation preconditioner ensures that multiplying both sides of $`P\mathbf{x}^{k+1} = (P - A)\mathbf{x}^k + \mathbf{b}`$ by $`\lambda`$ gives exactly the matrix form of Section 6.4.
 
@@ -898,6 +984,153 @@ print(is_diagonally_dominant(A))   # True
 
 <br>
 
+## 9. Systems of Nonlinear Equations
+
+The idea of iteration carries over directly to systems of nonlinear equations. The $`n`$ equations $`f_1(\mathbf{x}) = 0, \ldots, f_n(\mathbf{x}) = 0`$ in $`n`$ unknowns are written in vector form as $`\mathbf{f}(\mathbf{x}) = \mathbf{0}`$. Unlike linear systems, there is no direct method that obtains the solution in one pass, so iterative methods are the only general approach. This section uses the following system as an example.
+
+```math
+f_1(x, y) = 10x - y^2 - 2 = 0, \qquad f_2(x, y) = 10y - x^2 - 3 = 0
+```
+
+The two curves meet near the origin at $`(0.209265,\ 0.304379)`$ and far away at $`(9.726429,\ 9.760343)`$.
+
+### 9.1 Successive Substitution
+
+**Successive substitution** solves each equation for one unknown to obtain the form $`x = g_1(x, y)`$, $`y = g_2(x, y)`$ and then iterates, using new values immediately as in the Gauss-Seidel method. It extends the fixed-point iteration of Chapter 6 to systems. In the example, $`f_1`$ is solved for $`x`$ and $`f_2`$ for $`y`$.
+
+```math
+x^{k+1} = \frac{(y^k)^2 + 2}{10}, \qquad y^{k+1} = \frac{(x^{k+1})^2 + 3}{10}
+```
+
+Starting from $`(0, 0)`$ gives $`x^1 = 0.2`$ and $`y^1 = (0.04 + 3)/10 = 0.304`$, and continuing gives the following.
+
+| $`k`$ | $`x^k`$ | $`y^k`$ | Maximum error |
+|-----:|-----:|-----:|-----:|
+| 1 | 0.20000000 | 0.30400000 | $`9.26 \times 10^{-3}`$ |
+| 2 | 0.20924160 | 0.30437820 | $`2.31 \times 10^{-5}`$ |
+| 3 | 0.20926461 | 0.30437917 | $`5.88 \times 10^{-8}`$ |
+| 4 | 0.20926467 | 0.30437917 | $`1.50 \times 10^{-10}`$ |
+
+*Table 6. Successive-substitution iterates and maximum errors*
+
+The error shrinks by a roughly constant factor of about 1/400 per iteration, which is first-order convergence. Whether the iteration converges depends on how the equations are rearranged. Convergence is guaranteed if the following conditions hold near the solution.
+
+```math
+\left|\frac{\partial g_1}{\partial x}\right| + \left|\frac{\partial g_1}{\partial y}\right| < 1, \qquad \left|\frac{\partial g_2}{\partial x}\right| + \left|\frac{\partial g_2}{\partial y}\right| < 1
+```
+
+These conditions say that the row-sum norm of the Jacobian matrix of $`\mathbf{g}`$ is below 1, the same structure as $`\|M_J\|_\infty < 1`$ in Section 3.4. With the example's rearrangement, $`\partial g_1/\partial y = y/5 \approx 0.061`$ and $`\partial g_2/\partial x = x/5 \approx 0.042`$, and the other partial derivatives are zero, so the conditions hold comfortably. If instead the equations are rearranged as $`y = \sqrt{10x - 2}`$ and $`x = \sqrt{10y - 3}`$, the partial derivatives at the solution become about 16.4 and 23.9 and the conditions fail. Indeed, even starting from $`(0.210265,\ 0.304379)`$, which moves $`x`$ by only 0.001 from the solution, the iterates move away as $`(0.4516,\ 0.3204)`$, $`(3.586,\ 1.586)`$, $`(7.429,\ 5.819)`$.
+
+### 9.2 Newton-Raphson Method
+
+The Newton-Raphson method approximates each $`f_i`$ by its first-order Taylor expansion at the current point $`\mathbf{x}^k`$ and takes the point where that approximation vanishes as the next point. For two unknowns, with $`\Delta x = x^{k+1} - x^k`$ and $`\Delta y = y^{k+1} - y^k`$:
+
+```math
+f_i(x^{k+1}, y^{k+1}) \approx f_i(x^k, y^k) + \frac{\partial f_i}{\partial x}\Delta x + \frac{\partial f_i}{\partial y}\Delta y = 0, \qquad i = 1, 2
+```
+
+Calling the matrix of partial derivatives the **Jacobian matrix** $`J`$, the two equations become a single linear system.
+
+```math
+J(\mathbf{x}^k)\,\Delta\mathbf{x} = -\mathbf{f}(\mathbf{x}^k), \qquad J = \begin{bmatrix} \partial f_1/\partial x & \partial f_1/\partial y \\ \partial f_2/\partial x & \partial f_2/\partial y \end{bmatrix}, \qquad \mathbf{x}^{k+1} = \mathbf{x}^k + \Delta\mathbf{x}
+```
+
+That is, the Newton-Raphson method turns the nonlinear problem into one linear system per iteration, which is solved with the methods of Chapters 9 and 10. For $`2 \times 2`$, Cramer's rule gives the following.
+
+```math
+\Delta x = \frac{-f_1\,\dfrac{\partial f_2}{\partial y} + f_2\,\dfrac{\partial f_1}{\partial y}}{\det J}, \qquad \Delta y = \frac{-f_2\,\dfrac{\partial f_1}{\partial x} + f_1\,\dfrac{\partial f_2}{\partial x}}{\det J}
+```
+
+If $`J`$ is nonsingular at the solution and the initial guess is close enough, the convergence is quadratic, with the error roughly squared in each iteration. If $`\det J`$ is close to zero, however, $`\Delta\mathbf{x}`$ becomes very large and the iteration jumps away, and if the initial guess is far away the iteration can diverge or converge to a different solution. With $`n`$ unknowns there is also the cost of computing $`n^2`$ partial derivatives and solving an $`O(n^3)`$ linear system in every iteration.
+
+### 9.3 Newton-Raphson Example
+
+The Jacobian matrix of the example system is $`J = \begin{bmatrix} 10 & -2y \\ -2x & 10 \end{bmatrix}`$. The iteration starts from $`(0, 0)`$.
+
+**First iteration.** $`\mathbf{f}(0, 0) = (-2,\ -3)`$ and $`J = 10I`$, so $`\Delta\mathbf{x} = (0.2,\ 0.3)`$ and $`\mathbf{x}^1 = (0.2,\ 0.3)`$.
+
+**Second iteration.** $`\mathbf{f}(0.2, 0.3) = (2 - 0.09 - 2,\ 3 - 0.04 - 3) = (-0.09,\ -0.04)`$, $`J = \begin{bmatrix} 10 & -0.6 \\ -0.4 & 10 \end{bmatrix}`$, and $`\det J = 100 - 0.24 = 99.76`$. The Cramer formulas give the following.
+
+```math
+\Delta x = \frac{0.09 \times 10 + (-0.04)(-0.6)}{99.76} = 0.0092622, \qquad \Delta y = \frac{0.04 \times 10 + (-0.09)(-0.4)}{99.76} = 0.0043705
+```
+
+Therefore $`\mathbf{x}^2 = (0.2092622,\ 0.3043705)`$. Continuing the iteration gives the following.
+
+| $`k`$ | $`x^k`$ | $`y^k`$ | Maximum error |
+|-----:|-----:|-----:|-----:|
+| 1 | 0.2000000000 | 0.3000000000 | $`9.26 \times 10^{-3}`$ |
+| 2 | 0.2092622294 | 0.3043704892 | $`8.68 \times 10^{-6}`$ |
+| 3 | 0.2092646679 | 0.3043791701 | $`7.59 \times 10^{-12}`$ |
+| 4 | 0.2092646679 | 0.3043791701 | $`1.60 \times 10^{-17}`$ |
+
+*Table 7. Newton-Raphson iterates and maximum errors*
+
+The error goes $`9.3 \times 10^{-3} \to 8.7 \times 10^{-6} \to 7.6 \times 10^{-12}`$, roughly squared each time (the exponent doubles), and three iterations reach nearly double-precision accuracy. Successive substitution from the same starting point (Table 6) increases the exponent by only about 2.6 per iteration. Successive substitution is fast in this example because its partial derivatives are small, but in general the quadratic convergence of the Newton-Raphson method wins by a wide margin in the number of iterations.
+
+### 9.4 scipy.optimize.root
+
+SciPy's `scipy.optimize.root` is a general-purpose function for systems of nonlinear equations. Its default method `'hybr'` uses a modification of the Powell hybrid method as implemented in MINPACK; if a function computing the Jacobian matrix is passed as `jac`, it is used, and otherwise the Jacobian is estimated numerically [1].
+
+```python
+import numpy as np
+from scipy.optimize import root
+
+def f(v):
+    x, y = v
+    return [10 * x - y**2 - 2, 10 * y - x**2 - 3]
+
+def jac(v):
+    x, y = v
+    return [[10, -2 * y], [-2 * x, 10]]
+
+sol = root(f, [0, 0], jac=jac)
+print(sol.success, sol.x)
+print(root(f, [10, 10], jac=jac).x)
+```
+
+```text
+True [0.20926467 0.30437917]
+[9.72642943 9.76034294]
+```
+
+In the returned object, `x` is the solution and `success` tells whether the method converged [1]. As the second call shows, a different initial guess gives a different solution, so for systems of nonlinear equations it is important to choose an initial guess near the desired solution from a graph or from the physical meaning of the problem.
+
+### 9.5 Convergence Tests and Error Estimates
+
+Iterations for systems of nonlinear equations must stop without knowing the true solution, so the test uses two computable quantities. One is the size of the correction $`\|\Delta\mathbf{x}^{(k)}\|`$ (or the componentwise relative change, as in Section 2.4), and the other is the residual of the equations $`\|\mathbf{f}(\mathbf{x}^{(k)})\|`$. For the Newton-Raphson iteration of Section 9.3, the two quantities compare with the actual error as follows ($`L_\infty`$ norm).
+
+| $`k`$ | $`\Vert\mathbf{f}(\mathbf{x}^{(k-1)})\Vert`$ | $`\Vert\Delta\mathbf{x}^{(k)}\Vert`$ | $`\Vert\mathbf{f}(\mathbf{x}^{(k)})\Vert`$ | Actual error $`\Vert\mathbf{x}^{(k)} - \mathbf{x}^*\Vert`$ |
+|-----:|-----:|-----:|-----:|-----:|
+| 1 | $`3.00 \times 10^{0}`$ | $`3.00 \times 10^{-1}`$ | $`9.00 \times 10^{-2}`$ | $`9.26 \times 10^{-3}`$ |
+| 2 | $`9.00 \times 10^{-2}`$ | $`9.26 \times 10^{-3}`$ | $`8.58 \times 10^{-5}`$ | $`8.68 \times 10^{-6}`$ |
+| 3 | $`8.58 \times 10^{-5}`$ | $`8.68 \times 10^{-6}`$ | $`7.54 \times 10^{-11}`$ | $`7.59 \times 10^{-12}`$ |
+| 4 | $`7.54 \times 10^{-11}`$ | $`7.59 \times 10^{-12}`$ | $`2.22 \times 10^{-16}`$ | $`1.60 \times 10^{-17}`$ |
+
+*Table 8. Corrections, residuals, and actual errors of the Newton-Raphson iteration*
+
+The $`k`$th correction is almost equal to the actual error of the previous iterate $`\mathbf{x}^{(k-1)}`$ (for example, $`\Vert\Delta\mathbf{x}^{(2)}\Vert = 9.26 \times 10^{-3}`$ equals the error of $`\mathbf{x}^{(1)}`$). With quadratic convergence the error of the new iterate is much smaller than the correction, so the correction is a conservative estimate that reports the error of the point just discarded. Stopping when $`\Vert\Delta\mathbf{x}^{(k)}\Vert \leq \varepsilon_s`$ therefore usually leaves an actual error far below it. The residual alone must not be used as the test, for the same reason seen in Chapter 11: if the Jacobian matrix is ill-conditioned, the error can be large even when the residual is small, so in practice both criteria are used together with an upper limit on the number of iterations.
+
+---
+
+<br>
+
+## 10. Common Mistakes
+
+The following mistakes are common when using iterative methods.
+
+1. **Starting the iteration without checking diagonal dominance.** As in Example 12.2, merely reordering the rows can make a system diagonally dominant, so the row order should be checked before iterating.
+2. **Believing that an iteration must diverge without diagonal dominance.** Diagonal dominance is only a sufficient condition. The necessary and sufficient condition for convergence is $`\rho(M) < 1`$.
+3. **Swapping the Gauss-Seidel and Jacobi methods in an implementation.** Collecting new values in a separate array and replacing them all at once turns Gauss-Seidel code into the Jacobi method, and updating the same array in place turns Jacobi code into the Gauss-Seidel method.
+4. **Using the relative error when a solution component is near zero.** If the denominator $`x_i^j`$ of $`\varepsilon_{a,i}`$ is close to zero, the test loses its meaning. In that case use the absolute error or the relative change of a vector norm, $`\|\mathbf{x}^{j} - \mathbf{x}^{j-1}\|/\|\mathbf{x}^{j}\|`$.
+5. **Setting no upper limit on the number of iterations.** If the iteration diverges or converges very slowly it never ends, so set `max_iter` and report whether it was reached.
+6. **Choosing a relaxation factor outside $`0 < \lambda < 2`$.** Outside this range SOR does not converge, and even inside it a value far from the optimum slows convergence greatly, as in Section 6.6.
+7. **Dropping the sign of the right-hand side in the Newton-Raphson method.** The update is $`J\,\Delta\mathbf{x} = -\mathbf{f}`$. Dropping the sign moves away from the solution.
+
+---
+
+<br>
+
 ## Summary
 
 | Concept | Key Summary |
@@ -914,6 +1147,10 @@ print(is_diagonally_dominant(A))   # True
 | Preconditioning | In the iteration $`P\mathbf{x}^{k+1} = (P-A)\mathbf{x}^k + \mathbf{b}`$, the error is multiplied at each step by the iteration matrix $`M = I - P^{-1}A`$. |
 | Spectral radius | The condition $`\rho(M) = \max\vert\lambda(M)\vert < 1`$ is necessary and sufficient for convergence, and a smaller $`\rho(M)`$ means faster convergence. |
 | Eigenvalues of I - A | If $`A`$ has eigenvalues $`\lambda_i`$, then $`I-A`$ has eigenvalues $`1-\lambda_i`$. |
+| Diagonal dominance and convergence | With strict diagonal dominance $`\Vert M_J \Vert_\infty < 1`$, and since eigenvalues cannot exceed the norm, $`\rho(M_J) < 1`$ and the iteration converges. |
+| Choosing the relaxation factor | The number of iterations is about $`\log(\text{tol})/\log\rho`$, and with the optimal $`\lambda`$ a tridiagonal problem converges in tens of times fewer iterations than with the Jacobi method. |
+| Successive substitution | Rearrange as $`x = g_1(x, y)`$, $`y = g_2(x, y)`$ and iterate; it converges if the row-sum norm of the Jacobian matrix of $`\mathbf{g}`$ is below 1. |
+| Newton-Raphson method | Solve $`J\,\Delta\mathbf{x} = -\mathbf{f}`$ in every iteration to update; near the solution the convergence is quadratic. |
 
 ---
 
@@ -965,3 +1202,38 @@ print(is_diagonally_dominant(A))   # True
    With $`\lambda = 1`$ the method is the standard Gauss-Seidel method, so $`x_1 = (8 + 2(0))/10 = 0.8`$ and $`x_2 = (9 + 3(0.8))/12 = 0.95`$. With $`\lambda = 1.2`$, over-relaxation moves each update further, giving $`x_1 = 0.96`$ and $`x_2 = 1.188`$. Under-relaxation with $`0 < \lambda < 1`$ dampens oscillations and is used to make a nonconvergent system converge or to help convergence.
 
    </details>
+
+6. **Guaranteed convergence rate:** For the Jacobi method applied to $`A = \begin{bmatrix} 5 & 1 & 1 \\ 1 & 4 & 2 \\ 0 & 1 & 3 \end{bmatrix}`$, find $`\|M_J\|_\infty`$ and an upper bound on the number of iterations needed to reduce the initial error by a factor of $`10^{-6}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The rows give $`(1 + 1)/5 = 0.4`$, $`(1 + 2)/4 = 0.75`$, and $`(0 + 1)/3 \approx 0.333`$, so $`\|M_J\|_\infty = 0.75`$. For $`0.75^k \leq 10^{-6}`$ we need $`k \geq \log(10^{-6})/\log 0.75 \approx 48.02`$, so 49 iterations suffice. The actual spectral radius is 0.5, so convergence is faster than this.
+
+   </details>
+
+7. **Estimating the iteration count:** Roughly how many iterations do methods with spectral radii 0.95 and 0.75 need to reduce the error by a factor of $`10^{-6}`$?
+
+   <details>
+   <summary>Answer</summary>
+
+   Since $`k \approx \log(10^{-6})/\log\rho`$, about $`-13.82/-0.0513 \approx 269`$ iterations are needed for 0.95 and about $`-13.82/-0.288 \approx 48`$ for 0.75. When the spectral radius is close to 1, even a small difference changes the iteration count greatly.
+
+   </details>
+
+8. **One Newton-Raphson step:** For $`f_1 = x^2 + y^2 - 4`$ and $`f_2 = xy - 1`$, apply the Newton-Raphson method once at $`(x, y) = (2,\ 0.5)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\mathbf{f} = (4 + 0.25 - 4,\ 1 - 1) = (0.25,\ 0)`$, $`J = \begin{bmatrix} 2x & 2y \\ y & x \end{bmatrix} = \begin{bmatrix} 4 & 1 \\ 0.5 & 2 \end{bmatrix}`$, and $`\det J = 8 - 0.5 = 7.5`$. $`\Delta x = (-0.25 \times 2 + 0 \times 1)/7.5 = -0.066667`$ and $`\Delta y = (-0 \times 4 + 0.25 \times 0.5)/7.5 = 0.016667`$, so the new point is $`(1.933333,\ 0.516667)`$. A single step brings it much closer to the true solution $`(1.931852,\ 0.517638)`$.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. SciPy Developers, "scipy.optimize.root," *SciPy Documentation*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.root.html
