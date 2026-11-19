@@ -26,6 +26,8 @@
   - [2.2 Standard Deviation and Variance](#22-standard-deviation-and-variance)
   - [2.3 Coefficient of Variation](#23-coefficient-of-variation)
   - [2.4 Median Absolute Deviation (MAD)](#24-median-absolute-deviation-mad)
+  - [2.5 Range and a Computational Formula for the Variance](#25-range-and-a-computational-formula-for-the-variance)
+  - [2.6 Descriptive Statistics Functions in Python](#26-descriptive-statistics-functions-in-python)
 - [3. Normal Distribution](#3-normal-distribution)
   - [3.1 Central Limit Theorem](#31-central-limit-theorem)
   - [3.2 Standard Normal Distribution](#32-standard-normal-distribution)
@@ -33,6 +35,8 @@
   - [3.4 General Normal Distribution](#34-general-normal-distribution)
   - [3.5 Standardization](#35-standardization)
   - [3.6 Normal CDF and PDF](#36-normal-cdf-and-pdf)
+  - [3.7 The Normal Probability Rule and Confidence Intervals for the Mean](#37-the-normal-probability-rule-and-confidence-intervals-for-the-mean)
+  - [3.8 Comparing a Histogram with the Normal Distribution](#38-comparing-a-histogram-with-the-normal-distribution)
 - [4. Straight Line Least Square Regression](#4-straight-line-least-square-regression)
   - [4.1 Problem Setup](#41-problem-setup)
   - [4.2 Alternative Error Criteria and Why Least Squares](#42-alternative-error-criteria-and-why-least-squares)
@@ -50,10 +54,13 @@
   - [5.5 Goodness of Fit for the Example](#55-goodness-of-fit-for-the-example)
   - [5.6 Residual Analysis](#56-residual-analysis)
   - [5.7 Standard Errors and Confidence Intervals of the Coefficients](#57-standard-errors-and-confidence-intervals-of-the-coefficients)
+  - [5.8 Outliers and Leverage](#58-outliers-and-leverage)
 - [6. Linearization of Nonlinear Relationships](#6-linearization-of-nonlinear-relationships)
   - [6.1 Power Model](#61-power-model)
   - [6.2 Saturation-Growth-Rate Model](#62-saturation-growth-rate-model)
   - [6.3 Cautions About Linearization](#63-cautions-about-linearization)
+  - [6.4 How Transformation Changes the Error Structure](#64-how-transformation-changes-the-error-structure)
+  - [6.5 Application: Comparing Enzyme Kinetics Models](#65-application-comparing-enzyme-kinetics-models)
 - [7. Random Numbers and Monte Carlo Simulation](#7-random-numbers-and-monte-carlo-simulation)
 - [8. Python Implementation](#8-python-implementation)
 - [9. Common Mistakes](#9-common-mistakes)
@@ -176,6 +183,78 @@ MAD = \text{median}(|y_i - \tilde{y}|)
 
 > **[Probability and Statistics]** MAD is **robust to outliers**. In the example above, the huge outlier 100 produces a deviation of 94, but since MAD takes the median of deviations, it is not affected by the size of this extreme value. This makes MAD a more reliable measure of spread when outliers are present, compared to standard deviation.
 
+The MAD measures spread, but it is not on the same scale as the standard deviation. If the data follow the normal distribution $`\mathcal{N}(\mu, \sigma^2)`$, the median is $`\mu`$, and the median of the absolute deviation $`|y - \mu|`$ is the $`z\sigma`$ satisfying $`P(|Z| \leq z) = 0.5`$ (Section 3). By symmetry $`P(|Z| \leq z) = 2\Phi(z) - 1`$, so $`\Phi(z) = 0.75`$, that is, $`z = 0.6745`$. The MAD of normal data is therefore about $`0.6745\sigma`$, and the following robust estimate of the standard deviation is used.
+
+```math
+\hat{\sigma} = \frac{MAD}{0.6745} \approx 1.4826\,MAD
+```
+
+In the example above, $`\hat{\sigma} = 2/0.6745 = 2.965`$. The sample standard deviation of the same data is inflated to 42.54 by the outlier 100, whereas the sample standard deviation of [2, 4, 6, 8] without the outlier is 2.582, close to $`\hat{\sigma}`$.
+
+<br>
+
+### 2.5 Range and a Computational Formula for the Variance
+
+The **range**, the largest value minus the smallest, is the most elementary measure of spread. The range is determined by only two points, so it varies greatly with sample size and outliers, and it is used only as a rough value when there are just a few data.
+
+The numerator $`SST`$ of the variance can be obtained without first computing the deviations. Since $`\sum(y_i - \bar{y})^2 = \sum y_i^2 - 2\bar{y}\sum y_i + n\bar{y}^2`$ and $`\sum y_i = n\bar{y}`$, the following computational formula results.
+
+```math
+s_y^2 = \frac{\sum y_i^2 - n\bar{y}^2}{n - 1}
+```
+
+For the data [3, 5, 7, 9], $`\sum y_i^2 = 164`$ and $`n\bar{y}^2 = 4 \times 36 = 144`$, so $`s_y^2 = 20/3 = 6.667`$, the same as $`(9 + 1 + 1 + 9)/3`$ computed from the deviations $`-3, -1, 1, 3`$. The formula needs only one pass through the data and is convenient by hand, but its numerator is the difference of two large numbers of similar size, so it causes the subtractive cancellation of Section 6.5 of Chapter 4. The following code compares the two methods while adding a large constant to the same data. Adding a constant should not change the variance.
+
+```python
+import numpy as np
+
+for shift in (0.0, 1e6, 1e7, 1e8, 1e9):
+    y = np.array([3.0, 5.0, 7.0, 9.0]) + shift
+    n = y.size
+    two_pass = np.sum((y - y.mean())**2) / (n - 1)            # deviations first
+    shortcut = (np.sum(y**2) - n * y.mean()**2) / (n - 1)     # sum of squares minus n * mean^2
+    print(f"shift = {shift:8.0e}: two-pass = {two_pass:.6f}, shortcut = {shortcut:.6f}")
+```
+
+```text
+shift =    0e+00: two-pass = 6.666667, shortcut = 6.666667
+shift =    1e+06: two-pass = 6.666667, shortcut = 6.666667
+shift =    1e+07: two-pass = 6.666667, shortcut = 6.666667
+shift =    1e+08: two-pass = 6.666667, shortcut = 5.333333
+shift =    1e+09: two-pass = 6.666667, shortcut = 0.000000
+```
+
+With the constant $`10^{8}`$, $`\sum y_i^2 \approx 4 \times 10^{16}`$, and double-precision numbers of this size are spaced 8 apart, so the true numerator 20 is buried in rounding and the result becomes 5.333. At $`10^{9}`$ the spacing grows to 512 and the variance comes out as 0. The two-pass method, which computes the deviations first, squares small numbers after subtracting the mean and is unaffected. Programs therefore compute the deviations first instead of using the computational formula, and the NumPy documentation also presents `np.std` as computed from the squared deviations from the mean, which is subtracted first [1].
+
+<br>
+
+### 2.6 Descriptive Statistics Functions in Python
+
+The statistics introduced so far are computed for 24 measurements (MPa) of tensile-strength specimens.
+
+```python
+import numpy as np
+from scipy import stats
+
+y = np.array([52.4, 53.6, 53.5, 51.9, 52.1, 51.9, 52.9, 52.3, 53.1, 50.7, 53.8, 52.3,
+              53.0, 52.3, 52.1, 52.8, 53.1, 52.2, 52.3, 53.0, 51.6, 51.0, 52.8, 51.8])  # MPa
+print(f"n = {y.size}, mean = {np.mean(y):.4f}, median = {np.median(y):.4f}, range = {np.ptp(y):.1f}")
+print(f"std (ddof=0) = {np.std(y):.4f}, std (ddof=1) = {np.std(y, ddof=1):.4f}")
+print(f"var (ddof=1) = {np.var(y, ddof=1):.4f}, c.v. = {np.std(y, ddof=1) / np.mean(y) * 100:.3f} %")
+mad = stats.median_abs_deviation(y)                     # raw MAD
+sig = stats.median_abs_deviation(y, scale="normal")     # MAD / 0.6745
+print(f"MAD = {mad:.4f}, MAD-based sigma = {sig:.4f}")
+```
+
+```text
+n = 24, mean = 52.4375, median = 52.3000, range = 3.1
+std (ddof=0) = 0.7488, std (ddof=1) = 0.7649
+var (ddof=1) = 0.5851, c.v. = 1.459 %
+MAD = 0.5000, MAD-based sigma = 0.7413
+```
+
+`np.std` and `np.var` use $`N - \text{ddof}`$ as the divisor, and the default of `ddof` is 0 [1]. Called without arguments, they therefore give the population standard deviation of Section 2.2, and the sample standard deviation requires `ddof=1`. For these data the two values are 0.7488 and 0.7649, which differ by the factor $`\sqrt{23/24}`$. `np.ptp` computes the range $`53.8 - 50.7 = 3.1`$, and `scipy.stats.median_abs_deviation` computes the MAD; with `scale="normal"` it divides the result by about 0.67449 and returns $`\hat{\sigma}`$ of Section 2.4 [2]. That the MAD-based $`\hat{\sigma} = 0.7413`$ is close to the sample standard deviation 0.7649 suggests that these data contain no large outlier. The coefficient of variation 1.46% indicates that the measurements scatter by about 1.5% around the mean. The distribution of these data is compared with the normal distribution in Sections 3.7 and 3.8.
+
 <br>
 
 ---
@@ -297,6 +376,61 @@ f(x) = F'(x) = \varphi\left(\frac{x - \mu}{\sigma}\right) \cdot \frac{1}{\sigma}
 ```
 
 > **[Calculus]** By the chain rule, differentiating the composite function $`\Phi((x - \mu)/\sigma)`$ with respect to $`x`$ multiplies the derivative of the outer function, $`\varphi`$, by the derivative of the inner function, $`1/\sigma`$; the $`\frac{1}{\sigma}`$ factor in the PDF comes from this. This factor keeps the total area under the PDF equal to 1 regardless of $`\sigma`$.
+
+<br>
+
+### 3.7 The Normal Probability Rule and Confidence Intervals for the Mean
+
+By the symmetry of Section 3.3, $`P(-z \leq Z \leq z) = 2\Phi(z) - 1`$, so the probabilities of falling within one, two, and three standard deviations of the mean are the following.
+
+```math
+2\Phi(1) - 1 = 0.6827, \qquad 2\Phi(2) - 1 = 0.9545, \qquad 2\Phi(3) - 1 = 0.9973
+```
+
+This is called the **normal probability rule**: about 68%, 95%, and 99.7% of normal data lie within $`\mu \pm \sigma`$, $`\mu \pm 2\sigma`$, and $`\mu \pm 3\sigma`$. For the data of Section 2.6, 18 of the 24 values (75%) lie within $`\bar{y} \pm s_y`$, 23 (95.8%) within $`\bar{y} \pm 2s_y`$, and all 24 within $`\bar{y} \pm 3s_y`$, which agrees well with the rule given the small sample. The multiplier that gives exactly 95% is $`z = 1.960`$, where $`\Phi(z) = 0.975`$.
+
+Applying the same rule to the sample mean expresses the uncertainty of the mean. The mean of $`n`$ independent measurements has variance $`\sigma^2/n`$ and, by the central limit theorem of Section 3.1, is approximately normally distributed, so the 95% confidence interval for the true mean $`\mu`$ is $`\bar{y} \pm 1.960\,\sigma/\sqrt{n}`$. If $`\sigma`$ is unknown, it is replaced by $`s_y`$, and the value of the $`t`$ distribution with $`n - 1`$ degrees of freedom is used instead of 1.960 (for the same reason as in Section 5.7). If the measurements are normally distributed, this $`t`$ interval is exact even for small $`n`$; otherwise it holds approximately for large $`n`$. $`s_y/\sqrt{n}`$ is the standard error of the mean, revisited in Section 1.2 of Chapter 15. For the data of Section 2.6, $`s_y/\sqrt{n} = 0.7649/\sqrt{24} = 0.1561`$ and $`t_{0.025,23} = 2.069`$, so the interval is the following.
+
+```math
+52.4375 \pm 2.069 \times 0.1561 = 52.4375 \pm 0.3230 \;\Rightarrow\; [52.114,\ 52.760]
+```
+
+Whereas 95% of the individual measurements lie within roughly $`\bar{y} \pm 2s_y`$, a width of 3.06 MPa, the interval for the mean is much narrower, with a width of 0.65 MPa. The width of the interval is proportional to the standard error $`s_y/\sqrt{n}`$, so quadrupling the number of measurements roughly halves it.
+
+<br>
+
+### 3.8 Comparing a Histogram with the Normal Distribution
+
+The basic tool for checking the distribution of data graphically before computing statistics is the **histogram**. The range of the data is divided into intervals (bins) of equal width, and the number of data in each interval is drawn as a bar. With too few bins the shape is smeared, and with too many each bar holds 0 or 1 data and the shape cannot be read, so the number of bins must suit the number of data. NumPy's `np.histogram` returns the counts and the bin edges, and every bin except the last includes its left edge and excludes its right edge [3].
+
+The normal density curve has unit area beneath it, so it cannot be overlaid directly on a histogram of counts. The expected number of data in one bin of width $`w`$ is $`n\int f\,dy \approx n\,w\,f(\text{bin center})`$, so the density is multiplied by $`nw`$ for the comparison.
+
+```python
+import numpy as np
+from scipy import stats
+
+y = np.array([52.4, 53.6, 53.5, 51.9, 52.1, 51.9, 52.9, 52.3, 53.1, 50.7, 53.8, 52.3,
+              53.0, 52.3, 52.1, 52.8, 53.1, 52.2, 52.3, 53.0, 51.6, 51.0, 52.8, 51.8])
+counts, edges = np.histogram(y, bins=7, range=(50.5, 54.0))   # 7 bins of width 0.5
+width = edges[1] - edges[0]
+centers = (edges[:-1] + edges[1:]) / 2
+expected = y.size * width * stats.norm.pdf(centers, y.mean(), y.std(ddof=1))
+print(edges)
+print(counts)
+print(np.round(expected, 2))
+```
+
+```text
+[50.5 51.  51.5 52.  52.5 53.  53.5 54. ]
+[1 1 4 8 3 4 3]
+[0.55 1.88 4.18 6.07 5.76 3.56 1.44]
+```
+
+![Figure 1. Histogram of 24 measurements compared with the normal curve](../../images/Ch14_Histogram-Normal.png)
+
+*Figure 1. Histogram of 24 measurements compared with the normal curve*
+
+The bin [52.0, 52.5) holds 8 values, more than the expected 6.07, and [52.5, 53.0) holds 3, fewer than the expected 5.76, but with only 24 samples differences of this size can be regarded as random variation. The measurements 51.0, 53.0, and 53.5 lie on bin edges, and by the half-open rule each falls into the bin to the right of its edge. With more data and narrower bins the histogram approaches the density curve. A histogram reveals properties that the mean and standard deviation alone do not, namely whether the distribution is skewed, whether it splits into several groups, and whether there are isolated values, so when there are dozens of data or more, the regression of Section 5 also checks the normality assumption of Section 4.6 with a histogram of the residuals.
 
 <br>
 
@@ -711,11 +845,11 @@ The spread around the regression line, $`s_{y/x}`$, is much smaller than the spr
 
 $`r^2`$ summarizes in a single number how much variation the model explains, but it does not tell whether the form of the model is right. The basic tool for checking this is the **residual plot**, which plots the residuals $`e_i`$ against $`x_i`$ (or $`\hat{y}_i`$).
 
-![Figure 1. Least-squares line and residual plot for the example](../../images/Ch14_Regression-Residuals.png)
+![Figure 2. Least-squares line and residual plot for the example](../../images/Ch14_Regression-Residuals.png)
 
-*Figure 1. Least-squares line and residual plot for the example*
+*Figure 2. Least-squares line and residual plot for the example*
 
-On the right of Figure 1, the residuals have mixed signs around zero and no particular shape, so the line model and the assumptions of Section 4.6 do not contradict the data. The shapes to watch for in a residual plot are the following.
+On the right of Figure 2, the residuals have mixed signs around zero and no particular shape, so the line model and the assumptions of Section 4.6 do not contradict the data. The shapes to watch for in a residual plot are the following.
 
 | Shape of the residuals | Meaning | Remedy |
 |:-----|:-----|:-----|
@@ -749,6 +883,42 @@ a_0 = 2.047619 \pm 2.776 \times 0.158879 = 2.047619 \pm 0.441048 \;\Rightarrow\;
 ```
 
 The slope interval does not contain 0, which is evidence of a linear relation between $`x`$ and $`y`$, and it does contain 1, so the data do not contradict the hypothesis that the slope is 1. As the formula shows, more data or a wider spread of $`x`$ increases $`S_{xx}`$ and reduces the uncertainty of the slope. Section 7 checks by Monte Carlo simulation that the formula indeed holds.
+
+### 5.8 Outliers and Leverage
+
+Because the residuals enter squared, the least-squares line is easily pulled by a single point far from the others, and how far depends on the position of the point. In the expression $`a_1 = \sum w_iy_i`$, $`w_i = (x_i - \bar{x})/S_{xx}`$ of Section 5.7, adding an error $`\delta`$ to one $`y_i`$ changes the slope by $`w_i\delta`$. The fitted value of that point, $`\hat{y}_i = \bar{y} + a_1(x_i - \bar{x})`$, changes by the change $`\delta/n`$ of $`\bar{y}`$ plus the change due to the slope.
+
+```math
+\Delta a_1 = \frac{(x_i - \bar{x})\,\delta}{S_{xx}}, \qquad \Delta\hat{y}_i = h_{ii}\,\delta, \qquad h_{ii} = \frac{1}{n} + \frac{(x_i - \bar{x})^2}{S_{xx}}
+```
+
+$`h_{ii}`$ is called the **leverage** of the point, and it grows as $`x_i`$ moves away from $`\bar{x}`$. For the data of Section 4.5, $`h_{ii}`$ is 0.5238 at the ends $`x = 0, 5`$ and 0.1810 in the middle at $`x = 2, 3`$. If the $`y`$ at $`x = 5`$ is wrongly recorded as 9.9 instead of 6.9 ($`\delta = 3`$), the slope increases by $`3 \times 2.5/17.5 = 0.4286`$ to 1.4229, but if the same error occurs at $`x = 2`$, the slope changes by only $`3 \times (-0.5)/17.5 = -0.0857`$.
+
+```python
+import numpy as np
+
+x = np.array([0, 1, 2, 3, 4, 5], dtype=float)
+y = np.array([2.1, 2.9, 4.2, 4.8, 6.3, 6.9])
+for i, label in ((None, "original"), (5, "y6 + 3"), (2, "y3 + 3")):
+    yy = y.copy()
+    if i is not None:
+        yy[i] += 3.0                                   # one recording error of +3
+    a1, a0 = np.polyfit(x, yy, 1)
+    e = yy - (a0 + a1 * x)
+    syx = np.sqrt(np.sum(e**2) / (x.size - 2))
+    print(f"{label:8s} a0 = {a0:.4f}, a1 = {a1:.4f}, syx = {syx:.4f}, max |e|/syx = {np.max(np.abs(e)) / syx:.2f}")
+h = 1 / x.size + (x - x.mean())**2 / np.sum((x - x.mean())**2)   # leverage of each point
+print(np.round(h, 4))
+```
+
+```text
+original a0 = 2.0476, a1 = 0.9943, syx = 0.2195, max |e|/syx = 1.25
+y6 + 3   a0 = 1.4762, a1 = 1.4229, syx = 0.9701, max |e|/syx = 1.35
+y3 + 3   a0 = 2.7619, a1 = 0.9086, syx = 1.4618, max |e|/syx = 1.79
+[0.5238 0.2952 0.181  0.181  0.2952 0.5238]
+```
+
+The textbook gives the criterion, for residuals that appear normally distributed, of suspecting an outlier when a residual exceeds 4-5 times the standard error of the estimate. As the output shows, however, the error at the high-leverage point $`x = 5`$ pulls the line toward itself and inflates $`s_{y/x}`$ from 0.2195 to 0.9701, so even the largest residual is only 1.35 times $`s_{y/x}`$. The outlier masks itself. In such a case, the point is predicted from the line fitted without it. The line through the other five points is $`y = 2.0 + 1.03x`$ with $`s_{y/x} = 0.233`$, and it predicts 7.15 at $`x = 5`$, so the recorded 9.9 exceeds the prediction by 2.75, or 11.8 times $`s_{y/x}`$. This value equals the residual 1.3095 of the full fit divided by $`1 - h_{ii} = 0.4762`$, which is the prediction residual used by PRESS in Section 5.8 of Chapter 15. Even when a point is judged an outlier, it should be removed only when the cause is clear, such as a failed instrument or a recording mistake, and the removal and its reason should be documented.
 
 <br>
 
@@ -784,6 +954,73 @@ The straight-line regression gives slope $`0.231847`$ and intercept $`0.157834`$
 
 Linearization is simple to compute, but it must be remembered that the quantity minimized is the $`SSE`$ of the transformed values, not of the original data. In the reciprocal transformation, $`1/y`$ changes greatly at points with small $`y`$, so the first few points with small $`x`$ dominate the line, while the log transformation treats relative errors evenly. The $`r^2`$ in the transformed space must therefore not be read as the goodness of fit of the original model; predictions and residuals should be recomputed in the original space to check. To minimize the $`SSE`$ in the original space directly, use the nonlinear regression of Chapter 15, Section 6, with the linearized result as its initial estimate. Chapter 15, Section 6.5 compares the two methods numerically for the exponential model.
 
+### 6.4 How Transformation Changes the Error Structure
+
+The error of a linearized model is not the error of the original model. Taking logarithms of the exponential model with an additive measurement error, $`y = \alpha e^{\beta x} + \varepsilon`$, gives $`\ln y = \ln\alpha + \beta x + \ln\bigl(1 + \varepsilon/(\alpha e^{\beta x})\bigr)`$, so the error of the transformed model is no longer measurement noise with zero mean and constant variance. Conversely, with a multiplicative error $`y = \alpha e^{\beta x}e^{\varepsilon}`$, the result $`\ln y = \ln\alpha + \beta x + \varepsilon`$ satisfies the assumptions of Section 4.6 exactly when $`\varepsilon`$ is independent and normally distributed with zero mean and constant variance. The log transformation therefore suits data whose error is proportional to the size of $`y`$ (constant relative error), and the nonlinear regression of Section 6 of Chapter 15 suits data whose error has constant size.
+
+Even with a multiplicative error, back-transformation has a pitfall. The straight line in log space predicts the mean of $`\ln y`$, so its back-transform $`e^{b_0 + b_1x}`$ predicts not the mean of $`y`$ but its median (the geometric mean). If $`\varepsilon \sim \mathcal{N}(0, \sigma^2)`$, then $`E[e^{\varepsilon}] = e^{\sigma^2/2}`$, so the mean of $`y`$ exceeds the back-transformed value by the factor $`e^{\sigma^2/2}`$. The following code verifies this with data $`y = 2e^{0.3x}e^{\varepsilon}`$, $`\sigma = 0.3`$, generated 1000 times at each $`x`$.
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(3)
+x = np.repeat(np.arange(10.0), 1000)                  # 1000 measurements at each x = 0, ..., 9
+y = 2.0 * np.exp(0.3 * x) * np.exp(rng.normal(0.0, 0.3, x.size))   # multiplicative error
+b1, b0 = np.polyfit(x, np.log(y), 1)                   # straight line in (x, ln y)
+s2 = np.sum((np.log(y) - b0 - b1 * x)**2) / (x.size - 2)
+at5 = y[x == 5.0]
+print(f"alpha = {np.exp(b0):.4f}, beta = {b1:.4f}, s^2 of ln y = {s2:.4f}")
+print(f"x = 5: mean of y = {at5.mean():.3f}, median of y = {np.median(at5):.3f}")
+print(f"back-transformed prediction = {np.exp(b0 + 5 * b1):.3f}, times exp(s^2/2) = {np.exp(b0 + 5 * b1 + s2 / 2):.3f}")
+```
+
+```text
+alpha = 2.0110, beta = 0.2988, s^2 of ln y = 0.0906
+x = 5: mean of y = 9.377, median of y = 9.045
+back-transformed prediction = 8.958, times exp(s^2/2) = 9.373
+```
+
+The estimates $`\alpha = 2.011`$ and $`\beta = 0.2988`$ are close to the true values 2 and 0.3. At $`x = 5`$, however, the back-transformed prediction 8.958 is close to the median of the measurements, 9.045, and is more than 4% smaller than their mean, 9.377. Multiplying by $`e^{s^2/2} = 1.046`$ with the residual variance $`s^2 = 0.0906`$ in log space gives 9.373, which matches the mean. This correction is needed when a linearized model is used to predict average quantities (for example, mean values used to compute totals).
+
+### 6.5 Application: Comparing Enzyme Kinetics Models
+
+The rate $`v`$ of a reaction in which an enzyme converts a substrate into a product approaches a maximum rate $`v_m`$ as the substrate concentration $`S`$ grows. The basic model is the Michaelis-Menten model $`v = v_mS/(k_s + S)`$, which has the same form as the saturation-growth-rate model of Section 6.2, and $`k_s`$ is the concentration at which the rate is half of $`v_m`$. For enzymes whose binding involves two cooperating substrate molecules, the second-order model with squares, $`v = v_mS^2/(k_s^2 + S^2)`$, sometimes fits better; this curve starts with zero slope and is S-shaped, changing its direction of curvature at $`S = k_s/\sqrt{3} \approx 0.58k_s`$ (the second derivative is proportional to $`k_s^2 - 3S^2`$). Both models become straight lines when inverted.
+
+```math
+\frac{1}{v} = \frac{1}{v_m} + \frac{k_s}{v_m}\cdot\frac{1}{S}, \qquad \frac{1}{v} = \frac{1}{v_m} + \frac{k_s^2}{v_m}\cdot\frac{1}{S^2}
+```
+
+Both models are fitted to the following data by linearization and compared through the residuals in the original space.
+
+```python
+import numpy as np
+
+S = np.array([1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0])          # substrate concentration
+v = np.array([0.076, 0.160, 0.226, 0.418, 0.518, 0.646, 0.715, 0.746])  # reaction rate
+for p in (1, 2):                                   # p = 1: 1/v against 1/S, p = 2: 1/v against 1/S^2
+    X, Y = 1 / S**p, 1 / v
+    a1, a0 = np.polyfit(X, Y, 1)
+    r2 = 1 - np.sum((Y - a0 - a1 * X)**2) / np.sum((Y - Y.mean())**2)
+    vm = 1 / a0                                    # intercept 1/vm
+    ks = (a1 * vm)**(1 / p)                        # slope ks^p / vm
+    e = v - vm * S**p / (ks**p + S**p)             # residuals in the original space
+    print(f"p = {p}: r2 (transformed) = {r2:.4f}, vm = {vm:.4f}, ks = {ks:.4f}, SSE = {np.sum(e**2):.5f}")
+    print("   residuals:", np.round(e, 3))
+```
+
+```text
+p = 1: r2 (transformed) = 0.9381, vm = -1.1358, ks = -14.2749, SSE = 4.24165
+   residuals: [-0.01   0.027  0.041  0.116  0.076 -0.178 -0.733 -1.911]
+p = 2: r2 (transformed) = 0.9988, vm = 0.8364, ks = 3.1557, SSE = 0.00104
+   residuals: [-0.     0.006 -0.014  0.021  0.002 -0.009 -0.009 -0.015]
+```
+
+![Figure 3. Linearized fits of two Michaelis-Menten models and residuals in the original space](../../images/Ch14_Enzyme-Kinetics-Fits.png)
+
+*Figure 3. Linearized fits of two Michaelis-Menten models and residuals in the original space*
+
+The first-order model has a fairly high $`r^2`$ of 0.938 in the transformed space, but its intercept is negative, giving the physically impossible values $`v_m = -1.136`$ and $`k_s = -14.27`$. In the original space, as in Figure 3, the curve cannot follow the saturation of the data, and the residuals form a systematic pattern, positive from $`S = 1.5`$ to $`S = 4`$ and strongly negative for $`S \geq 6`$, with $`SSE = 4.24`$. The second-order model has $`r^2 = 0.9988`$ and gives $`v_m = 0.836`$ and $`k_s = 3.156`$, a saturation value slightly above the largest observation 0.746 and a half-saturation concentration within the range of the data, and its residuals are at most 0.021 in magnitude with mixed signs ($`SSE = 0.00104`$). Three lessons follow from this comparison. First, a model should not be accepted on the $`r^2`$ of the transformed space alone. Second, the estimated parameters must be checked for physical plausibility. Third, the residuals should be recomputed and plotted in the original space. These data were generated by adding relative errors of about 3% to the second-order model with $`v_m = 0.85`$ and $`k_s = 3.2`$, and the estimates of the second-order model are close to the true values.
+
 ---
 
 <br>
@@ -792,7 +1029,7 @@ Linearization is simple to compute, but it must be remembered that the quantity 
 
 Following the review of statistics, the textbook covers how to generate random numbers from the uniform and normal distributions and how to use them in simulation. **Monte Carlo simulation** is a method that repeats the same experiment many times with random inputs to estimate the distribution of the result numerically. Even a distribution that is hard to obtain analytically can be approximated by a histogram, mean, and standard deviation after enough repetitions.
 
-In NumPy, `np.random.default_rng` creates a random number generator using the default bit generator (PCG64), and giving the same seed reproduces the same sequence of random numbers, so results can be reproduced [1]. The generator's `normal(loc, scale, size)` draws samples from a normal distribution and `uniform(low, high, size)` from a uniform distribution [1]. The relation $`X = \mu + \sigma Z`$ of Section 3.4 corresponds to `loc` and `scale` of `normal`, and a uniform random number on $`[a, b]`$ is the same as $`a + (b - a)U`$ built from a uniform random number $`U`$ on $`[0, 1]`$.
+In NumPy, `np.random.default_rng` creates a random number generator using the default bit generator (PCG64), and giving the same seed reproduces the same sequence of random numbers, so results can be reproduced [4]. The generator's `normal(loc, scale, size)` draws samples from a normal distribution and `uniform(low, high, size)` from a uniform distribution [4]. The relation $`X = \mu + \sigma Z`$ of Section 3.4 corresponds to `loc` and `scale` of `normal`, and a uniform random number on $`[a, b]`$ is the same as $`a + (b - a)U`$ built from a uniform random number $`U`$ on $`[0, 1]`$.
 
 The following code checks the slope standard-error formula of Section 5.7 by simulation. It creates data 10000 times at the same $`x`$ as Section 4.5 by adding normal errors with standard deviation 0.2 to the true line $`y = 2 + x`$ and fits a line each time.
 
@@ -824,6 +1061,35 @@ mean slope = 1.0004, std of slopes = 0.0477, theory = 0.0478
 ```
 
 The first line of the loop creates hypothetical measurement data by adding errors to the true line, and the next lines compute the slope, $`s_{y/x}`$, and $`s_{a_1}`$. `covered` counts how often the 95% confidence interval built from those data contains the true slope 1. In the results, the mean of the slope estimates, 1.0004, is almost equal to the true value, showing that the least-squares slope is an unbiased estimator, and the standard deviation 0.0477 agrees with the formula $`\sigma/\sqrt{S_{xx}} = 0.2/\sqrt{17.5} = 0.0478`$. Moreover, 95.3% of the confidence intervals contain the true value, confirming that the $`t`$ interval of Section 5.7 works as its name says. The last line is an example of five uniform random numbers on $`[0, 1]`$.
+
+The same method finds how an uncertain input spreads to the output of a model. The uniform distribution on $`[a, b]`$ has constant density $`f(x) = 1/(b - a)`$, so its mean is $`\int_a^b x/(b - a)\,dx = (a + b)/2`$, and from $`E[X^2] = (a^2 + ab + b^2)/3`$ its variance is $`E[X^2] - \bigl((a + b)/2\bigr)^2 = (b - a)^2/12`$. In the bungee jumper model of Chapter 1, $`v(t) = \sqrt{gm/c_d}\tanh(\sqrt{gc_d/m}\,t)`$, suppose that the mass $`m = 80`$ kg is known exactly but the drag coefficient lies somewhere within $`\pm 10\%`$ of 0.30 kg/m, that is, in $`[0.27,\ 0.33]`$. The uncertainty of the velocity at $`t = 5`$ s is simulated both with the uniform distribution and with a normal distribution of the same mean and standard deviation.
+
+```python
+import numpy as np
+
+g, m, t = 9.81, 80.0, 5.0
+def velocity(cd):
+    return np.sqrt(g * m / cd) * np.tanh(np.sqrt(g * cd / m) * t)
+
+a, b = 0.27, 0.33                                  # drag coefficient known only to +/-10 %
+rng = np.random.default_rng(2)
+cd_u = rng.uniform(a, b, 10000)
+cd_n = rng.normal((a + b) / 2, (b - a) / np.sqrt(12), 10000)   # same mean and standard deviation
+print(f"uniform cd: mean = {cd_u.mean():.4f}, std = {cd_u.std(ddof=1):.4f}, theory = {(a + b) / 2:.4f}, {(b - a) / np.sqrt(12):.4f}")
+print(f"v at cd = 0.30, 0.27, 0.33: {velocity(0.30):.4f}, {velocity(a):.4f}, {velocity(b):.4f}")
+for name, cd in (("uniform", cd_u), ("normal", cd_n)):
+    v = velocity(cd)
+    print(f"{name:7s}: mean v = {v.mean():.4f}, std v = {v.std(ddof=1):.4f}, min = {v.min():.4f}, max = {v.max():.4f}")
+```
+
+```text
+uniform cd: mean = 0.3000, std = 0.0175, theory = 0.3000, 0.0173
+v at cd = 0.30, 0.27, 0.33: 38.0447, 38.8733, 37.2589
+uniform: mean v = 38.0519, std v = 0.4699, min = 37.2589, max = 38.8732
+normal : mean v = 38.0509, std v = 0.4619, min = 36.2830, max = 39.9796
+```
+
+The sample mean 0.3000 and standard deviation 0.0175 of the 10000 uniform random numbers are close to the theoretical values 0.30 and $`0.06/\sqrt{12} = 0.0173`$. Even though the drag coefficient varies by $`\pm 10\%`$, the velocity varies only within 37.26-38.87 m/s, about $`\pm 2.1\%`$ around 38.04 at $`c_d = 0.30`$, so the velocity at this time is insensitive to the drag coefficient. The velocity standard deviation of 0.47 m/s nearly equals 0.466, obtained from the first-order approximation $`\Delta v \approx |dv/dc_d|\,\Delta c_d`$ of Section 13 of Chapter 4 with $`dv/dc_d \approx (37.2589 - 38.8733)/0.06 = -26.9`$ and $`\sigma_{c_d} = 0.0173`$. The two distributions have the same mean and standard deviation, so the velocity means and standard deviations are also similar, but the normal distribution has tails that extend indefinitely, so the minimum and maximum velocities spread wider, to 36.28 and 39.98. In problems where the extremes of the output matter, the assumed input distribution decides the result.
 
 ---
 
@@ -869,7 +1135,7 @@ a0 = 2.047619, a1 = 0.994286, r2 = 0.988981, syx = 0.219523
 
 The function computes the four sums once and obtains the coefficients from the slope formula of Section 4.4 and equation $`(\ast\ast)`$. It computes $`SSE`$ from the residual array `e` and, together with $`SST`$, forms $`r^2`$ and $`s_{y/x}`$. The results agree with the hand computations of Sections 4.5 and 5.5.
 
-NumPy's `np.polyfit(x, y, deg)` fits a polynomial of degree `deg` by least squares and returns the coefficients **highest power first** [2]. For a line, `p[0]` is therefore the slope and `p[1]` the intercept. `np.polyval` evaluates the polynomial with those coefficients. The points $`x = 6, 7`$ above lie outside the data range $`[0, 5]`$, so these predictions are extrapolations, with no guarantee that the linear relation holds outside the range. The NumPy documentation recommends `numpy.polynomial.Polynomial.fit`, which is numerically more stable, for new code [2].
+NumPy's `np.polyfit(x, y, deg)` fits a polynomial of degree `deg` by least squares and returns the coefficients **highest power first** [5]. For a line, `p[0]` is therefore the slope and `p[1]` the intercept. `np.polyval` evaluates the polynomial with those coefficients. The points $`x = 6, 7`$ above lie outside the data range $`[0, 5]`$, so these predictions are extrapolations, with no guarantee that the linear relation holds outside the range. The NumPy documentation recommends `numpy.polynomial.Polynomial.fit`, which is numerically more stable, for new code [5].
 
 ---
 
@@ -885,6 +1151,10 @@ The following mistakes are common in straight-line regression.
 4. **Extrapolating beyond the data range.** The regression line has support only within the observed range.
 5. **Thinking that swapping the roles of $`x`$ and $`y`$ gives the same line.** As shown in Section 4.6, the slopes of the two regression lines agree only when $`r^2 = 1`$.
 6. **Applying least squares as is when $`x`$ also has large measurement errors.** If assumption 1 fails, the slope can be systematically underestimated, so such cases need methods that treat the errors of both variables.
+7. **Reporting `np.std` or `np.var` called without arguments as the sample standard deviation.** The default `ddof=0` divides by $`n`$, so `ddof=1` must be given for the sample standard deviation (Section 2.6).
+8. **Programming the variance with the computational formula $`(\sum y_i^2 - n\bar{y}^2)/(n - 1)`$.** When the mean is much larger than the spread, subtractive cancellation makes the result wrong or even zero (Section 2.5).
+9. **Accepting a high-leverage point as normal because its residual is small.** A high-leverage outlier pulls the line and shrinks its own residual, so it is checked with the prediction residual computed without that point (Section 5.8).
+10. **Reading the back-transformed value of a log-space regression as the mean.** The back-transformed value predicts the median, and the mean is larger by about the factor $`e^{s^2/2}`$ (Section 6.4).
 
 ---
 
@@ -916,6 +1186,14 @@ The following mistakes are common in straight-line regression.
 | Confidence intervals of the coefficients | $`s_{a_1} = s_{y/x}/\sqrt{S_{xx}}`$, and the 95% interval is $`a_1 \pm t_{0.025,n-2}s_{a_1}`$. |
 | Linearization and back-transformation | Straighten the power model with logarithms and the saturation-growth-rate model with reciprocals, then convert the slope and intercept back to the original coefficients. |
 | Monte Carlo simulation | Repeat an experiment with random inputs to obtain the distribution of an estimator numerically; fixing the seed makes it reproducible. |
+| Computational formula for the variance | $`s_y^2 = (\sum y_i^2 - n\bar{y}^2)/(n - 1)`$ is convenient by hand but vulnerable to subtractive cancellation, so programs compute the deviations first. |
+| MAD-based standard deviation | For normal data, $`\hat{\sigma} = MAD/0.6745`$ is a standard deviation estimate robust to outliers. |
+| Normal probability rule | About 68%, 95%, and 99.7% of normal data lie within one, two, and three standard deviations of the mean. |
+| Confidence interval for the mean | For normally distributed measurements, the 95% confidence interval for the true mean is $`\bar{y} \pm t_{0.025,n-1}s_y/\sqrt{n}`$. |
+| Histogram | It shows the distribution by counts in bins of equal width, and comparison with the normal density requires multiplying the density by the product $`nw`$ of the count and the bin width. |
+| Leverage | An error at a point with large $`h_{ii} = 1/n + (x_i - \bar{x})^2/S_{xx}`$ changes the slope greatly and shrinks its own residual, masking itself. |
+| Back-transformation bias | The back-transform of a straight line in log space predicts the median of $`y`$, and the mean is larger by about the factor $`e^{s^2/2}`$. |
+| Uniform distribution | The uniform distribution on $`[a, b]`$ has mean $`(a + b)/2`$ and variance $`(b - a)^2/12`$. |
 
 <br>
 
@@ -1006,11 +1284,23 @@ The following mistakes are common in straight-line regression.
 
    </details>
 
+10. **Outliers and leverage:** In the data of Section 4.5 ($`\bar{x} = 2.5`$, $`S_{xx} = 17.5`$), the measurement at $`x = 0`$ was recorded 2 larger than its true value. Find the leverage of that point, the change of the slope, and the change of the fitted value at that point.
+
+   <details>
+   <summary>Answer</summary>
+
+   The leverage is $`h = 1/6 + (0 - 2.5)^2/17.5 = 0.1667 + 0.3571 = 0.5238`$. The change of the slope is $`(0 - 2.5) \times 2/17.5 = -0.2857`$, so the slope decreases from 0.9943 to 0.7086. The fitted value at that point increases by $`h\delta = 0.5238 \times 2 = 1.0476`$, so the intercept becomes 3.0952 instead of 2.0476. An error at an end point has large leverage and tilts the line strongly.
+
+   </details>
+
 ---
 
 <br>
 
 ## References
 
-1. NumPy Developers, "Random Generator," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/random/generator.html
-2. NumPy Developers, "numpy.polyfit," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html
+1. NumPy Developers, "numpy.std," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.std.html
+2. SciPy Developers, "scipy.stats.median_abs_deviation," *SciPy Documentation*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.median_abs_deviation.html
+3. NumPy Developers, "numpy.histogram," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
+4. NumPy Developers, "Random Generator," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/random/generator.html
+5. NumPy Developers, "numpy.polyfit," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html
