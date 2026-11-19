@@ -30,6 +30,7 @@
   - [2.6 Romberg Integration Formula](#26-romberg-integration-formula)
   - [2.7 Stopping Criterion](#27-stopping-criterion)
   - [2.8 Tracing Romberg Integration and Its Conditions](#28-tracing-romberg-integration-and-its-conditions)
+  - [2.9 A Romberg Algorithm That Reuses Function Values](#29-a-romberg-algorithm-that-reuses-function-values)
 - [3. Gauss Quadrature](#3-gauss-quadrature)
   - [3.1 Motivation: From Trapezoidal Rule to Gauss Quadrature](#31-motivation-from-trapezoidal-rule-to-gauss-quadrature)
   - [3.2 Method of Undetermined Coefficients (Trapezoidal Recovery)](#32-method-of-undetermined-coefficients-trapezoidal-recovery)
@@ -45,6 +46,9 @@
   - [5.1 Local Error Estimates and Interval Subdivision](#51-local-error-estimates-and-interval-subdivision)
   - [5.2 Implementing Adaptive Simpson Quadrature](#52-implementing-adaptive-simpson-quadrature)
   - [5.3 SciPy's quad](#53-scipys-quad)
+  - [5.4 Arguments and Outputs of quad and Diagnosing Failures](#54-arguments-and-outputs-of-quad-and-diagnosing-failures)
+- [6. Case Study: Root-Mean-Square Current](#6-case-study-root-mean-square-current)
+- [7. Common Mistakes](#7-common-mistakes)
 - [Concept Applications](#concept-applications)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -436,6 +440,60 @@ k = 5: |ea| = 7.63e-11 %
 The second and third columns of the table coincide with formulas of Chapter 19. $`I_{1,2} = 1.7188611519`$ is the single-application Simpson's 1/3 rule, $`I_{2,2} = 1.7183188419`$ is the composite Simpson's 1/3 rule with $`n = 4`$, and $`I_{1,3} = 1.7182826879`$ equals Boole's rule of Section 10 of Chapter 19. Indeed, computing $`\frac{4T_2 - T_1}{3}`$ from the one- and two-segment trapezoidal values $`T_1 = \frac{b-a}{2}(f_0 + f_2)`$ and $`T_2 = \frac{b-a}{4}(f_0 + 2f_1 + f_2)`$ gives $`\frac{b-a}{6}(f_0 + 4f_1 + f_2)`$, which is Simpson's rule. Richardson extrapolation thus generates higher-order Newton-Cotes formulas automatically from trapezoidal values.
 
 > **Caution:** Romberg integration relies on the fact that the error of the trapezoidal rule expands in even powers $`h^2, h^4, h^6, \ldots`$, and this expansion holds when the integrand is continuously differentiable sufficiently many times on the interval. For a function such as $`\sqrt{x}`$, whose derivative blows up at an end point, terms such as $`h^{1.5}`$ enter the error, and the top-row errors of the Romberg table for $`\int_0^1 \sqrt{x}\,dx`$ decrease only by a factor of about 3 per step: $`0.17, 0.029, 0.0089, 0.0031, \ldots`$. The adaptive methods of Section 5 suit such functions.
+
+<br>
+
+### 2.9 A Romberg Algorithm That Reuses Function Values
+
+The `romberg` of Section 2.6 recomputes each trapezoidal value of the first column from scratch for every number of segments. When the number of segments is doubled, however, all previous points remain in the new grid, so the only function values to compute are those at the midpoints of the previous subintervals. With $`T_n`$ the trapezoidal value for $`n`$ segments and $`h_n = \frac{b-a}{n}`$ the step size, the even-numbered points of the grid with $`2n`$ segments are the previous points and the odd-numbered points are new, so the following recurrence holds.
+
+```math
+T_{2n} = \frac{1}{2}T_n + h_{2n}\sum_{k=1}^{n} f\bigl(a + (2k - 1)h_{2n}\bigr)
+```
+
+The previous points keep the same ratio of weights while the step size is halved, so their contribution becomes $`\frac{1}{2}T_n`$, and the $`n`$ new points are all interior points and receive the weight $`h_{2n}`$. Filling the first column with this recurrence, a table up to $`2^j`$ segments needs only $`2^j + 1`$ function values. The implementation below completes the Richardson extrapolation of each new row as soon as it is added and checks the stopping criterion of Section 2.7, so the table grows only as far as needed.
+
+```python
+import numpy as np
+
+def romberg(f, a, b, es=1e-10, maxit=20):
+    """Romberg integration that reuses every function value."""
+    R = [[(b - a) / 2 * (f(a) + f(b))]]              # row 0: one-segment trapezoid
+    nfev = 2
+    for j in range(1, maxit + 1):
+        n = 2**j; h = (b - a) / n
+        new = f(a + h * np.arange(1, n, 2))           # the n/2 points not used before
+        nfev += new.size
+        row = [R[j - 1][0] / 2 + h * new.sum()]       # T_2n = T_n / 2 + h * (sum of new values)
+        for k in range(1, j + 1):                     # Richardson extrapolation along the row
+            row.append((4**k * row[k - 1] - R[j - 1][k - 1]) / (4**k - 1))
+        R.append(row)
+        ea = abs((row[j] - row[j - 1]) / row[j])      # I_{1,k} versus I_{2,k-1}
+        if ea <= es:
+            break
+    return row[j], ea, j + 1, nfev
+
+I, ea, rows, nfev = romberg(np.exp, 0.0, 1.0)
+print(f"e^x on [0, 1]: I = {I:.15f}, error = {np.e - 1 - I:+.1e}, ea = {ea:.1e}, "
+      f"rows = {rows}, evaluations = {nfev}")
+print("evaluations if every trapezoid were recomputed:", sum(2**j + 1 for j in range(rows)))
+p = lambda x: 0.2 + 25*x - 200*x**2 + 675*x**3 - 900*x**4 + 400*x**5
+I, ea, rows, nfev = romberg(p, 0.0, 0.8)
+print(f"polynomial on [0, 0.8]: I = {I:.6f}, ea = {ea:.1e}, rows = {rows}, evaluations = {nfev}")
+```
+
+```text
+e^x on [0, 1]: I = 1.718281828459078, error = -3.3e-14, ea = 7.6e-13, rows = 5, evaluations = 17
+evaluations if every trapezoid were recomputed: 36
+polynomial on [0, 0.8]: I = 1.640533, ea = 0.0e+00, rows = 4, evaluations = 9
+```
+
+- `R[j]` is row $`j`$ of the table, and `R[j][0]` is the trapezoidal value for $`2^j`$ segments. The notation $`I_{j,k}`$ of Section 2.6 fills the table from the top row, whereas here each new row is added at the bottom and filled from left to right, so `R[j][k]` corresponds to $`I_{j-k+1,\,k+1}`$ of Section 2.6.
+- `new` evaluates the function only at the odd-numbered points made by `np.arange(1, n, 2)`, and `row[0]` is the recurrence above.
+- The inner loop applies the recurrence formula of Section 2.6 along the same row. `row[k - 1]` is the finer estimate and `R[j - 1][k - 1]` the coarser one.
+- `ea` is the relative difference between the new diagonal element `row[j]` ($`I_{1,k}`$ of Section 2.7) and the element just to its left, `row[j - 1]` ($`I_{2,k-1}`$), as a fraction rather than a percentage.
+
+The integral of $`e^x`$ meets the tolerance $`10^{-10}`$ at the fifth row (16 segments) and reaches an error of $`3.3 \times 10^{-14}`$ with 17 function values. Recomputing every trapezoidal value for the same table would need 36 function values, so reuse cuts the work by more than half. The polynomial example reaches $`\varepsilon_a = 0`$ at the fourth row and gives the true value with 9 function values, because the third column and beyond are exact for fifth-degree polynomials (Section 2.6).
 
 <br>
 
@@ -1048,6 +1106,156 @@ integral of 1/sqrt(x) on [0, 1] = 2.000000000000 (exact 2)
 
 > **Caution:** The error returned by `quad` is an estimate, not a guarantee. If the integrand is discontinuous or sharply peaked at known points inside the interval, those locations should be given with the `points` argument [1], and adaptive subdivision can miss very rapidly oscillating functions or extremely narrow peaks. If a result looks doubtful, integrate the pieces of the interval separately or change the tolerance and check that the result is stable.
 
+<br>
+
+### 5.4 Arguments and Outputs of quad and Diagnosing Failures
+
+The behavior of `quad` can be checked through its output information. `quad` applies a 21-point Gauss-Kronrod rule to each subinterval [1] and performs globally adaptive subdivision, subdividing the subintervals with large error estimates first. The goal is that the difference between the true value $`I`$ and the result be at most $`\max(\varepsilon_{\text{abs}}, \varepsilon_{\text{rel}}\lvert I\rvert)`$, and the number of subintervals does not exceed `limit` (default 50) [1]. With `full_output=1`, the third return value `info` contains the number of function evaluations `neval`, the number of subintervals `last`, the end points of each subinterval `alist` and `blist`, and the error estimate of each subinterval `elist`, and when the integration does not converge, a string explaining the reason is appended as the fourth return value [1]. Parameters of the integrand are passed with `args`.
+
+```python
+import numpy as np
+from scipy.integrate import quad
+
+f = lambda x, c: 1.0 / (1.0 + c * (x - 0.3)**2)     # peak whose height is set by c
+I, err, info = quad(f, 0.0, 1.0, args=(100.0,), full_output=1)
+K = info['last']                                     # number of subintervals used
+print(f"peak: I = {I:.12f}, neval = {info['neval']}, subintervals = {K}")
+for i in np.argsort(info['alist'][:K]):
+    print(f"   [{info['alist'][i]:.4f}, {info['blist'][i]:.4f}]  error estimate {info['elist'][i]:.1e}")
+
+g = lambda x: np.exp(-(x - 7000.0)**2)              # narrow peak far inside a long interval
+print("narrow peak, plain       :", quad(g, 0.0, 10000.0))
+print("narrow peak, break points:", quad(g, 0.0, 10000.0, points=[6990.0, 7010.0]))
+
+h = lambda x: np.exp(-0.05 * x) * np.cos(60.0 * x)  # many oscillations on [0, 100]
+I1, e1, info1, msg = quad(h, 0.0, 100.0, full_output=1)
+print(f"oscillatory, plain : I = {I1:+.6e}, abserr = {e1:.1e}\n   message: {msg.split('.')[0]}")
+I2, e2 = quad(lambda x: np.exp(-0.05 * x), 0.0, 100.0, weight='cos', wvar=60.0)
+print(f"oscillatory, weight: I = {I2:+.6e}, abserr = {e2:.1e}")
+```
+
+```text
+peak: I = 0.267794504459, neval = 147, subintervals = 4
+   [0.0000, 0.2500]  error estimate 3.7e-13
+   [0.2500, 0.3750]  error estimate 4.4e-14
+   [0.3750, 0.5000]  error estimate 5.1e-16
+   [0.5000, 1.0000]  error estimate 9.2e-14
+narrow peak, plain       : (0.0, 0.0)
+narrow peak, break points: (1.7724538509056036, 3.706205424438915e-13)
+oscillatory, plain : I = -8.605832e-02, abserr = 4.6e-01
+   message: The integral is probably divergent, or slowly convergent
+oscillatory, weight: I = -3.422820e-05, abserr = 6.1e-14
+```
+
+- In the first example, `f` takes the parameter `c`, which sets the height of the peak, as its second argument, and `args=(100.0,)` passes its value. `np.argsort(info['alist'][:K])` sorts the subintervals from the left.
+- In the second example, `points` gives positions inside the interval where it must be split [1].
+- In the third example, `weight='cos'` and `wvar=60.0` split the integrand into $`e^{-0.05x}`$ and the weight function $`\cos 60x`$, so the oscillation is handled inside the formula [1].
+
+In the first example there are only four subintervals, with boundaries at 0.5, 0.25, and 0.375 obtained by halving each time, so only the subintervals containing the peak at $`x = 0.3`$ became narrow. The 147 function evaluations are the 21 for the initial interval plus $`2 \times 21`$ for the two halves at each of the three subdivisions. The second example is a typical failure of `quad`. When a peak about 1 wide lies inside an interval of length 10000, all of the first 21 nodes miss the peak and see function values that are practically 0, so a result with both the integral and the error estimate equal to 0 comes out without a warning. The error estimate is computed from the values at the same nodes, so it cannot reveal such a failure. Giving `points=[6990.0, 7010.0]`, which bracket the peak, yields the exact value $`\sqrt{\pi} = 1.7724538509`$. With very many oscillations, as in the third example, the integration fails to converge even after using all 50 subintervals. The result $`-0.086`$ is completely different from the exact value $`\frac{a + e^{-aL}(\omega\sin\omega L - a\cos\omega L)}{a^2 + \omega^2} = -3.4228 \times 10^{-5}`$ ($`a = 0.05`$, $`\omega = 60`$, $`L = 100`$), but in this case the large error estimate (0.46) and the message reveal the failure. Passing the oscillating factor as a weight function gives the exact value.
+
+---
+
+<br>
+
+## 6. Case Study: Root-Mean-Square Current
+
+The current in an alternating-current circuit changes sign every period $`T`$, as in $`i(t) = i_{\text{peak}}\sin(2\pi t/T)`$, so its mean over a period is 0. The instantaneous power dissipated in a resistance $`R`$, $`P = i^2R`$, is positive regardless of the sign of the current, however, so the size of the current is expressed by the mean of its square.
+
+```math
+i_{\text{rms}} = \sqrt{\frac{1}{T}\int_0^T i(t)^2\,dt}, \qquad \bar{P} = \frac{1}{T}\int_0^T i(t)^2R\,dt = i_{\text{rms}}^2R
+```
+
+This value is called the **root-mean-square value**, and it equals the magnitude of the direct current that produces the same average power in the same resistance. It is the mean of a function from Chapter 19, Section 1.6, applied to the squared current. For a sinusoid, $`\frac{1}{T}\int_0^T\sin^2(2\pi t/T)\,dt = \frac{1}{2}`$, so $`i_{\text{rms}} = i_{\text{peak}}/\sqrt{2} \approx 0.707\,i_{\text{peak}}`$. For non-sinusoidal waveforms this integral is often hard to evaluate analytically, so numerical integration is used.
+
+As an example, take the decaying waveform $`i(t) = 6e^{-3t}\sin(2\pi t)`$ [A] that flows during one period $`T = 1`$ s (Figure 3). Rewriting $`\sin^2(2\pi t) = \frac{1}{2}(1 - \cos 4\pi t)`$ makes this waveform integrable, so the exact value $`\int_0^1 i^2\,dt = 18(1 - e^{-6})\left[\frac{1}{6} - \frac{6}{36 + 16\pi^2}\right] = 2.4369954097`$ can be used to check the error of each method. The code below reuses `romberg` from Section 2.9.
+
+![Figure 3. Decaying current over one period, its square, and the root-mean-square value](../../images/Ch20_RMS-Current.png)
+
+*Figure 3. Decaying current over one period, its square, and the root-mean-square value*
+
+```python
+import numpy as np
+from scipy.integrate import quad
+from scipy.optimize import minimize_scalar
+# uses romberg() from Section 2.9
+
+i = lambda t: 6.0 * np.exp(-3.0 * t) * np.sin(2.0 * np.pi * t)   # current over one period [A]
+f = lambda t: i(t)**2                                              # integrand of i_rms^2 (T = 1 s)
+exact = 18.0 * (1.0 - np.exp(-6.0)) * (1.0 / 6.0 - 6.0 / (36.0 + 16.0 * np.pi**2))
+print(f"exact integral = {exact:.10f}")
+
+def composite(n, simpson=False):
+    t = np.linspace(0.0, 1.0, n + 1); y = f(t)
+    if simpson:
+        return (y[0] + 4 * y[1:-1:2].sum() + 2 * y[2:-1:2].sum() + y[-1]) / (3 * n)
+    return (y[0] / 2 + y[1:-1].sum() + y[-1] / 2) / n
+
+print("  n   trapezoid rel. error   Simpson rel. error")
+for n in [2, 4, 8, 16, 32, 64]:
+    eT = abs(exact - composite(n)) / exact; eS = abs(exact - composite(n, True)) / exact
+    print(f"{n:3d}   {eT:.1e}                {eS:.1e}")
+
+for n in [3, 5, 6, 8]:
+    z, w = np.polynomial.legendre.leggauss(n)
+    G = 0.5 * np.sum(w * f(0.5 * (z + 1.0)))
+    print(f"Gauss-Legendre {n} points: rel. error {abs(exact - G) / exact:.1e}")
+for es in [1e-6, 1e-10]:
+    R, ea, rows, nfev = romberg(f, 0.0, 1.0, es=es)
+    print(f"Romberg es = {es:.0e}: rel. error {abs(exact - R) / exact:.1e}, evaluations {nfev}")
+Q, Qerr, info = quad(f, 0.0, 1.0, full_output=1)
+print(f"quad: rel. error {abs(exact - Q) / exact:.1e}, evaluations {info['neval']}")
+
+irms = np.sqrt(Q)
+peak = minimize_scalar(lambda t: -i(t), bounds=(0.0, 0.5), method='bounded')
+print(f"i_rms = {irms:.6f} A, peak current = {-peak.fun:.6f} A at t = {peak.x:.4f} s, "
+      f"ratio = {irms / -peak.fun:.4f}")
+```
+
+```text
+exact integral = 2.4369954097
+  n   trapezoid rel. error   Simpson rel. error
+  2   1.0e+00                1.0e+00
+  4   1.3e-01                1.5e-01
+  8   7.5e-03                3.5e-02
+ 16   4.5e-04                1.9e-03
+ 32   2.8e-05                1.1e-04
+ 64   1.7e-06                7.0e-06
+Gauss-Legendre 3 points: rel. error 1.1e-01
+Gauss-Legendre 5 points: rel. error 1.9e-02
+Gauss-Legendre 6 points: rel. error 1.3e-04
+Gauss-Legendre 8 points: rel. error 7.8e-06
+Romberg es = 1e-06: rel. error 2.8e-06, evaluations 33
+Romberg es = 1e-10: rel. error 1.3e-12, evaluations 129
+quad: rel. error 0.0e+00, evaluations 21
+i_rms = 1.561088 A, peak current = 3.163780 A at t = 0.1791 s, ratio = 0.4934
+```
+
+- `composite` combines the composite trapezoidal rule and the composite Simpson's 1/3 rule of Chapter 19 in one function, and since the interval has length 1, $`h = 1/n`$.
+- The Gauss-Legendre formulas obtain their nodes and weights from `leggauss` of Section 3.7 and apply the change of variable $`t = \frac{1}{2}(z + 1)`$ of Section 3.4.
+- `info['neval']` is the number of function evaluations of `quad`. The final `minimize_scalar` performs the bounded optimization of Chapter 7, minimizing $`-i(t)`$ to find the maximum of the current.
+
+Four points can be read from the result.
+
+1. With $`n = 2`$, both formulas give 0. The sample points $`t = 0, 0.5, 1`$ are all points where $`\sin(2\pi t) = 0`$, so the current is measured only as 0 (the grey dots in Figure 3). When the sample points lock onto the period of the integrand, numerical integration can give a completely wrong value.
+2. In this example the trapezoidal rule is more accurate than Simpson's rule, and doubling $`n`$ also reduces the trapezoidal error to one sixteenth. In the error formula $`E \approx -\frac{b-a}{12}\overline{f''}h^2`$ of Section 2.2, the average of the second derivative is $`\overline{f''} = \frac{f'(b) - f'(a)}{b - a}`$, so the leading error is $`-\frac{h^2}{12}[f'(b) - f'(a)]`$. The current passes through 0 at both ends, so the derivative of $`f = i^2`$ is 0 at both ends, the $`h^2`$ term vanishes, and the next term, of order $`h^4`$, sets the error. For the same reason the gain from Romberg integration shrinks: it uses 33 function values for the tolerance $`10^{-6}`$ and is only about 10 times more accurate than the trapezoidal rule with the same 33 values ($`n = 32`$).
+3. The integrand has two peaks of different sizes, so the Gauss-Legendre formulas are inaccurate with few points and reach the $`10^{-5}`$ level only at 8 points. In contrast, `quad` applied the 21-point Gauss-Kronrod rule once (21 function evaluations) and obtained the true value to double precision. For a smooth integrand, a single formula with many points approximates the whole interval well enough.
+4. The root-mean-square value is 1.561088 A and the maximum current is 3.163780 A at $`t = 0.1791`$ s, so the root-mean-square value is 49.3% of the maximum. This is much smaller than the 70.7% of a sinusoid, because this waveform rises briefly and decays quickly, so only a small current flows for most of the period. For a resistance of $`R`$ [Ω], the average power is $`i_{\text{rms}}^2R = 2.437R`$ W.
+
+> **Note:** **Periodic functions and the trapezoidal rule.** Carrying the analysis of point 2 further, the error of the trapezoidal rule expands into terms proportional to differences of odd-order derivatives at the two ends, $`h^2[f'(b) - f'(a)]`$, $`h^4[f'''(b) - f'''(a)]`$, $`\ldots`$ (the Euler-Maclaurin formula). When a smooth periodic function is integrated over one period, all these differences are 0, so the error decreases faster than any power of $`h`$. For example, the composite trapezoidal value of $`\int_0^1 e^{\cos 2\pi t}\,dt`$ has error $`5.5 \times 10^{-3}`$ at $`n = 4`$ and $`2.0 \times 10^{-7}`$ at $`n = 8`$, and reaches the roundoff level of double precision at $`n = 16`$. For the integral of a periodic function over one period, the equally spaced trapezoidal rule is more efficient than higher-order formulas or Romberg extrapolation, and this property is related to computing the integrals for the Fourier coefficients of Chapter 16 as sums over equally spaced samples.
+
+---
+
+<br>
+
+## 7. Common Mistakes
+
+Common mistakes when using Romberg integration, Gauss quadrature, and `quad` are the following.
+
+1. **Swapping the two estimates in the recurrence formula.** In $`I_{j,k} = \frac{4^{k-1}I_{j+1,k-1} - I_{j,k-1}}{4^{k-1} - 1}`$, the estimate multiplied by $`4^{k-1}`$ is the finer one. Swapping the two values makes the extrapolation fail to remove the leading error and even enlarge it.
+2. **Mixing units in the stopping criterion.** The $`\lvert\varepsilon_a\rvert`$ of Section 2.7 is a percentage, whereas `ea` in the code of Section 2.9 is a fraction. Passing a tolerance chosen in the manner of Section 2.7, $`\varepsilon_s = 10^{-4}\%`$, unchanged as `es=1e-4` gives a criterion of $`10^{-2}\%`$, 100 times looser than intended.
+3. **Truncating an infinite interval to a large finite one.** Computing $`\int_0^\infty e^{-x^2}\,dx`$ as `quad(g, 0.0, 1e4)` returns the wrong value $`1.9 \times 10^{-50}`$ with a correspondingly small error estimate, because the first nodes hardly see the area near the origin. This is the same phenomenon as the narrow peak of Section 5.4. Passing `np.inf` as the limit gives the exact value 0.886227, as in Section 5.3.
+4. **Forgetting the absolute tolerance.** `quad` stops when the error is at most $`\max(\varepsilon_{\text{abs}}, \varepsilon_{\text{rel}}\lvert I\rvert)`$ [1], so an integral whose true value is much smaller than the default absolute tolerance $`1.49 \times 10^{-8}`$ has no guaranteed relative accuracy. For such an integral, set `epsabs=0` so that only the relative tolerance is used, or rescale the integrand beforehand.
+
 ---
 
 <br>
@@ -1064,6 +1272,9 @@ integral of 1/sqrt(x) on [0, 1] = 2.000000000000 (exact 2)
 | When applying the Gauss-Legendre formula on $`[a, b]`$, the weights are multiplied by $`\frac{b-a}{2}`$ and the result is multiplied by $`\frac{b-a}{2}`$ again. | **F.** The factor $`\frac{b-a}{2}`$ is applied only once. If the weights have already been scaled, the result is not multiplied again (Section 3.9). |
 | When the two-point Gauss formula is applied on subintervals, the error falls to about one sixteenth each time the number of subintervals doubles. | **T.** The error on one subinterval is proportional to the fifth power of its width and the number of subintervals doubles, giving $`2 \times \frac{1}{32} = \frac{1}{16}`$ (Section 3.9). |
 | Adaptive Simpson quadrature subdivides only the subintervals with large errors, so for a function with an end-point singularity it reaches the same accuracy as a uniform composite rule with far fewer evaluations. | **T.** In the $`\sqrt{x}`$ example, 105 evaluations were more accurate than the 16,385 of the uniform rule (Section 5.2). |
+| The Romberg algorithm that reuses function values builds the table up to $`2^j`$ segments with $`2^j + 1`$ function values. | **T.** When the number of segments is doubled, the only new points are the midpoints of the previous subintervals (Section 2.9). |
+| If the error estimate returned by `quad` is 0, the integral is exact. | **F.** If all of the first nodes miss a narrow peak, the integral and the error estimate are both 0 (Section 5.4). |
+| If the slope of the integrand is the same at both ends, the $`h^2`$ error term of the composite trapezoidal rule vanishes. | **T.** The leading error is $`-\frac{h^2}{12}[f'(b) - f'(a)]`$, and in the root-mean-square current example the error decreased in proportion to $`h^4`$ (Section 6). |
 
 ---
 
@@ -1086,6 +1297,9 @@ integral of 1/sqrt(x) on [0, 1] = 2.000000000000 (exact 2)
 | Adaptive quadrature | The two Simpson values $`S_1`$ and $`S_2`$ on a subinterval estimate the error as $`(S_2 - S_1)/15`$, and only subintervals that exceed the tolerance are subdivided. |
 | SciPy's quad | An adaptive quadrature routine based on QUADPACK that returns the integral and an error estimate, and also handles infinite intervals and end-point singularities. |
 | Higher-order Gauss-Legendre formulas | The nodes are symmetric about the origin and denser toward both ends, the weights are positive and sum to 2, and the result is multiplied once by $`\frac{b-a}{2}`$ when the interval is changed. |
+| Reusing function values | Filling the first column with $`T_{2n} = \frac{1}{2}T_n + h_{2n}\sum_k f(a + (2k-1)h_{2n})`$ needs only $`2^j + 1`$ function values up to $`2^j`$ segments. |
+| Diagnosing quad | The subdivision is checked with `neval`, `last`, `alist`, and `elist` from `full_output`, narrow peaks are handled with `points`, and strong oscillation with a weight function such as `weight='cos'`. |
+| Root-mean-square value | $`i_{\text{rms}} = \sqrt{\frac{1}{T}\int_0^T i^2\,dt}`$ determines the average power $`i_{\text{rms}}^2R`$, and for a sinusoid it is $`i_{\text{peak}}/\sqrt{2}`$. |
 
 
 ---
@@ -1163,6 +1377,24 @@ integral of 1/sqrt(x) on [0, 1] = 2.000000000000 (exact 2)
    <summary>Answer</summary>
 
    The error of one application of Simpson's rule is proportional to the fifth power of the subinterval width, so the error of $`S_2`$, applied to two halves, is about $`\frac{1}{16}`$ of the error of $`S_1`$. From $`I - S_1 \approx 16(I - S_2)`$ we get $`I - S_2 \approx (S_2 - S_1)/15`$. Near $`x = 0`$ the derivatives of $`\sqrt{x}`$ are very large, so the error estimates of those subintervals are large, and only they are subdivided repeatedly until the tolerance is met.
+
+   </details>
+
+9. **Reusing function values:** Compute the number of function values needed to build the Romberg table up to 32 segments with the algorithm of Section 2.9, and compare it with the number needed when the trapezoidal values for 1, 2, 4, 8, 16, and 32 segments are each computed from scratch.
+
+   <details>
+   <summary>Answer</summary>
+
+   With reuse, $`2^5 + 1 = 33`$ values are needed. Computing from scratch needs $`n + 1`$ values for $`n`$ segments, so $`(1 + 2 + 4 + 8 + 16 + 32) + 6 = 69`$ values. Each doubling of the segments needs only the midpoints of the previous subintervals as new points, so reuse cuts the work by more than half.
+
+   </details>
+
+10. **Root-mean-square value:** A sinusoidal current with amplitude 5 A flows through a 10 Ω resistance. Compute the root-mean-square value and the average power. Also explain why, for the decaying waveform of Section 6, the root-mean-square value was only 49.3% of the maximum.
+
+   <details>
+   <summary>Answer</summary>
+
+   For a sinusoid, $`\frac{1}{T}\int_0^T\sin^2\,dt = \frac{1}{2}`$, so $`i_{\text{rms}} = 5/\sqrt{2} = 3.536`$ A, and the average power is $`i_{\text{rms}}^2R = 12.5 \times 10 = 125`$ W. The waveform of Section 6 rises briefly early in the period and decays quickly, so for most of the period $`i^2`$ is much smaller than the square of the maximum. The root-mean-square value reflects the mean of the square, so it is 49.3%, smaller than the 70.7% ratio of a sinusoid.
 
    </details>
 
