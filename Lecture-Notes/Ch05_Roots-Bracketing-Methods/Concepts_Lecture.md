@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-18
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 5
 
@@ -26,23 +26,33 @@
 - [5. Incremental Search](#5-incremental-search)
   - [5.1 Sign-Change Principle](#51-sign-change-principle)
   - [5.2 Algorithm and Drawbacks](#52-algorithm-and-drawbacks)
+  - [5.3 Implementing the Incremental Search](#53-implementing-the-incremental-search)
 - [6. Bisection Method (Half-Interval Method)](#6-bisection-method-half-interval-method)
   - [6.1 Algorithm](#61-algorithm)
   - [6.2 Step-by-Step Procedure](#62-step-by-step-procedure)
+  - [6.3 Example: Savings Interest Rate by Bisection](#63-example-savings-interest-rate-by-bisection)
+  - [6.4 Bracketing Functions in SciPy](#64-bracketing-functions-in-scipy)
 - [7. Convergence of the Bisection Method](#7-convergence-of-the-bisection-method)
   - [7.1 Error Bound Derivation](#71-error-bound-derivation)
   - [7.2 A Priori Error Estimation](#72-a-priori-error-estimation)
   - [7.3 Required Number of Iterations](#73-required-number-of-iterations)
+  - [7.4 Order of Convergence](#74-order-of-convergence)
+  - [7.5 Approximate Relative Error and Stopping Criteria](#75-approximate-relative-error-and-stopping-criteria)
+  - [7.6 Implementation Pitfalls](#76-implementation-pitfalls)
 - [8. False Position Method (Regula Falsi)](#8-false-position-method-regula-falsi)
   - [8.1 Derivation of the Formula](#81-derivation-of-the-formula)
   - [8.2 Convergence Properties](#82-convergence-properties)
   - [8.3 One-Sidedness Problem](#83-one-sidedness-problem)
+  - [8.4 Example: Savings Interest Rate by False Position](#84-example-savings-interest-rate-by-false-position)
+  - [8.5 Rate of Convergence of False Position](#85-rate-of-convergence-of-false-position)
 - [9. Modified False Position Method](#9-modified-false-position-method)
   - [9.1 Introducing Scaling Parameters](#91-introducing-scaling-parameters)
   - [9.2 Two Consecutive Points on Same Side](#92-two-consecutive-points-on-same-side)
+  - [9.3 Comparing the Convergence of Three Bracketing Methods](#93-comparing-the-convergence-of-three-bracketing-methods)
 - [10. Summary Table](#10-summary-table)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -100,6 +110,14 @@ A roots problem occurs when some function $`f`$ can be written in terms of one o
 These problems often occur when a **design problem** presents an **implicit equation** for a required parameter.
 
 > **[Calculus]** The Intermediate Value Theorem (IVT) is the theoretical foundation for all bracketing methods: if $`f`$ is continuous on $`[a, b]`$ and $`f(a) \cdot f(b) < 0`$, then there exists at least one $`x^* \in (a, b)`$ such that $`f(x^*) = 0`$.
+
+The bungee jumper model of Chapter 1 is an example. The analytical solution $`v(t) = \sqrt{gm/c_d}\tanh(\sqrt{gc_d/m}\,t)`$ computes the velocity directly when the mass is given, but finding the mass for which the velocity after 4 s of free fall is 36 m/s requires isolating $`m`$ on one side of the equation, which is impossible. Moving everything to one side as follows turns it into a roots problem.
+
+```math
+f(m) = \sqrt{\frac{gm}{c_d}}\tanh\!\left(\sqrt{\frac{gc_d}{m}}\,t\right) - v(t) = 0
+```
+
+With $`c_d = 0.25`$ kg/m, $`t = 4`$ s, and $`v = 36`$ m/s, $`f(100) = -1.197`$ and $`f(150) = 0.142`$ differ in sign, so the root lies between 100 and 150, and its value is $`m \approx 142.74`$ kg. The most primitive approach is **trial and error**: guess a value, compute $`f`$, and revise the guess until $`f`$ is close enough to zero. This approach is unsystematic and inefficient, and it is unclear when to stop, so the graphical method of Section 3 and the systematic methods of Sections 4-9 are needed.
 
 ---
 
@@ -234,6 +252,54 @@ If this condition holds, at least one root exists somewhere between $`x_l`$ (low
 
 > **Note:** **Closely spaced roots.** A function like $`\sin(x^2)`$ can have many closely spaced roots. If the increment is larger than the spacing between adjacent roots, pairs of roots may be missed entirely because the function returns to the same sign.
 
+### 5.3 Implementing the Incremental Search
+
+The incremental search is implemented simply with NumPy vectorization. The following function divides the interval into `ns` points and returns every subinterval where the function changes sign between two neighboring points.
+
+```python
+import numpy as np
+
+def incsearch(f, xmin, xmax, ns=50):
+    """Return the subintervals [x_k, x_k+1] of [xmin, xmax] where f changes sign."""
+    x = np.linspace(xmin, xmax, ns)
+    fx = f(x)
+    k = np.flatnonzero(np.sign(fx[:-1]) != np.sign(fx[1:]))   # sign changes
+    return np.column_stack((x[k], x[k + 1]))
+
+f = lambda x: np.sin(10 * x) + np.cos(3 * x)
+for ns in (50, 100, 2500):
+    brackets = incsearch(f, 3, 6, ns)
+    print(ns, len(brackets))
+print(np.round(incsearch(f, 3, 6, 2500), 4))
+```
+
+```text
+50 5
+100 9
+2500 9
+[[3.2617 3.2629]
+ [3.3649 3.3661]
+ [3.7455 3.7467]
+ [4.2281 4.2293]
+ [4.2629 4.2641]
+ [4.7119 4.7131]
+ [5.1609 5.1621]
+ [5.1957 5.1969]
+ [5.6783 5.6795]]
+```
+
+- `np.linspace(xmin, xmax, ns)` creates the search points, and `f(x)` computes the function values at all points at once.
+- `np.sign(fx[:-1]) != np.sign(fx[1:])` is a boolean array comparing the signs of neighboring points, and `np.flatnonzero` returns the positions $`k`$ where it is true. Comparing signs with `np.sign` instead of the product `fx[:-1] * fx[1:] < 0` avoids the product of two very small function values underflowing to zero.
+- `np.column_stack` joins the left and right ends of the subintervals into two columns.
+
+$`f(x) = \sin(10x) + \cos(3x)`$ has nine roots in $`[3, 6]`$. With 50 points (spacing about 0.061) the search finds only five brackets, and with 100 or more points it finds all nine.
+
+![Figure 2. Brackets found and roots missed by an incremental search with 50 points](../../images/Ch05_Incremental-Search.png)
+
+*Figure 2. Brackets found and roots missed by an incremental search with 50 points*
+
+The four roots missed in Figure 2 are the two pairs near $`x \approx 4.23, 4.26`$ and $`x \approx 5.16, 5.20`$. In each pair the function dips briefly below zero and comes right back up, so when the distance between the two roots (about 0.035) is smaller than the search spacing, both search points have the same sign and no sign change is seen. Nearly touching pairs of roots and multiple roots are thus hard to find by incremental search, and it is safer to plot the function as well.
+
 ---
 
 <br>
@@ -298,7 +364,7 @@ flowchart TD
     U --> M
 ```
 
-*Figure 2. Iteration procedure of the bisection method*
+*Figure 3. Iteration procedure of the bisection method*
 
 ```python
 def bisection(f, a, b, tol=1e-6, max_iter=100):
@@ -321,6 +387,59 @@ def bisection(f, a, b, tol=1e-6, max_iter=100):
 ```
 
 > **Note:** The code above does not handle the case where `f(c)` is exactly 0. In that case `f(a) * f(c) < 0` is false, so `a = c`, and in later iterations the same test stays false because `f(a) = 0`, which pushes `a` toward the right end. For example, `bisection(lambda x: x, -1, 1)` returns about `0.9999995` even though the first midpoint 0 is the root. Adding a check that returns `c` immediately when `f(c) == 0` inside the loop avoids this problem.
+
+### 6.3 Example: Savings Interest Rate by Bisection
+
+Solve the savings problem of Section 3.1 ($`p = 60`$, $`n = 24`$, $`A = 1500`$) by bisection. For the interest rate $`r`$ (as a fraction), $`f(0.01) = -46.12 < 0`$ and $`f(0.10) = 86.81 > 0`$, so $`[0.01, 0.10]`$ brackets the root. The initial interval width is $`\Delta x = 0.09`$, and the true root is $`r^* = 0.0423610344\ldots`$.
+
+In the first iteration, $`c_0 = (0.01 + 0.10)/2 = 0.055`$ and $`f(0.055) = 18.51 > 0`$, so the half where the sign changes, $`[0.01, 0.055]`$, becomes the new interval. In the second iteration, $`c_1 = 0.0325`$ and $`f(0.0325) = -14.25 < 0`$, so the new interval is $`[0.0325, 0.055]`$. Continuing gives the following table. $`\varepsilon_a`$ is the approximate percent relative error computed from two successive midpoints, and the last column is the a priori error bound $`\Delta x/2^n`$ of Section 7.2.
+
+| $`n`$ | $`a`$ | $`b`$ | $`c`$ | $`f(c)`$ | $`\varepsilon_a`$ (%) | $`\vert c - r^* \vert`$ | $`\Delta x/2^n`$ |
+|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
+| 1 | 0.010000 | 0.100000 | 0.055000 | 18.5136 | - | $`1.26 \times 10^{-2}`$ | $`4.50 \times 10^{-2}`$ |
+| 2 | 0.010000 | 0.055000 | 0.032500 | -14.2464 | 69.231 | $`9.86 \times 10^{-3}`$ | $`2.25 \times 10^{-2}`$ |
+| 3 | 0.032500 | 0.055000 | 0.043750 | 2.0205 | 25.714 | $`1.39 \times 10^{-3}`$ | $`1.13 \times 10^{-2}`$ |
+| 4 | 0.032500 | 0.043750 | 0.038125 | -6.1410 | 14.754 | $`4.24 \times 10^{-3}`$ | $`5.63 \times 10^{-3}`$ |
+| 5 | 0.038125 | 0.043750 | 0.040938 | -2.0673 | 6.870 | $`1.42 \times 10^{-3}`$ | $`2.81 \times 10^{-3}`$ |
+| 6 | 0.040938 | 0.043750 | 0.042344 | -0.0251 | 3.321 | $`1.73 \times 10^{-5}`$ | $`1.41 \times 10^{-3}`$ |
+| 7 | 0.042344 | 0.043750 | 0.043047 | 0.9973 | 1.633 | $`6.86 \times 10^{-4}`$ | $`7.03 \times 10^{-4}`$ |
+| 8 | 0.042344 | 0.043047 | 0.042695 | 0.4860 | 0.823 | $`3.34 \times 10^{-4}`$ | $`3.52 \times 10^{-4}`$ |
+| 9 | 0.042344 | 0.042695 | 0.042520 | 0.2304 | 0.413 | $`1.58 \times 10^{-4}`$ | $`1.76 \times 10^{-4}`$ |
+| 10 | 0.042344 | 0.042520 | 0.042432 | 0.1026 | 0.207 | $`7.06 \times 10^{-5}`$ | $`8.79 \times 10^{-5}`$ |
+
+*Table 2. Iterations of the bisection method for the savings problem*
+
+Three observations can be made. First, in every iteration the true error is at most the a priori bound $`\Delta x/2^n`$. Second, the true error does not decrease monotonically. The sixth midpoint, 0.042344, is very close to the root with an error of $`1.73 \times 10^{-5}`$, but the seventh midpoint is the center of the next interval, so the error grows again. This happens because bisection chooses the midpoint by looking only at the interval, not at where the root lies. Third, as the iterations proceed, $`\varepsilon_a`$ is almost exactly halved each time and is always larger than the true error expressed as a percentage (Section 7.5). Guaranteeing a tolerance of $`10^{-6}`$ requires, by the formula of Section 7.3, $`n > \log_2(0.09/10^{-6}) \approx 16.5`$, that is, 17 iterations.
+
+### 6.4 Bracketing Functions in SciPy
+
+SciPy's `scipy.optimize` provides the bracketing functions `bisect` and `brentq` (Brent's method of Chapter 6), and `root_scalar`, which gathers several methods in one interface. Given a `bracket`, `root_scalar` uses bracketing methods such as `bisect`, `brentq`, `brenth`, `ridder`, and `toms748`; given an initial guess, it uses open methods such as `secant`, `newton`, and `halley` [1].
+
+```python
+from scipy import optimize
+
+def g(r, n=24, p=60.0, A=1500.0):
+    q = 1 + r / 12
+    return 12 * p / r * (q**n - 1) - A
+
+root, info = optimize.bisect(g, 0.01, 0.10, xtol=1e-10, full_output=True)
+print(root, info.iterations, info.function_calls)
+root, info = optimize.brentq(g, 0.01, 0.10, xtol=1e-10, full_output=True)
+print(root, info.iterations, info.function_calls)
+sol = optimize.root_scalar(g, bracket=[0.01, 0.10], method='bisect', xtol=1e-10)
+print(sol.root, sol.converged, sol.iterations)
+```
+
+```text
+0.042361034406349064 30 32
+0.04236103442910657 6 7
+0.042361034406349064 True 30
+```
+
+- `xtol=1e-10` is the absolute tolerance on the root. `bisect` took 30 iterations, which agrees with the formula of Section 7.3, $`n > \log_2(0.09/10^{-10}) \approx 29.7`$. The 32 function calls include one extra evaluation at each endpoint.
+- With `full_output=True`, the function returns, along with the root, an object holding the number of iterations (`iterations`) and function calls (`function_calls`).
+- `brentq` meets the same tolerance with 6 iterations and 7 function calls, because it mixes the secant method and inverse quadratic interpolation while keeping the convergence guarantee of bisection (Section 8 of Chapter 6).
+- `root_scalar` returns the result as an object with the attributes `root`, `converged`, and `iterations`.
 
 ---
 
@@ -422,6 +541,58 @@ n = bisection_iterations_needed(1.0, 1e-5)
 print(f"Iterations needed: {n}")  # Output: 17
 ```
 
+### 7.4 Order of Convergence
+
+The speed of an iterative method is compared by its **order of convergence**.
+
+> **Definition:** The **order of convergence** is the exponent $`p`$ for which the error $`e_k = x_k - x^*`$ of a sequence $`x_k`$ converging to a root $`x^*`$ satisfies $`\lim_{k \to \infty} |e_{k+1}|/|e_k|^p = C`$ ($`0 < C < \infty`$), and the constant $`C`$ is called the asymptotic error constant.
+
+If $`p = 1`$ and $`0 < C < 1`$, the convergence is called **linear convergence**, and the error is multiplied by roughly $`C`$ in each iteration. If $`p = 2`$, the convergence is **quadratic**, and the number of correct digits roughly doubles in each iteration (the Newton-Raphson method of Chapter 6). If $`1 < p < 2`$, it is called **superlinear convergence** (the secant method of Chapter 6).
+
+In the bisection method the width of the interval containing the root is halved exactly in each iteration, so the error bound $`\Delta x/2^n`$ converges linearly with $`C = 1/2`$. However, as seen in Section 6.3, the true error itself may not decrease in every iteration, so the linear convergence of bisection is a property of the error bound. Figure 4 continues the iterations of Table 2 to 24 and plots the true error and the a priori bound on semilog axes.
+
+![Figure 4. True error and a priori error bound of the bisection method (semilog axes)](../../images/Ch05_Bisection-Error.png)
+
+*Figure 4. True error and a priori error bound of the bisection method (semilog axes)*
+
+On semilog axes the a priori bound is a straight line of slope $`\log_{10}(1/2) \approx -0.301`$, and the true error fluctuates below it while decreasing at the same slope. Reducing the error tenfold takes about $`\log_2 10 \approx 3.32`$ iterations, so each significant digit costs about 3.3 iterations and 3.3 function evaluations. That this rate does not depend on the shape of the function is both the strength and the limitation of bisection.
+
+### 7.5 Approximate Relative Error and Stopping Criteria
+
+The stopping criterion of bisection can take three forms.
+
+**Interval width.** Stop when $`b - a < \varepsilon`$ (Section 6.2). This is an absolute-error criterion that guarantees a true error of at most $`(b - a)/2`$.
+
+**Approximate relative error.** Compute the $`\varepsilon_a`$ of Chapter 4 from two successive midpoints. The previous midpoint $`c_{\text{old}}`$ is one end of the new interval $`[a, b]`$, so $`|c_{\text{new}} - c_{\text{old}}| = (b - a)/2`$, and since $`c_{\text{new}} = (a + b)/2`$, the following holds.
+
+```math
+\varepsilon_a = \left| \frac{c_{\text{new}} - c_{\text{old}}}{c_{\text{new}}} \right| \times 100\% = \left| \frac{b - a}{b + a} \right| \times 100\%
+```
+
+The true root lies in the new interval, so the true error satisfies $`|c_{\text{new}} - x^*| \leq (b - a)/2 = |c_{\text{new}} - c_{\text{old}}|`$. Therefore $`\varepsilon_a`$ acts as an upper bound on the true percent relative error (neglecting the small difference between the denominators $`c_{\text{new}}`$ and $`x^*`$), which is why $`\varepsilon_a`$ is always larger than the true error in the table of Section 6.3. For iterative methods in general there is no guarantee that $`\varepsilon_a`$ bounds the true error, so this is an advantage of bisection, which keeps a bracket.
+
+**Function value.** Stop when $`|f(c)| < \varepsilon`$. This is the criterion used by false position (Section 8). If the function is very flat near the root, $`|f(c)|`$ can be small while $`c`$ is far from the root; conversely, if it is very steep, $`|f(c)|`$ can be large while $`c`$ is close to the root. The function-value criterion is therefore safer when combined with a criterion on $`x`$.
+
+The relative-error criterion cannot be used when the root is zero or near zero, because the denominator approaches zero. If the root may be near zero, use an absolute criterion or the mixed criterion $`(b - a)/2 < \varepsilon_{\text{abs}} + \varepsilon_{\text{rel}}|c|`$. The tolerance also cannot be set below the machine precision. Near a root $`x^*`$ the spacing between adjacent double-precision numbers is about $`\varepsilon_{\text{mach}}|x^*|`$ (Section 5.7 of Chapter 4), so once the interval width falls below this, the midpoint equals one of the two endpoints and the interval stops shrinking.
+
+### 7.6 Implementation Pitfalls
+
+Bisection is simple, but its implementation requires care with the following.
+
+| Problem | Cause | Remedy |
+|:-----|:-----|:-----|
+| Moving to the wrong side when the midpoint is a root | `f(a) * f(c) < 0` is false, so `a = c` is set (Note in Section 6.2) | Return `c` immediately if `f(c) == 0` |
+| Underflow in the sign test | The product of two very small function values becomes 0 | Compare with `np.sign(f(a)) != np.sign(f(c))` |
+| Overflow in the midpoint | `a + b` overflows when `a` and `b` are very large | Compute `a + (b - a) / 2` |
+| Unnecessary function evaluations | `f(a)` is recomputed in every iteration | Keep `f(a)` in a variable for one evaluation per iteration |
+| Loop that never ends | Tolerance below the machine precision | Set a maximum number of iterations and return the reason for stopping |
+| Root not found | A root without a sign change, such as a root of even multiplicity | Check with a plot or use an open method (Chapter 6) |
+| Convergence to a non-root | A discontinuity inside the interval (Self-Check Question 4) | Check continuity on the interval |
+
+*Table 3. Pitfalls in implementing the bisection method*
+
+The computational cost of bisection is one function evaluation per iteration. The number of evaluations needed for a tolerance $`\varepsilon`$, including the two endpoint evaluations, is about $`\lceil \log_2(\Delta x/\varepsilon) \rceil + 2`$ regardless of the function, so the total computing time is known in advance even for problems whose function evaluations take a long time.
+
 ---
 
 <br>
@@ -503,6 +674,40 @@ A key weakness of the false position method is the **one-sidedness problem**: on
 **Example:** Consider finding the root $`x = 0`$ of $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`$.
 
 When the function has significant curvature, one endpoint gets stuck while the other slowly approaches the root from one side. The interval does not shrink symmetrically. In this example, the first estimate is $`c = 0.8`$ with $`f(0.8) = 0.864 > 0`$, so $`b`$ is updated; afterward $`a = -1`$ never moves and only $`b`$ shrinks through $`0.642, 0.507, 0.391, \ldots`$. The `false_position(f, -1, 1)` call above meets $`|f(c)| < 10^{-6}`$ only at iteration index `n = 39` (the 40th estimate).
+
+### 8.4 Example: Savings Interest Rate by False Position
+
+Solve the savings problem of Section 6.3 by false position on the same interval $`[0.01, 0.10]`$. The estimate of the first iteration is:
+
+```math
+c = \frac{0.01 \times 86.8149 - 0.10 \times (-46.1153)}{86.8149 - (-46.1153)} = 0.0412222
+```
+
+Since $`f(0.0412222) = -1.6541 < 0`$, the root lies in $`[0.0412222, 0.10]`$ and the left endpoint is updated. Continuing gives the following table.
+
+| $`n`$ | $`a`$ | $`b`$ | $`c`$ | $`f(c)`$ | $`\vert c - r^* \vert`$ |
+|-----:|-----:|-----:|-----:|-----:|-----:|
+| 1 | 0.010000 | 0.100000 | 0.04122222 | -1.65408 | $`1.14 \times 10^{-3}`$ |
+| 2 | 0.041222 | 0.100000 | 0.04232117 | -0.05794 | $`3.99 \times 10^{-5}`$ |
+| 3 | 0.042321 | 0.100000 | 0.04235964 | -0.00203 | $`1.40 \times 10^{-6}`$ |
+| 4 | 0.042360 | 0.100000 | 0.04236099 | -0.00007 | $`4.88 \times 10^{-8}`$ |
+| 5 | 0.042361 | 0.100000 | 0.04236103 | -0.00000 | $`1.71 \times 10^{-9}`$ |
+
+*Table 4. Iterations of false position for the savings problem*
+
+Here too the right endpoint $`b = 0.10`$ never moves, so one-sidedness appears, yet false position reaches an error of $`1.71 \times 10^{-9}`$ in five iterations. After the same number of iterations the error of bisection is $`1.42 \times 10^{-3}`$ (Table 2). False position is fast in this example because the function is nearly linear on the interval, so even with one endpoint fixed the x-intercept of the secant moves straight toward the root. Section 8.5 quantifies this difference.
+
+### 8.5 Rate of Convergence of False Position
+
+Consider the case in which one endpoint $`b`$ stays fixed and only the other endpoint $`a_k`$ approaches the root. With $`a_k = x^* + e_k`$, the false position formula can be written $`c = a_k - f(a_k)\frac{b - a_k}{f(b) - f(a_k)}`$. When $`e_k`$ is small, $`f(a_k) \approx f'(x^*)e_k`$, $`b - a_k \approx b - x^*`$, and $`f(b) - f(a_k) \approx f(b)`$, so:
+
+```math
+e_{k+1} = c - x^* \approx e_k - f'(x^*)\,e_k\,\frac{b - x^*}{f(b)} = \left(1 - \frac{f'(x^*)(b - x^*)}{f(b)}\right) e_k
+```
+
+False position therefore converges linearly with asymptotic error constant $`C = 1 - f'(x^*)(b - x^*)/f(b)`$. $`f(b)/(b - x^*)`$ is the slope of the secant from the root to the fixed endpoint, so $`C`$ measures how far the ratio of the tangent slope at the root to this secant slope departs from 1. If the function is nearly linear, the two slopes are almost equal and $`C \approx 0`$, which is very fast; if the curvature is large, $`C`$ approaches 1 and the method becomes slower than bisection ($`C = 1/2`$).
+
+In the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$, the fixed endpoint is $`a = -1`$, so $`a`$ replaces $`b`$ in the same formula. With $`x^* = 0`$, $`f'(0) = 3`$, and $`f(-1) = -9`$, $`C = 1 - 3(-1 - 0)/(-9) = 1 - 1/3 = 2/3`$. Indeed, the ratio of the errors of successive estimates goes from 0.803, 0.790, 0.770, ... to 0.667 by about the twentieth iteration, and 40 estimates are needed to reach $`|f(c)| < 10^{-6}`$. In the savings problem of Section 8.4, by contrast, the same formula gives $`C`$ of about 0.035, so each iteration adds about 1.5 significant digits, and the ratio of successive errors in Table 4 is also about 0.035.
 
 ---
 
@@ -592,6 +797,35 @@ def modified_false_position(f, a, b, tol=1e-6, max_iter=100):
 
 Applied to the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`$, this function meets $`|f(c)| < 10^{-6}`$ at iteration index `n = 9`, converging much faster than standard false position (`n = 39`).
 
+### 9.3 Comparing the Convergence of Three Bracketing Methods
+
+Applying the modified false position method of Section 9.2 to the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`$, proceeds as follows.
+
+| $`n`$ | $`a`$ | $`b`$ | $`c`$ | $`f(c)`$ |
+|-----:|-----:|-----:|-----:|-----:|
+| 1 | -1.000000 | 1.000000 | 0.800000 | $`8.64 \times 10^{-1}`$ |
+| 2 | -1.000000 | 0.800000 | 0.642336 | $`8.07 \times 10^{-1}`$ |
+| 3 | -1.000000 | 0.642336 | 0.392682 | $`6.82 \times 10^{-1}`$ |
+| 4 | -1.000000 | 0.392682 | 0.068608 | $`1.88 \times 10^{-1}`$ |
+| 5 | -1.000000 | 0.068608 | -0.084149 | $`-2.82 \times 10^{-1}`$ |
+| 6 | -0.084149 | 0.068608 | 0.007570 | $`2.25 \times 10^{-2}`$ |
+| 7 | -0.084149 | 0.007570 | 0.000797 | $`2.39 \times 10^{-3}`$ |
+| 8 | -0.084149 | 0.000797 | -0.000618 | $`-1.86 \times 10^{-3}`$ |
+| 9 | -0.000618 | 0.000797 | 0.000001 | $`1.97 \times 10^{-6}`$ |
+| 10 | -0.000618 | 0.000001 | 0.000000 | $`1.62 \times 10^{-9}`$ |
+
+*Table 5. Iterations of modified false position for the one-sidedness example*
+
+The first two estimates equal those of false position. Because the two estimates 0.8 and 0.642 both lie to the right of the root, the third estimate is computed with a secant in which the function value at the fixed endpoint, $`f(-1) = -9`$, is halved to $`-4.5`$, and it moves far, to 0.393. The third estimate is also on the same side, so the fourth estimate is computed with a secant in which the function value is halved again ($`-2.25`$) and becomes 0.069, and the fifth estimate finally crosses to the left of the root ($`-0.084`$), so the left endpoint, fixed until then, moves for the first time. After that both endpoints are updated, and the tenth estimate reaches $`|f(c)| = 1.6 \times 10^{-9}`$.
+
+Changing the interval of the same example to $`[-1, 1.2]`$ (so that the first midpoint does not happen to be the root) allows a fair comparison of the three methods. Figure 5 plots the true errors of the three methods against the number of iterations.
+
+![Figure 5. True errors of bisection, false position, and modified false position for the one-sidedness example](../../images/Ch05_Bracketing-Comparison.png)
+
+*Figure 5. True errors of bisection, false position, and modified false position for the one-sidedness example*
+
+False position is the slowest, converging linearly with a rate close to $`C = 2/3`$, and its error is still about $`2 \times 10^{-5}`$ after 30 iterations. Bisection decreases along the bound $`2.2/2^n`$ while fluctuating, reaching about $`10^{-9}`$ after 30 iterations. Modified false position resembles false position for the first few iterations, but once both endpoints start moving it speeds up sharply, and at the twelfth iteration its error drops below $`10^{-15}`$. Once the halving correction removes one-sidedness, the speed inherent in a secant-based method, close to superlinear, appears.
+
 ---
 
 <br>
@@ -611,7 +845,7 @@ Applied to the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`
 | **Key Advantage** | Simple to implement | Predictable, robust | Often faster than bisection | Fixes FP stalling |
 | **Key Disadvantage** | Sensitive to step size | Slow (linear convergence) | Can stall (one-sided) | Slightly more complex |
 
-*Table 2. Comparison of the four bracketing methods*
+*Table 6. Comparison of the four bracketing methods*
 
 ---
 
@@ -626,8 +860,11 @@ Applied to the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`
 | Intermediate Value Theorem | If $`f`$ is continuous on $`[a, b]`$ and $`f(a) \cdot f(b) < 0`$, there is at least one root in $`(a, b)`$. |
 | Incremental Search | It splits the interval into small subintervals to find sign changes, and a large step size can miss pairs of roots. |
 | Bisection | It halves the interval at each iteration and converges linearly with an error guaranteed to be at most $`\Delta x / 2^n`$ after $`n`$ iterations. |
+| Order of Convergence | It is the $`p`$ in $`\lim \vert e_{k+1} \vert/\vert e_k \vert^p = C`$; $`p = 1`$ is linear and $`p = 2`$ is quadratic convergence. |
+| Approximate Relative Error | In bisection, $`\varepsilon_a = \vert (b - a)/(b + a) \vert \times 100\%`$, which acts as an upper bound on the true relative error. |
 | Required Iterations | Guaranteeing a tolerance $`\varepsilon_s`$ takes $`n > \log_2(\Delta x / \varepsilon_s)`$ iterations. |
 | False Position | It uses the x-intercept of the line through the two endpoints as the new estimate and can slow down because of the one-sidedness problem. |
+| Convergence Rate of False Position | With one endpoint fixed it converges linearly with $`C = 1 - f'(x^*)(b - x^*)/f(b)`$, faster the closer the function is to a straight line. |
 | Modified False Position | It halves the function value at the stationary endpoint when two consecutive estimates fall on the same side, which fixes the one-sidedness problem. |
 
 ---
@@ -680,3 +917,38 @@ Applied to the example of Section 8.3, $`f(x) = 2x^3 - 4x^2 + 3x`$ on $`[-1, 1]`
    If the function bends to one side near the root (convex or concave), the x-intercept of the secant always falls on the same side of the root, so the same endpoint is updated every time and the opposite endpoint stays fixed. The modified false position method halves the function value at the fixed endpoint when two consecutive estimates fall on the same side. The secant then tilts so that the next estimate can cross to the other side of the root, both endpoints move, and the interval width shrinks to zero.
 
    </details>
+
+6. **Approximate relative error:** In the bisection of Section 6.3, when the interval has shrunk to $`[0.042344, 0.043047]`$, compute $`\varepsilon_a`$ with the formula of Section 7.5 and compare it with Table 2.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\varepsilon_a = (0.043047 - 0.042344)/(0.043047 + 0.042344) \times 100\% = 0.000703/0.085391 \times 100\% \approx 0.823\%`$. This is the interval after the seventh iteration, and its midpoint is the eighth estimate, so the value equals $`\varepsilon_a = 0.823\%`$ in the eighth row of Table 2.
+
+   </details>
+
+7. **Asymptotic error constant of false position:** When false position is applied to $`f(x) = x^2 - 3`$ on $`[1, 2]`$, which endpoint stays fixed? Find the asymptotic error constant $`C`$ with the formula of Section 8.5 and compare with bisection.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`f`$ is convex, so the secant lies above the curve and its x-intercept always falls to the left of the root $`\sqrt{3}`$, leaving the right endpoint $`b = 2`$ fixed. $`C = 1 - f'(\sqrt{3})(2 - \sqrt{3})/f(2) = 1 - 2\sqrt{3}(0.26795)/1 \approx 0.0718`$. The actual ratios of successive errors, 0.0731, 0.0719, 0.0718, ..., converge to this value. It is far smaller than the $`C = 1/2`$ of bisection, so for this problem false position is much faster than bisection.
+
+   </details>
+
+8. **Spacing of an incremental search:** In the example of Section 5.3, what must the search spacing be smaller than to avoid missing a pair of roots about 0.035 apart? Find the minimum number of points needed on $`[3, 6]`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   At least one search point must fall between the two roots so that its sign differs from both neighbors and both sign changes are seen. If the spacing is smaller than the distance between the roots, an interval of length 0.035 always contains a search point, so the spacing must be smaller than 0.035. From $`(6 - 3)/(n_s - 1) < 0.035`$, $`n_s - 1 > 85.7`$, so at least 87 points are needed. This agrees with finding all nine roots with 100 points.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. SciPy Developers, "scipy.optimize.root_scalar," *SciPy Reference Guide*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.root_scalar.html
