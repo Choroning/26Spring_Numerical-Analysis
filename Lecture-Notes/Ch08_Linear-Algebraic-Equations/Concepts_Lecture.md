@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
@@ -33,6 +33,8 @@
   - [2.10 Matrix Form of Linear Algebraic Equations](#210-matrix-form-of-linear-algebraic-equations)
   - [2.11 Stiffness Matrix of a Spring-Mass System](#211-stiffness-matrix-of-a-spring-mass-system)
   - [2.12 Solving Linear Equations with Python](#212-solving-linear-equations-with-python)
+  - [2.13 Matrix Notation in NumPy](#213-matrix-notation-in-numpy)
+  - [2.14 Application: Currents in a Circuit](#214-application-currents-in-a-circuit)
 - [3. Small Systems (2x2): Graphical Method](#3-small-systems-2x2-graphical-method)
   - [3.1 Two Equations as Two Lines](#31-two-equations-as-two-lines)
   - [3.2 Three Possibilities](#32-three-possibilities)
@@ -40,6 +42,8 @@
 - [4. Determinant and Solvability](#4-determinant-and-solvability)
   - [4.1 Determinant of a 2x2 System](#41-determinant-of-a-2x2-system)
   - [4.2 Singular and Ill-Conditioned Systems](#42-singular-and-ill-conditioned-systems)
+  - [4.3 A Numerical Example of an Ill-Conditioned System](#43-a-numerical-example-of-an-ill-conditioned-system)
+  - [4.4 Existence and Uniqueness of Solutions for Square Systems](#44-existence-and-uniqueness-of-solutions-for-square-systems)
 - [5. Cramer's Rule](#5-cramers-rule)
   - [5.1 Derivation for 2x2](#51-derivation-for-2x2)
   - [5.2 General Form](#52-general-form)
@@ -462,6 +466,91 @@ Both `print` calls output `[-0.8  0.6]`, the solution found in Section 2.10. `np
 
 > **Caution:** For NumPy arrays, `*` multiplies element by element. `np.linalg.inv(A) * b` therefore multiplies each row of the inverse element by element by `b` and returns a $`2 \times 2`$ array instead of the matrix-vector product. The matrix product of arrays is written with `@` (or `np.dot`).
 
+### 2.13 Matrix Notation in NumPy
+
+The matrix notation of Sections 2.1-2.9 corresponds one to one with operations on NumPy arrays. A matrix $`[A]`$ is a two-dimensional array, and the element $`a_{ij}`$ is `A[i-1, j-1]` (indices start at 0).
+
+```python
+import numpy as np
+
+A = np.array([[4.0, -1.0,  0.0],
+              [-1.0, 4.0, -1.0],
+              [0.0, -1.0,  4.0]])
+print(A.shape, A.ndim)
+print(np.diag(A), np.trace(A))
+print(np.allclose(A, A.T))                   # symmetric?
+print(np.linalg.eigvalsh(A))                 # eigenvalues of a symmetric matrix
+print(np.triu(A, 1))                         # strictly upper triangular part
+b = np.array([1.0, 2.0, 3.0])
+x = np.linalg.solve(A, b)
+print(x, b - A @ x)                          # solution and residual
+```
+
+```text
+(3, 3) 2
+[4. 4. 4.] 12.0
+True
+[2.58578644 4.         5.41421356]
+[[ 0. -1.  0.]
+ [ 0.  0. -1.]
+ [ 0.  0.  0.]]
+[0.46428571 0.85714286 0.96428571] [0. 0. 0.]
+```
+
+- `A.shape` gives the numbers of rows and columns, and `A.ndim` the number of dimensions. For a square matrix the two values of `shape` are equal.
+- `np.diag(A)` returns the main diagonal, and `np.trace(A)` its sum. Conversely, given a one-dimensional array, `np.diag` builds a diagonal matrix with those values on the diagonal.
+- Whether a matrix is symmetric is checked by comparing `A` with `A.T`. A matrix computed in floating point may not be exactly symmetric because of roundoff, so `np.allclose` is used instead of `==`.
+- `np.linalg.eigvalsh` computes the eigenvalues of a symmetric matrix. All the eigenvalues are positive, so this matrix is positive definite (the same property as the stiffness matrix of Section 2.11); eigenvalues are covered in detail in Chapter 13.
+- `np.triu(A, 1)` is the upper triangular part keeping only the elements above the main diagonal, and `np.tril` is the lower triangular part. They are used when a matrix is split into triangular parts in Gauss elimination (Chapter 9) and LU factorization (Chapter 10).
+- The last line is the solution $`\{x\}`$ and the **residual** $`\{r\} = \{b\} - [A]\{x\}`$. A residual close to zero means that $`\{x\}`$ satisfies the equations, but as Section 4.3 shows, a small residual does not guarantee an accurate solution.
+
+### 2.14 Application: Currents in a Circuit
+
+Electric circuits are a typical source of simultaneous linear equations. The circuit of Figure 3 consists of two voltage sources and five resistors, and the unknowns are the **mesh currents** $`i_1, i_2, i_3`$ circulating clockwise around the three loops (meshes). A resistor shared by two meshes carries the difference of the two mesh currents.
+
+```text
+   +----- R1 -----+----- R2 -----+----- R3 -----+
+   |              |              |              |
+   V1    (i1)    R12    (i2)    R23    (i3)     V3
+   |              |              |              |
+   +--------------+--------------+--------------+
+```
+
+*Figure 3. A resistor circuit made of three meshes*
+
+Applying **Kirchhoff's voltage law** (the voltage drops around a closed loop sum to zero) to each mesh gives the following, where the source $`V_1`$ drives current clockwise in mesh 1 and the source $`V_3`$ in mesh 3 is placed against the clockwise direction.
+
+```math
+\begin{aligned} (R_1 + R_{12})\,i_1 - R_{12}\,i_2 &= V_1 \\ -R_{12}\,i_1 + (R_{12} + R_2 + R_{23})\,i_2 - R_{23}\,i_3 &= 0 \\ -R_{23}\,i_2 + (R_{23} + R_3)\,i_3 &= -V_3 \end{aligned}
+```
+
+The coefficient matrix is symmetric and tridiagonal. Solving with $`R_1 = 2`$, $`R_2 = 6`$, $`R_3 = 5`$, $`R_{12} = 4`$, $`R_{23} = 3`$ Ω and $`V_1 = 10`$, $`V_3 = 5`$ V gives:
+
+```python
+import numpy as np
+
+R1, R2, R3, R12, R23 = 2.0, 6.0, 5.0, 4.0, 3.0   # resistances (ohm)
+V1, V3 = 10.0, 5.0                               # source voltages (V)
+
+A = np.array([[R1 + R12, -R12,            0.0],
+              [-R12,      R12 + R2 + R23, -R23],
+              [0.0,      -R23,            R23 + R3]])
+b = np.array([V1, 0.0, -V3])
+i = np.linalg.solve(A, b)                        # mesh currents (A)
+print(i)
+p_source = V1 * i[0] - V3 * i[2]                 # power delivered by sources
+p_resist = (R1 * i[0]**2 + R12 * (i[0] - i[1])**2 + R2 * i[1]**2
+            + R23 * (i[1] - i[2])**2 + R3 * i[2]**2)
+print(p_source, p_resist)
+```
+
+```text
+[ 2.01357466  0.52036199 -0.42986425]
+22.285067873303166 22.285067873303166
+```
+
+The mesh currents are $`i_1 = 2.014`$, $`i_2 = 0.520`$, and $`i_3 = -0.430`$ A. The negative $`i_3`$ means that the current in the third mesh flows opposite to the assumed clockwise direction. The shared resistor $`R_{12}`$ carries $`i_1 - i_2 = 1.493`$ A. The result can be verified by conservation of energy: the power supplied by the sources, $`V_1 i_1 - V_3 i_3`$, and the power dissipated in the resistors, $`\sum R I^2`$, are both 22.285 W. The conservation laws of Section 1.3 of Chapter 1 thus serve as a means of checking results.
+
 ---
 
 <br>
@@ -559,6 +648,73 @@ The last step multiplies by $`a_{12}a_{22} \neq 0`$. The final condition contain
 > **[Linear Algebra]** The absolute value of the determinant is the area of the parallelogram (2D) or the volume of the parallelepiped (3D) formed by the row (or column) vectors. A zero determinant means the vectors are linearly dependent and the area or volume collapses to zero; the redundant rows of the coefficient matrix in the singular systems above are exactly this case.
 
 Geometrically, ill-conditioning for a $`2 \times 2`$ system means the two lines intersect at a very shallow angle. In such cases, small changes in the coefficients (shifting a line slightly) can move the intersection point dramatically. This sensitivity is quantified by the **condition number**, which in the 2-norm is the ratio of the largest to the smallest singular value of $`[A]`$. The condition number is discussed further in Chapter 11.
+
+### 4.3 A Numerical Example of an Ill-Conditioned System
+
+In the following system the coefficients of the two equations are nearly equal, so the two lines are nearly parallel.
+
+```math
+x_1 + x_2 = 2, \qquad x_1 + 1.001\,x_2 = 2.001
+```
+
+The solution is $`x_1 = x_2 = 1`$. Changing the right side of the second equation by only 0.05%, from 2.001 to 2.002, makes the solution $`x_1 = 0`$, $`x_2 = 2`$. A tiny change in the right side has changed the solution by 100%.
+
+```python
+import numpy as np
+
+A = np.array([[1.0, 1.0],
+              [1.0, 1.001]])
+for b in ([2.0, 2.001], [2.0, 2.002]):
+    print(np.linalg.solve(A, b))
+print(np.linalg.det(A), np.linalg.cond(A))
+
+xt = np.array([2.0, 0.001])                  # a poor guess for b = [2, 2.001]
+print(np.array([2.0, 2.001]) - A @ xt)       # its residual is tiny
+
+S = np.array([[1.0, 2.0],
+              [2.0, 4.0]])
+print(np.linalg.matrix_rank(S))
+try:
+    np.linalg.solve(S, [3.0, 6.0])
+except np.linalg.LinAlgError as err:
+    print("LinAlgError:", err)
+```
+
+```text
+[1. 1.]
+[0. 2.]
+0.00099999999999989 4002.0007501252458
+[-1.e-03 -1.e-06]
+1
+LinAlgError: Singular matrix
+```
+
+The output shows three properties of this system.
+
+- **Small determinant.** The determinant is $`1 \times 1.001 - 1 \times 1 = 0.001`$. The two rows have similar magnitudes, so the determinant stays small even after normalization (Section 4.2). The difference in the last digits of the output is roundoff from the LU factorization.
+- **Large condition number.** `np.linalg.cond(A)` is about 4002. Like the condition number of a function in Section 13 of Chapter 4, the condition number of a matrix indicates by up to what factor the relative error of the inputs (coefficients and right side) is amplified in the relative error of the solution. Its definition and error bound are covered in Chapter 11.
+- **Mismatch between residual and error.** The wrong estimate $`\tilde{x} = (2, 0.001)`$ differs from the true solution by about 1, yet its residual $`\{b\} - [A]\{\tilde{x}\} = (-0.001, -0.000001)`$ is very small. Along two nearly parallel lines lies a long stretch of points that nearly satisfy both equations. For an ill-conditioned system, a small residual alone does not show that a solution is accurate.
+
+![Figure 4. The intersection of two lines with slightly different coefficients moving far under a small change in the right side](../../images/Ch08_Ill-Conditioned-Lines.png)
+
+*Figure 4. The intersection of two lines with slightly different coefficients moving far under a small change in the right side*
+
+To make the phenomenon visible, Figure 4 shows the system $`x_1 + x_2 = 2`$, $`x_1 + 1.1x_2 = 2.1`$, with the coefficient of the second equation enlarged to 1.1 (condition number about 42). Changing the right side of the second equation from 2.1 to 2.2 raises the second line slightly from the solid to the dashed line, and because the two lines meet at a small angle, the intersection slides far along the line from $`(1, 1)`$ to $`(0, 2)`$. With the coefficient 1.001 the two lines overlap so closely that they cannot be told apart in the figure, and the intersection moves much more for a right-side change of the same size.
+
+### 4.4 Existence and Uniqueness of Solutions for Square Systems
+
+The $`2 \times 2`$ result of Section 4.1 generalizes to $`n \times n`$ systems. For a square matrix $`[A]`$, the following statements are equivalent.
+
+1. $`\det[A] \neq 0`$.
+2. The inverse of $`[A]`$ exists (nonsingular).
+3. For every $`\{b\}`$, $`[A]\{x\} = \{b\}`$ has exactly one solution.
+4. The only solution of $`[A]\{x\} = \{0\}`$ is $`\{x\} = \{0\}`$.
+5. The columns (or rows) of $`[A]`$ are linearly independent, and its rank is $`n`$.
+6. None of the eigenvalues of $`[A]`$ is zero.
+
+If any one of them fails, $`[A]`$ is singular, and depending on $`\{b\}`$ the system has no solution or infinitely many (the rank condition of Section 3.2). In the last part of the code in Section 4.3, the matrix $`\begin{bmatrix} 1 & 2 \\ 2 & 4 \end{bmatrix}`$ has a second row twice the first, so its rank is 1, and `np.linalg.solve` raises the exception `LinAlgError: Singular matrix`. The right side $`(3, 6)`$ makes both equations the same line, a case with infinitely many solutions, but `solve` is a function for finding a unique solution and does not handle such cases.
+
+> **Caution:** In numerical computation the boundary between singular and nonsingular blurs. Because of roundoff, even an exactly singular matrix can produce a tiny nonzero pivot during the computation and return an absurdly large solution without any exception. What matters is therefore not whether the determinant is exactly zero but whether the condition number approaches $`1/\varepsilon_{\text{mach}} \approx 10^{16}`$, which is called being numerically singular (Chapter 11).
 
 ---
 
@@ -670,7 +826,7 @@ This zeros out all entries in column 1 below the diagonal.
 
 **Step 2 (pivot on row 2):** Use $`a_{22}^{(1)}`$ (the updated entry after Step 1) as the pivot element. Eliminate entries in column 2 from rows $`3, 4, \ldots, n`$.
 
-**Continue through column $`n-1`$:** At each step $`i`$, use $`a_{ii}^{(i-1)}`$ as the pivot element and eliminate all entries below it. For a $`3 \times 3`$ augmented matrix, the process proceeds as in Figure 3.
+**Continue through column $`n-1`$:** At each step $`i`$, use $`a_{ii}^{(i-1)}`$ as the pivot element and eliminate all entries below it. For a $`3 \times 3`$ augmented matrix, the process proceeds as in Figure 5.
 
 ```text
 [ * * * | * ]       [ * * * | * ]       [ * * * | * ]
@@ -678,7 +834,7 @@ This zeros out all entries in column 1 below the diagonal.
 [ * * * | * ]       [ 0 * * | * ]       [ 0 0 * | * ]
 ```
 
-*Figure 3. A 3x3 augmented matrix reaching upper triangular form through the two steps of forward elimination*
+*Figure 5. A 3x3 augmented matrix reaching upper triangular form through the two steps of forward elimination*
 
 **Pseudocode:**
 
@@ -766,7 +922,7 @@ The number of multiplications/divisions is given below, and there are $`\sum_{i=
 \text{Total} = \frac{2}{3}n^3 + O(n^2) + n^2 + O(n) \approx \frac{2}{3}n^3
 ```
 
-For large $`n`$, the total cost is **dominated by the $`(2/3)n^3`$ term** from forward elimination. Back substitution contributes only an $`O(n^2)`$ term, which is negligible for large systems.
+For large $`n`$, the total cost is **dominated by the $`(2/3)n^3`$ term** from forward elimination. Back substitution contributes only an $`O(n^2)`$ term, which is negligible for large systems. The step-by-step derivation of each count and the extra cost of pivoting are given in Section 8 of Chapter 9.
 
 > **[Algorithms]** Asymptotic notation $`O(\cdot)`$ keeps only the growth rate as the input size $`n`$ increases and ignores constant factors and lower-order terms. In the operation count $`\frac{2}{3}n^3 + O(n^2)`$ above, $`O(n^2)`$ collects the terms that grow in proportion to $`n^2`$, so for large $`n`$ the cubic term determines the cost, and multiplying $`n`$ by 10 multiplies the cost by about 1000.
 
@@ -947,9 +1103,12 @@ These three pitfalls all stem from the same root cause: **the pivot element is t
 | Matrix Form | A linear system is $`[A]\{x\} = \{b\}`$ with $`\{x\} = [A]^{-1}\{b\}`$ for invertible $`[A]`$, and an $`m \times n`$ system is overdetermined if $`m > n`$ and underdetermined if $`m < n`$. |
 | Stiffness Matrix | The stiffness matrix of a spring-mass system is symmetric positive definite, and $`\frac{1}{2}\{x\}^T[K]\{x\}`$ is the potential energy of the springs. |
 | Python Solution | `np.linalg.solve(A, b)` solves the system with fewer operations than `np.linalg.inv(A) @ b`. |
+| Circuit Analysis | Applying Kirchhoff's voltage law to each mesh gives a symmetric linear system, and the result is verified by the balance of supplied and dissipated power. |
 | Graphical (2x2) | Two lines meeting at one point give a unique solution, parallel lines give no solution, and identical lines give infinitely many solutions. |
 | Column View | It finds the combination $`x_1\vec{a}_1 + x_2\vec{a}_2`$ of the columns that equals $`\vec{b}`$, which is unique when the columns are not parallel, that is, when $`\det(A) \neq 0`$. |
 | Determinant | It is $`D = a_{11}a_{22} - a_{12}a_{21}`$, and $`D = 0`$ means the system is singular. |
+| Ill-Conditioned System | For nearly parallel equations a small change in the right side or coefficients changes the solution greatly, and the solution can be inaccurate even with a small residual when the condition number is large. |
+| Existence and Uniqueness | For a square matrix, $`\det \neq 0`$, invertibility, rank $`n`$, and having no zero eigenvalue are all equivalent to a unique solution. |
 | Cramer's Rule | It computes $`x_i = \det(A_i)/\det(A)`$, but its cost grows as $`O((n+1)!)`$, making it impractical for $`n > 3`$. |
 | Forward Elimination | It zeros out the below-diagonal entries column by column to reach upper triangular form. |
 | Back Substitution | It solves from $`x_n`$ upward using the upper triangular form. |
@@ -1014,5 +1173,23 @@ These three pitfalls all stem from the same root cause: **the pivot element is t
    <summary>Answer</summary>
 
    The operation count is about $`(2/3)n^3`$, so it is about $`6.7 \times 10^5`$ for $`n = 100`$ and about $`6.7 \times 10^8`$ for $`n = 1000`$. A tenfold increase in $`n`$ multiplies the cost by $`10^3 = 1000`$. The $`n^2`$ term of back substitution, $`10^4`$ and $`10^6`$ respectively, is small compared with forward elimination.
+
+   </details>
+
+7. **Ill-conditioning and the residual:** For the system of Section 4.3, $`x_1 + x_2 = 2`$, $`x_1 + 1.001x_2 = 2.001`$, find the residual of the estimate $`\tilde{x} = (1.5, 0.5)`$ and its error relative to the true solution, and explain what the result means.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`[A]\{\tilde{x}\} = (1.5 + 0.5,\ 1.5 + 0.5005) = (2, 2.0005)`$, so the residual is $`(2 - 2,\ 2.001 - 2.0005) = (0, 0.0005)`$. The error relative to the true solution $`(1, 1)`$ is $`(0.5, -0.5)`$, 50% of each component. The residual is about 0.025% of the right side while the error is 50%, so for an ill-conditioned system the accuracy of a solution cannot be judged from a small residual alone.
+
+   </details>
+
+8. **Existence and uniqueness:** Decide whether $`[A] = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9 \end{bmatrix}`$ is singular. How many solutions are there when the right side is $`(6, 15, 24)`$ and when it is $`(6, 15, 25)`$?
+
+   <details>
+   <summary>Answer</summary>
+
+   The third row is twice the second row minus the first ($`2(4, 5, 6) - (1, 2, 3) = (7, 8, 9)`$), so the rows are linearly dependent, the rank is 2, and the determinant is 0: the matrix is singular. The right side $`(6, 15, 24)`$ satisfies the same relation, $`2 \times 15 - 6 = 24`$, so the system is not inconsistent; $`(1, 1, 1)`$ is a solution and there are infinitely many. The right side $`(6, 15, 25)`$ has $`2 \times 15 - 6 = 24 \neq 25`$, so the third equation contradicts the first two and there is no solution.
 
    </details>
