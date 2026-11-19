@@ -350,6 +350,41 @@ a_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \cos\frac{n\pi}{\ell}x\,dx, \quad 
 b_n = \frac{1}{\ell} \int_{-\ell}^{\ell} f(x) \sin\frac{n\pi}{\ell}x\,dx, \quad n = 1, 2, 3, \ldots
 ```
 
+For example, consider the triangle wave of period 2, $`f(x) = |x|`$ ($`-1 \leq x \leq 1`$, $`\ell = 1`$). Since $`f`$ is even, $`b_n = 0`$, and $`a_0 = \int_{-1}^{1}|x|\,dx = 1`$. $`a_n`$ is obtained by integration by parts.
+
+```math
+a_n = 2\int_0^1 x\cos(n\pi x)\,dx = 2\left[\frac{x\sin(n\pi x)}{n\pi} + \frac{\cos(n\pi x)}{(n\pi)^2}\right]_0^1 = \frac{2\bigl((-1)^n - 1\bigr)}{n^2\pi^2}
+```
+
+It is 0 for even $`n`$ and $`-4/(n^2\pi^2)`$ for odd $`n`$, which gives the following.
+
+```math
+|x| = \frac{1}{2} - \frac{4}{\pi^2}\left(\cos\pi x + \frac{\cos 3\pi x}{9} + \frac{\cos 5\pi x}{25} + \cdots\right), \qquad -1 \leq x \leq 1
+```
+
+Substituting $`x = 0`$ yields $`1 + 1/9 + 1/25 + \cdots = \pi^2/8`$. The following code measures the maximum error of the partial sums.
+
+```python
+import numpy as np
+
+x = np.linspace(-1.0, 1.0, 4001)
+for N in (1, 2, 5, 20):                                # number of nonzero cosine terms
+    s = 0.5 * np.ones_like(x)
+    for n in range(1, 2 * N, 2):                       # odd harmonics 1, 3, ..., 2N - 1
+        s -= 4 / (n**2 * np.pi**2) * np.cos(n * np.pi * x)
+    err = np.abs(s - np.abs(x))
+    print(f"{N:2d} terms: max error = {err.max():.4f} at x = {x[np.argmax(err)]:.2f}")
+```
+
+```text
+ 1 terms: max error = 0.0947 at x = -1.00
+ 2 terms: max error = 0.0497 at x = -1.00
+ 5 terms: max error = 0.0202 at x = -1.00
+20 terms: max error = 0.0051 at x = -1.00
+```
+
+The error is largest at the corners $`x = 0, \pm 1`$ (the output shows $`x = -1`$, the first one found), and with 1, 2, 5, and 20 terms the maximum error is 0.0947, 0.0497, 0.0202, and 0.0051, decreasing nearly in inverse proportion to the number of terms. Estimating the sum of the remaining terms, $`\frac{4}{\pi^2}\sum 1/n^2`$, by an integral gives an error of about $`1/(\pi^2N)`$ after $`N`$ terms, which is 0.00507 at $`N = 20`$, in agreement with the result above. The triangle wave remains continuous when extended periodically, so unlike the square wave of Section 5 it shows no Gibbs phenomenon, and its coefficients decrease as $`1/n^2`$ rather than $`1/n`$. The degree of smoothness, a continuous function whose derivative breaks only at the corners, sets this rate of decrease.
+
 ---
 
 <br>
@@ -385,6 +420,38 @@ f(x) = \frac{a_0}{2} + \sum_{n=1}^{\infty} \left(a_n \cos\frac{n\pi}{\ell}x + b_
 ```
 
 This is the **Fourier Integral** representation.
+
+Following the limit concretely also determines the coefficient functions $`a(\omega)`$ and $`b(\omega)`$. With $`\Delta\omega = \pi/\ell`$ the spacing of the frequencies $`\omega_n = n\pi/\ell`$, the coefficients of Section 6 are $`a_n = \frac{\Delta\omega}{\pi}\int_{-\ell}^{\ell}f(\xi)\cos\omega_n\xi\,d\xi`$, so one cosine term of the series is $`\left[\frac{1}{\pi}\int_{-\ell}^{\ell}f(\xi)\cos\omega_n\xi\,d\xi\right]\cos\omega_nx\,\Delta\omega`$. This is one term of a Riemann sum, so as $`\ell \to \infty`$ and $`\Delta\omega \to 0`$ the sum becomes an integral. In addition, if $`\int|f|\,dx`$ is finite, $`a_0/2 = \frac{1}{2\ell}\int_{-\ell}^{\ell}f\,dx`$ tends to 0. The sine terms behave in the same way, giving the following.
+
+```math
+a(\omega) = \frac{1}{\pi}\int_{-\infty}^{\infty}f(\xi)\cos\omega\xi\,d\xi, \qquad b(\omega) = \frac{1}{\pi}\int_{-\infty}^{\infty}f(\xi)\sin\omega\xi\,d\xi
+```
+
+For example, $`f(x) = e^{-|x|}`$ is even, so $`b(\omega) = 0`$, and $`\int_0^{\infty}e^{-x}\cos\omega x\,dx = 1/(1 + \omega^2)`$ gives $`a(\omega) = \frac{2}{\pi}\cdot\frac{1}{1 + \omega^2}`$. The result is the following representation.
+
+```math
+e^{-|x|} = \frac{2}{\pi}\int_0^{\infty}\frac{\cos\omega x}{1 + \omega^2}\,d\omega
+```
+
+At $`x = 0`$, $`\int_0^{\infty}d\omega/(1 + \omega^2) = \pi/2`$, so the right side equals 1, as it should. The following code checks other values of $`x`$ by computing the integral on the right numerically.
+
+```python
+import numpy as np
+from scipy.integrate import quad
+
+for x in (0.0, 0.5, 1.0, 2.0):
+    val, _ = quad(lambda w: 1 / (1 + w**2), 0, np.inf, weight="cos", wvar=x)   # integral of cos(w x)/(1 + w^2)
+    print(f"x = {x}: (2/pi) * integral = {2 / np.pi * val:.6f}, exp(-|x|) = {np.exp(-abs(x)):.6f}")
+```
+
+```text
+x = 0.0: (2/pi) * integral = 1.000000, exp(-|x|) = 1.000000
+x = 0.5: (2/pi) * integral = 0.606531, exp(-|x|) = 0.606531
+x = 1.0: (2/pi) * integral = 0.367879, exp(-|x|) = 0.367879
+x = 2.0: (2/pi) * integral = 0.135335, exp(-|x|) = 0.135335
+```
+
+$`a(\omega)`$ is a continuous function defined for all $`\omega \geq 0`$ and decreases as $`1/\omega^2`$ as $`\omega`$ grows. Whereas the Fourier series assigned amplitudes only to the discrete frequencies $`n\pi/\ell`$, a nonperiodic function has a continuous frequency spectrum. Compared with the complex form of Section 8.1, $`\hat{f}(\omega) = \int e^{-|t|}e^{-i\omega t}\,dt = 2/(1 + \omega^2) = \pi a(\omega)`$.
 
 ---
 
@@ -778,6 +845,16 @@ Fourier analysis transforms a signal from the time domain to the frequency domai
 
 Viewing the same signal side by side in the two domains makes the correspondences clear. A constant in the time domain is a single line at $`\omega = 0`$ in the frequency domain, and a pure sinusoid $`C\cos(\omega_0t + \theta)`$ is a single line at $`\omega_0`$ (two lines at $`\pm\omega_0`$ in complex form). The temperature data of Section 10.5 were 12 numbers in the time domain but were summarized in the frequency domain by two lines of heights 19.89 and 5.97 and one phase. Conversely, a signal concentrated in a short time, like the short pulse of Section 8.3, spreads widely in the frequency domain, and a sinusoid spread over all time concentrates at one point in the frequency domain. Random noise concentrates at no frequency and spreads evenly over all frequencies. Because of these correspondences, a periodic component buried in noise in the time domain stands out as a distinct line in the frequency domain (Section 17), and moving back and forth between the two domains is a basic procedure in analyzing measured signals.
 
+Frequency-domain information is drawn as a **line spectrum**. Writing each component as $`C_n\cos(n\omega_0t + \theta_n)`$, the amplitude spectrum draws the amplitudes $`C_n`$ as vertical lines on the frequency axis, and the phase spectrum draws the phase angles $`\theta_n`$. The amplitude spectrum alone cannot distinguish two signals that have the same amplitudes and frequencies but are displaced from each other along the time axis, so the phase spectrum records how far each component leads or lags relative to $`t = 0`$. Following the convention of Section 9.2, the phase angle is negative if the positive peak appears later than $`t = 0`$ (lagging) and positive if it appears earlier (leading).
+
+For the square wave $`\frac{1}{2} + \sum_{n\ \text{odd}}\frac{2}{n\pi}\sin nx`$ of Section 5, $`\sin nx = \cos(nx - \pi/2)`$, so the amplitudes of odd $`n`$ are $`2/(n\pi)`$, that is, 0.6366, 0.2122, 0.1273, ..., and all phase angles are $`-\pi/2`$. The zero-frequency component is the mean 0.5.
+
+![Figure 2. Amplitude and phase spectra of the square wave](../../images/Ch16_Line-Spectra.png)
+
+*Figure 2. Amplitude and phase spectra of the square wave*
+
+Shifting the same square wave to the left by $`\pi/2`$ gives $`\sin\bigl(n(x + \pi/2)\bigr) = \cos\bigl(nx + (n - 1)\pi/2\bigr)`$, so the phase angle is 0 for $`n = 1, 5, 9, \ldots`$ and $`\pi`$ for $`n = 3, 7, \ldots`$. As on the right of Figure 2, the phase spectrum changes but the amplitude spectrum stays the same. A time shift changes the phase of each component by an amount proportional to its frequency ($`n\pi/2`$) and leaves the amplitudes unchanged, which is the $`x`$-shift property of Section 8.2 seen in a Fourier series. The amplitude spectrum is therefore a characteristic of the waveform itself, independent of when the signal started.
+
 ---
 
 <br>
@@ -797,6 +874,8 @@ f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega)\,e^{i\omega t}\,d\omega
 ```math
 F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt
 ```
+
+The three representations differ in the functions they handle and the form of their results. The Fourier series (Section 11) turns a continuous periodic function into coefficients at the discrete frequencies $`k\omega_0`$, and the Fourier transform turns a continuous nonperiodic function into a function $`F(\omega)`$ of continuous frequency. $`e^{-|t|}`$ of Section 7 and its transform $`2/(1 + \omega^2)`$ are an example. Measured data are samples taken at regular intervals over a finite time, so neither can be used as is, and the DFT of Section 14 turns a finite number of discrete samples into a finite number of coefficients at discrete frequencies. The DFT is the discrete version of the Fourier series that treats the record as one period, and for a function that is zero outside $`[0, T)`$ it is also the approximation $`F(2\pi k/T) \approx \Delta t\,\hat{f}_k`$ of the transform integral by a sum over the samples. The $`k`$th bin of the DFT therefore represents the component at frequency $`k/T`$.
 
 ---
 
@@ -860,6 +939,34 @@ $`\hat{f}_0`$ is the sum of the samples, $`n`$ times their mean. $`\hat{f}_3 = \
 
 The DFT coefficient $`\hat{f}_k`$ is the component at frequency $`f_k = k/T = k/(n\,\Delta t)`$. A real signal $`A\cos(2\pi f_k t + \phi)`$ ($`0 < k < n/2`$) produces $`|\hat{f}_k| = nA/2`$, so the amplitude is read as $`A = 2|\hat{f}_k|/n`$. NumPy's `np.fft.fft` uses the same definition $`A_k = \sum_{m=0}^{n-1}a_me^{-2\pi imk/n}`$, applies no scaling to the forward transform, and multiplies the inverse transform by $`1/n`$ [1]. Element 0 of the result is the zero-frequency component, followed by the positive frequencies, and the second half holds the negative frequencies; the frequency of each element is obtained with `np.fft.fftfreq` [1].
 
+The following example samples the real signal $`f(t) = 3 + 2\cos(2\pi \cdot 5t) - \sin(2\pi \cdot 7.5t)`$ eight times at intervals of $`\Delta t = 0.05`$ s. The sampling frequency is 20 Hz, the record length is $`T = 8 \times 0.05 = 0.4`$ s, the frequency spacing is $`\Delta f = 1/T = 2.5`$ Hz, and the Nyquist frequency is 10 Hz. The samples are taken at $`t_j = j\Delta t`$ ($`j = 0, \ldots, 7`$), and $`t = T`$, the start of the next period, is not included.
+
+```python
+import numpy as np
+
+n, dt = 8, 0.05                                   # 8 samples, sampling frequency 20 Hz
+t = np.arange(n) * dt                             # 0, 0.05, ..., 0.35 (t = 0.4 is not included)
+f = 3 + 2 * np.cos(2 * np.pi * 5 * t) - np.sin(2 * np.pi * 7.5 * t)
+F = np.fft.fft(f)
+np.set_printoptions(precision=3, suppress=True)
+print(np.fft.fftfreq(n, d=dt))
+print(F)
+```
+
+```text
+[  0.    2.5   5.    7.5 -10.   -7.5  -5.   -2.5]
+[24.+0.j  0.+0.j  8.+0.j -0.+4.j -0.+0.j -0.-4.j  8.-0.j  0.-0.j]
+```
+
+As the output of `fftfreq` shows, the bins are ordered $`0,\ 2.5,\ 5,\ 7.5`$ Hz, then $`-10`$ Hz for the Nyquist frequency, and then the negative frequencies $`-7.5,\ -5,\ -2.5`$ Hz. Each bin is read as follows.
+
+- $`F_0 = 24`$ is the sum of the samples, so the mean is $`24/8 = 3`$.
+- $`F_2 = 8`$ (5 Hz) has only a real part, so it is a cosine component, with amplitude $`2|F_2|/n = 2 \times 8/8 = 2`$.
+- $`F_3 = 4i`$ (7.5 Hz) has only an imaginary part, so it is a sine component. $`B\sin(2\pi f_kt)`$ produces $`F_k = -inB/2`$, so $`B = -2\,\mathrm{Im}(F_3)/n = -1`$, matching the $`-\sin`$ term of the signal.
+- $`F_6 = \overline{F_2}`$ and $`F_5 = \overline{F_3}`$ are negative-frequency components produced by the conjugate symmetry of a real signal and carry no new information. The Nyquist bin $`F_4`$ and the bins $`F_1`$ and $`F_7`$, which have no component, are 0.
+
+In general, a component $`A\cos(2\pi f_kt) + B\sin(2\pi f_kt)`$ ($`0 < k < n/2`$) of a real signal produces $`F_k = n(A - iB)/2`$. When the frequencies of the components lie on the grid $`k\Delta f`$, as in this example, no energy leaks into other bins (Section 17).
+
 ---
 
 <br>
@@ -889,11 +996,31 @@ f_{alias} = \bigl|\,f - m f_s\,\bigr|
 
 Here $`m`$ is the integer closest to $`f/f_s`$. For example, sampling a 9 Hz cosine at $`f_s = 10`$ Hz gives $`m = 1`$ and $`f_{alias} = |9 - 10| = 1`$ Hz.
 
-![Figure 2. A 9 Hz cosine sampled at 10 Hz and the 1 Hz cosine passing through the same samples](../../images/Ch16_Aliasing.png)
+![Figure 3. A 9 Hz cosine sampled at 10 Hz and the 1 Hz cosine passing through the same samples](../../images/Ch16_Aliasing.png)
 
-*Figure 2. A 9 Hz cosine sampled at 10 Hz and the 1 Hz cosine passing through the same samples*
+*Figure 3. A 9 Hz cosine sampled at 10 Hz and the 1 Hz cosine passing through the same samples*
 
-In Figure 2, the samples (black dots) cannot be told apart as coming from the 9 Hz signal or the 1 Hz signal. Once the samples have been taken there is no way to undo aliasing, so real instruments place a low-pass filter (anti-aliasing filter) before sampling to remove components above the Nyquist frequency.
+In Figure 3, the samples (black dots) cannot be told apart as coming from the 9 Hz signal or the 1 Hz signal. Once the samples have been taken there is no way to undo aliasing, so real instruments place a low-pass filter (anti-aliasing filter) before sampling to remove components above the Nyquist frequency.
+
+Aliasing is also confirmed directly in the result of a DFT. The following code compares sine waves of 7 Hz and 43 Hz sampled at 50 Hz for 1 second.
+
+```python
+import numpy as np
+
+fs, n = 50.0, 50                                  # 50 Hz sampling for 1 s, frequency spacing 1 Hz
+t = np.arange(n) / fs
+for f0 in (7.0, 43.0):
+    F = np.fft.fft(np.sin(2 * np.pi * f0 * t))
+    k = np.argmax(np.abs(F[: n // 2]))            # strongest bin among nonnegative frequencies
+    print(f"sin at {f0:4.1f} Hz: peak at {k} Hz, |Re F[k]| = {abs(F[k].real):.3f}, Im F[k] = {F[k].imag:.3f}")
+```
+
+```text
+sin at  7.0 Hz: peak at 7 Hz, |Re F[k]| = 0.000, Im F[k] = -25.000
+sin at 43.0 Hz: peak at 7 Hz, |Re F[k]| = 0.000, Im F[k] = 25.000
+```
+
+The energy of the 43 Hz sine wave appears in the $`|43 - 50| = 7`$ Hz bin and occupies the same bin as a genuine 7 Hz signal. The sign of the imaginary part, however, is reversed. Since $`\sin(2\pi \cdot 43j/50) = \sin(2\pi j - 2\pi \cdot 7j/50) = -\sin(2\pi \cdot 7j/50)`$, the folded sine component appears with its sign flipped, and by the reading of Section 14, $`\mathrm{Im}(F_7) = +25`$ means a sine with coefficient $`-1`$. A cosine is even and shows no such sign change. In aliasing of this kind, where $`f - mf_s < 0`$ and the frequency folds back reversed, therefore, not only the apparent frequency but also the phase differs from the original signal. When $`f - mf_s > 0`$, as for 57 Hz, $`\sin(2\pi \cdot 57j/50) = \sin(2\pi \cdot 7j/50)`$, so the component appears in the same 7 Hz bin without a sign change.
 
 ---
 
@@ -1026,6 +1153,12 @@ plt.title("Power Spectrum")
 plt.show()
 ```
 
+![Figure 4. Power spectrum of a signal with 50 Hz and 120 Hz components](../../images/Ch16_Power-Spectrum.png)
+
+*Figure 4. Power spectrum of a signal with 50 Hz and 120 Hz components*
+
+Figure 4 is the power spectrum plotted by the code above. The power rises sharply near 50.78 Hz and 121.09 Hz, and the ratio of the two heights is about 4.4. Since the amplitude ratio is 2, the power ratio should be 4, but as the computation below shows, at $`n = 256`$ the two components do not lie exactly on the frequency grid, so the ratio differs slightly. Power is the square of amplitude, so the difference between large and small components stands out more than in the amplitude spectrum.
+
 **Amplitude and frequency resolution.** The signal in the code above contains 50 Hz and 120 Hz components with amplitudes 1 and 0.5. Computing the one-sided amplitude $`2|\hat{f}_k|/n`$ as interpreted in Section 14, the result depends on the number of samples, because the frequency spacing is $`\Delta f = 1/(n\,\Delta t)`$.
 
 ```python
@@ -1079,6 +1212,30 @@ peak power / median power = 252
 
 The mean is removed first so that the zero-frequency component does not dominate the spectrum. The largest power appears in bin $`k = 23`$, that is, at $`f = 23/256 = 0.0898`$ cycles per year, which converts to a period of 11.13 years. The difference from the true period of 11 years comes from the frequency spacing $`\Delta f = 1/256`$ cycles per year: the 11-year cycle ($`f = 0.0909`$) lies between bins 23 and 24 and was read in a nearby bin. The maximum power is about 250 times the median of the other bins, so it is clearly distinguished from the noise. Noise spreads its energy evenly over all frequencies while a periodic component concentrates it in one bin, which makes the power spectrum a tool for revealing periods invisible in the time domain.
 
+**Removing a trend.** If a record has a long-term trend, removing the mean is not enough, because a linear trend looks like a component with a period longer than the record and produces large power in the lowest frequency bins. A trend rising by 0.5 per year is added to the data above, and removing only the mean is compared with removing the least-squares line (Chapter 14).
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(7)
+n = 256
+t = np.arange(n)                                     # years
+y = 50 + 0.5 * t + 30 * np.sin(2 * np.pi * t / 11) + rng.normal(0, 15, n)   # upward trend added
+freqs = np.fft.fftfreq(n, d=1.0)
+for name, r in (("mean removed", y - y.mean()),
+                ("line removed", y - np.polyval(np.polyfit(t, y, 1), t))):
+    P = np.abs(np.fft.fft(r)[1:n // 2])**2           # power at positive frequencies
+    k = np.argmax(P) + 1
+    print(f"{name}: peak at period {1 / freqs[k]:.2f} years, P[k=1] / P[k=23] = {P[0] / P[23 - 1]:.3g}")
+```
+
+```text
+mean removed: peak at period 256.00 years, P[k=1] / P[k=23] = 2.38
+line removed: peak at period 11.13 years, P[k=1] / P[k=23] = 0.00243
+```
+
+With only the mean removed, the largest power appears at $`k = 1`$, the bin of a 256-year period, and buries the 11-year period. With the line removed, the power in that bin drops to 0.24% of the 11-year bin, and the maximum power again appears at the period 11.13 years. Computing the spectrum after making the mean of the signal constant in time is thus the basic procedure, and the sunspot case study of the textbook also computes the power spectrum after removing a straight-line trend.
+
 ---
 
 <br>
@@ -1093,6 +1250,9 @@ The following mistakes are common in Fourier analysis.
 4. **Reading the second half of the output array as high positive frequencies.** The second half holds the negative frequencies. Check the frequency of each element with `np.fft.fftfreq`.
 5. **Thinking that components above the Nyquist frequency disappear.** Such components do not disappear but fold into lower frequencies as in Section 15 and mix with genuine components.
 6. **Confusing frequency resolution with the sampling interval.** The sampling interval $`\Delta t`$ sets the Nyquist frequency, and the measurement time $`T = n\Delta t`$ sets the frequency spacing $`\Delta f = 1/T`$. Higher resolution requires measuring longer, not more densely.
+7. **Including the end point $`t = T`$ of the record among the sample times.** The DFT treats the signal as repeating with period $`T`$, so $`t = T`$ is the same point as $`t = 0`$. The sample times are generated with `np.arange(n) * dt` or `np.linspace(0, T, n, endpoint=False)` (Section 14).
+8. **Computing the spectrum of trending data after removing only the mean.** A linear trend produces large power in the lowest frequency bins and can hide the true period, so the least-squares line is removed first (Section 17).
+9. **Reading the real and imaginary parts of a DFT bin without regard to the kind of component.** A component $`A\cos + B\sin`$ on the grid produces $`F_k = n(A - iB)/2`$, so the real part corresponds to the cosine coefficient and the negated imaginary part to the sine coefficient (Section 14).
 
 ---
 
@@ -1129,6 +1289,12 @@ The following mistakes are common in Fourier analysis.
 | Leakage and Parseval's theorem | A component between grid frequencies leaks into neighboring bins, and $`\sum\vert f_j \vert^2 = \frac{1}{n}\sum\vert\hat{f}_k\vert^2`$. |
 | Transform of a rectangular pulse | $`\hat{f}(\omega) = 2\sin(a\omega)/\omega`$; the shorter the pulse, the wider the spectrum. |
 | Sinusoid fitting example | For equally spaced samples, $`A_0`$, $`A_1`$, $`B_1`$ follow from the closed form, and the amplitude and phase, including the quadrant, follow from `arctan2`. |
+| Example with a general period | The triangle wave $`\vert x\vert`$ of period 2 is $`\frac{1}{2} - \frac{4}{\pi^2}\sum_{n\ \text{odd}}\cos(n\pi x)/n^2`$, and being continuous it converges without the Gibbs phenomenon, with error about $`1/(\pi^2N)`$. |
+| Coefficients of the Fourier integral | $`a(\omega) = \frac{1}{\pi}\int f(\xi)\cos\omega\xi\,d\xi`$ and $`b(\omega) = \frac{1}{\pi}\int f(\xi)\sin\omega\xi\,d\xi`$, and the $`a(\omega)`$ of $`e^{-\vert x\vert}`$ is $`2/(\pi(1 + \omega^2))`$. |
+| Line spectra | Amplitude and phase spectra summarize a signal, and a time shift leaves the amplitudes unchanged and changes only the phases in proportion to frequency. |
+| Reading DFT bins | A component $`A\cos + B\sin`$ on the grid produces $`F_k = n(A - iB)/2`$, and the bin frequencies follow the order of `fftfreq` (0, positive frequencies, Nyquist, negative frequencies). |
+| Aliasing and phase | A sine component folded with $`f - mf_s < 0`$ appears with its sign flipped, so not only the apparent frequency but also the phase changes. |
+| Removing a trend | A linear trend produces large power in the low-frequency bins, so the least-squares line is removed before computing the spectrum. |
 
 ---
 
