@@ -7,12 +7,12 @@
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 3
 
 > **Learning Objectives:**
-> 1. Write structured programs for numerical computation with loops, conditionals, and functions
+> 1. Write structured programs for numerical computation with loops, conditionals, and functions, and explain the precedence of logical operators and the edge cases of loops
 > 2. Implement the bungee jumper problem with Euler's method and compare the result with the analytical solution
 > 3. Solve the same ODE with SciPy's `solve_ivp` and compare it in one plot with Euler's method and the analytical solution
 > 4. Distinguish positional, keyword, and variable-length arguments and pass a function as an argument to another function
 > 5. Design an iterative computation with a stopping criterion and a maximum number of iterations, and save results to a file and read them back
-> 6. Verify a numerical program with input checks, comparison with an analytical solution, and convergence tests
+> 6. Verify a numerical program with input checks, comparison with an analytical solution, and convergence tests, and distinguish computations that can be vectorized from those that cannot
 
 ---
 
@@ -25,6 +25,8 @@
   - [1.4 Structured Programming](#14-structured-programming)
   - [1.5 Stopping Conditions for Iterative Computations](#15-stopping-conditions-for-iterative-computations)
   - [1.6 Nesting and Indentation](#16-nesting-and-indentation)
+  - [1.7 Precedence of Logical Operators and the Order of Conditions](#17-precedence-of-logical-operators-and-the-order-of-conditions)
+  - [1.8 Test Position, Edge Cases, and the else Clause of Loops](#18-test-position-edge-cases-and-the-else-clause-of-loops)
 - [2. Functions](#2-functions)
   - [2.1 Positional and Keyword Arguments](#21-positional-and-keyword-arguments)
   - [2.2 Variable-Length Arguments](#22-variable-length-arguments)
@@ -38,11 +40,13 @@
   - [3.3 Using scipy.integrate.solve_ivp](#33-using-scipyintegratesolve_ivp)
   - [3.4 A General Euler Function](#34-a-general-euler-function)
   - [3.5 Saving Results to a File and Reading Them Back](#35-saving-results-to-a-file-and-reading-them-back)
+  - [3.6 Pitfalls in Counting Steps and Computing Times](#36-pitfalls-in-counting-steps-and-computing-times)
 - [4. Verifying Numerical Programs and Common Mistakes](#4-verifying-numerical-programs-and-common-mistakes)
   - [4.1 Input Checks and Exceptions](#41-input-checks-and-exceptions)
   - [4.2 Verifying Results](#42-verifying-results)
   - [4.3 Common Mistakes](#43-common-mistakes)
   - [4.4 Preallocating Arrays](#44-preallocating-arrays)
+  - [4.5 Computations That Can and Cannot Be Vectorized](#45-computations-that-can-and-cannot-be-vectorized)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
 
@@ -253,6 +257,148 @@ Every statement in the `for` block is indented 4 spaces, and the statements in t
 
 The comparison `d == 0` of the discriminant is exact for integer coefficients, but if the coefficients come from floating-point computations, it must be judged with a tolerance, as cautioned in Section 1.3.
 
+### 1.7 Precedence of Logical Operators and the Order of Conditions
+
+An expression combining several conditions is evaluated in a fixed order. Arithmetic comes first, then comparisons (`<`, `==`, etc.), and the logical operators decrease in precedence in the order `not`, `and`, `or`. A chain of the same logical operator is evaluated from left to right, and parentheses change this order. Comparisons behave differently: written in a row, they form a chained comparison, so `a < b < c` means `a < b and b < c`. The results of each logical operation are given in Table 3.
+
+| `x` | `y` | `not x` | `x and y` | `x or y` |
+|:-----|:-----|:-----|:-----|:-----|
+| `True` | `True` | `False` | `True` | `True` |
+| `True` | `False` | `False` | `False` | `True` |
+| `False` | `True` | `True` | `False` | `True` |
+| `False` | `False` | `True` | `False` | `False` |
+
+*Table 3. Truth table of the logical operators*
+
+```python
+a, b, unit = 2, -3, 'cm'
+print(a * b < 0 or b > 0 and unit == 'm')     # and is evaluated before or
+print((a * b < 0 or b > 0) and unit == 'm')   # parentheses change the order
+print(not a > 5 and b < 0)                    # comparison first, then not
+print('apple' < 'banana', 'Zebra' < 'apple')  # strings compare character codes
+```
+
+```text
+True
+False
+True
+True True
+```
+
+- In the first expression the arithmetic `a * b` becomes $`-6`$ first, and the three comparisons become `True`, `False`, and `False` in turn. In the remaining expression `True or False and False`, `and` is evaluated first, giving `True or False`, that is, `True`. Evaluating from left to right as `(True or False) and False` gives `False`, so not knowing the precedence leads to the opposite conclusion.
+- The second expression uses parentheses to evaluate `or` first and gives `False`. For expressions whose precedence is confusing, parentheses that state the intent are safer.
+- In `not a > 5` the comparison is evaluated before `not`, so it means `not (a > 5)`, that is, `True`.
+- Strings compare character codes starting from the first character, so `'apple' < 'banana'` is `True`, and because uppercase letters have smaller codes than lowercase letters, `'Zebra' < 'apple'` is also `True`.
+
+`if`/`elif`/`else` tests the conditions from the top, executes only the first block whose condition is true, and does not test the conditions after it. When conditions with overlapping ranges are listed, their order therefore decides the result.
+
+```python
+def size_bad(x):
+    if abs(x) >= 1:
+        return 'large'
+    elif abs(x) >= 1000:      # never reached: the first test catches it
+        return 'huge'
+    else:
+        return 'small'
+
+def size_good(x):
+    if abs(x) >= 1000:        # the narrowest condition comes first
+        return 'huge'
+    elif abs(x) >= 1:
+        return 'large'
+    else:
+        return 'small'
+
+print([size_bad(x) for x in (0.5, 20, 5000)])
+print([size_good(x) for x in (0.5, 20, 5000)])
+```
+
+```text
+['small', 'large', 'large']
+['small', 'large', 'huge']
+```
+
+In `size_bad`, every value with `abs(x) >= 1000` already satisfies the earlier `abs(x) >= 1`, so the second block never executes for any input, and 5000 is classified as `'large'`. When one condition contains another, the narrower condition must be tested first. The final `else` receives every case that matches none of the earlier conditions, so it is also the place to check that no case has been missed.
+
+### 1.8 Test Position, Edge Cases, and the else Clause of Loops
+
+With `while True:` and `break`, the stopping test can be placed at the beginning, middle, or end of the loop body. Testing at the very beginning gives a **pretest loop**, testing at the very end gives a **posttest loop**, and testing in the middle gives a mixture of the two. The two forms behave differently when the stopping condition is true from the start.
+
+```python
+x = -1                       # pretest: the body may run zero times
+count = 0
+while True:
+    if x < 0:
+        break
+    x = x - 4
+    count += 1
+print(x, count)
+
+x = -1                       # posttest: the body always runs at least once
+count = 0
+while True:
+    x = x - 4
+    count += 1
+    if x < 0:
+        break
+print(x, count)
+
+def factorial(n):
+    result = 1
+    for i in range(1, n + 1):  # no iteration at all when n = 0
+        result *= i
+    return result
+
+print(factorial(0), factorial(5), factorial(20))
+for i in range(3):
+    pass
+print(i)                     # the loop variable keeps its last value
+```
+
+```text
+-1 0
+-5 1
+1 120 2432902008176640000
+2
+```
+
+- The pretest loop exits at once with $`x = -1`$, so the body never runs. The posttest loop runs the body first, so it stops only after $`x`$ becomes $`-5`$. When a new approximation must be computed at least once before the error is judged, as in the iterative computation of Section 1.5, the posttest form is natural.
+- `range(1, n + 1)` is empty for $`n = 0`$, so no iteration takes place, and the initial value `result = 1` is returned unchanged, giving $`0! = 1`$. When writing a loop, check that the initial value is the correct answer even when the loop runs zero times. Python integers have no size limit, so $`20! = 2432902008176640000`$ is exact as well (Section 2.5 of Chapter 2).
+- After a loop ends, the loop variable keeps its last value. After the loop over `range(3)`, `i` is 2, not 3.
+
+An `else` clause can be attached to `for` and `while`. The `else` block runs only when the loop has run to completion without `break`, and it does not run when the loop is left with `break`. This property lets a function tell its caller whether the loop ended by converging or by reaching the maximum number of iterations (the caution of Section 1.5).
+
+```python
+import math
+
+def fixed_point(g, x0, es=1e-8, maxit=100):
+    """Iterate x = g(x) until the relative change is at most es."""
+    x = x0
+    for it in range(1, maxit + 1):
+        x_new = g(x)
+        if abs(x_new - x) <= es * abs(x_new):
+            break
+        x = x_new
+    else:                    # runs only if the loop ended without break
+        raise RuntimeError(f"no convergence in {maxit} iterations")
+    return x_new, it
+
+print(fixed_point(math.cos, 1.0))
+try:
+    fixed_point(lambda x: 1.0 - x, 0.3)     # alternates 0.7, 0.3, 0.7, ...
+except RuntimeError as err:
+    print("RuntimeError:", err)
+```
+
+```text
+(0.7390851309037207, 47)
+RuntimeError: no convergence in 100 iterations
+```
+
+- On convergence, `break` leaves the loop, so `else` does not run, and the approximation and iteration count are returned. The fixed-point iteration $`x = \cos x`$ (Chapter 6) reaches 0.7390851309 in 47 iterations.
+- $`g(x) = 1 - x`$ alternates between 0.7 and 0.3 and does not converge. After all 100 iterations the `else` block raises an exception, which prevents an unconverged value from being used as an answer.
+- The difference between the true value 0.7390851332 and the returned value is about $`2.3 \times 10^{-9}`$, and the difference between the last two approximations is $`5.7 \times 10^{-9}`$. Because $`g'(x) = -\sin x \approx -0.67`$ is negative, the approximations alternate on both sides of the true value, so the true error is smaller than the last change. Conversely, when $`g'`$ is positive and close to 1, the approximations approach slowly from one side, and the true error can be much larger than the last change.
+
 ---
 
 <br>
@@ -368,6 +514,34 @@ print(deriv(v68, 4.0), 9.81 - 0.25 / 68.1 * v68(4.0)**2)
 - `velocity` has two variables, so it cannot be passed as is. The **lambda expression** `lambda t: velocity(t, 68.1)` creates an anonymous one-line function with the mass fixed. The result 9.81 agrees with the fact that the drag is zero at $`t = 0`$, so the acceleration is $`g`$.
 - `functools.partial(velocity, m=68.1)` also creates a new function with some arguments fixed. The last line shows that the numerical derivative and the right side of the ODE, $`g - (c_d/m)v^2`$, agree to nine decimal places.
 
+When a numerical-method function receives a model function, the parameters of the model often have to be passed along as well. Giving the solver function the variable-length arguments of Section 2.2 collects positional arguments in `*args` and keyword arguments in `**kwargs` and passes them unchanged to the model function. The following function estimates the average value of a function over an interval $`[a, b]`$ by the mean of equally spaced samples.
+
+```python
+import numpy as np
+
+def mean_value(f, a, b, *args, n=1001, **kwargs):
+    """Average of f over [a, b] estimated from n equally spaced samples."""
+    x = np.linspace(a, b, n)
+    return np.mean(f(x, *args, **kwargs))
+
+def velocity(t, m, cd=0.25, g=9.81):
+    return np.sqrt(g * m / cd) * np.tanh(np.sqrt(g * cd / m) * t)
+
+print(mean_value(velocity, 0, 12, 68.1))            # m goes through *args
+print(mean_value(velocity, 0, 12, 68.1, cd=0.30))   # cd goes through **kwargs
+print(mean_value(np.sin, 0, np.pi), 2 / np.pi)
+```
+
+```text
+36.18597193072706
+34.19516413095559
+0.6359832655032164 0.6366197723675814
+```
+
+- The `*args` of `mean_value` receives the mass 68.1, the second argument of `velocity`, and `**kwargs` receives the keyword argument `cd=0.30`, and both are passed unchanged as `f(x, *args, **kwargs)`. `n` comes after `*args`, so it can be changed only by keyword.
+- `mean_value` knows neither what `f` is nor how many parameters it has. As the third line shows, the same function handles `np.sin`, which has no parameters.
+- The average value of a function over an interval is $`\frac{1}{b-a}\int_a^b f(t)\,dt`$. The integral of the bungee jumper velocity is the distance fallen of Section 2.5 of Chapter 1, so the true value for the first line is $`x(12)/12 = 434.3623/12 = 36.1969`$ m/s, which differs from the sample mean 36.1860 by about 0.011. The average value $`2/\pi = 0.63662`$ of $`\sin x`$ also differs slightly from the sample mean 0.63598. The mean of the samples approximates the average value defined by the integral, and methods that improve this approximation are covered with numerical integration in Chapter 19.
+
 ### 2.4 map and Iterables
 
 `map(f, iterable)` returns an **iterator** that applies the function `f` to every element of an iterable object. An iterator does not compute all results in advance; it computes and yields one element each time an element is requested.
@@ -386,6 +560,26 @@ The result of `map` is not a list but a `map` object, and the values can be seen
 ### 2.5 Variable Scope
 
 A variable assigned inside a function is a **local variable**, visible only inside that function. Which object a name refers to is looked up in the order Local, Enclosing (an enclosing function), Global, and Built-in, which is called the **LEGB rule**. A function can read a global variable, but assigning to the same name inside the function creates a new local variable. If a function relies on a global variable, its result changes silently when that variable changes, so a numerical function should take all the values it needs as arguments. The `velocity` of Section 2.1, which takes `g` as a parameter with a default value instead of a global variable, is an example. Examples of the `global` keyword and nested functions are covered in the Chapter 3 lab.
+
+A function that relies on a global variable uses the value at the time the variable is read, that is, when the function is called, not when the function is defined.
+
+```python
+cd = 0.25
+vt = lambda m: (9.81 * m / cd) ** 0.5            # looks up the global cd when called
+print(round(vt(68.1), 4))
+cd = 0.30                                        # a later change in the script
+print(round(vt(68.1), 4))
+vt_fixed = lambda m, cd=0.25: (9.81 * m / cd) ** 0.5   # default fixed at definition
+print(round(vt_fixed(68.1), 4))
+```
+
+```text
+51.6938
+47.1897
+51.6938
+```
+
+`vt` does not store the value of `cd` when it is defined; it looks up the global name `cd` every time it is called. So if `cd` is changed to 0.30 elsewhere in the script, the same call `vt(68.1)` changes from 51.6938 to 47.1897. In a long script or a notebook such a change goes unnoticed. A default value is evaluated once, when the function is defined, so making the parameter an argument with a default value, as in `vt_fixed`, or fixing it with the `partial` of Section 2.3 makes the result independent of global variables.
 
 ### 2.6 Modules, Scripts, and Docstrings
 
@@ -594,7 +788,65 @@ t_s,v_mps
 
 To read a value from the keyboard, use the built-in function `input(prompt)`. `input` always returns what the user typed as a string, so it must be converted to use it as a number, as in `m = float(input('mass (kg): '))`. Interactive input needs a person to enter values on every run, which hurts reproducibility, so numerical programs more often supply parameters as function arguments or through files.
 
+Measurement data often contain empty fields. `np.loadtxt` works only when every field is a number, while `np.genfromtxt` reads empty fields as NaN.
+
+```python
+import numpy as np
+
+with open('jumps.csv', 'w') as fh:              # a small file with one empty field
+    fh.write("t,v,x\n0,0.0,0.0\n2,18.73,19.17\n4,33.11,\n6,42.08,147.95\n")
+
+t, v, x = np.genfromtxt('jumps.csv', delimiter=',', skip_header=1, unpack=True)
+print(t, v)
+print(x, np.isnan(x).sum(), np.nanmax(x))
+try:
+    np.loadtxt('jumps.csv', delimiter=',', skiprows=1)
+except ValueError as err:
+    print("ValueError:", err)
+```
+
+```text
+[0. 2. 4. 6.] [ 0.   18.73 33.11 42.08]
+[  0.    19.17    nan 147.95] 1 147.95
+ValueError: could not convert string '' to float64 at row 2, column 3.
+```
+
+- `unpack=True` returns the two-dimensional result split by columns, so the three columns are received in `t`, `v`, and `x` at once.
+- The empty field in the third row becomes `nan`. NaN propagates through later computations (Section 4 of Chapter 2), so `x.max()` is also `nan`. Functions that skip NaN, such as `np.nanmax` and `np.nanmean`, must be used, or the empty fields found with `np.isnan` and handled.
+- Reading the same file with `np.loadtxt` raises a `ValueError` saying that an empty string cannot be converted to a float.
+
 Reading measurement data with several columns and saving to binary files are covered in the Chapter 3 lab.
+
+### 3.6 Pitfalls in Counting Steps and Computing Times
+
+When the number of steps of a time grid is computed by floating-point division, a tiny rounding error in the division grows into a difference of a whole step the moment the result is converted to an integer. Accumulating the time by addition causes the same kind of error.
+
+```python
+import numpy as np
+
+print(int(0.3 / 0.1), 0.3 / 0.1)          # int() truncates 2.9999999999999996
+print(int(12 / 0.35), 12 / 0.35)          # 34 steps of 0.35 s end at 11.9 s
+t = 0.0
+for i in range(120):
+    t += 0.1                               # rounding errors accumulate
+print(t, 120 * 0.1)
+q = 2.1 / 0.3                              # slightly more than 7
+print(q, int(np.ceil(q)), int(np.ceil(q)) if not np.isclose(q, round(q)) else round(q))
+```
+
+```text
+2 2.9999999999999996
+34 34.285714285714285
+11.999999999999973 12.0
+7.000000000000001 8 7
+```
+
+- 0.3 and 0.1 are not exactly representable in binary (Chapter 4), so `0.3 / 0.1` is 2.9999999999999996 rather than 3, and `int` discards the fractional part to give 2. One step is missing, and the final time is not reached.
+- When the interval length is not a multiple of the step size, `int(12 / 0.35)` is 34, and 34 steps end at $`34 \times 0.35 = 11.9`$ s. Reaching the final time requires rounding the number of steps up and shortening the last step, as in Section 3.4.
+- Repeating `t += 0.1` 120 times accumulates rounding errors and gives 11.999999999999973 instead of 12. In contrast, `120 * 0.1` is a single multiplication and gives 12.0. Computing the times as `t0 + i * h` or with `np.linspace`, instead of accumulating them by addition, avoids the accumulation.
+- Rounding up is not safe either. `2.1 / 0.3` is 7.000000000000001, slightly more than 7, so `np.ceil` gives 8. When the quotient is close enough to an integer (`np.isclose(q, round(q))`), using the rounded integer as the number of steps avoids the problem, and the 7 in the last output is the result.
+
+The `euler` of Section 3.4 uses `np.ceil`, so calling it with the interval $`[0, 2.1]`$ and $`h = 0.3`$ makes the last two grid points both 2.1, creating an eighth step of length zero. A step of length zero does not change the solution, so the result is correct, but in a method that divides by the step size it becomes a division by zero. Accumulating the time causes a similar problem. Looping with `while t < tf:` and shortening the last step to `min(h, tf - t)` takes, for $`h = 0.1`$ and $`t_f = 12`$, an extra 121st step of length $`2.7 \times 10^{-14}`$, because $`t`$ after 120 steps is slightly less than 12. Fixing the number of steps as an integer in advance and computing the times as $`t_0 + ih`$ is the safest approach.
 
 ---
 
@@ -664,8 +916,14 @@ The ratios of the errors approach 2, so the implementation agrees with the prope
 | Using a built-in function name as a variable | Calling `sum()` fails after `sum = 0` | Use another name such as `total` |
 | Deleting elements of a list while iterating over it | Elements are skipped | Build a new list or process in reverse order |
 | No maximum number of iterations | Program never stops when not converging | Set `maxit` and return the reason for stopping |
+| Computing the number of steps as `int(T / h)` | One step missing because of rounding error, final time not reached | `round` for quotients close to an integer, otherwise round up and adjust the last step |
+| Accumulating the time with `t += h` | Final time off, or a tiny extra step | `t0 + i * h`, `np.linspace` |
+| Misjudging the precedence of `and` and `or` | Condition judged opposite to the intent | State the order with parentheses |
+| Testing nested conditions from the widest | Later `elif` blocks never run | Test the narrower condition first |
+| Function relying on a global variable | Result changes silently when the variable changes elsewhere | Pass parameters as arguments |
+| Vectorizing a recurrence along time | Computed from the initial value instead of the previous step | Loop along time, vectorize across independent problems |
 
-*Table 3. Common mistakes in numerical programs and their remedies*
+*Table 4. Common mistakes in numerical programs and their remedies*
 
 The mistake of using a mutable object as a default value has an unusual symptom. A default value is created only once, when the function is defined, so the same list is reused on every call.
 
@@ -721,6 +979,58 @@ True 0.082 s 0.0016 s
 
 The two methods give the same result (`True`), but in this run the preallocated version was about 50 times faster. The run times differ between computers, but as $`n`$ grows the gap widens in proportion to $`n`$. This is also why the code in Section 3.6 of Chapter 1 and Section 3.4 creates the result array with `np.zeros` first. When the number of results cannot be known in advance, collect them with the `append` of a Python list (constant time on average) and convert them once to `np.array` at the end.
 
+### 4.5 Computations That Can and Cannot Be Vectorized
+
+The vectorization of Section 3.4 of Chapter 2 speeds up a computation by turning loops into array operations. Not every loop can be vectorized, however, and whether it can is decided by the dependencies between the computations. When the computations for the elements are independent of each other, they can be vectorized.
+
+```python
+import numpy as np
+
+L, k = 30.0, 40.0                          # free length (m), cord stiffness (N/m)
+x = np.array([10.0, 25.0, 30.0, 35.0, 50.0])
+
+F_loop = np.zeros_like(x)
+for i in range(len(x)):                    # one if-else per element
+    if x[i] > L:
+        F_loop[i] = k * (x[i] - L)
+    else:
+        F_loop[i] = 0.0
+
+F = np.where(x > L, k * (x - L), 0.0)      # the same if-else for all elements
+print(F, np.array_equal(F, F_loop))
+```
+
+```text
+[  0.   0.   0. 200. 800.] True
+```
+
+- Each pass of the loop is an if-else for one element, and no pass uses the result of another. Such a loop can be replaced by a single `np.where(condition, value if true, value if false)`, and `np.array_equal` confirms that the two results are the same. The vectorized computation processes the whole array in compiled code without the cost of interpreting statements for every element, so it is much faster. The comparison of the running times of the two approaches is covered in the Chapter 3 lab.
+- The force of a bungee cord is zero before it stretches ($`x \leq L`$) and $`k(x - L)`$ after. `np.where` evaluates both formulas for every element and then picks the one that matches the condition, so both formulas must be defined for every element. If one formula divides by zero for some elements, a warning appears even for values that will not be picked.
+
+In contrast, a **recurrence**, in which each step depends on the result of the previous one, cannot be vectorized along that direction. Euler's method needs $`v_i`$ to compute $`v_{i+1}`$, so there is no way to obtain the velocities at all times with a single array operation. When several independent problems are solved together, however, the computation can be vectorized across the problems. The following code computes the velocities of five people of different masses together in one loop.
+
+```python
+import numpy as np
+
+g, cd, h = 9.81, 0.25, 0.5
+m = np.array([50.0, 60.0, 68.1, 80.0, 100.0])    # five jumpers at once
+v = np.zeros_like(m)
+for i in range(24):                               # 24 steps of 0.5 s reach 12 s
+    v = v + (g - cd / m * v * np.abs(v)) * h      # one Euler step for all masses
+exact = np.sqrt(g * m / cd) * np.tanh(np.sqrt(g * cd / m) * 12.0)
+print(np.round(v, 4))
+print(np.round(v - exact, 4))
+```
+
+```text
+[44.0323 48.0169 50.9259 54.7717 60.3114]
+[0.1712 0.2469 0.3084 0.3952 0.5244]
+```
+
+- `m` and `v` are arrays of five elements, and one line of the loop body computes the Euler step for all five people at once. The 24 iterations along time remain, but the iterations over the people disappear.
+- The result 50.9259 for 68.1 kg and its error 0.3084 in the second line equal the values for $`h = 0.5`$ s in Table 7 of Chapter 1.
+- The error grows with the mass. A heavier person has a larger terminal velocity, so the velocity is still changing strongly at 12 s, and more error accumulates in Euler's method, which uses the slope at the start of each interval for the whole interval.
+
 ---
 
 <br>
@@ -732,6 +1042,8 @@ The two methods give the same result (`True`), but in this run the preallocated 
 | Control Structures | `for`, `while`, and `if`/`elif`/`else` control repetition and branching. |
 | Structured Programming | The flow is built from only the three structures of sequence, selection, and repetition, designed with flowcharts and pseudocode, and divided top-down. |
 | Stopping Conditions | An iterative computation stops when the approximate relative error falls below the tolerance or the maximum number of iterations is reached. |
+| Precedence of Logical Operations | Comparisons come before logical operations, which are evaluated in the order `not`, `and`, `or`, and `elif` runs only the first block whose condition is true. |
+| Loop Edge Cases and the else Clause | A pretest loop can run its body zero times, and the `else` clause of a loop runs only when the loop ends without `break`, which reports a failure to converge. |
 | Functions | Functions are defined as `def func(args): return result` and can return multiple values as a tuple. |
 | Passing Arguments | Positional arguments match by order and keyword arguments by name, and `*args` and `**kwargs` collect the remaining arguments into a tuple and a dictionary. |
 | Functions as First-Class Objects | Functions can be passed as arguments to other functions, so algorithms for root finding, integration, and ODE solving can handle any function. |
@@ -740,8 +1052,10 @@ The two methods give the same result (`True`), but in this run the preallocated 
 | ODE Solving | Euler's method is a simple method implemented by hand, while `scipy.integrate.solve_ivp` gives a more accurate solution with adaptive steps. |
 | General Solver Function | Taking the slope function and parameters as arguments lets the same Euler function solve several models. |
 | File Input and Output | `np.savetxt` and `np.loadtxt` write and read text files, and the `with` statement closes files automatically. |
+| Step Counts and Times | The number of steps is fixed as an integer with the rounding error of floating-point division in mind, and the times are computed as $`t_0 + ih`$ rather than accumulated. |
 | Verification | Numerical programs are verified by input checks, comparison with analytical solutions, and the ratio of errors as the step size shrinks. |
 | Preallocating Arrays | Preallocating a result array avoids the $`O(n^2)`$ cost of copying the whole array every time an element is appended. |
+| Limits of Vectorization | Independent element-wise computations and conditional formulas (`np.where`) can be vectorized, but a recurrence cannot be vectorized along time, only across independent problems. |
 
 ---
 
@@ -818,5 +1132,23 @@ The two methods give the same result (`True`), but in this run the preallocated 
    <summary>Answer</summary>
 
    Euler's method is a first-order method, so halving $`h`$ should roughly halve the error. If the error does not decrease, suspect an error independent of the step size: for example, a wrong sign or parameter value in the slope formula, an analytical solution for comparison that belongs to a different model, or a loop range one step short so that the end point is at a different time. Compare the code step by step with a hand calculation on a simple problem with a known analytical solution, and print the end time and the length of the arrays to check.
+
+   </details>
+
+9. **Evaluating a logical expression:** For `x = 0`, find the result of `x == 0 or 1 / x > 1 and x > 0`, and explain why no division-by-zero error occurs.
+
+   <details>
+   <summary>Answer</summary>
+
+   `and` binds before `or`, so the expression is `x == 0 or (1 / x > 1 and x > 0)`. The left side of `or`, `x == 0`, is `True`, so by short-circuit evaluation (Section 1.3) the whole right side is not evaluated and the result is `True`. Hence `1 / x` is never computed, and no division-by-zero error occurs.
+
+   </details>
+
+10. **Step counts and times:** If the number of steps dividing the interval $`[0, 0.7]`$ with $`h = 0.1`$ is computed as `int(0.7 / 0.1)`, what is it, and what is the final time after repeating `t += 0.1` that many times? Describe how to build a correct grid.
+
+   <details>
+   <summary>Answer</summary>
+
+   `0.7 / 0.1` is 6.999999999999999, so `int` gives 6, and the final time after six additions is 0.6, not 0.7. Since the quotient is close to an integer, use `round(0.7 / 0.1) = 7` as the number of steps, and build the times with `np.linspace(0, 0.7, 8)` instead of accumulating them, which gives a grid that includes the final time 0.7 exactly. Computing them as `i * 0.1` also avoids accumulated error, but the last digit may differ from the final time, as $`7 \times 0.1`$ is 0.7000000000000001.
 
    </details>
