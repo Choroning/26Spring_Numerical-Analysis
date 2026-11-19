@@ -24,6 +24,7 @@
   - [1.1 Motivating Example: Heated Rod](#11-motivating-example-heated-rod)
   - [1.2 Governing Equation](#12-governing-equation)
   - [1.3 BVP vs. IVP](#13-bvp-vs-ivp)
+  - [1.4 The Governing Equation from a Heat Balance](#14-the-governing-equation-from-a-heat-balance)
 - [2. Analytical Solution](#2-analytical-solution)
   - [2.1 Rearranging the Governing Equation](#21-rearranging-the-governing-equation)
   - [2.2 Homogeneous Solution](#22-homogeneous-solution)
@@ -38,6 +39,7 @@
   - [3.5 Python Implementation](#35-python-implementation)
   - [3.6 Shooting for Nonlinear Problems](#36-shooting-for-nonlinear-problems)
   - [3.7 Shooting with Derivative Boundary Conditions](#37-shooting-with-derivative-boundary-conditions)
+  - [3.8 The Shooting Method with a Convective Boundary Condition](#38-the-shooting-method-with-a-convective-boundary-condition)
 - [4. Finite Difference Methods (Section 24.3)](#4-finite-difference-methods-section-243)
   - [4.1 Core Idea: Discretize the Domain](#41-core-idea-discretize-the-domain)
   - [4.2 Second Derivative Approximation](#42-second-derivative-approximation)
@@ -51,6 +53,9 @@
   - [4.10 SciPy's solve_bvp](#410-scipys-solve_bvp)
   - [4.11 Finite Differences for Nonlinear BVPs with Newton's Method](#411-finite-differences-for-nonlinear-bvps-with-newtons-method)
   - [4.12 Accuracy and Cost of Shooting and Finite Differences](#412-accuracy-and-cost-of-shooting-and-finite-differences)
+  - [4.13 Finite-Difference Treatment of a Convective Boundary Condition](#413-finite-difference-treatment-of-a-convective-boundary-condition)
+  - [4.14 Successive Substitution for Nonlinear Finite-Difference Equations](#414-successive-substitution-for-nonlinear-finite-difference-equations)
+- [5. Common Mistakes](#5-common-mistakes)
 - [Concept Applications](#concept-applications)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -129,6 +134,24 @@ Given two boundary values at the endpoints of the domain, we can solve for the t
 > **Definition:** A **boundary value problem** is a problem in which the conditions on the solution of a differential equation are given at different points of the interval, usually at both end points. For the same equation, depending on the boundary conditions, the solution may be unique, may not exist, or may be infinitely many (Section 4.9).
 
 > **[Calculus]** A second-order ODE generally requires two conditions to determine a unique solution. In an IVP, both conditions are specified at the same point (e.g., position and velocity at $`t = 0`$). In a BVP, the conditions are specified at different spatial locations (e.g., temperatures at both ends of a rod). A linear IVP with continuous coefficients has exactly one solution, but a BVP may have no solution or infinitely many even with two conditions. For example, $`y'' + y = 0`$, $`y(0) = 0`$, $`y(\pi) = 0`$ has the solution $`y = C \sin x`$ for every constant $`C`$.
+
+### 1.4 The Governing Equation from a Heat Balance
+
+The equation of Section 1.2 comes from an energy balance on a short piece of the rod. Suppose the rod is thin enough for the temperature to be uniform over a cross section and that radiation is negligible (a model with radiation is in Section 3.6). Consider the piece between positions $`x`$ and $`x + \Delta x`$ of a rod of radius $`r`$. At steady state no heat accumulates in the piece, so the difference between the heat conducted in through the left cross section and out through the right cross section balances the heat exchanged by convection at the lateral surface.
+
+```math
+0 = q(x)A_c - q(x + \Delta x)A_c + h\,A_s\,(T_\infty - T)
+```
+
+Here $`q`$ is the conductive heat flux in the $`x`$ direction [W/m²], $`A_c = \pi r^2`$ is the cross-sectional area, $`A_s = 2\pi r\,\Delta x`$ is the lateral area of the piece, and $`h`$ is the convective heat transfer coefficient [W/(m² K)]. Dividing both sides by the volume of the piece, $`\pi r^2\Delta x`$, and taking the limit $`\Delta x \to 0`$ gives the following equation.
+
+```math
+0 = -\frac{dq}{dx} + \frac{2h}{r}(T_\infty - T)
+```
+
+Substituting Fourier's law $`q = -k\,dT/dx`$ ($`k`$ is the thermal conductivity [W/(m K)]) and dividing by $`k`$ gives the equation of Section 1.2, $`0 = T'' + h'(T_\infty - T)`$. The parameter is $`h' = \frac{2h}{rk}`$ with unit m⁻², and the larger $`h'`$ is, the stronger lateral convection is relative to conduction along the rod.
+
+The size of $`h'`$ can be interpreted through the solutions $`e^{\pm\lambda x}`$ ($`\lambda = \sqrt{h'}`$) of Section 2. The distance over which an end temperature influences the rod is roughly $`1/\lambda`$. The example of this unit ($`h' = 0.01`$ m⁻²) has $`1/\lambda = 10`$ m, equal to the length of the rod, so both end temperatures affect the whole rod. In contrast, an aluminum rod of radius 1 cm ($`k = 200`$ W/(m K)) in air with $`h = 10`$ W/(m² K) has $`h' = \frac{2 \times 10}{0.01 \times 200} = 10`$ m⁻² and $`1/\lambda = 0.32`$ m. In a 10 m rod, the temperature is close to the ambient temperature only about 1 m inside from either end, and the solution component $`e^{\lambda x}`$ reaches $`e^{31.6} \approx 5 \times 10^{13}`$ at $`x = 10`$ m. This is where the instability of the shooting method mentioned in the caution box of Section 3.6 appears.
 
 ---
 
@@ -506,6 +529,53 @@ exact T(0) = 136.649769
 
 If both ends have derivative conditions (for example, $`T'(0) = q_0`$ and $`T'(L) = q_L`$), the temperature at one end is taken as the parameter and the slope at the other end is matched. In this case, however, the solution may not be unique, so care is needed. For example, if $`h' = 0`$ and both ends are insulated, adding any constant to a solution gives another solution.
 
+### 3.8 The Shooting Method with a Convective Boundary Condition
+
+If the left end of the rod is exposed to air instead of touching a wall, heat also leaves the end face by convection. At steady state no heat accumulates at the end face, so the heat conducted to the end face from inside the rod equals the heat convected from the end face into the air. At the left end $`x = 0`$ the direction pointing out of the rod is $`-x`$, so with $`h_e`$ the convection coefficient of the end face, the following condition holds.
+
+```math
+k\,T'(0) = h_e\,\bigl(T(0) - T_\infty\bigr) \quad \Longrightarrow \quad T'(0) = \beta\,\bigl(T(0) - T_\infty\bigr), \qquad \beta = \frac{h_e}{k}
+```
+
+Such a condition, which ties the value and the derivative together, is called a **Robin condition** or a mixed boundary condition. As $`\beta \to 0`$ it becomes the insulated condition $`T'(0) = 0`$ of Section 4.8, and as $`\beta \to \infty`$ it becomes the Dirichlet condition $`T(0) \to T_\infty`$. In the shooting method, $`T(0)`$ is the shooting parameter, as in Section 3.7. For a guessed $`T(0)`$, the Robin condition sets $`T'(0)`$, so the initial-value problem can be integrated at once. The computation uses $`h' = 0.01`$, $`T_\infty = 20`$, $`L = 10`$, $`T(10) = 200`$, and $`\beta = 0.2`$ m⁻¹.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+hp, Tinf, L, Tb, beta = 0.01, 20.0, 10.0, 200.0, 0.2   # Robin condition at x = 0, T(L) = Tb
+
+def T_at_L(Ta):                                      # shooting parameter: the unknown T(0)
+    w0 = [Ta, beta * (Ta - Tinf)]                    # the Robin condition gives T'(0)
+    sol = solve_ivp(lambda x, w: [w[1], -hp * (Tinf - w[0])], (0.0, L), w0,
+                    rtol=1e-10, atol=1e-10)
+    return sol.y[0, -1]
+
+g1, g2 = 50.0, 100.0
+r1, r2 = T_at_L(g1), T_at_L(g2)
+Ta = g1 + (Tb - r1) * (g2 - g1) / (r2 - r1)          # linear interpolation (Section 3.3)
+print(f"T(0) = {g1}: T(L) = {r1:.6f}")
+print(f"T(0) = {g2}: T(L) = {r2:.6f}")
+print(f"interpolated T(0) = {Ta:.6f}, T'(0) = {beta * (Ta - Tinf):.6f}, check T(L) = {T_at_L(Ta):.6f}")
+
+lam = np.sqrt(hp)                                    # exact: C1, C2 of Section 2 from the two conditions
+M = np.array([[lam - beta, -lam - beta], [np.exp(lam * L), np.exp(-lam * L)]])
+C1, C2 = np.linalg.solve(M, [0.0, Tb - Tinf])
+print(f"exact T(0) = {Tinf + C1 + C2:.6f}")
+```
+
+```text
+T(0) = 50.0: T(L) = 136.804491
+T(0) = 100.0: T(L) = 331.478642
+interpolated T(0) = 66.231099, T'(0) = 9.246220, check T(L) = 200.000000
+exact T(0) = 66.231099
+```
+
+- The second component of `w0` is the slope set by the Robin condition. In Section 3.7 the slope was fixed at 0, whereas here it changes with the guessed $`T(0)`$.
+- The analytical solution applies the Robin condition $`\lambda(C_1 - C_2) = \beta(C_1 + C_2)`$ and $`T(L) = T_b`$ to the general solution $`T = T_\infty + C_1e^{\lambda x} + C_2e^{-\lambda x}`$ of Section 2 and solves the resulting system $`(\lambda - \beta)C_1 - (\lambda + \beta)C_2 = 0`$, $`C_1e^{\lambda L} + C_2e^{-\lambda L} = T_b - T_\infty`$.
+
+The Robin condition is also linear in $`T(0)`$ and $`T'(0)`$, so $`T(L)`$ is a linear function of the guessed $`T(0)`$, and linear interpolation between two trials satisfies the boundary condition at once, as in Section 3.3. The left-end temperature, 66.2311, lies between 136.6498 for an insulated end with the same right condition (Section 3.7) and the limit 20 for $`\beta \to \infty`$. The temperature drops as much as the end face releases heat to the air, and the slope $`T'(0) = 9.2462`$ is positive, so heat flows from the inside of the rod toward the left end.
+
 ---
 
 <br>
@@ -701,7 +771,9 @@ def finite_difference_bvp(h_prime, T_inf, Ta, Tb, L, n=10):
 **Example usage:** comparing both methods with the analytical solution.
 
 ```python
+import numpy as np
 import matplotlib.pyplot as plt
+# uses shooting_method() from Section 3.5 and finite_difference_bvp() above
 
 # Problem parameters
 h_prime = 0.01    # heat transfer parameter
@@ -949,6 +1021,134 @@ At the same spacing, shooting with RK4 reduces the error as $`O(h^4)`$ and is fa
 
 In problems where $`h'`$ is large or the interval long, so that the $`e^{\lambda x}`$ component grows greatly, the accuracy advantage of shooting is lost to roundoff and instability, and global methods such as finite differences or `solve_bvp` are safer.
 
+### 4.13 Finite-Difference Treatment of a Convective Boundary Condition
+
+When the Robin condition of Section 3.8 is treated by finite differences, the boundary node $`T_0`$ becomes an unknown, as in Section 4.8, and the ghost node $`T_{-1}`$ appears in the difference equation at $`x_0`$. Approximating the boundary condition with a centered difference gives the following.
+
+```math
+\frac{T_1 - T_{-1}}{2\Delta x} = \beta\,(T_0 - T_\infty) \quad \Longrightarrow \quad T_{-1} = T_1 - 2\beta\Delta x\,(T_0 - T_\infty)
+```
+
+Substituting this into the equation of node 0, $`-T_{-1} + GT_0 - T_1 = h'(\Delta x)^2T_\infty`$, gives the equation of the first row.
+
+```math
+(G + 2\beta\Delta x)\,T_0 - 2T_1 = h'(\Delta x)^2T_\infty + 2\beta\Delta x\,T_\infty
+```
+
+This is the row of the insulated condition with $`2\beta\Delta x`$ added to the diagonal element and $`2\beta\Delta x\,T_\infty`$ added to the right-hand side. For $`\Delta x = 2`$ ($`n = 5`$), $`G = 2 + 0.01 \times 4 = 2.04`$, $`h'(\Delta x)^2T_\infty = 0.8`$, and $`2\beta\Delta x = 0.8`$, and the full tridiagonal system for the unknowns $`T_0, \ldots, T_4`$ is as follows.
+
+```math
+\begin{pmatrix} 2.84 & -2 & 0 & 0 & 0 \\ -1 & 2.04 & -1 & 0 & 0 \\ 0 & -1 & 2.04 & -1 & 0 \\ 0 & 0 & -1 & 2.04 & -1 \\ 0 & 0 & 0 & -1 & 2.04 \end{pmatrix}\begin{pmatrix} T_0 \\ T_1 \\ T_2 \\ T_3 \\ T_4 \end{pmatrix} = \begin{pmatrix} 16.8 \\ 0.8 \\ 0.8 \\ 0.8 \\ 200.8 \end{pmatrix}
+```
+
+The right-hand side 16.8 of the first row is $`0.8 + 0.8 \times 20`$, and the right-hand side 200.8 of the last row is $`0.8`$ plus the known boundary value $`T_5 = 200`$ moved to the right. In the same way, $`n`$ is varied and the results are compared with the analytical solution of Section 3.8.
+
+```python
+import numpy as np
+
+hp, Tinf, L, Tb, beta = 0.01, 20.0, 10.0, 200.0, 0.2
+lam = np.sqrt(hp)
+C1, C2 = np.linalg.solve([[lam - beta, -lam - beta], [np.exp(lam * L), np.exp(-lam * L)]],
+                         [0.0, Tb - Tinf])
+exact = lambda x: Tinf + C1 * np.exp(lam * x) + C2 * np.exp(-lam * x)
+
+def fd_robin(n):
+    dx = L / n
+    G, F = 2.0 + hp * dx**2, hp * dx**2 * Tinf
+    A = np.zeros((n, n)); b = np.full(n, F)          # unknowns T_0 .. T_{n-1}
+    for i in range(n):
+        A[i, i] = G
+        if i > 0: A[i, i - 1] = -1.0
+        if i < n - 1: A[i, i + 1] = -1.0
+    A[0, 0] += 2 * beta * dx; A[0, 1] = -2.0         # ghost node removed with the Robin condition
+    b[0] += 2 * beta * dx * Tinf
+    b[-1] += Tb                                      # Dirichlet value T_n = Tb moved to the right
+    return np.linspace(0.0, L - dx, n), np.linalg.solve(A, b)
+
+x, T = fd_robin(5)
+print("n = 5:", np.round(T, 4))
+print("exact:", np.round(exact(x), 4))
+prev = None
+for n in [5, 10, 20, 40]:
+    x, T = fd_robin(n)
+    err = np.max(np.abs(T - exact(x)))
+    ratio = f"{prev / err:5.2f}" if prev else "     "
+    print(f"n = {n:2d}: T(0) = {T[0]:.6f}, max error = {err:.3e}  ratio {ratio}")
+    prev = err
+```
+
+```text
+n = 5: [ 66.4543  85.9651 108.1145 133.7884 164.0139]
+exact: [ 66.2311  85.7748 107.9582 133.6718 163.9473]
+n =  5: T(0) = 66.454266, max error = 2.232e-01  ratio      
+n = 10: T(0) = 66.287024, max error = 5.592e-02  ratio  3.99
+n = 20: T(0) = 66.245089, max error = 1.399e-02  ratio  4.00
+n = 40: T(0) = 66.234597, max error = 3.498e-03  ratio  4.00
+```
+
+- `A[0, 0] += 2 * beta * dx` and `A[0, 1] = -2.0` form the first row after the ghost node is eliminated, and `b[0] += 2 * beta * dx * Tinf` is its right-hand side.
+- There are $`n`$ unknowns, $`T_0, \ldots, T_{n-1}`$, and the right-end value $`T_n = 200`$ is moved to the right-hand side of the last row.
+
+The solution for $`n = 5`$ agrees with the analytical solution within 0.23 at every node, and each halving of $`\Delta x`$ reduces the maximum error to one fourth. Treated with a ghost node and a centered difference, the Robin condition also keeps the $`O(\Delta x^2)`$ accuracy of Section 4.9. Only the first row of the coefficient matrix is not symmetric, and dividing the first row by 2, as in Section 4.8, restores a symmetric matrix.
+
+### 4.14 Successive Substitution for Nonlinear Finite-Difference Equations
+
+Section 4.11 solved the nonlinear difference equations with Newton's method. A simpler method that builds no Jacobian is successive substitution, which solves each node's equation for that node's temperature while using the previous value in the nonlinear term.
+
+```math
+T_i \leftarrow \frac{h'(\Delta x)^2T_\infty + \sigma'(\Delta x)^2\,(T_\infty^4 - T_i^4) + T_{i-1} + T_{i+1}}{2 + h'(\Delta x)^2}
+```
+
+As in the Gauss-Seidel method of Chapter 12, the nodes are updated in order and each new value is used immediately in the computation for the next node. The denominator $`2 + h'(\Delta x)^2`$ exceeds 2, the sum of the neighbor coefficients, so the linear part is diagonally dominant, and the iteration converges as long as the nonlinear term is not too large.
+
+```python
+import numpy as np
+
+hp, sig, Tinf, L, Ta, Tb = 0.01, 5e-9, 20.0, 10.0, 40.0, 200.0
+
+def successive(n, tol=1e-10, maxit=10000):
+    dx = L / n
+    T = Ta + (Tb - Ta) * np.linspace(0.0, 1.0, n + 1)   # straight-line initial guess
+    for sweep in range(1, maxit + 1):
+        change = 0.0
+        for i in range(1, n):                           # Gauss-Seidel order: new values used at once
+            new = (hp * dx**2 * Tinf + sig * dx**2 * (Tinf**4 - T[i]**4)
+                   + T[i - 1] + T[i + 1]) / (2.0 + hp * dx**2)
+            change = max(change, abs(new - T[i]))
+            T[i] = new
+        if change < tol:
+            return T, sweep
+    return T, maxit
+
+for n in [10, 20, 40]:
+    T, sweeps = successive(n)
+    print(f"n = {n}: sweeps = {sweeps:4d}, T(5) = {T[n // 2]:.6f}")
+```
+
+```text
+n = 10: sweeps =  177, T(5) = 99.236347
+n = 20: sweeps =  681, T(5) = 99.082177
+n = 40: sweeps = 2567, T(5) = 99.042700
+```
+
+- One pass of the outer loop is a sweep that updates all interior nodes once, and `change` is the largest change in that sweep.
+- `sig * dx**2 * (Tinf**4 - T[i]**4)` in the numerator is the nonlinear term computed with the previous value.
+
+The resulting $`T(5)`$ agrees with Newton's method of Section 4.11 in every digit, but the number of sweeps is 177, 681, and 2567 for $`n = 10, 20, 40`$, about four times larger each time $`n`$ doubles. Each update uses only the values of the neighboring nodes, so smooth error components spanning the whole grid decay slowly. The smoothest error component shrinks per sweep only by a factor of the form $`1 - c/n^2`$ (with $`c`$ independent of $`n`$), and the factors observed in this example are 0.871, 0.967, and 0.992 for $`n = 10, 20, 40`$, giving $`c \approx 13`$. The number of sweeps needed to reduce the error by a fixed ratio is therefore proportional to $`n^2`$. A sweep costs $`O(n)`$, so the total cost is roughly $`O(n^3)`$. Newton's method needs about five iterations regardless of $`n`$, each solving one tridiagonal system in $`O(n)`$, so it is far more favorable on fine grids. The advantage of successive substitution is that it needs no Jacobian and is simple to implement.
+
+---
+
+<br>
+
+## 5. Common Mistakes
+
+Common mistakes when solving boundary-value problems are the following.
+
+1. **Using the same sign for the Robin condition at both ends.** With $`n`$ the direction pointing out of the rod, the convective condition is $`-k\,\partial T/\partial n = h_e(T - T_\infty)`$. At the left end the outward direction is $`-x`$, so $`T'(0) = \beta(T(0) - T_\infty)`$, and at the right end it is $`+x`$, so $`T'(L) = -\beta(T(L) - T_\infty)`$. A wrong sign gives a nonphysical solution in which the end face takes in heat although it is hotter than its surroundings.
+2. **Solving a problem with derivative conditions at both ends as is.** If $`h' = 0`$ and both ends are insulated, adding a constant to a solution gives another solution (Section 3.7), so the finite-difference matrix built with ghost nodes is singular and `np.linalg.solve` raises a `LinAlgError`. If $`h' > 0`$, the convection term makes the solution unique.
+3. **Using a dense solver on a large grid.** `np.linalg.solve` stores the matrix as $`n^2`$ elements and performs $`O(n^3)`$ operations. For $`n = 10^4`$, storage alone takes about 800 MB. A tridiagonal matrix is solved in $`O(n)`$ with the Thomas algorithm of Chapter 9, storing only the three diagonals.
+4. **Not checking the `status` of `solve_bvp`.** Only `status` 0 means convergence to the desired accuracy; 1 means the number of mesh nodes exceeded `max_nodes` (default 1000), and 2 means a singular Jacobian was encountered while solving the collocation system [1]. The `sol` of a nonzero result may not be a solution, so the problem is solved again with a different initial mesh and guess or a larger `max_nodes`.
+
 ---
 
 <br>
@@ -965,6 +1165,9 @@ In problems where $`h'`$ is large or the interval long, so that the $`e^{\lambda
 | With a ghost node, the finite difference method handles derivative boundary conditions with second-order accuracy. | **T.** The boundary condition is approximated by a central difference (Section 4.8). |
 | At the same grid spacing, shooting with RK4 is generally more accurate than second-order finite differences. | **T.** The errors are $`O(h^4)`$ and $`O(\Delta x^2)`$, of different orders; for the linear rod problem with $`n = 10`$ they were $`1.5 \times 10^{-5}`$ and $`8.7 \times 10^{-3}`$ (Section 4.12). |
 | `solve_bvp`, like the shooting method, finds the solution by integrating an initial value problem from one end. | **F.** `solve_bvp` is a collocation method that, like finite differences, treats the solution over the whole interval as unknowns at once, so it can be used even for problems where shooting is unstable (Section 4.10). |
+| If an end face of the rod is exposed to air, the boundary condition at that end is a Robin condition that ties the value and the derivative together. | **T.** It is the condition $`kT'(0) = h_e(T(0) - T_\infty)`$ that the heat conducted to the end face equals the heat convected into the air (Section 3.8). |
+| The shooting method cannot be used with a Robin condition. | **F.** With $`T(0)`$ as the shooting parameter, the Robin condition sets $`T'(0)`$, so the shooting method applies as is (Section 3.8). |
+| Solving nonlinear difference equations by successive substitution converges as fast as Newton's method regardless of the grid size. | **F.** The number of sweeps of successive substitution grew about fourfold each time $`n`$ doubled, whereas Newton's method took 5 iterations regardless of $`n`$ (Section 4.14). |
 
 ---
 
@@ -989,6 +1192,9 @@ In problems where $`h'`$ is large or the interval long, so that the $`e^{\lambda
 | Shooting with derivative boundary conditions | When a slope is given at a boundary, the unknown value (for example $`T(0)`$) becomes the shooting parameter and the boundary condition at the other end is matched. |
 | Nonlinear finite differences | The discretized equations $`\mathbf{F}(\mathbf{T}) = \mathbf{0}`$ are solved by Newton's method with a tridiagonal Jacobian, which converges quadratically. |
 | Shooting versus finite differences | Shooting inherits the order of the IVP solver but can be unstable, while finite differences are second-order but stable and extend to several dimensions. |
+| Heat balance and $`h'`$ | The balance of conduction and convection on a piece together with Fourier's law gives $`0 = T'' + h'(T_\infty - T)`$ with $`h' = 2h/(rk)`$, and $`1/\sqrt{h'}`$ is the distance over which an end temperature has influence. |
+| Robin condition | At a left end face exposed to air, $`T'(0) = \beta(T(0) - T_\infty)`$; the shooting method uses $`T(0)`$ as the parameter, and the finite-difference method adds $`2\beta\Delta x`$ to the diagonal element of the first row after eliminating the ghost node. |
+| Successive substitution | A Gauss-Seidel-type iteration that uses the previous value in the nonlinear term is simple to implement, but the number of sweeps grows with the square of the number of nodes, so it is much slower than Newton's method on fine grids. |
 
 ---
 
@@ -1065,6 +1271,24 @@ In problems where $`h'`$ is large or the interval long, so that the $`e^{\lambda
    <summary>Answer</summary>
 
    $`\frac{\partial F_2}{\partial T_2} = -2 - (\Delta x)^2(h' + 4\sigma'T_2^3) = -2 - 6.25(0.01 + 4 \times 5 \times 10^{-9} \times 120^3)`$. Since $`120^3 = 1728000`$, the parenthesis is $`0.01 + 0.03456 = 0.04456`$, and the diagonal entry is $`-2 - 0.2785 = -2.2785`$. All off-diagonal entries are 1. The higher the temperature, the larger the contribution $`4\sigma'T^3`$ of the radiation term.
+
+   </details>
+
+9. **Computing $`h'`$:** A copper rod of radius 2 cm ($`k = 400`$ W/(m K)) is in air with $`h = 8`$ W/(m² K). Compute $`h'`$ and $`1/\lambda`$, and decide whether the end temperatures influence the whole of a 10 m rod.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`h' = \frac{2h}{rk} = \frac{2 \times 8}{0.02 \times 400} = 2`$ m⁻² and $`\lambda = \sqrt{2} = 1.414`$ m⁻¹, so $`1/\lambda = 0.707`$ m. The influence of an end dies out within a few multiples of about 0.7 m from the end, so most of the middle of a 10 m rod is close to the ambient temperature. The solution component $`e^{\lambda x}`$ then reaches $`e^{14.1} \approx 1.4 \times 10^6`$ at $`x = 10`$ m, and an error in the initial slope of the shooting method is amplified by that factor (Section 1.4).
+
+   </details>
+
+10. **Limits of the Robin condition:** For the first row of Section 4.13, $`(G + 2\beta\Delta x)T_0 - 2T_1 = h'(\Delta x)^2T_\infty + 2\beta\Delta x\,T_\infty`$, explain which boundary condition results when $`\beta = 0`$ and when $`\beta`$ is very large.
+
+   <details>
+   <summary>Answer</summary>
+
+   With $`\beta = 0`$ the row is $`GT_0 - 2T_1 = h'(\Delta x)^2T_\infty`$, the same as the row of the insulated condition $`T'(0) = 0`$ treated with a ghost node in Section 4.8. When $`\beta`$ is very large, the equation divided by $`2\beta\Delta x`$ approaches $`T_0 - T_\infty \approx 0`$, so $`T_0 \to T_\infty`$, which is the Dirichlet condition fixing the end temperature at the ambient temperature (Section 3.8).
 
    </details>
 
