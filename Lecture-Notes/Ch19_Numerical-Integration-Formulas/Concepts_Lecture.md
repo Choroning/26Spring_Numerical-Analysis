@@ -26,6 +26,7 @@
   - [1.3 Lagrange Polynomial Review](#13-lagrange-polynomial-review)
   - [1.4 Quadrature Formulas and Newton-Cotes](#14-quadrature-formulas-and-newton-cotes)
   - [1.5 Degree of Precision and the Method of Undetermined Coefficients](#15-degree-of-precision-and-the-method-of-undetermined-coefficients)
+  - [1.6 Uses of Integration: Means and Totals of Continuous Functions](#16-uses-of-integration-means-and-totals-of-continuous-functions)
 - [2. Trapezoidal Rule (n = 1)](#2-trapezoidal-rule-n--1)
   - [2.1 Derivation from Linear Interpolation](#21-derivation-from-linear-interpolation)
   - [2.2 Final Formula](#22-final-formula)
@@ -68,6 +69,8 @@
   - [9.8 SciPy Functions for Integrating Samples](#98-scipy-functions-for-integrating-samples)
   - [9.9 Double Integrals](#99-double-integrals)
 - [10. Comparison of Newton-Cotes Formulas](#10-comparison-of-newton-cotes-formulas)
+- [11. Case Study: Work Done by a Variable Force](#11-case-study-work-done-by-a-variable-force)
+- [12. Common Mistakes](#12-common-mistakes)
 - [Concept Applications](#concept-applications)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -231,6 +234,20 @@ x^5: rule = 0.000000, exact = 0.000000
 - The $`k`$-th entry of `rhs` is $`\int_a^b x^k\,dx = \frac{b^{k+1} - a^{k+1}}{k+1}`$.
 - The weights are the values for $`h = 1`$; the results are, in order, $`\frac{h}{2}`$ for the trapezoidal rule, $`\frac{h}{3}, \frac{4h}{3}`$ for Simpson's rule, and $`\frac{3h}{8}, \frac{9h}{8}`$ for the 3/8 rule.
 - The final loop shows that Simpson's rule is exact up to $`x^3`$ and first fails at $`x^4`$, so its degree of precision is 3.
+
+### 1.6 Uses of Integration: Means and Totals of Continuous Functions
+
+A definite integral is the area under a curve and also the sum of all values over the interval. For this reason the integral sign $`\int`$ is an elongated S, the first letter of the word sum. Viewing the integral as a sum leads to two common uses.
+
+The first is the mean of a continuous function. The mean of measurements $`y_1, \ldots, y_n`$ is $`\frac{1}{n}\sum_i y_i`$. A function $`f(x)`$ that varies continuously on $`[a, b]`$ takes infinitely many values, so replacing the sum with an integral and the count with the length of the interval gives its mean.
+
+```math
+\bar{f} = \frac{1}{b - a}\int_a^b f(x)\,dx
+```
+
+The center of gravity of an object is the mean of position weighted by density, and the root-mean-square value of an alternating current (Chapter 20, Section 6) is the square root of the mean of the squared current. The second use is a total amount. If the concentration $`c`$ in a reactor varies with position, the total mass is the sum of $`c_i\,\Delta V_i`$ over small volumes $`\Delta V_i`$, and the limit of ever finer volumes is the volume integral $`\iiint_V c\,dV`$. In the same way, the total heat passing through a surface is a surface integral of the heat flux over that surface.
+
+When a mean is computed from samples, the arithmetic mean must be distinguished from the integral mean. The time average of the velocity $`v(t) = 10(1 - e^{-0.3t})`$ [m/s] from 0 to 6 seconds is $`\frac{1}{6}\int_0^6 v\,dt = 5.3628`$ m/s. The arithmetic mean of the seven samples taken every second, $`0, 2.5918, 4.5119, 5.9343, 6.9881, 7.7687, 8.3470`$, is 5.1631 m/s, about 3.7% smaller. Each sample represents a time span of 1 second in the interior but only 0.5 second at the two ends, whereas the arithmetic mean gives every sample the same weight. The weighted mean that halves the weights of the two end samples is 5.3280 m/s, much closer to the true value. This value equals the integral from the composite trapezoidal rule of Section 5 divided by the interval length 6, and it is the same computation as the interpretation of the composite trapezoidal rule as width times average height in Section 5.3.
 
 ---
 
@@ -891,6 +908,7 @@ def simpson_38(f, a, b):
 
 ```python
 import math
+# uses the functions of Sections 9.1-9.5
 
 def f(x):
     """Example: integrate e^x from 0 to 1 (exact answer = e - 1)."""
@@ -1082,7 +1100,157 @@ I \approx \frac{2h}{45}(7f_0 + 32f_1 + 12f_2 + 32f_3 + 7f_4), \qquad E = -\frac{
 
 and it is exact for polynomials of degree 5 or less. A single application to $`\int_0^1 e^x\,dx`$ ($`h = 0.25`$) gives 1.7182827 with error $`-8.6 \times 10^{-7}`$. Raising the order indefinitely is not a good strategy, however. Negative weights first appear in the formula with $`n = 8`$ (9 points), and most larger $`n`$ also have negative weights; negative weights cause cancellation between large positive and negative terms and amplify roundoff error. Moreover, as with Runge's phenomenon of Chapter 17, high-order equally spaced interpolation itself may fail to converge. In practice, low-order formulas are used in composite form, or Romberg integration and Gauss quadrature of Chapter 20 are used.
 
-Formulas that do not use the end points as nodes are called **open Newton-Cotes formulas**. The simplest, the midpoint rule $`I \approx (b - a)\,f\!\left(\frac{a+b}{2}\right)`$, has error $`E = +\frac{(b - a)^3}{24}f''(\xi)`$, opposite in sign to the trapezoidal rule and about half as large. For $`\int_0^1 e^x\,dx`$ the midpoint rule gives 1.648721 (error $`+0.069561`$), opposite in sign to and about half the size of the trapezoidal error $`-0.140859`$. The formula that divides the interval into three parts and uses only the two interior points, $`I \approx \frac{b - a}{2}\bigl(f(x_1) + f(x_2)\bigr)`$, has error $`E = +\frac{(b - a)^3}{36}f''(\xi)`$, as substituting $`f = x^2`$ by the method of Section 1.5 shows, and gives 1.671673 (error $`+0.046609`$) for the same integral. Open formulas are less accurate than closed formulas with the same number of points, but they can be used when the integrand blows up or is undefined at an end point, and the multistep methods of Chapter 23 also use them.
+Formulas that do not use the end points as nodes are called **open Newton-Cotes formulas**. The simplest, the midpoint rule $`I \approx (b - a)\,f\!\left(\frac{a+b}{2}\right)`$, has error $`E = +\frac{(b - a)^3}{24}f''(\xi)`$, opposite in sign to the trapezoidal rule and about half as large. For $`\int_0^1 e^x\,dx`$ the midpoint rule gives 1.648721 (error $`+0.069561`$), opposite in sign to and about half the size of the trapezoidal error $`-0.140859`$. The formula that divides the interval into three parts and uses only the two interior points, $`I \approx \frac{b - a}{2}\bigl(f(x_1) + f(x_2)\bigr)`$, has error $`E = +\frac{(b - a)^3}{36}f''(\xi)`$, as substituting $`f = x^2`$ by the method of Section 1.5 shows, and gives 1.671673 (error $`+0.046609`$) for the same integral. Open formulas can be used even when the integrand blows up or is undefined at an end point, and the multistep methods of Chapter 23 also use them.
+
+Applying the method of undetermined coefficients of Section 1.5 to more nodes gives the weights and error terms of the closed and open formulas at once. On the interval $`[0, n]`$ ($`h = 1`$), the code below uses the nodes $`0, 1, \ldots, n`$ for the closed formulas and the nodes $`1, \ldots, n - 1`$, without the two ends, for the open formulas.
+
+```python
+import math
+import numpy as np
+from fractions import Fraction
+
+def rule(nodes, n):
+    """Weights (in units of h) on [0, n], degree of precision, error constant."""
+    m = len(nodes)
+    A = np.vander(nodes, m, increasing=True).T.astype(float)
+    w = np.linalg.solve(A, [n**(k + 1) / (k + 1) for k in range(m)])
+    for k in range(m, m + 3):                    # first monomial integrated wrongly
+        E = n**(k + 1) / (k + 1) - w @ np.array(nodes, float)**k
+        if abs(E) > 1e-9:
+            return w, k - 1, E / math.factorial(k)
+
+frac = lambda v: str(Fraction(v).limit_denominator(20000))
+for kind, ns in [("closed", range(1, 6)), ("open", range(2, 7))]:
+    for n in ns:
+        nodes = list(range(n + 1)) if kind == "closed" else list(range(1, n))
+        w, deg, C = rule(nodes, n)
+        print(f"{kind:6s} n={n}: w/h = {' '.join(frac(x) for x in w):46s} "
+              f"degree {deg}, E = {frac(C)} h^{deg + 2} f^({deg + 1})")
+```
+
+```text
+closed n=1: w/h = 1/2 1/2                                        degree 1, E = -1/12 h^3 f^(2)
+closed n=2: w/h = 1/3 4/3 1/3                                    degree 3, E = -1/90 h^5 f^(4)
+closed n=3: w/h = 3/8 9/8 9/8 3/8                                degree 3, E = -3/80 h^5 f^(4)
+closed n=4: w/h = 14/45 64/45 8/15 64/45 14/45                   degree 5, E = -8/945 h^7 f^(6)
+closed n=5: w/h = 95/288 125/96 125/144 125/144 125/96 95/288    degree 5, E = -275/12096 h^7 f^(6)
+open   n=2: w/h = 2                                              degree 1, E = 1/3 h^3 f^(2)
+open   n=3: w/h = 3/2 3/2                                        degree 1, E = 3/4 h^3 f^(2)
+open   n=4: w/h = 8/3 -4/3 8/3                                   degree 3, E = 14/45 h^5 f^(4)
+open   n=5: w/h = 55/24 5/24 5/24 55/24                          degree 3, E = 95/144 h^5 f^(4)
+open   n=6: w/h = 33/10 -21/5 39/5 -21/5 33/10                   degree 5, E = 41/140 h^7 f^(6)
+```
+
+- `rule` solves the same linear system as `weights` in Section 1.5, then finds the first monomial $`x^{m+1}`$ that the formula integrates wrongly and computes the degree of precision $`m`$ and the error constant $`C = E(x^{m+1})/(m+1)!`$ of Section 1.5.
+- `Fraction(v).limit_denominator(20000)` converts each floating-point result into the nearest fraction with a denominator of at most 20000, which shows the exact coefficients.
+
+Three patterns can be read from the result. First, for both closed and open formulas, a formula with an odd number of points has the same degree of precision as the next formula with one more point. Simpson's 1/3 and 3/8 rules are both of degree 3, and Boole's rule and the formula with $`n = 5`$ are both of degree 5. Because of the symmetry of Section 3.5, an odd number of points gains one extra degree, so formulas with odd points on an even number of segments are preferred over even-point formulas, whose extra point does not raise the degree. Second, with the same number of points, open and closed formulas have the same degree of precision, but which of them has the smaller error constant depends on the number of points. Comparing the error constants without the derivative on the same interval, the two-point open formula has $`\frac{(b-a)^3}{36}`$ from the previous paragraph, smaller than the trapezoidal rule's $`\frac{(b-a)^3}{12}`$, and the three-point open formula, obtained by putting $`h = \frac{b-a}{4}`$ into $`\frac{14}{45}h^5`$, has $`\frac{(b-a)^5}{3291}`$, slightly smaller than Simpson's $`\frac{(b-a)^5}{2880}`$. In contrast, the four-point open formula, $`\frac{95}{144}h^5`$ with $`h = \frac{b-a}{5}`$, has about $`\frac{(b-a)^5}{4737}`$, larger than the 3/8 rule's $`\frac{(b-a)^5}{6480}`$, and the five-point open formula, about $`\frac{(b-a)^7}{955879}`$, is also about twice Boole's rule's $`\frac{(b-a)^7}{1935360}`$. An open formula is therefore neither always more accurate nor always less accurate than the closed formula with the same number of points. Third, the open formulas already have the negative weight $`-\frac{4}{3}`$ at $`n = 4`$, so they become sensitive to roundoff error much sooner than the closed formulas (from $`n = 8`$). Moreover, halving the interval produces new midpoints that do not coincide with the old ones, so the old function values cannot be reused; methods that reuse points, such as the Romberg integration of Chapter 20, call for closed formulas.
+
+A typical case that needs an open formula is an **improper integral** whose integrand is undefined at an end point. For $`\int_0^1 x^{-1/2}\,dx = 2`$, the function value is infinite at $`x = 0`$, so closed formulas cannot be used, but the composite midpoint rule, which uses only the midpoints of the subintervals, can be evaluated.
+
+```python
+import numpy as np
+
+f = lambda x: 1.0 / np.sqrt(x)               # f(0) is undefined; exact integral on [0, 1] is 2
+prev = None
+for n in [4, 16, 64, 256, 1024]:
+    h = 1.0 / n
+    xm = (np.arange(n) + 0.5) * h            # midpoints only: x = 0 is never used
+    M = h * f(xm).sum()
+    err = 2.0 - M
+    r = f"{prev / err:5.2f}" if prev else "     "
+    print(f"n = {n:5d}: midpoint = {M:.6f}, error = {err:.4e}, ratio {r}")
+    prev = err
+```
+
+```text
+n =     4: midpoint = 1.698844, error = 3.0116e-01, ratio      
+n =    16: midpoint = 1.848857, error = 1.5114e-01, ratio  1.99
+n =    64: midpoint = 1.924393, error = 7.5607e-02, ratio  2.00
+n =   256: midpoint = 1.962194, error = 3.7806e-02, ratio  2.00
+n =  1024: midpoint = 1.981097, error = 1.8903e-02, ratio  2.00
+```
+
+Each fourfold increase of $`n`$ halves the error, so the error is proportional to $`h^{1/2}`$. The error formula of Section 2.3 holds only when $`f''`$ is bounded on the interval, and $`x^{-1/2}`$ itself and all its derivatives blow up at $`x = 0`$. Most of the error arises in the first subinterval $`[0, h]`$, which touches the singularity. The integral over this subinterval is $`2\sqrt{h}`$, but the midpoint rule gives $`h\,(h/2)^{-1/2} = \sqrt{2}\sqrt{h}`$, so this one subinterval contributes an error of $`(2 - \sqrt{2})\sqrt{h} \approx 0.59\sqrt{h}`$. For $`n = 4`$ ($`\sqrt{h} = 0.5`$) this is 0.29, most of the total error 0.30. By the same argument, if the integrand blows up like $`x^{-\alpha}`$ ($`0 < \alpha < 1`$) near an end point, the error is proportional to $`h^{1-\alpha}`$. An open formula only makes such an integral computable; when accuracy is needed, points are concentrated near the singularity, as in the adaptive quadrature of Chapter 20, Section 5, or a change of variable removes the singularity. For example, the substitution $`x = u^2`$ turns $`\int_0^1 x^{-1/2}\,dx`$ into $`\int_0^1 2\,du`$, which any formula computes exactly.
+
+---
+
+<br>
+
+## 11. Case Study: Work Done by a Variable Force
+
+When a constant force $`F`$ moves an object a distance $`d`$, the work done is $`W = Fd`$. If the magnitude of the force varies with position and the angle $`\theta`$ between the force and the direction of motion also varies, the force component along the motion, $`F\cos\theta`$, must be integrated over position.
+
+```math
+W = \int_{x_0}^{x_n} F(x)\cos\theta(x)\,dx
+```
+
+In an experiment, $`F`$ and $`\theta`$ are measured only at a few positions, so this integral can only be computed numerically. Suppose that the force and the angle were measured every 4 m while an object moved 24 m, giving Table 4.
+
+| Position $`x`$ [m] | 0 | 4 | 8 | 12 | 16 | 20 | 24 |
+|:-----|:-----|:-----|:-----|:-----|:-----|:-----|:-----|
+| Force $`F`$ [N] | 3.000 | 5.910 | 5.910 | 4.467 | 4.467 | 3.000 | 3.000 |
+| Angle $`\theta`$ [rad] | 0.200 | 0.380 | 0.560 | 0.740 | 0.920 | 1.100 | 1.280 |
+| $`F\cos\theta`$ [N] | 2.9403 | 5.4880 | 5.0069 | 3.2991 | 2.7064 | 1.3608 | 0.8601 |
+
+*Table 4. Force and angle measured at several positions*
+
+These data actually come from a force with two peaks (the blue curve in Figure 3), and the true value computed from values far denser than the measurement spacing is 92.40 J. The work is computed with the composite trapezoidal rule and the composite Simpson's 1/3 rule for several sample spacings.
+
+```python
+import numpy as np
+from scipy.integrate import quad
+
+F = lambda x: 3.0 + 10.0 * np.exp(-((x - 6.0) / 1.8)**2) + 7.0 * np.exp(-((x - 14.0) / 1.6)**2)  # [N]
+theta = lambda x: 0.2 + 0.045 * x                    # angle between force and motion [rad]
+g = lambda x: F(x) * np.cos(theta(x))                # force component along the path [N]
+W_ref = quad(g, 0.0, 24.0, limit=200)[0]             # reference work [J]
+print(f"reference work = {W_ref:.2f} J")
+
+def simpson(y, h):                                   # composite 1/3 rule, odd number of samples
+    return h / 3 * (y[0] + 4 * y[1:-1:2].sum() + 2 * y[2:-1:2].sum() + y[-1])
+
+print(" dx [m]  samples   trapezoid [J]  error     Simpson [J]  error")
+for dx in [12.0, 4.0, 2.0, 1.0]:
+    xs = np.arange(0.0, 24.0 + dx / 2, dx); ys = g(xs)
+    T = np.trapezoid(ys, xs); S = simpson(ys, dx)
+    print(f"{dx:6.2f}  {xs.size:5d}    {T:10.2f}  {100 * (W_ref - T) / W_ref:+7.2f}%  "
+          f"{S:10.2f}  {100 * (W_ref - S) / W_ref:+7.2f}%")
+```
+
+```text
+reference work = 92.40 J
+ dx [m]  samples   trapezoid [J]  error     Simpson [J]  error
+ 12.00      3         62.39   +32.48%       67.99   +26.42%
+  4.00      7         79.05   +14.45%       79.76   +13.68%
+  2.00     13         92.44    -0.04%       96.90    -4.87%
+  1.00     25         92.39    +0.01%       92.38    +0.02%
+```
+
+- `F` and `theta` are the continuous functions that generated the data, and `W_ref` is the true value obtained by integrating them precisely with `quad` of Chapter 20, Section 5.3. In a real experiment these functions are unknown, so only the row for the measured spacing is available.
+- `np.trapezoid(ys, xs)` is the trapezoidal integration of Section 9.7, and `simpson` is the composite 1/3 rule of Section 6.2. For all four spacings the number of samples is odd, so the number of subintervals is even and the 1/3 rule applies as is.
+
+![Figure 3. Trapezoids built from samples spaced 4 m and 2 m apart and the actual integrand](../../images/Ch19_Work-Integrand.png)
+
+*Figure 3. Trapezoids built from samples spaced 4 m and 2 m apart and the actual integrand*
+
+The result contradicts the expectation that a higher-order formula is always more accurate. With the seven samples spaced 4 m apart, the trapezoidal rule and Simpson's rule give 79.05 J and 79.76 J, agreeing within 1%, but both are about 14% below the true value. As the left panel of Figure 3 shows, the two peaks of the force (near $`x = 6`$ m and 14 m) lie between the measurement points, so no formula can see their area. The error theory of the formulas rests on the assumption that the function is as smooth as a low-degree polynomial between samples, and when the data do not capture the variation of the function, raising the order does not help. Agreement between two formulas that use the same samples is not evidence of accuracy either.
+
+Reducing the spacing to 2 m brings the tops of the peaks into the samples. The trapezoidal error is then very small, $`-0.04\%`$, but Simpson's error grows to $`-4.87\%`$. The width of the peaks (about 2 m) is still comparable to the spacing, so Simpson's rule gives weight 4 to the samples at the peak tops and overestimates the area with the parabolas through them. The small trapezoidal error is also an accidental cancellation of underestimation at the peaks and overestimation in the valleys (right panel of Figure 3). Only when the spacing is reduced further to 1 m do the two formulas agree with each other and with the true value within 0.02%. Whether an integral of data can be trusted must therefore be judged not by changing the formula but by refining the sample spacing and checking that the results converge, and if the measurements can be planned, more samples are placed where the function changes rapidly.
+
+---
+
+<br>
+
+## 12. Common Mistakes
+
+Common mistakes when using numerical integration formulas are the following.
+
+1. **Confusing the number of segments with the number of points.** $`n`$ subintervals have $`n + 1`$ points. `np.linspace(a, b, n)` creates $`n`$ points, that is, $`n - 1`$ subintervals. The composite Simpson's 1/3 rule needs an even number of subintervals, that is, an odd number of points.
+2. **Mixing definitions of the step size $`h`$.** In the single-application Simpson's 1/3 rule $`h`$ is $`\frac{b-a}{2}`$, in the 3/8 rule it is $`\frac{b-a}{3}`$, and in the composite formulas it is $`\frac{b-a}{n}`$. Putting $`b - a`$ into the factor $`\frac{h}{3}`$ of the single-application 1/3 rule doubles the result.
+3. **Passing only the values without the sample positions.** NumPy's `np.trapezoid(y)` assumes a sample spacing of `dx = 1.0` when `x` is not given [2]. When the spacing is not 1 or not uniform, the positions must be passed as well, as in `np.trapezoid(y, x)`.
+4. **Reading an error estimate based on an average derivative as a guaranteed bound.** The $`E_a`$ of Sections 5.4 and 6.3 are estimates that use $`\overline{f''}`$ or $`\overline{f^{(4)}}`$. When a bound on the error is needed, the range is set from the minimum and maximum of the derivative on the interval, as in Section 2.4.
+5. **Integrating data without matching units.** Integrating a flow rate per minute against time in seconds makes the result 60 times too large. The unit of an integral is the unit of the integrand multiplied by the unit of the independent variable.
 
 ---
 
@@ -1100,6 +1268,9 @@ Formulas that do not use the end points as nodes are called **open Newton-Cotes 
 | Raising the order of closed Newton-Cotes formulas keeps improving the accuracy. | **F.** Negative weights appear from $`n = 8`$ and amplify roundoff error, and high-order equally spaced interpolation may fail to converge (Section 10). |
 | The trapezoidal rule can be applied as is to data with unequal spacing. | **T.** The areas are added using a separate width $`h_i`$ for each subinterval (Section 9.7). |
 | The error of the midpoint rule has the same sign as that of the trapezoidal rule. | **F.** The midpoint rule's error is $`+\frac{(b-a)^3}{24}f''`$, opposite in sign to the trapezoidal rule (Section 10). |
+| The arithmetic mean of equally spaced samples equals the mean value of the continuous function. | **F.** The end samples represent half the width of the interior samples, so the trapezoidal weighted mean that halves the end weights is close to the integral mean (Section 1.6). |
+| For data with a fixed sample spacing, a higher-order formula always gives a more accurate integral. | **F.** If the samples do not capture the variation of the function, no formula is accurate, and in the 2 m example Simpson's rule was less accurate than the trapezoidal rule (Section 11). |
+| Open Newton-Cotes formulas can be used for an integrand that is undefined at an end point. | **T.** They do not use the end points as nodes. In the example of $`x^{-1/2}`$, however, the error was proportional to $`h^{1/2}`$ and decreased very slowly (Section 10). |
 
 ---
 
@@ -1122,6 +1293,10 @@ Formulas that do not use the end points as nodes are called **open Newton-Cotes 
 | Confirming the order of convergence | When $`n`$ is doubled, the error ratio converges to 4 for the trapezoidal rule and 16 for Simpson's rule, and for very small $`h`$ roundoff error sets the limit. |
 | Unequally spaced data | The trapezoidal rule can be applied subinterval by subinterval, and Simpson's rules only where subintervals of equal width follow each other. |
 | Higher-order and open formulas | High-order closed formulas have negative weights from $`n = 8`$ and become unstable, and open formulas such as the midpoint rule do not use the end points. |
+| Means and totals of functions | The mean of a continuous function is $`\frac{1}{b-a}\int_a^b f\,dx`$, the volume integral of a concentration is the total mass, and a mean computed from samples gives half weight to the two ends. |
+| Degrees of closed and open formulas | A formula with an odd number of points has the same degree as the formula with one more point, open and closed formulas with the same number of points have the same degree, and open formulas have negative weights from $`n = 4`$. |
+| Improper integrals | Open formulas can be used for an integrand undefined at an end point, but if the integrand blows up like $`x^{-\alpha}`$, the error decreases slowly in proportion to $`h^{1-\alpha}`$, so a change of variable or an adaptive method is used as well. |
+| Sample spacing and accuracy | If the samples do not capture the variation of the function, raising the order of the formula does not make it accurate, and accuracy is judged by refining the spacing and checking that the results converge. |
 
 ---
 
@@ -1201,6 +1376,24 @@ Formulas that do not use the end points as nodes are called **open Newton-Cotes 
 
    </details>
 
+9. **Sample mean and time average:** Temperatures measured at 0, 2, 4, and 6 o'clock on a day were 12, 16, 20, and 18 °C. Compute the arithmetic mean of the samples and the time average from 0 to 6 o'clock obtained with the trapezoidal rule, and explain which value is the correct estimate of the time average.
+
+   <details>
+   <summary>Answer</summary>
+
+   The arithmetic mean is $`(12 + 16 + 20 + 18)/4 = 16.5`$ °C. The trapezoidal integral ($`h = 2`$) is $`\frac{2}{2}(12 + 2 \times 16 + 2 \times 20 + 18) = 102`$ °C × h, so the time average is $`102/6 = 17.0`$ °C. The time average is the integral divided by the length of the interval, and each interior sample represents 2 hours while each end sample represents only 1 hour, so 17.0 °C, which halves the end weights, is the correct estimate (Section 1.6).
+
+   </details>
+
+10. **Checking an integral of data:** With the seven samples spaced 4 m apart in Section 11, the trapezoidal rule and Simpson's rule gave 79.05 J and 79.76 J. Explain why their agreement alone does not justify concluding that the work is about 79 J, and describe how to check the result.
+
+   <details>
+   <summary>Answer</summary>
+
+   The two formulas use the same samples and make the same assumption that the function is smooth between samples, so if the samples miss the peaks, both can be wrong together. To check, the sample spacing is reduced (for example, to 2 m and 1 m) to see whether the results converge, or samples are added where the function changes rapidly. In this example, the result for a spacing of 1 m, 92.39 J, is more than 15% larger than both values from the seven samples.
+
+   </details>
+
 ---
 
 <br>
@@ -1208,4 +1401,5 @@ Formulas that do not use the end points as nodes are called **open Newton-Cotes 
 ## References
 
 1. SciPy Developers, "scipy.integrate.dblquad," *SciPy Documentation*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.dblquad.html
+2. NumPy Developers, "numpy.trapezoid," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.trapezoid.html
 
