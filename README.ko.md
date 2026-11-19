@@ -67,6 +67,7 @@
 26Spring_Numerical-Analysis
 ├── Lecture-Notes               교재 장별 강의 노트와 실습 노트
 ├── Coursework                  주간 과제의 안내문, 해설, 노트북
+├── images                      모든 문서의 그림
 ├── Course-Information.ko.md    수업 운영 정보
 ├── Course-Information.md
 ├── LICENSE                     문서 라이선스 (CC BY-NC-SA 4.0)

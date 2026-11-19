@@ -67,6 +67,7 @@ A major elective course taught in English that surveys the basic numerical metho
 26Spring_Numerical-Analysis
 ├── Lecture-Notes               Lecture notes and lab notes by textbook chapter
 ├── Coursework                  Weekly homework handouts, explanations, and notebooks
+├── images                      Figures for all documents
 ├── Course-Information.ko.md    Course operations
 ├── Course-Information.md
 ├── LICENSE                     Documentation license (CC BY-NC-SA 4.0)
