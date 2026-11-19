@@ -12,6 +12,7 @@
 > 3. Assess solution sensitivity to input perturbations
 > 4. Prove the properties of vector norms and induced matrix norms and compute matrix norms by hand
 > 5. Derive the error bound of the condition number and explain the difference between the residual and the error
+> 6. Check the precision rule numerically on Hilbert and Vandermonde matrices and explain how row scaling affects the condition number
 
 ---
 
@@ -35,8 +36,12 @@
 - [10. Example 11.3: Hilbert Matrix](#10-example-113-hilbert-matrix)
 - [11. Python Implementation](#11-python-implementation)
 - [12. Common Mistakes](#12-common-mistakes)
+- [13. Numerical Checks of the Condition Number Bound and the Precision Rule](#13-numerical-checks-of-the-condition-number-bound-and-the-precision-rule)
+  - [13.1 Perturbations That Attain the Bound](#131-perturbations-that-attain-the-bound)
+  - [13.2 Vandermonde Matrices and the Precision Rule](#132-vandermonde-matrices-and-the-precision-rule)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -205,6 +210,12 @@ The concentrations are $`\{c\} = [A]^{-1}\{W\} = (24.957,\ 24.783,\ 23.826)`$ g/
 
 This interpretation applies directly to management problems. To lower $`c_3`$ from 23.826 to 15 g/m³, since $`\Delta c_3 = a_{3j}^{-1}\Delta W_j`$, reducing $`W_1`$ alone requires a reduction of $`8.826/0.1043 = 84.6`$ g/h. Reducing $`W_3`$ alone would require $`8.826/0.2348 = 37.6`$ g/h, which exceeds $`W_3 = 20`$ g/h, so even removing $`W_3`$ entirely (lowering $`c_3`$ by 4.696) cannot reach the target. Once computed, the inverse thus tells, without solving the system again, how much each output changes when a given input changes by a given amount.
 
+This interpretation is possible because the system is linear. In a linear system, **superposition** and **proportionality** hold. Superposition is the property that the response to several stimuli acting together is the sum of the responses to each stimulus acting alone, and proportionality is the property that multiplying a stimulus by a factor multiplies the response by the same factor. The decomposition $`c_3 = 10.435 + 8.696 + 4.696`$ above is an example of superposition, and $`\Delta c_i = a_{ij}^{-1}\Delta W_j`$ is an example of proportionality. All entries of the inverse of this reactor system are positive, so adding load to any reactor raises the concentrations in all reactors.
+
+> **Note:** **Inverses with all entries nonnegative.** If a matrix has positive diagonal entries, nonpositive off-diagonal entries, and in each row a diagonal entry larger than the sum of the absolute values of the other entries, then all entries of its inverse are nonnegative. Writing $`A = D(I - B)`$, where $`D`$ is the diagonal matrix of the diagonal entries of $`A`$, the entries of $`B = I - D^{-1}A`$ are nonnegative and its row sums are less than 1, so $`\|B\|_\infty < 1`$. Then the series $`(I - B)^{-1} = I + B + B^2 + \cdots`$ converges, and every term is nonnegative, so $`A^{-1} = (I - B)^{-1}D^{-1}`$ is nonnegative as well. For the reactor matrix above the row sums of $`B`$ are 0.2, 0.667, and 0.8, so it satisfies the conditions. Coefficient matrices from mass balances often have this form.
+
+The inverse gives the response to changes of the right side (the stimuli) without solving the system again, but when the coefficient matrix changes, the inverse itself changes. Suppose, for example, that the exchange between reactors 2 and 3 decreases, so that $`a_{22}`$ and $`a_{33}`$ each decrease by 0.5 and $`a_{23}`$ and $`a_{32}`$ each increase by 0.5. Solving again with the new coefficient matrix gives $`\{c\} = (24.975,\ 24.877,\ 23.793)`$ g/m³, which differs from the original solution by $`(0.019,\ 0.094,\ -0.033)`$. When the change is small, it can be estimated without solving again. Subtracting $`Ac = W`$ from $`(A + \delta A)(c + \delta c) = W`$ and dropping the small product $`\delta A\,\delta c`$ gives $`A\,\delta c \approx -\delta A\,c`$, so $`\delta c \approx -A^{-1}\delta A\,c = (0.017,\ 0.083,\ -0.029)`$. This first-order estimate gets the direction of the change right but is about 12% too small, and the gap grows as the change in the coefficients grows. The same relation is also the starting point in Section 8 for deriving the error bound for perturbations of the coefficient matrix.
+
 ---
 
 <br>
@@ -320,6 +331,10 @@ so $`\|A\|_1`$ does not exceed the largest column sum. Moreover, if column $`j^*
 
 **Worked example.** For $`A = \begin{bmatrix} 1 & -2 & 3 \\ 4 & 5 & -6 \\ -7 & 8 & 9 \end{bmatrix}`$, the absolute column sums are 12, 15, and 18, so $`\|A\|_1 = 18`$, and the absolute row sums are 6, 15, and 24, so $`\|A\|_\infty = 24`$. The Frobenius norm is $`\sqrt{1 + 4 + 9 + 16 + 25 + 36 + 49 + 64 + 81} = \sqrt{285} \approx 16.882`$. $`\|A\|_2`$ is hard to obtain by hand. Computing the eigenvalues of $`A^TA`$ and taking the square root of the largest gives $`\|A\|_2 \approx 14.428`$, which can be seen to satisfy $`\|A\|_2 \leq \|A\|_F`$.
 
+**Computing the 2-norm by hand.** For $`B = \begin{bmatrix} 2 & 1 \\ 0 & 2 \end{bmatrix}`$, $`B^TB = \begin{bmatrix} 4 & 2 \\ 2 & 5 \end{bmatrix}`$, and its characteristic equation $`\mu^2 - 9\mu + 16 = 0`$ gives the eigenvalues $`\mu = (9 \pm \sqrt{17})/2 = 6.5616,\ 2.4384`$. Hence $`\|B\|_2 = \sqrt{6.5616} = 2.5616`$, the smallest singular value is $`\sqrt{2.4384} = 1.5616`$, and the product 4 of the two singular values equals $`|\det B|`$. Meanwhile $`\|B\|_1 = \|B\|_\infty = \|B\|_F = 3`$. The eigenvalue of $`B`$ itself is the diagonal entry 2 (a double eigenvalue), and $`\|B\|_2`$ exceeds it. The 2-norm of a nonsymmetric matrix must be computed from the eigenvalues of $`B^TB`$, not from those of $`B`$.
+
+Eigenvalues and induced norms are related in general. If $`Bx = \lambda x`$ ($`x \neq 0`$), then $`|\lambda|\,\|x\| = \|Bx\| \leq \|B\|\,\|x\|`$, so $`|\lambda| \leq \|B\|`$. That is, the **spectral radius** $`\rho(B)`$, the largest absolute value of the eigenvalues, is no larger than any induced norm. For a symmetric matrix, equality $`\|B\|_2 = \rho(B)`$ holds. This inequality is used in Chapter 12 for the convergence conditions of iterative methods.
+
 ---
 
 <br>
@@ -353,6 +368,10 @@ The condition number quantifies how close to singular a matrix is. A large condi
 Geometrically, it is the ratio of the longest to the shortest semi-axis of the ellipse into which $`A`$ maps the unit circle. The flatter the ellipse, that is, the more nearly $`A`$ annihilates some direction, the larger the condition number. For a symmetric matrix the singular values equal the absolute values of the eigenvalues, so $`\kappa_2(A) = |\lambda|_{max}/|\lambda|_{min}`$. The matrix $`\begin{bmatrix} 1 & 1 \\ 1 & 1.0001 \end{bmatrix}`$ of Section 8 is symmetric with eigenvalues of about $`2.00005`$ and $`5.0 \times 10^{-5}`$, so $`\kappa_2 \approx 40002`$. The matrix of Section 2.2 has singular values of about 10.03, 6.98, and 3.01, so $`\kappa_2 \approx 3.34`$ only.
 
 $`1/\kappa_2(A) = \sigma_{min}/\sigma_{max}`$ expresses, in relative terms, how far the matrix is from being singular. Adding to $`A`$ a perturbation of 2-norm $`\sigma_{min}`$ can make its smallest singular value zero, so the relative distance $`\min\|\delta A\|_2/\|A\|_2`$ from $`A`$ to the nearest singular matrix is $`1/\kappa_2(A)`$. A condition number of $`10^{4}`$ means that changing the coefficients by a relative amount of only $`10^{-4}`$ can make the matrix singular.
+
+**Properties of the condition number.** The condition number defined with an induced norm has the following properties. First, $`1 = \|I\| = \|AA^{-1}\| \leq \|A\|\,\|A^{-1}\|`$, so $`\text{Cond}[A] \geq 1`$. Second, for a nonzero scalar $`\alpha`$, $`(\alpha A)^{-1} = \alpha^{-1}A^{-1}`$, so $`\text{Cond}[\alpha A] = \text{Cond}[A]`$. Multiplying the whole matrix by a factor does not change its conditioning, but the determinant changes as $`\det(\alpha A) = \alpha^n\det A`$, so the size of the determinant cannot judge conditioning. Third, the definition is symmetric in $`A`$ and $`A^{-1}`$, so $`\text{Cond}[A^{-1}] = \text{Cond}[A]`$. Fourth, submultiplicativity gives $`\|AB\|\,\|B^{-1}A^{-1}\| \leq \|A\|\,\|B\|\,\|B^{-1}\|\,\|A^{-1}\|`$, so $`\text{Cond}[AB] \leq \text{Cond}[A]\,\text{Cond}[B]`$.
+
+**Row scaling.** Unlike multiplying the whole matrix by a factor, multiplying each row by a different factor changes the condition number. The coefficient matrix $`\begin{bmatrix} 1 & 2 \\ 3 & 1 \end{bmatrix}`$ of $`x_1 + 2x_2 = 3`$, $`3x_1 + x_2 = 4`$ has an inverse with row-sum norm 0.8, so $`\text{Cond}_\infty = 4 \times 0.8 = 3.2`$. If only the second equation is written in different units and multiplied by $`10^{-4}`$, the solution $`(1, 1)`$ is unchanged, but the inverse of the coefficient matrix $`\begin{bmatrix} 1 & 2 \\ 0.0003 & 0.0001 \end{bmatrix}`$ becomes $`\begin{bmatrix} -0.2 & 4000 \\ 0.6 & -2000 \end{bmatrix}`$, giving $`\text{Cond}_\infty = 3 \times 4000.2 \approx 12000.6`$. If the coefficients of each equation are known to the same relative accuracy within that equation, changing the units does not change the sensitivity of the solution, so this large condition number is produced by the choice of units. The bound of the condition number assumes $`\|\delta A\| \approx \varepsilon\|A\|`$, so it allows a perturbation in the second row, whose size is $`10^{-4}`$, as large as in the first row. Dividing each row by its largest absolute value, so that the largest entry is 1, turns both matrices into $`\begin{bmatrix} 0.5 & 1 \\ 1 & 1/3 \end{bmatrix}`$, with $`\text{Cond}_\infty = 1.5 \times 1.8 = 2.7`$. This is why the first check of Section 4 and the computation of Section 10 scale the rows first, and the same phenomenon explains why the condition number 451.2 of the scaled $`H_3`$ in Section 11 differs from 748.0 for the unscaled $`H_3`$.
 
 ---
 
@@ -583,6 +602,102 @@ The following mistakes are common when working with inverses and condition numbe
 4. **Swapping column sums and row sums.** $`\|A\|_1`$ is the largest absolute column sum and $`\|A\|_\infty`$ is the largest absolute row sum.
 5. **Taking a small residual as evidence of an accurate solution.** As in the example of Section 8, an ill-conditioned system can have an error as large as the solution even with a residual of $`10^{-4}`$.
 6. **Concluding that the algorithm is wrong because the condition number is large.** The condition number is a property of the problem itself. Stable algorithms such as pivoting only reduce the errors produced by the algorithm; they cannot remove the sensitivity of an ill-conditioned problem.
+7. **Using the old inverse after the coefficient matrix has changed.** The inverse gives only the response to changes of the right side while the coefficient matrix is fixed. When the coefficients change, solve again or use the first-order estimate $`\delta x \approx -A^{-1}\delta A\,x`$ of Section 3.
+8. **Interpreting the condition number with equations left in different units.** When the rows differ greatly in size, the condition number becomes artificially large. The condition number after row scaling is closer to the real sensitivity of the problem (Section 7).
+9. **Computing the 2-norm of a nonsymmetric matrix from its eigenvalues.** $`\|A\|_2`$ is the square root of the largest eigenvalue of $`A^TA`$. The matrix $`B`$ of Section 6 has the eigenvalue 2 but $`\|B\|_2 = 2.5616`$.
+10. **Taking the precision rule as an exact prediction of the number of digits.** The rule is an estimate close to the worst case. In the experiments of Section 13 the actual number of correct digits was 0-2 more than predicted, and the amplification ranges from $`1/\kappa`$ to $`\kappa`$ depending on the direction of the perturbation.
+
+---
+
+<br>
+
+## 13. Numerical Checks of the Condition Number Bound and the Precision Rule
+
+### 13.1 Perturbations That Attain the Bound
+
+The bound of Section 8 is a worst-case bound. In the 2-norm, the singular value decomposition constructs that worst case directly. If $`A = U\Sigma V^T`$, the right singular vectors $`v_i`$ and left singular vectors $`u_i`$ satisfy $`Av_i = \sigma_i u_i`$, that is, $`A^{-1}u_i = v_i/\sigma_i`$. Taking the right side as $`b = u_1`$ gives the solution $`x = v_1/\sigma_1`$, and taking the perturbation as $`\delta b = \varepsilon u_n`$ gives the change in the solution $`\delta x = \varepsilon v_n/\sigma_n`$. Singular vectors have 2-norm 1, so the amplification factor is as follows.
+
+```math
+\frac{\|\delta x\|_2/\|x\|_2}{\|\delta b\|_2/\|b\|_2} = \frac{\varepsilon/\sigma_n}{1/\sigma_1} \cdot \frac{1}{\varepsilon} = \frac{\sigma_1}{\sigma_n} = \kappa_2(A)
+```
+
+That is, the bound holds with equality when the solution $`x`$ lies along $`v_1`$, the direction that $`A`$ stretches most, and the change $`\delta x`$ lies along $`v_n`$, the direction that $`A`$ stretches least. Conversely, with $`b = u_n`$ and $`\delta b = \varepsilon u_1`$ the factor is $`1/\kappa_2(A)`$, and the relative error of the right side actually shrinks. The following code checks both cases with the nearly singular matrix of Section 8.
+
+```python
+import numpy as np
+
+A = np.array([[1.0, 1.0], [1.0, 1.0001]])
+U, s, Vt = np.linalg.svd(A)                 # A = U @ np.diag(s) @ Vt
+print(s, s[0] / s[1], np.linalg.cond(A))
+
+def amplification(b, db):
+    x = np.linalg.solve(A, b)
+    dx = np.linalg.solve(A, b + db) - x
+    rel_x = np.linalg.norm(dx) / np.linalg.norm(x)
+    rel_b = np.linalg.norm(db) / np.linalg.norm(b)
+    return rel_x / rel_b
+
+print(amplification(U[:, 0], 1e-6 * U[:, 1]))   # worst case
+print(amplification(U[:, 1], 1e-6 * U[:, 0]))   # best case
+```
+
+```text
+[2.000050e+00 4.999875e-05] 40002.00007494912 40002.000074949116
+40002.00007478308
+2.4998727798873004e-05
+```
+
+- The singular values are 2.00005 and $`5.0 \times 10^{-5}`$, and their ratio 40002 equals the value of `np.linalg.cond`. Without a specified norm, `cond` computes the 2-norm condition number from the singular value decomposition [1].
+- The factor computed in the worst-case directions agrees with the condition number to ten significant digits. The later digits differ because of roundoff error in computing the solutions.
+- In the best-case directions the factor is $`2.5 \times 10^{-5} = 1/40002`$. Even for the same matrix, the amplification ranges from $`1/\kappa`$ to $`\kappa`$ depending on the directions of the right side and the perturbation, and the condition number gives the upper end.
+
+### 13.2 Vandermonde Matrices and the Precision Rule
+
+The **Vandermonde matrix** of the points $`x_1, \ldots, x_n`$ is defined by $`V_{ij} = x_i^{\,j-1}`$. The coefficients of the polynomial $`p(x) = c_0 + c_1x + \cdots + c_{n-1}x^{n-1}`$ through $`n`$ points solve $`V\{c\} = \{y\}`$ (Chapter 17), so the conditioning of this matrix determines how accurately the coefficients of polynomial interpolation can be found. The following code builds Vandermonde matrices from equally spaced points on $`[0, 1]`$ and from the Chebyshev nodes $`x_i = \cos\frac{(2i-1)\pi}{2n}`$ on $`[-1, 1]`$, solves systems constructed so that the solution is all ones, and compares the digits predicted by the rule of Section 9, $`16 - \log_{10}\text{Cond}_2`$, with the digits actually correct, $`-\log_{10}(\text{max error})`$.
+
+```python
+import numpy as np
+
+for n in range(4, 17, 2):
+    row = [f"{n:2d}"]
+    for x in (np.linspace(0.0, 1.0, n),                                  # equally spaced
+              np.cos((2 * np.arange(1, n + 1) - 1) * np.pi / (2 * n))):  # Chebyshev
+        V = np.vander(x, increasing=True)          # V[i, j] = x[i]**j
+        c = np.linalg.solve(V, V @ np.ones(n))     # the exact solution is all ones
+        k = np.linalg.cond(V)
+        err = np.abs(c - 1.0).max()
+        row += [f"{k:9.2e}", f"{16 - np.log10(k):4.1f}", f"{-np.log10(err):4.1f}"]
+    print("  ".join(row))
+```
+
+```text
+ 4   9.89e+01  14.0  14.3   8.05e+00  15.1  15.1
+ 6   4.92e+03  12.3  12.9   4.52e+01  14.3  14.7
+ 8   2.68e+05  10.6  11.2   2.57e+02  13.6  13.9
+10   1.52e+07   8.8   8.9   1.47e+03  12.8  13.6
+12   8.83e+08   7.1   8.0   8.47e+03  12.1  12.4
+14   5.22e+10   5.3   5.3   4.89e+04  11.3  11.6
+16   3.12e+12   3.5   4.2   2.83e+05  10.5  10.7
+```
+
+| $`n`$ | Equally Spaced $`\text{Cond}_2`$ | Predicted Digits | Actual Digits | Chebyshev $`\text{Cond}_2`$ | Predicted Digits | Actual Digits |
+|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
+| 4 | $`9.9 \times 10^{1}`$ | 14.0 | 14.3 | 8.1 | 15.1 | 15.1 |
+| 8 | $`2.7 \times 10^{5}`$ | 10.6 | 11.2 | $`2.6 \times 10^{2}`$ | 13.6 | 13.9 |
+| 12 | $`8.8 \times 10^{8}`$ | 7.1 | 8.0 | $`8.5 \times 10^{3}`$ | 12.1 | 12.4 |
+| 16 | $`3.1 \times 10^{12}`$ | 3.5 | 4.2 | $`2.8 \times 10^{5}`$ | 10.5 | 10.7 |
+
+*Table 5. Condition numbers of Vandermonde matrices, digits predicted by the precision rule, and digits actually correct*
+
+![Figure 2. Digits predicted by the precision rule and digits actually correct for Hilbert and Vandermonde matrices](../../images/Ch11_Digits-Lost-Check.png)
+
+*Figure 2. Digits predicted by the precision rule and digits actually correct for Hilbert and Vandermonde matrices*
+
+- All components of the true solution are 1, so the digits counted from the maximum error equal the significant digits counted from the relative error of the solution.
+- The condition number for equally spaced points grows by a factor of about 50-60 each time $`n`$ increases by 2, reaching $`3.1 \times 10^{12}`$ at $`n = 16`$, where only about 4 digits of the solution are correct. On $`[0, 1]`$ high-degree monomials have similar shapes, so the columns of $`V`$ are nearly parallel. For 16 equally spaced points, the cosine of the angle between the $`x^{14}`$ column and the $`x^{15}`$ column is 0.9996.
+- Placing the points symmetrically on $`[-1, 1]`$ makes the even-degree columns orthogonal to the odd-degree columns, so nearly parallel columns remain only among columns of the same parity. Merely moving the same 16 equally spaced points to $`[-1, 1]`$ reduces the condition number to $`3.3 \times 10^6`$, and the Chebyshev nodes reduce it about tenfold again to $`2.8 \times 10^5`$, so about 11 digits are correct.
+
+Figure 2 plots the results for the Hilbert matrices of Section 10 together with the two kinds of Vandermonde matrices. All points lie on or near the dashed line, and the number of digits actually correct is 0-2 more than predicted. The precision rule assumes the worst case and is therefore slightly pessimistic, but it reliably indicates how many digits are lost. Before solving a system, the condition number alone thus shows how many digits of the result can be trusted.
 
 ---
 
@@ -607,6 +722,11 @@ The following mistakes are common when working with inverses and condition numbe
 | Deriving the condition number | Maximizing the amplification factor of the relative error from $`\delta x = A^{-1}e`$ gives $`\Vert A^{-1} \Vert \, \Vert A \Vert`$. |
 | Residual and error | Even when the residual $`r = b - A\hat{x}`$ is small, the relative error can be as large as $`\text{Cond}[A] \cdot \Vert r \Vert / \Vert b \Vert`$. |
 | Stimulus and response | $`a_{ij}^{-1}`$ is the change in output $`i`$ per unit change of input $`j`$, so $`\Delta c_i = a_{ij}^{-1}\Delta W_j`$ gives the input change needed for a management target. |
+| Superposition, proportionality, and coefficient changes | The response of a linear system is the sum of the responses to each stimulus and proportional to the stimuli, and when the coefficient matrix changes, the change is estimated by $`\delta x \approx -A^{-1}\delta A\,x`$ or the system is solved again. |
+| Spectral radius | The largest absolute eigenvalue $`\rho(A)`$ is at most every induced norm, and the 2-norm of a nonsymmetric matrix comes from the eigenvalues of $`A^TA`$. |
+| Properties of the condition number and scaling | $`\text{Cond} \geq 1`$ and $`\text{Cond}[\alpha A] = \text{Cond}[A^{-1}] = \text{Cond}[A]`$, but multiplying rows by different factors changes the condition number, so it is interpreted after row scaling. |
+| Equality in the bound | In the 2-norm, with $`b = u_1`$ and $`\delta b \parallel u_n`$ the amplification is exactly $`\kappa_2`$, and with the opposite directions it is $`1/\kappa_2`$. |
+| Vandermonde matrix | The condition number of $`V_{ij} = x_i^{\,j-1}`$ grows rapidly for equally spaced points on $`[0, 1]`$, and the digits actually correct are 0-2 more than the precision rule predicts. |
 
 ---
 
@@ -694,3 +814,20 @@ The following mistakes are common when working with inverses and condition numbe
    Multiplying column 2 of the inverse, $`(0.0435,\ 0.2174,\ 0.1739)`$, by 10 gives $`\Delta c = (0.435,\ 2.174,\ 1.739)`$ g/m³. The concentration of reactor 2 rises the most, reactor 3 downstream comes next, and reactor 1 upstream rises only slightly.
 
    </details>
+
+10. **Row scaling and the condition number:** Find $`\text{Cond}_\infty`$ for $`A = \begin{bmatrix} 4 & 1 \\ 2 & 5 \end{bmatrix}`$ and for $`A' = \begin{bmatrix} 4 & 1 \\ 0.002 & 0.005 \end{bmatrix}`$, in which only the second row is multiplied by $`10^{-3}`$. Explain whether the two systems actually differ in sensitivity, and find $`\text{Cond}_\infty`$ of the matrix scaled so that the largest absolute value in each row is 1.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\det A = 18`$, so $`A^{-1} = \frac{1}{18}\begin{bmatrix} 5 & -1 \\ -2 & 4 \end{bmatrix}`$, $`\|A^{-1}\|_\infty = 6/18 = 1/3`$, and $`\|A\|_\infty = 7`$, so $`\text{Cond}_\infty = 7/3 \approx 2.33`$. For $`A'`$, $`\det A' = 0.018`$ and $`A'^{-1} = \begin{bmatrix} 0.2778 & -55.556 \\ -0.1111 & 222.22 \end{bmatrix}`$, so $`\|A'^{-1}\|_\infty \approx 222.33`$ and, with $`\|A'\|_\infty = 5`$, $`\text{Cond}_\infty \approx 1111.7`$. Only the units of the second equation changed, so if the coefficients of each equation are known to the same relative accuracy, the real sensitivity is the same, and the large condition number is artificial. Scaling either matrix gives $`\begin{bmatrix} 1 & 0.25 \\ 0.4 & 1 \end{bmatrix}`$, whose inverse $`\frac{1}{0.9}\begin{bmatrix} 1 & -0.25 \\ -0.4 & 1 \end{bmatrix}`$ has row-sum norm $`1.4/0.9 \approx 1.556`$, so $`\text{Cond}_\infty = 1.4 \times 1.556 \approx 2.18`$.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. NumPy Developers, "numpy.linalg.cond," *NumPy Reference*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.cond.html
