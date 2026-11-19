@@ -12,6 +12,7 @@
 > 3. Create arrays and solve linear systems with NumPy and SciPy functions, and draw plots with Matplotlib
 > 4. Explain the mutability of Python's built-in types and the properties of numeric types, and avoid errors caused by aliasing
 > 5. Explain the principles of views and copies, broadcasting, and vectorization for NumPy arrays
+> 6. Carry out an exploratory data analysis that estimates a parameter from measured data and checks the assumptions of a model with plots
 
 ---
 
@@ -33,10 +34,14 @@
   - [3.3 Broadcasting](#33-broadcasting)
   - [3.4 Vectorization and Universal Functions](#34-vectorization-and-universal-functions)
   - [3.5 One-Dimensional Arrays and the Matrix Product](#35-one-dimensional-arrays-and-the-matrix-product)
+  - [3.6 Operator Precedence and Powers](#36-operator-precedence-and-powers)
+  - [3.7 The np.matrix Class and ndarray](#37-the-npmatrix-class-and-ndarray)
 - [4. Useful NumPy/SciPy Functions](#4-useful-numpyscipy-functions)
 - [5. Plotting with Matplotlib](#5-plotting-with-matplotlib)
+- [6. Exploratory Data Analysis: Drag Coefficients Estimated from Measurements](#6-exploratory-data-analysis-drag-coefficients-estimated-from-measurements)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -91,6 +96,8 @@ The same code can be run in three ways.
 - A **notebook** runs code cell by cell and stores the output, plots, and explanatory text of each cell in one document. The program that runs the code in a notebook is called the **kernel**; in the editor, select the kernel (the interpreter of a virtual environment) and run each cell with Shift + Enter.
 
 > **Caution:** Variables in a notebook remain in the kernel's memory in the order in which the cells were run. Running cells in an order other than top to bottom, or editing a cell without running it again, makes the code on screen and the state in memory differ and produces results that cannot be reproduced. Before finishing a notebook, restart the kernel and run all cells again from the beginning to check the results.
+
+An **integrated development environment (IDE)** is a program that combines an editor, an interactive shell, and tools for running and debugging in one window. Spyder, an IDE for scientific computing, provides an IPython console together with a variable explorer that shows the name, type, size, and value of each variable in memory as a table. A common workflow checks the behavior of a function with short calculations in the console and moves longer code to the editor to save it as a script. The usage of a function can be displayed with the built-in function `help`, as in `help(np.linspace)`, and in IPython and Jupyter also with `np.linspace?`. This description comes from the docstring of the function (Section 2.6 of Chapter 3).
 
 ---
 
@@ -183,6 +190,8 @@ print(z.real, z.imag, abs(z))
 
 In the fourth line of the output, the set `{True, 1, 1.0, 2}` has only two elements. `True`, `1`, and `1.0` are all judged equal, so only `True`, inserted first, remains. The other lines are explained in Sections 2.4 and 2.5.
 
+Data read from a file arrive as strings, not numbers. If a line is `"  68.1, 51.69\n"`, `strip()` removes the surrounding spaces and the newline character `\n`, `split(",")` splits at each comma to give `['68.1', ' 51.69']`, and converting each piece with `float` gives 68.1 and 51.69 (`float` ignores the space in front of a piece). In addition, `len(s)` gives the number of characters, `s.startswith(p)` and `s.endswith(p)` tell whether a prefix or suffix matches, `s.isdigit()` tells whether every character is a digit, and `s.upper()` and `s.lower()` change the case. A long string can be split over several lines by writing string literals side by side inside parentheses, and adjacent literals are joined into one.
+
 ### 2.3 NumPy Arrays
 
 NumPy's `ndarray` is the fundamental data structure for numerical computing in Python. It provides fast, memory-efficient, multi-dimensional arrays with vectorized operations:
@@ -268,7 +277,7 @@ The output of the code in Section 2.2 shows the properties of Python's numeric t
 
 - **Integers.** Python's `int` is an **arbitrary-precision** integer with no size limit. `2**100` produces a 31-digit integer exactly. In contrast, the integers of a NumPy array have a fixed width such as 64 bits, so when a result exceeds $`2^{63} - 1`$, as in `big * 4` of Section 2.3, the value wraps around without warning (`2**64` becomes 0) and gives a wrong result.
 - **Reals.** `float` and NumPy's `float64` are IEEE 754 double-precision numbers with about 15-16 significant digits. As a result, roundoff errors arise, such as `0.1 + 0.2` not being exactly `0.3`; the principle is covered in Chapter 4.
-- **Complex numbers.** The imaginary unit is written `j`, as in `3 + 4j`. `z.real` and `z.imag` are the real and imaginary parts, and `abs(z)` is the magnitude $`\sqrt{3^2 + 4^2} = 5`$.
+- **Complex numbers.** The imaginary unit is written `j`, as in `3 + 4j`. `z.real` and `z.imag` are the real and imaginary parts, and `abs(z)` is the magnitude $`\sqrt{3^2 + 4^2} = 5`$. Complex division is the same as multiplying the numerator and denominator by the complex conjugate of the denominator, so `1 / (3 + 4j)` is $`(3 - 4j)/25 = 0.12 - 0.16j`$. Mathematical functions that accept complex arguments live in the `cmath` module, not `math`, and `cmath.sqrt(-4)` is `2j`. Complex roots of polynomials (Chapter 6) and Fourier analysis (Chapter 16) use complex numbers.
 - **Division.** `/` always gives a float, even between integers (`3 / 2` is 1.5). `//` is **floor division**, which rounds the result toward negative infinity, so `7 // 2` is 3 but `-7 // 2` is $`-4`$, the floor of $`-3.5`$. `%` is the remainder satisfying `a == (a // b) * b + a % b`, so `-7 % 3` is 2.
 - **Type promotion.** Adding an integer array and a float array gives `float64`, the type that loses no information (first line of the output in Section 2.3).
 
@@ -458,6 +467,76 @@ print(x.reshape(3, 1).shape, x.reshape(1, 3).shape)
 
 `A @ x` is $`(2 \times 3)(3) \to (2)`$, giving $`[1 + 6,\ 2 + 3] = [7, 5]`$. `x @ x` is the inner product $`1 + 4 + 9 = 14`$, and `np.outer(x, x)` is the $`3 \times 3`$ matrix $`x x^T`$. When the column and row vectors of mathematics must be clearly distinguished, `reshape` changes the shape to `(3, 1)` or `(1, 3)`. The transpose `x.T` of a one-dimensional array keeps the shape `(3,)`, so it does not create a column vector.
 
+### 3.6 Operator Precedence and Powers
+
+The precedence of the arithmetic operators, from highest to lowest, is exponentiation `**`, the unary sign `-x`, multiplication and division (`*`, `/`, `//`, `%`, `@`), and addition and subtraction. The list of operators and the associativity of exponentiation are covered in the Chapter 2 lab; this section collects the cases that cause errors when formulas are translated into code.
+
+```python
+import numpy as np
+
+x = 3.0
+print(-x**2, (-x)**2, np.exp(-x**2 / 2))
+print((-8)**(1/3), np.cbrt(-8.0))
+print(np.float64(-8.0)**(1/3))
+print(2**-1, type(2**-1).__name__)
+try:
+    np.array([1, 2, 4])**-1
+except ValueError as err:
+    print("ValueError:", err)
+print(np.array([1.0, 2.0, 4.0])**-1)
+```
+
+```text
+-9.0 9.0 0.011108996538242306
+(1.0000000000000002+1.7320508075688772j) -2.0
+nan
+0.5 float
+ValueError: Integers to negative integer powers are not allowed.
+[1.   0.5  0.25]
+```
+
+- Exponentiation is evaluated before the unary sign, so `-x**2` is `-(x**2)`, that is, $`-9`$. This matches the meaning of $`-x^2`$ in mathematics, so the Gaussian function $`e^{-x^2/2}`$ can be written directly as `np.exp(-x**2 / 2)` ($`e^{-4.5} \approx 0.011109`$). The square of a negative number requires parentheses, as in `(-x)**2`.
+- A fractional power of a negative number is not real. Python's `(-8)**(1/3)` returns the complex number $`1 + 1.7321i`$, not the real cube root $`-2`$. A negative base with a non-integral exponent is defined to give a complex result [1], and this value is the principal cube root $`2e^{i\pi/3}`$ of $`-8 = 8e^{i\pi}`$. Moreover, `1/3` is not exactly representable in binary, so the exponent itself is not exactly 1/3. The real cube root is obtained with `np.cbrt`.
+- With NumPy's `float64`, the same computation gives NaN instead of a complex number and issues a warning (`RuntimeWarning: invalid value encountered in scalar power`). This is an example of the same expression giving different results for Python floats and NumPy floats.
+- The negative power of a Python integer, `2**-1`, is the float 0.5, but a negative integer exponent on a NumPy integer array raises `ValueError`. The result of an integer array must be an integer array, and $`2^{-1}`$ is not an integer. For a float array, `np.array([1.0, 2.0, 4.0])**-1` gives the reciprocal of each element.
+
+### 3.7 The np.matrix Class and ndarray
+
+Besides `ndarray`, NumPy also has a class dedicated to matrices, `np.matrix`. An `np.matrix` is always two-dimensional, and for it `*` means the matrix product and `**` the matrix power [2]. The class was made for MATLAB-like use and appears often in older textbooks and code, but the same operators do different things in the two classes, so mixing them causes errors that are hard to find.
+
+```python
+import numpy as np
+
+A = np.array([[1, 2], [3, 4]])
+M = np.matrix([[1, 2], [3, 4]])
+print(A * A)                  # element-wise for ndarray
+print(M * M)                  # matrix product for np.matrix
+print(M**2 - A @ A)           # ** is a matrix power for np.matrix
+print(A[0].shape, M[0].shape) # a row of a matrix stays 2-D
+x = np.array([1, 1])
+print(A @ x, (M @ x).shape)
+print(type(np.asarray(M)).__name__, np.asarray(M).shape)
+```
+
+```text
+[[ 1  4]
+ [ 9 16]]
+[[ 7 10]
+ [15 22]]
+[[0 0]
+ [0 0]]
+(2,) (1, 2)
+[3 7] (1, 2)
+ndarray (2, 2)
+```
+
+- `A * A` is the element-wise product `[[1, 4], [9, 16]]`, and `M * M` is the matrix product `[[7, 10], [15, 22]]`. Two objects with the same shape and values give different results because of a single operator.
+- `M**2` equals `M @ M`, so its difference from `A @ A` is the zero matrix. For an `ndarray`, `A**2` is the element-wise square.
+- Taking one row of an `ndarray`, `A[0]`, gives a one-dimensional array of shape `(2,)`, but `M[0]` is a matrix of shape `(1, 2)`. An `np.matrix` stays two-dimensional through every operation, so `M @ x` with a one-dimensional array `x` also becomes a row matrix of shape `(1, 2)`, not a column. This differs from the `ndarray` case of Section 3.5, where `A @ x` gives the one-dimensional array `[3 7]`.
+- `np.asarray(M)` returns an `ndarray` with the same data.
+
+The NumPy documentation recommends regular arrays instead of `np.matrix`, even for linear algebra, and states that the class may be removed in the future [2]. All code in later chapters uses `ndarray` and `@`. When code written with `np.matrix` is translated, every `*` must be checked to see whether it is a matrix product or an element-wise product and replaced with `@` or `*` accordingly.
+
 ---
 
 <br>
@@ -541,6 +620,31 @@ SciPy is divided into subpackages by function, and it has functions correspondin
 
 *Table 10. Main subpackages of SciPy*
 
+The functions of `math` do not accept arrays. Using `math.tanh(t)` to apply the bungee jumper velocity formula to an array of times at once raises `TypeError`, so arrays require NumPy universal functions such as `np.tanh` (Section 3.4). Functions for angles and logarithms also need care.
+
+```python
+import math
+import numpy as np
+
+t = np.array([0.0, 2.0, 4.0])
+try:
+    math.tanh(t)
+except TypeError as err:
+    print("TypeError:", err)
+print(math.atan(1 / -1), math.atan2(1, -1), np.degrees(np.arctan2(1, -1)))
+print(math.log(1000, 10), math.log10(1000), np.log2(8))
+```
+
+```text
+TypeError: only length-1 arrays can be converted to Python scalars
+-0.7853981633974483 2.356194490192345 135.0
+2.9999999999999996 3.0 3.0
+```
+
+- Computing the angle of the point $`(x, y) = (-1, 1)`$ with `math.atan(y / x)` gives $`\tan^{-1}(-1) = -\pi/4`$. The arctangent takes values only in $`(-\pi/2, \pi/2)`$, so $`y/x`$ alone cannot tell a point in the second quadrant from one in the fourth. `math.atan2(y, x)` looks at the signs of the two arguments separately and gives the angle in the correct quadrant, $`3\pi/4`$ (135°), between $`-\pi`$ and $`\pi`$ [3]. Note that the arguments come in the order `y`, `x`.
+- All trigonometric functions use radians, and `np.degrees` and `np.radians` convert the units.
+- `math.log(x)` is the natural logarithm, and `math.log(x, b)` computes the logarithm to base $`b`$ as $`\ln x/\ln b`$ [3]. Because of the rounding in that one division, `math.log(1000, 10)` is 2.9999999999999996, not 3. For common and binary logarithms, `math.log10` and `np.log2` are more accurate. Converting such a value with `int` discards the fractional part and gives 2, so counting digits with logarithms requires particular care.
+
 ---
 
 <br>
@@ -609,6 +713,105 @@ fig.savefig('Ch02_Axis-Scales.png', dpi=150)
 
 On the linear axes of Figure 1, the differences at small $`h`$ are invisible. Semilog axes (`semilogy`) make only the vertical axis logarithmic, so a quantity that varies exponentially, such as $`e^{-kt}`$, becomes a straight line; they are used to plot error against the iteration number (Chapters 5-6). On log-log axes (`loglog`), $`e = Ch^p`$ becomes $`\log e = \log C + p \log h`$, a straight line of slope $`p`$. So when the error is plotted against the step size on log-log axes, the order of a method can be read from the slope (Section 3.5 of Chapter 1, Chapter 4).
 
+The way a plot represents data should match the nature of the data. A set of separate points, such as measurements, is drawn with markers only, as in `plt.plot(x, y, 'o')` or `plt.scatter(x, y)`, and a continuous function, such as an analytical solution or a model, is drawn with a line. Connecting measurements with lines suggests that values exist between the points, and drawing a model with markers only hides its behavior between the markers.
+
+How a large number of measurements is spread out is shown by a **histogram**. A histogram divides the range of values into intervals (bins) of equal width and draws the number of values in each bin as the height of a bar. The following code draws 1000 random numbers from a normal distribution with mean 50 and standard deviation 4 and plots their histogram.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(seed=7)       # reproducible random numbers
+data = rng.normal(loc=50.0, scale=4.0, size=1000)
+counts, edges = np.histogram(data, bins=20)
+print(counts.sum(), counts.max(), round(edges[0], 2), round(edges[-1], 2))
+print(round(data.mean(), 3), round(data.std(ddof=1), 3))
+
+fig, ax = plt.subplots()
+ax.hist(data, bins=20, edgecolor='white')
+ax.set_xlabel('value')
+ax.set_ylabel('count')
+fig.savefig('Ch02_Histogram.png', dpi=150)
+```
+
+```text
+1000 144 36.99 60.29
+49.711 3.767
+```
+
+![Figure 2. Histogram of 1000 random numbers drawn from a normal distribution](../../images/Ch02_Histogram.png)
+
+*Figure 2. Histogram of 1000 random numbers drawn from a normal distribution*
+
+- `np.random.default_rng(seed=7)` creates a random number generator. Fixing the seed produces the same sequence of random numbers on every run, so the result can be reproduced.
+- `rng.normal(loc, scale, size)` draws `size` values from a normal distribution with mean `loc` and standard deviation `scale`.
+- `np.histogram` draws nothing and returns the count in each bin, `counts`, and the bin edges, `edges` (21 of them). The counts sum to 1000, the fullest bin holds 144 values, and the range from the minimum 36.99 to the maximum 60.29 is divided into 20 bins of width 1.165. `ax.hist` performs the same computation and then draws the bars.
+- `std(ddof=1)` is the sample standard deviation, the square root of the sum of squared deviations divided by $`n - 1`$; the default `ddof=0` divides by $`n`$ instead of $`n - 1`$.
+
+The sample mean 49.711 and sample standard deviation 3.767 are close to, but not equal to, the values 50 and 4 of the normal distribution. A statistic computed from a finite sample carries its own error and approaches the population value as the sample grows. The number of bins also changes the impression of the plot. Too few bins blur the shape of the distribution, and too many leave few values in each bin, so the bar heights become ragged.
+
+---
+
+<br>
+
+## 6. Exploratory Data Analysis: Drag Coefficients Estimated from Measurements
+
+The parameters of a formula often have to be determined from measurements. The process of computing and plotting the data in various ways to find hidden patterns before drawing conclusions is called **exploratory data analysis**. Solving the terminal velocity $`v_t = \sqrt{gm/c_d}`$ of Section 2.4 of Chapter 1 for the drag coefficient gives the following.
+
+```math
+c_d = \frac{gm}{v_t^2}
+```
+
+Measuring the terminal velocities of several people of known mass therefore gives an estimate of the drag coefficient for each person. The following code computes the drag coefficients from the masses and terminal velocities of eight people, predicts the terminal velocities again with their single mean, and compares the predictions with the measurements.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+g = 9.81
+m = np.array([55.2, 61.8, 66.5, 70.3, 74.9, 79.6, 86.1, 93.4])    # mass (kg)
+vt = np.array([48.3, 54.3, 52.5, 54.2, 55.0, 55.6, 58.3, 57.8])   # terminal velocity (m/s)
+cd = g * m / vt**2                        # lumped drag coefficient (kg/m)
+print(np.round(cd, 4))
+print(f"mean {cd.mean():.4f}, min {cd.min():.4f}, max {cd.max():.4f}, "
+      f"std {cd.std(ddof=1):.4f}")
+vpred = np.sqrt(g * m / cd.mean())        # model with one common cd
+print(np.round(vpred - vt, 2))
+print(round(np.corrcoef(m, cd)[0, 1], 3))
+
+fig, axs = plt.subplots(1, 2, figsize=(9.6, 3.8))
+axs[0].plot(vt, vpred, 'o')               # data: markers only
+axs[0].plot([47, 62], [47, 62], 'k--')    # 1:1 line of perfect agreement
+axs[0].set_xlabel('measured vt (m/s)')
+axs[0].set_ylabel('predicted vt (m/s)')
+axs[1].plot(m, cd, 'o')
+axs[1].axhline(cd.mean(), ls=':')         # the common cd of the model
+axs[1].set_xlabel('mass (kg)')
+axs[1].set_ylabel('cd (kg/m)')
+fig.savefig('Ch02_Drag-Coefficient-EDA.png', dpi=150)
+```
+
+```text
+[0.2321 0.2056 0.2367 0.2348 0.2429 0.2526 0.2485 0.2743]
+mean 0.2409, min 0.2056, max 0.2743, std 0.0196
+[-0.89 -4.14 -0.46 -0.7   0.22  1.33  0.91  3.87]
+0.837
+```
+
+![Figure 3. Terminal velocities predicted with a common drag coefficient versus measurements, and estimated drag coefficients versus mass](../../images/Ch02_Drag-Coefficient-EDA.png)
+
+*Figure 3. Terminal velocities predicted with a common drag coefficient versus measurements, and estimated drag coefficients versus mass*
+
+- `cd = g * m / vt**2` computes the eight drag coefficients in one line. Between arrays, `*`, `/`, and `**` are all element-wise operations (Section 3.1). The first element is $`9.81 \times 55.2/48.3^2 = 541.512/2332.89 = 0.2321`$ kg/m.
+- The mean drag coefficient is 0.2409 kg/m; the smallest value is about 15% below the mean and the largest about 14% above it. The sample standard deviation from `std(ddof=1)` is 0.0196 kg/m.
+- `vpred` is the terminal velocity predicted with the single mean drag coefficient, and the third line of the output is the prediction minus the measurement. The four lighter people all have negative differences (prediction too small), and the four heavier people all have positive differences (prediction too large).
+- `np.corrcoef(m, cd)` returns the correlation coefficient matrix of mass and drag coefficient. The off-diagonal element 0.837 means that the two quantities tend strongly to increase together.
+- The plotting code draws the measurements with markers (`'o'`) and the 1:1 line of perfect agreement and the mean drag coefficient with lines (Section 5).
+
+If all points on the left of Figure 3 lay on the dashed line, the model with a common drag coefficient would explain the data perfectly. The points scatter near the dashed line, but they lean below it at small measured values and above it at large ones. The right plot shows the cause. The estimated drag coefficient is not constant but tends to increase with mass. Some points depart strongly from the trend, such as 0.2056 for the person of 61.8 kg, so more measurements are needed to tell whether it is a measurement error or a real difference.
+
+This trend can be explained with $`c_d = \frac{1}{2}\rho AC_D`$ of Section 2.1 of Chapter 1. The air density $`\rho`$ depends on the temperature and the pressure, so if the measurements were taken at one place over a short period, it is nearly the same for everyone. The differences in $`c_d`$ must then come from the cross-sectional area $`A`$ or from $`C_D`$, which depends on posture and clothing, and the simplest explanation is that larger people also have larger cross-sectional areas. This explanation can be checked by measuring each person's cross-sectional area and seeing whether $`c_d/A`$ is nearly constant, and if it holds, a model is needed that makes the drag coefficient a function of the area instead of a constant. Revealing, through plots, a flaw of the model that a single mean would have missed is the purpose of exploratory data analysis. Methods that quantify such relationships by fitting lines or curves to data are covered in Chapters 14-15.
+
 ---
 
 <br>
@@ -629,8 +832,13 @@ On the linear axes of Figure 1, the differences at small $`h`$ are invisible. Se
 | Broadcasting | Shapes are compared from the right end and dimensions that are equal or 1 are stretched to match, so shapes `(3, 1)` and `(4,)` give `(3, 4)`. |
 | Vectorization | Repetition is handled inside compiled universal functions, so whole arrays are computed much faster than with Python loops. |
 | Matrix Operations | `A @ B` computes the matrix product, and `A.T` computes the transpose. |
+| Operator Precedence | `**` is evaluated before the unary sign, so `-x**2` is $`-(x^2)`$, and a fractional power of a negative number gives a complex number in Python and NaN in NumPy. |
+| np.matrix | `*` is the matrix product and results are always two-dimensional, so the same code gives different results than with `ndarray`, and the NumPy documentation recommends regular arrays. |
 | Key Functions | `np.linspace`, `np.zeros`, `np.ones`, `np.eye`, and `np.linalg.solve` are used frequently. |
+| math and NumPy Functions | `math` functions accept only scalars; angles that need the quadrant come from `atan2`, and common logarithms from `log10`, which is more accurate than `log(x, 10)`. |
 | Plotting | `plt.plot(x, y)` draws a plot, `plt.xlabel(...)` and `plt.title(...)` annotate it, and `plt.show()` displays it, and errors are drawn on logarithmic axes. |
+| Histogram | It divides the range of values into bins of equal width and draws the count in each bin as a bar; measurements are drawn with markers and models with lines. |
+| Exploratory Data Analysis | Parameters are estimated from measurements, and plots of predictions against measurements and of parameters against other variables check the assumptions of the model. |
 
 ---
 
@@ -709,3 +917,31 @@ On the linear axes of Figure 1, the differences at small $`h`$ are invisible. Se
    `a` is an integer array (`int64` on most 64-bit systems), so `a[0] = 2.9` discards the fractional part and stores 2, making `a` equal to `[2 2 3]`. In contrast, `a / 2` creates a new array, and `/` always gives a float, so the result is the `float64` array `[1.  1.  1.5]`. Assigning into an existing array keeps the data type of the array, while the result of an operation follows the type promotion rules.
 
    </details>
+
+9. **Powers and the unary sign:** For `x = 2.0`, write the values of `-x**2`, `(-x)**2`, and `(-x)**0.5` in Python, and explain why the last one is not real. What does NumPy's `np.float64(-2.0)**0.5` give?
+
+   <details>
+   <summary>Answer</summary>
+
+   `-x**2` evaluates the power first, giving $`-(2^2) = -4.0`$, and `(-x)**2` is 4.0. `(-x)**0.5` has a negative base and a non-integral exponent, so Python returns a complex number; the actual output is `(8.659560562354934e-17+1.4142135623730951j)`, close to $`\sqrt{2}\,i`$. The real part is not exactly zero because of the roundoff error of the computation in polar form. NumPy's `float64` gives NaN instead of a complex number and issues a `RuntimeWarning`.
+
+   </details>
+
+10. **Estimating a drag coefficient:** The terminal velocity of a person of mass 80 kg is measured as 56.0 m/s. Find this person's drag coefficient, and compare the terminal velocity predicted with the mean drag coefficient 0.2409 kg/m of Section 6. Does the result agree with the trend found in Section 6?
+
+   <details>
+   <summary>Answer</summary>
+
+   $`c_d = 9.81 \times 80/56^2 = 784.8/3136 \approx 0.2503`$ kg/m. The terminal velocity predicted with the mean drag coefficient is $`\sqrt{9.81 \times 80/0.2409} \approx 57.08`$ m/s, about 1.1 m/s larger than the measurement. A person heavier than average has a drag coefficient above the mean, so the prediction exceeds the measurement, which agrees with the trend of Section 6 that the drag coefficient grows with mass.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. Python Software Foundation, "Built-in Functions," *Python 3 Documentation*. [Online]. Available: https://docs.python.org/3/library/functions.html
+2. NumPy Developers, "numpy.matrix," *NumPy Reference*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.matrix.html
+3. Python Software Foundation, "math: Mathematical functions," *Python 3 Documentation*. [Online]. Available: https://docs.python.org/3/library/math.html
