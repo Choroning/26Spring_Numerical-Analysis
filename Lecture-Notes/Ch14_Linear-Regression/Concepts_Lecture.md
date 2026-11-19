@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-17
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14
 
@@ -11,6 +11,8 @@
 > 2. Explain the properties of the normal distribution and standardization
 > 3. Derive the normal equations from the least-squares criterion and compute the slope and intercept of simple linear regression
 > 4. Assess regression quality using the coefficient of determination ($`r^2`$) and the standard error of the estimate
+> 5. Interpret least squares as maximum likelihood estimation under normally distributed errors and explain the assumptions of regression
+> 6. Judge the adequacy of a model with residual plots and perform straight-line regression in Python
 
 ---
 
@@ -36,13 +38,28 @@
   - [4.2 Alternative Error Criteria and Why Least Squares](#42-alternative-error-criteria-and-why-least-squares)
   - [4.3 Deriving the Normal Equations](#43-deriving-the-normal-equations)
   - [4.4 Solving for Coefficients](#44-solving-for-coefficients)
+  - [4.5 Example: Step-by-Step Straight-Line Regression](#45-example-step-by-step-straight-line-regression)
+  - [4.6 Statistical Meaning of Least Squares](#46-statistical-meaning-of-least-squares)
+  - [4.7 Matrix Form of the Normal Equations](#47-matrix-form-of-the-normal-equations)
+  - [4.8 A Median Method for Sketching a Line by Hand](#48-a-median-method-for-sketching-a-line-by-hand)
 - [5. Quantifying the Fit Quality](#5-quantifying-the-fit-quality)
   - [5.1 SST, SSE, and SSR Decomposition](#51-sst-sse-and-ssr-decomposition)
   - [5.2 Proof that SST = SSE + SSR](#52-proof-that-sst--sse--ssr)
   - [5.3 Coefficient of Determination (r²)](#53-coefficient-of-determination-r2)
   - [5.4 Standard Error of the Estimate](#54-standard-error-of-the-estimate)
+  - [5.5 Goodness of Fit for the Example](#55-goodness-of-fit-for-the-example)
+  - [5.6 Residual Analysis](#56-residual-analysis)
+  - [5.7 Standard Errors and Confidence Intervals of the Coefficients](#57-standard-errors-and-confidence-intervals-of-the-coefficients)
+- [6. Linearization of Nonlinear Relationships](#6-linearization-of-nonlinear-relationships)
+  - [6.1 Power Model](#61-power-model)
+  - [6.2 Saturation-Growth-Rate Model](#62-saturation-growth-rate-model)
+  - [6.3 Cautions About Linearization](#63-cautions-about-linearization)
+- [7. Random Numbers and Monte Carlo Simulation](#7-random-numbers-and-monte-carlo-simulation)
+- [8. Python Implementation](#8-python-implementation)
+- [9. Common Mistakes](#9-common-mistakes)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 <br>
 
@@ -440,6 +457,99 @@ Since $`\bar{y} = \frac{\sum y_i}{n}`$ and $`\bar{x} = \frac{\sum x_i}{n}`$ are 
 
 > **Note:** This result has an elegant geometric interpretation. The regression line **always passes through the point $`(\bar{x}, \bar{y})`$**, the centroid of the data.
 
+### 4.5 Example: Step-by-Step Straight-Line Regression
+
+A straight line $`y = a_0 + a_1x`$ is fitted by least squares to the following six data points. Collecting the sums needed for the computation in one table gives the following (the two rightmost columns are computed after the fit).
+
+| $`i`$ | $`x_i`$ | $`y_i`$ | $`x_i^2`$ | $`x_iy_i`$ | $`\hat{y}_i`$ | $`e_i = y_i - \hat{y}_i`$ |
+|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
+| 1 | 0 | 2.1 | 0 | 0.0 | 2.047619 | 0.052381 |
+| 2 | 1 | 2.9 | 1 | 2.9 | 3.041905 | -0.141905 |
+| 3 | 2 | 4.2 | 4 | 8.4 | 4.036190 | 0.163810 |
+| 4 | 3 | 4.8 | 9 | 14.4 | 5.030476 | -0.230476 |
+| 5 | 4 | 6.3 | 16 | 25.2 | 6.024762 | 0.275238 |
+| 6 | 5 | 6.9 | 25 | 34.5 | 7.019048 | -0.119048 |
+| Sum | 15 | 27.2 | 55 | 85.4 | 27.2 | 0 |
+
+*Table 1. Data, sums, predicted values, and residuals of the straight-line regression example*
+
+Substituting $`n = 6`$, $`\sum x_i = 15`$, $`\sum y_i = 27.2`$, $`\sum x_i^2 = 55`$, and $`\sum x_iy_i = 85.4`$ into the formulas of Section 4.4 gives the following.
+
+```math
+D = 6(55) - 15^2 = 105, \qquad a_1 = \frac{6(85.4) - 15(27.2)}{105} = \frac{512.4 - 408}{105} = \frac{104.4}{105} = 0.994286
+```
+
+```math
+\bar{x} = 15/6 = 2.5, \quad \bar{y} = 27.2/6 = 4.533333, \qquad a_0 = \bar{y} - a_1\bar{x} = 4.533333 - 0.994286 \times 2.5 = 2.047619
+```
+
+The regression line is therefore $`y = 2.0476 + 0.9943x`$. The residual column of Table 1 shows $`\sum e_i = 0`$, and computing $`\sum e_ix_i = 0`$ confirms the second equality as well. The two equalities restate the normal equations $`\partial SSE/\partial a_0 = -2\sum e_i = 0`$ and $`\partial SSE/\partial a_1 = -2\sum e_ix_i = 0`$, so they serve as checks on a hand computation. The regression line also passes through $`(\bar{x}, \bar{y}) = (2.5,\ 4.5333)`$.
+
+### 4.6 Statistical Meaning of Least Squares
+
+The least-squares criterion is not used merely because it is convenient to compute. Under the following assumptions it gives the statistically most plausible line.
+
+1. The values of $`x`$ are exact, without error.
+2. The errors of $`y`$, $`\varepsilon_i = y_i - (a_0 + a_1x_i)`$, are independent and have the same variance $`\sigma^2`$ for all $`x`$.
+3. The errors follow a normal distribution with mean zero.
+
+Under these assumptions the probability density of observing $`y_i`$ is the normal PDF of Section 3, $`\frac{1}{\sigma\sqrt{2\pi}}\exp\bigl(-\varepsilon_i^2/(2\sigma^2)\bigr)`$, and by independence the probability density of the whole data set (the likelihood) is the product.
+
+```math
+L(a_0, a_1) = \prod_{i=1}^{n}\frac{1}{\sigma\sqrt{2\pi}}\exp\left(-\frac{(y_i - a_0 - a_1x_i)^2}{2\sigma^2}\right) = \left(\sigma\sqrt{2\pi}\right)^{-n}\exp\left(-\frac{SSE}{2\sigma^2}\right)
+```
+
+$`a_0`$ and $`a_1`$ appear only in the $`SSE`$ inside the exponent, so the coefficients that maximize the likelihood are the same as those that minimize $`SSE`$. That is, least-squares estimation is **maximum likelihood estimation** under normally distributed errors. Conversely, if the errors often contain large outliers (tails heavier than the normal distribution), squaring gives the outliers too much influence, and robust methods such as the absolute-sum criterion of Section 4.2 or the MAD of Section 2.4 are more appropriate.
+
+Because of assumption 1, the roles of $`x`$ and $`y`$ are not symmetric. Regressing $`x`$ on $`y`$ with the same data gives a different line. In the example $`\sum y_i^2 = 140.8`$, so the slope of $`x = b_0 + b_1y`$ is $`b_1 = 104.4/(6 \times 140.8 - 27.2^2) = 104.4/104.96 = 0.994665`$, and the line solved for $`y`$ has slope $`1/b_1 = 1.005364`$, different from $`a_1 = 0.994286`$. The product of the two slopes, $`a_1b_1 = 0.98898`$, equals the coefficient of determination $`r^2`$ of Section 5, and the two lines coincide only when the data lie exactly on a line ($`r^2 = 1`$).
+
+### 4.7 Matrix Form of the Normal Equations
+
+Writing the $`n`$ equations $`y_i = a_0 + a_1x_i + e_i`$ at once gives $`\mathbf{y} = \mathbf{Z}\mathbf{a} + \mathbf{e}`$, where $`\mathbf{Z}`$ is the $`n \times 2`$ matrix whose first column is all ones and whose second column holds $`x_i`$, and $`\mathbf{a} = (a_0,\ a_1)`$. The condition that minimizes $`SSE = \mathbf{e}^T\mathbf{e}`$ becomes the following matrix equation.
+
+```math
+\mathbf{Z}^T\mathbf{Z}\,\mathbf{a} = \mathbf{Z}^T\mathbf{y}, \qquad \mathbf{Z}^T\mathbf{Z} = \begin{bmatrix} n & \sum x_i \\ \sum x_i & \sum x_i^2 \end{bmatrix}, \quad \mathbf{Z}^T\mathbf{y} = \begin{Bmatrix} \sum y_i \\ \sum x_iy_i \end{Bmatrix}
+```
+
+Its entries are exactly those of the normal equations $`(\ast)`$ of Section 4.3. For the example of Section 4.5:
+
+```math
+\begin{bmatrix} 6 & 15 \\ 15 & 55 \end{bmatrix}\begin{Bmatrix} a_0 \\ a_1 \end{Bmatrix} = \begin{Bmatrix} 27.2 \\ 85.4 \end{Bmatrix}, \qquad a_0 = \frac{27.2 \times 55 - 15 \times 85.4}{105} = \frac{215}{105} = 2.047619
+```
+
+```python
+import numpy as np
+
+x = np.array([0, 1, 2, 3, 4, 5], dtype=float)
+y = np.array([2.1, 2.9, 4.2, 4.8, 6.3, 6.9])
+Z = np.column_stack([np.ones_like(x), x])   # columns: 1 and x
+print(Z.T @ Z)
+print(Z.T @ y)
+print(np.linalg.solve(Z.T @ Z, Z.T @ y))
+```
+
+```text
+[[ 6. 15.]
+ [15. 55.]]
+[27.2 85.4]
+[2.04761905 0.99428571]
+```
+
+`np.column_stack` builds $`\mathbf{Z}`$, and `Z.T @ Z` and `Z.T @ y` reproduce the sums of Table 1 in Section 4.5. The advantage of this form is that the equation does not change when the model gains terms. Merely adding a column of $`x_i^2`$ or of another variable to $`\mathbf{Z}`$ gives the polynomial and multiple linear regression of Chapter 15, and Chapter 15, Section 5 treats this general form.
+
+### 4.8 A Median Method for Sketching a Line by Hand
+
+The textbook also introduces a way to sketch a rough line through data in the field without computational aids. It uses only medians, without computing sums, and proceeds as follows.
+
+1. Divide the data, in order of $`x`$, into three groups of roughly equal size.
+2. In the left and right groups, mark the point formed by the median of $`x`$ and the median of $`y`$.
+3. Draw the line connecting the two points.
+4. Shift the line parallel toward the median point of the middle group by one third of the difference.
+
+Dividing the six data points of Section 4.5 into three groups of two gives the median points $`(0.5,\ 2.5)`$ for the left group, $`(4.5,\ 6.6)`$ for the right, and $`(2.5,\ 4.5)`$ for the middle. The line through the two end points has slope $`(6.6 - 2.5)/(4.5 - 0.5) = 1.025`$ and passes through $`2.5 + 1.025 \times 2 = 4.55`$ at $`x = 2.5`$. Lowering it by one third of the difference $`-0.05`$ from the middle median 4.5 makes it pass through 4.5333 at $`x = 2.5`$, so the intercept is $`4.5333 - 1.025 \times 2.5 = 1.9708`$. The result $`y = 1.9708 + 1.025x`$ is close to the least-squares line $`y = 2.0476 + 0.9943x`$.
+
+Because this method uses medians instead of means, it resists outliers like the MAD of Section 2.4. For example, if one point of the right group were recorded wrongly as a very large value, only the median of two points would move slightly, whereas the least-squares line would be pulled strongly toward that point because of the squared errors. In return, least squares is better in precision and statistical properties (such as the confidence intervals of Section 5.7).
+
 <br>
 
 ---
@@ -458,7 +568,7 @@ Three key quantities measure different aspects of variability:
 | **SSE** | Sum of Squared Errors (residual sum of squares) | $`\displaystyle \sum_{i=1}^{n}(y_i - \hat{y}_i)^2`$ | Unexplained variability (error between observed and predicted) |
 | **SSR** | Sum of Squared Regression (explained sum of squares) | $`\displaystyle \sum_{i=1}^{n}(\hat{y}_i - \bar{y})^2`$ | Explained variability (how well $`\hat{y}`$ fits the data) |
 
-*Table 1. The three sums of squares SST, SSE, and SSR that measure variability*
+*Table 2. The three sums of squares SST, SSE, and SSR that measure variability*
 
 The fundamental decomposition:
 
@@ -557,7 +667,7 @@ r^2 = \frac{SSR}{SST} = 1 - \frac{SSE}{SST}
 | $`r^2 \approx 1`$ | Strong linear relationship |
 | $`r^2 \approx 0`$ | Weak or no linear relationship |
 
-*Table 2. Interpretation of coefficient of determination values*
+*Table 3. Interpretation of coefficient of determination values*
 
 > **[Probability and Statistics]** In simple linear regression, the value $`r = \sqrt{r^2}`$ (with appropriate sign) is the **Pearson correlation coefficient**. It measures the strength and direction of the linear relationship between $`x`$ and $`y`$. The sign of $`r`$ matches the sign of the slope $`a_1`$.
 
@@ -575,7 +685,206 @@ s_{y/x} = \sqrt{\frac{SSE}{n - 2}}
 
 The standard error $`s_{y/x}`$ quantifies the typical size of a residual. A smaller $`s_{y/x}`$ indicates a tighter fit of the regression line to the data.
 
+### 5.5 Goodness of Fit for the Example
+
+For the example of Section 4.5, $`\bar{y} = 4.533333`$, so the three sums of squares are the following.
+
+```math
+SST = \sum(y_i - \bar{y})^2 = 17.493333, \qquad SSE = \sum e_i^2 = 0.192762, \qquad SSR = \sum(\hat{y}_i - \bar{y})^2 = 17.300571
+```
+
+$`SSE + SSR = 17.493333 = SST`$ confirms the decomposition of Section 5.2. The coefficients of determination and correlation are the following.
+
+```math
+r^2 = 1 - \frac{SSE}{SST} = 1 - \frac{0.192762}{17.493333} = 0.988981, \qquad r = +\sqrt{0.988981} = 0.994475
+```
+
+The sign of $`r`$ follows the sign of the slope $`a_1`$. That is, 98.9% of the variation in $`y`$ is explained by the line. Comparing the standard deviation with the standard error of the estimate gives the following.
+
+```math
+s_y = \sqrt{\frac{SST}{n - 1}} = \sqrt{\frac{17.493333}{5}} = 1.870472, \qquad s_{y/x} = \sqrt{\frac{SSE}{n - 2}} = \sqrt{\frac{0.192762}{4}} = 0.219523
+```
+
+The spread around the regression line, $`s_{y/x}`$, is much smaller than the spread around the mean, $`s_y`$, so the line model is far better than describing the data by a single mean value.
+
+### 5.6 Residual Analysis
+
+$`r^2`$ summarizes in a single number how much variation the model explains, but it does not tell whether the form of the model is right. The basic tool for checking this is the **residual plot**, which plots the residuals $`e_i`$ against $`x_i`$ (or $`\hat{y}_i`$).
+
+![Figure 1. Least-squares line and residual plot for the example](../../images/Ch14_Regression-Residuals.png)
+
+*Figure 1. Least-squares line and residual plot for the example*
+
+On the right of Figure 1, the residuals have mixed signs around zero and no particular shape, so the line model and the assumptions of Section 4.6 do not contradict the data. The shapes to watch for in a residual plot are the following.
+
+| Shape of the residuals | Meaning | Remedy |
+|:-----|:-----|:-----|
+| Curve bending up or down | Wrong model form | Linearization or polynomial regression (Chapter 15) |
+| Funnel widening as $`x`$ grows | Nonconstant error variance (assumption 2 violated) | Variable transformation, weighted regression |
+| A single point far off | Outlier | Check the data, robust methods |
+| Runs of residuals with the same sign | Errors not independent | Revisit the model |
+
+*Table 4. Shapes of residual plots and their meanings*
+
+A model can have a high $`r^2`$ and still have the wrong form. Fitting a line to the data $`y = x^2`$ at $`x = 0, 1, \ldots, 5`$ gives $`y = -3.3333 + 5x`$ with a fairly high $`r^2 = 0.921`$, yet the residuals $`3.33,\ -0.67,\ -2.67,\ -2.67,\ -0.67,\ 3.33`$ trace a U shape, positive at both ends and negative in the middle. Such a systematic shape signals that a curved model, not a line, is needed.
+
+### 5.7 Standard Errors and Confidence Intervals of the Coefficients
+
+Under the assumptions of Section 4.6, $`y_i`$ contains random errors, so $`a_0`$ and $`a_1`$ computed from it are random variables that change each time the data are measured again. The slope can be written as $`a_1 = \sum(x_i - \bar{x})(y_i - \bar{y})/S_{xx}`$ (with $`S_{xx} = \sum(x_i - \bar{x})^2`$), and since $`\sum(x_i - \bar{x})\bar{y} = 0`$, $`a_1 = \sum w_iy_i`$ with $`w_i = (x_i - \bar{x})/S_{xx}`$. If the errors are independent with variance $`\sigma^2`$, then $`\mathrm{Var}(a_1) = \sigma^2\sum w_i^2 = \sigma^2/S_{xx}`$. Replacing the unknown $`\sigma`$ with the $`s_{y/x}`$ of Section 5.4 gives the standard errors of the two coefficients.
+
+```math
+s_{a_1} = \frac{s_{y/x}}{\sqrt{S_{xx}}}, \qquad s_{a_0} = s_{y/x}\sqrt{\frac{\sum x_i^2}{n\,S_{xx}}}
+```
+
+Because $`\sigma`$ has been replaced by an estimate, the confidence intervals of the coefficients use the $`t`$ distribution with $`n - 2`$ degrees of freedom instead of the normal distribution. The 95% confidence intervals are $`a_1 \pm t_{0.025,\,n-2}\,s_{a_1}`$ and $`a_0 \pm t_{0.025,\,n-2}\,s_{a_0}`$.
+
+For the example of Section 4.5, $`S_{xx} = 17.5`$ and $`s_{y/x} = 0.219523`$, so $`s_{a_1} = 0.219523/\sqrt{17.5} = 0.052476`$ and $`s_{a_0} = 0.219523\sqrt{55/(6 \times 17.5)} = 0.158879`$. Using $`t_{0.025,4} = 2.776`$ for 4 degrees of freedom gives the following.
+
+```math
+a_1 = 0.994286 \pm 2.776 \times 0.052476 = 0.994286 \pm 0.145673 \;\Rightarrow\; [0.8486,\ 1.1400]
+```
+
+```math
+a_0 = 2.047619 \pm 2.776 \times 0.158879 = 2.047619 \pm 0.441048 \;\Rightarrow\; [1.6066,\ 2.4887]
+```
+
+The slope interval does not contain 0, which is evidence of a linear relation between $`x`$ and $`y`$, and it does contain 1, so the data do not contradict the hypothesis that the slope is 1. As the formula shows, more data or a wider spread of $`x`$ increases $`S_{xx}`$ and reduces the uncertainty of the slope. Section 7 checks by Monte Carlo simulation that the formula indeed holds.
+
 <br>
+
+---
+
+<br>
+
+## 6. Linearization of Nonlinear Relationships
+
+The textbook introduces linearization by transformation of variables as the first way to extend straight-line regression to nonlinear relationships. Chapter 15, Section 2 summarizes the transformation formulas of the exponential, power, and saturation-growth-rate models. This section fits two of the models to actual data and shows step by step how the transformed coefficients are converted back to the coefficients of the original model.
+
+### 6.1 Power Model
+
+Taking common logarithms of both sides of $`y = \alpha x^{\beta}`$ gives $`\log y = \log\alpha + \beta\log x`$, so in the straight-line regression of $`\log y`$ on $`\log x`$ the slope is $`\beta`$ and the intercept is $`\log\alpha`$. It is applied to the following data.
+
+| $`x`$ | 1 | 2 | 3 | 4 | 5 | 6 |
+|:-----|-----:|-----:|-----:|-----:|-----:|-----:|
+| $`y`$ | 0.6 | 2.3 | 5.1 | 9.2 | 13.8 | 20.5 |
+| $`\log x`$ | 0 | 0.3010 | 0.4771 | 0.6021 | 0.6990 | 0.7782 |
+| $`\log y`$ | -0.2218 | 0.3617 | 0.7076 | 0.9638 | 1.1399 | 1.3118 |
+
+*Table 5. Data and log-transformed values for the power model*
+
+Applying the formulas of Section 4 to the log-transformed values gives slope $`1.966119`$ and intercept $`-0.225831`$. Converting back gives $`\beta = 1.9661`$ and $`\alpha = 10^{-0.225831} = 0.594524`$, so the model is $`y = 0.5945x^{1.9661}`$. The predictions are $`0.595,\ 2.323,\ 5.155,\ 9.076,\ 14.074,\ 20.142`$; the $`r^2`$ in log space is 0.99986 and the $`SSE`$ in the original space is 0.2223. The coefficients reveal well that the data roughly follow $`0.6x^2`$.
+
+### 6.2 Saturation-Growth-Rate Model
+
+$`y = \alpha x/(\beta + x)`$ is a saturating curve that approaches $`\alpha`$ as $`x`$ grows. Taking reciprocals of both sides gives $`1/y = (\beta/\alpha)(1/x) + 1/\alpha`$, so in the line of $`1/y`$ against $`1/x`$ the intercept is $`1/\alpha`$ and the slope is $`\beta/\alpha`$. For the data $`x = (0.5,\ 1,\ 2,\ 4,\ 8,\ 16)`$ and $`y = (1.6,\ 2.6,\ 3.7,\ 4.7,\ 5.3,\ 5.6)`$, the reciprocals are $`1/x = (2,\ 1,\ 0.5,\ 0.25,\ 0.125,\ 0.0625)`$ and $`1/y = (0.625,\ 0.3846,\ 0.2703,\ 0.2128,\ 0.1887,\ 0.1786)`$.
+
+The straight-line regression gives slope $`0.231847`$ and intercept $`0.157834`$. Converting back gives $`\alpha = 1/0.157834 = 6.335769`$ and $`\beta = 0.231847 \times 6.335769 = 1.468930`$, so the model is $`y = 6.3358x/(1.4689 + x)`$. $`\alpha`$ is interpreted as the saturation value as $`x \to \infty`$, and $`\beta`$ as the $`x`$ at which $`y`$ reaches half the saturation value. The predictions are $`1.609,\ 2.566,\ 3.653,\ 4.634,\ 5.353,\ 5.803`$, and the $`SSE`$ in the original space is 0.0518.
+
+### 6.3 Cautions About Linearization
+
+Linearization is simple to compute, but it must be remembered that the quantity minimized is the $`SSE`$ of the transformed values, not of the original data. In the reciprocal transformation, $`1/y`$ changes greatly at points with small $`y`$, so the first few points with small $`x`$ dominate the line, while the log transformation treats relative errors evenly. The $`r^2`$ in the transformed space must therefore not be read as the goodness of fit of the original model; predictions and residuals should be recomputed in the original space to check. To minimize the $`SSE`$ in the original space directly, use the nonlinear regression of Chapter 15, Section 6, with the linearized result as its initial estimate. Chapter 15, Section 6.5 compares the two methods numerically for the exponential model.
+
+---
+
+<br>
+
+## 7. Random Numbers and Monte Carlo Simulation
+
+Following the review of statistics, the textbook covers how to generate random numbers from the uniform and normal distributions and how to use them in simulation. **Monte Carlo simulation** is a method that repeats the same experiment many times with random inputs to estimate the distribution of the result numerically. Even a distribution that is hard to obtain analytically can be approximated by a histogram, mean, and standard deviation after enough repetitions.
+
+In NumPy, `np.random.default_rng` creates a random number generator using the default bit generator (PCG64), and giving the same seed reproduces the same sequence of random numbers, so results can be reproduced [1]. The generator's `normal(loc, scale, size)` draws samples from a normal distribution and `uniform(low, high, size)` from a uniform distribution [1]. The relation $`X = \mu + \sigma Z`$ of Section 3.4 corresponds to `loc` and `scale` of `normal`, and a uniform random number on $`[a, b]`$ is the same as $`a + (b - a)U`$ built from a uniform random number $`U`$ on $`[0, 1]`$.
+
+The following code checks the slope standard-error formula of Section 5.7 by simulation. It creates data 10000 times at the same $`x`$ as Section 4.5 by adding normal errors with standard deviation 0.2 to the true line $`y = 2 + x`$ and fits a line each time.
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(1)
+x = np.array([0, 1, 2, 3, 4, 5], dtype=float)
+sigma, trials, t = 0.2, 10000, 2.776      # t value for 95% with n - 2 = 4 degrees of freedom
+sxx = np.sum((x - x.mean())**2)
+slopes, covered = [], 0
+for _ in range(trials):
+    y = 2.0 + 1.0 * x + rng.normal(0.0, sigma, size=x.size)   # true line plus noise
+    a1, a0 = np.polyfit(x, y, 1)
+    syx = np.sqrt(np.sum((y - a0 - a1 * x)**2) / (x.size - 2))
+    sa1 = syx / np.sqrt(sxx)
+    slopes.append(a1)
+    covered += abs(a1 - 1.0) <= t * sa1
+print(f"mean slope = {np.mean(slopes):.4f}, std of slopes = {np.std(slopes):.4f}, theory = {sigma / np.sqrt(sxx):.4f}")
+print(f"95% intervals that contain the true slope: {covered / trials:.3f}")
+u = rng.uniform(0.0, 1.0, size=5)
+print(np.round(u, 4))
+```
+
+```text
+mean slope = 1.0004, std of slopes = 0.0477, theory = 0.0478
+95% intervals that contain the true slope: 0.953
+[0.4248 0.3935 0.4686 0.5864 0.177 ]
+```
+
+The first line of the loop creates hypothetical measurement data by adding errors to the true line, and the next lines compute the slope, $`s_{y/x}`$, and $`s_{a_1}`$. `covered` counts how often the 95% confidence interval built from those data contains the true slope 1. In the results, the mean of the slope estimates, 1.0004, is almost equal to the true value, showing that the least-squares slope is an unbiased estimator, and the standard deviation 0.0477 agrees with the formula $`\sigma/\sqrt{S_{xx}} = 0.2/\sqrt{17.5} = 0.0478`$. Moreover, 95.3% of the confidence intervals contain the true value, confirming that the $`t`$ interval of Section 5.7 works as its name says. The last line is an example of five uniform random numbers on $`[0, 1]`$.
+
+---
+
+<br>
+
+## 8. Python Implementation
+
+The following function translates the formulas of Sections 4 and 5 directly and returns the coefficients, the coefficient of determination, and the standard error of the estimate.
+
+```python
+import numpy as np
+
+def linregr(x, y):
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    n = len(x)
+    sx, sy = x.sum(), y.sum()
+    sxx, sxy = (x * x).sum(), (x * y).sum()
+    a1 = (n * sxy - sx * sy) / (n * sxx - sx**2)   # slope
+    a0 = sy / n - a1 * sx / n                      # intercept from the means
+    e = y - (a0 + a1 * x)                          # residuals
+    sst = ((y - y.mean())**2).sum()
+    sse = (e**2).sum()
+    r2 = 1 - sse / sst
+    syx = np.sqrt(sse / (n - 2))                   # standard error of the estimate
+    return a0, a1, r2, syx
+
+x = [0, 1, 2, 3, 4, 5]
+y = [2.1, 2.9, 4.2, 4.8, 6.3, 6.9]
+a0, a1, r2, syx = linregr(x, y)
+print(f"a0 = {a0:.6f}, a1 = {a1:.6f}, r2 = {r2:.6f}, syx = {syx:.6f}")
+
+p = np.polyfit(x, y, 1)            # highest power first: [a1, a0]
+print(p)
+print(np.polyval(p, [6, 7]))       # predictions at x = 6 and 7
+```
+
+```text
+a0 = 2.047619, a1 = 0.994286, r2 = 0.988981, syx = 0.219523
+[0.99428571 2.04761905]
+[8.01333333 9.00761905]
+```
+
+The function computes the four sums once and obtains the coefficients from the slope formula of Section 4.4 and equation $`(\ast\ast)`$. It computes $`SSE`$ from the residual array `e` and, together with $`SST`$, forms $`r^2`$ and $`s_{y/x}`$. The results agree with the hand computations of Sections 4.5 and 5.5.
+
+NumPy's `np.polyfit(x, y, deg)` fits a polynomial of degree `deg` by least squares and returns the coefficients **highest power first** [2]. For a line, `p[0]` is therefore the slope and `p[1]` the intercept. `np.polyval` evaluates the polynomial with those coefficients. The points $`x = 6, 7`$ above lie outside the data range $`[0, 5]`$, so these predictions are extrapolations, with no guarantee that the linear relation holds outside the range. The NumPy documentation recommends `numpy.polynomial.Polynomial.fit`, which is numerically more stable, for new code [2].
+
+---
+
+<br>
+
+## 9. Common Mistakes
+
+The following mistakes are common in straight-line regression.
+
+1. **Reading the coefficients of `np.polyfit` in reverse order.** The result starts from the highest power, so the line result `[0.994, 2.048]` means slope 0.994 and intercept 2.048.
+2. **Dividing the standard error by $`n`$ or $`n - 1`$.** The spread around the regression line is divided by $`n - 2`$ because two coefficients have been estimated.
+3. **Accepting a model on the basis of $`r^2`$ alone.** As in the example of Section 5.6, even with $`r^2 = 0.92`$, a systematic pattern in the residuals means the model form is wrong.
+4. **Extrapolating beyond the data range.** The regression line has support only within the observed range.
+5. **Thinking that swapping the roles of $`x`$ and $`y`$ gives the same line.** As shown in Section 4.6, the slopes of the two regression lines agree only when $`r^2 = 1`$.
+6. **Applying least squares as is when $`x`$ also has large measurement errors.** If assumption 1 fails, the slope can be systematically underestimated, so such cases need methods that treat the errors of both variables.
 
 ---
 
@@ -599,6 +908,14 @@ The standard error $`s_{y/x}`$ quantifies the typical size of a residual. A smal
 | Standard normal PDF | The bell curve density is $`\varphi(z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}`$. |
 | General normal PDF | The normal density with mean $`\mu`$ and variance $`\sigma^2`$ is $`f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-(x-\mu)^2/(2\sigma^2)}`$. |
 | Standardization | $`Z = (X - \mu) / \sigma`$ transforms a normal random variable to $`\mathcal{N}(0,1)`$. |
+| Checking the example | The residuals satisfy $`\sum e_i = 0`$ and $`\sum e_ix_i = 0`$, and the regression line passes through $`(\bar{x}, \bar{y})`$, which serve as checks on hand computations. |
+| Maximum likelihood interpretation | With independent, equal-variance, normally distributed errors the likelihood is proportional to $`\exp(-SSE/2\sigma^2)`$, so least-squares estimation is maximum likelihood estimation. |
+| Residual analysis | Residuals should scatter randomly around zero; curved, funnel, or outlier shapes indicate problems with the model or the assumptions. |
+| `np.polyfit` | Returns polynomial coefficients highest power first; for a line, `[slope, intercept]`. |
+| Matrix form of the normal equations | $`\mathbf{Z}^T\mathbf{Z}\mathbf{a} = \mathbf{Z}^T\mathbf{y}`$; adding columns extends it directly to polynomial and multiple regression. |
+| Confidence intervals of the coefficients | $`s_{a_1} = s_{y/x}/\sqrt{S_{xx}}`$, and the 95% interval is $`a_1 \pm t_{0.025,n-2}s_{a_1}`$. |
+| Linearization and back-transformation | Straighten the power model with logarithms and the saturation-growth-rate model with reciprocals, then convert the slope and intercept back to the original coefficients. |
+| Monte Carlo simulation | Repeat an experiment with random inputs to obtain the distribution of an estimator numerically; fixing the seed makes it reproducible. |
 
 <br>
 
@@ -652,3 +969,48 @@ The standard error $`s_{y/x}`$ quantifies the typical size of a residual. A smal
    Since $`\sigma = 2`$, $`P(X \le 12) = \Phi((12 - 10) / 2) = \Phi(1) \approx 0.8413`$. By the symmetry property $`\Phi(-z) = 1 - \Phi(z)`$, $`P(X \le 8) = \Phi(-1) = 1 - \Phi(1) \approx 0.1587`$.
 
    </details>
+
+6. **Computing from sums:** Find the slope and intercept of the regression line when $`n = 5`$, $`\sum x_i = 10`$, $`\sum y_i = 20`$, $`\sum x_i^2 = 30`$, and $`\sum x_iy_i = 50`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`D = 5(30) - 10^2 = 50`$ and $`a_1 = (5 \times 50 - 10 \times 20)/50 = 50/50 = 1`$. Since $`\bar{x} = 2`$ and $`\bar{y} = 4`$, $`a_0 = 4 - 1 \times 2 = 2`$, and the regression line is $`y = 2 + x`$.
+
+   </details>
+
+7. **Interpreting a residual plot:** The residuals of a straight-line regression spread more and more widely around zero as $`x`$ increases. Explain what this means and how it affects the regression result.
+
+   <details>
+   <summary>Answer</summary>
+
+   It means that the error variance grows with $`x`$, so assumption 2 of constant variance is violated. The least-squares line is then pulled too strongly toward points in the high-scatter region, and the single value $`s_{y/x}`$ cannot represent the uncertainty at every $`x`$. A variable transformation (for example, a logarithm) or a regression that weights points according to their variance should be considered.
+
+   </details>
+
+8. **Confidence interval of the slope:** A line fitted to 8 data points gave $`a_1 = 2.5`$, $`s_{y/x} = 0.6`$, and $`S_{xx} = 36`$. Using $`t_{0.025,6} = 2.447`$, find the 95% confidence interval of the slope.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`s_{a_1} = 0.6/\sqrt{36} = 0.1`$, so the interval is $`2.5 \pm 2.447 \times 0.1 = 2.5 \pm 0.2447`$, that is, $`[2.2553,\ 2.7447]`$.
+
+   </details>
+
+9. **Back-transformation:** The straight-line regression of $`\log y`$ on $`\log x`$ gave slope 1.5 and intercept 0.3. Find the coefficients of the power model $`y = \alpha x^{\beta}`$ and the prediction at $`x = 4`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\beta = 1.5`$ and $`\alpha = 10^{0.3} = 1.995`$. At $`x = 4`$, $`y = 1.995 \times 4^{1.5} = 1.995 \times 8 = 15.96`$.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. NumPy Developers, "Random Generator," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/random/generator.html
+2. NumPy Developers, "numpy.polyfit," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html
