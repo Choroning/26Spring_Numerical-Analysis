@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-18
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 24
 
@@ -11,6 +11,8 @@
 > 2. Obtain the analytical solution of a linear BVP as the sum of the homogeneous and particular solutions
 > 3. Apply the shooting method and the finite difference method
 > 4. Analyze the accuracy and convergence of BVP solvers
+> 5. Solve nonlinear BVPs by the shooting method combined with the secant method, and handle derivative boundary conditions with a ghost node
+> 6. Solve BVPs with SciPy's solve_bvp, and apply finite differences with Newton's method to nonlinear BVPs
 
 ---
 
@@ -34,6 +36,8 @@
   - [3.3 The Guessing Procedure](#33-the-guessing-procedure)
   - [3.4 Algorithm Summary](#34-algorithm-summary)
   - [3.5 Python Implementation](#35-python-implementation)
+  - [3.6 Shooting for Nonlinear Problems](#36-shooting-for-nonlinear-problems)
+  - [3.7 Shooting with Derivative Boundary Conditions](#37-shooting-with-derivative-boundary-conditions)
 - [4. Finite Difference Methods (Section 24.3)](#4-finite-difference-methods-section-243)
   - [4.1 Core Idea: Discretize the Domain](#41-core-idea-discretize-the-domain)
   - [4.2 Second Derivative Approximation](#42-second-derivative-approximation)
@@ -42,8 +46,15 @@
   - [4.5 Assembling the Tridiagonal System](#45-assembling-the-tridiagonal-system)
   - [4.6 Matrix Formulation](#46-matrix-formulation)
   - [4.7 Python Implementation](#47-python-implementation)
+  - [4.8 Derivative Boundary Conditions and Ghost Nodes](#48-derivative-boundary-conditions-and-ghost-nodes)
+  - [4.9 Grid Refinement and the Order of Convergence](#49-grid-refinement-and-the-order-of-convergence)
+  - [4.10 SciPy's solve_bvp](#410-scipys-solve_bvp)
+  - [4.11 Finite Differences for Nonlinear BVPs with Newton's Method](#411-finite-differences-for-nonlinear-bvps-with-newtons-method)
+  - [4.12 Accuracy and Cost of Shooting and Finite Differences](#412-accuracy-and-cost-of-shooting-and-finite-differences)
+- [Concept Applications](#concept-applications)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -114,6 +125,8 @@ Given two boundary values at the endpoints of the domain, we can solve for the t
 | **Order** | Needs $`n`$ conditions at one point for $`n`$-th order ODE | Conditions split across boundary |
 
 *Table 2. Comparison of initial-value and boundary-value problems*
+
+> **Definition:** A **boundary value problem** is a problem in which the conditions on the solution of a differential equation are given at different points of the interval, usually at both end points. For the same equation, depending on the boundary conditions, the solution may be unique, may not exist, or may be infinitely many (Section 4.9).
 
 > **[Calculus]** A second-order ODE generally requires two conditions to determine a unique solution. In an IVP, both conditions are specified at the same point (e.g., position and velocity at $`t = 0`$). In a BVP, the conditions are specified at different spatial locations (e.g., temperatures at both ends of a rod). A linear IVP with continuous coefficients has exactly one solution, but a BVP may have no solution or infinitely many even with two conditions. For example, $`y'' + y = 0`$, $`y(0) = 0`$, $`y(\pi) = 0`$ has the solution $`y = C \sin x`$ for every constant $`C`$.
 
@@ -250,6 +263,8 @@ The shooting method transforms a boundary-value problem into an initial-value pr
 5. **Adjusting** the guess and repeating until the far boundary condition is satisfied.
 
 The name "shooting method" comes from the analogy of firing a projectile: you adjust the launch angle (the initial slope guess) until the projectile hits the target (the far boundary condition).
+
+> **Definition:** The **shooting method** treats the missing initial condition at one end of a boundary value problem as a parameter, solves the initial value problem repeatedly, and determines that parameter by root finding so that the boundary condition at the other end is satisfied.
 
 ### 3.2 Converting a 2nd-Order ODE to Two 1st-Order ODEs
 
@@ -395,6 +410,102 @@ def shooting_method(h_prime, T_inf, Ta, Tb, L, n_steps=100, tol=1e-6, max_iter=5
     return x_vals, T_vals
 ```
 
+### 3.6 Shooting for Nonlinear Problems
+
+As noted in Section 3.3, for a linear problem linear interpolation of two trials gives the answer at once, but for a nonlinear problem $`T(L)`$ is not a linear function of $`z(0)`$, so iteration is needed. If the rod surface loses heat by radiation in addition to convection, the governing equation contains a fourth-power term from the Stefan-Boltzmann law.
+
+```math
+0 = \frac{d^2 T}{dx^2} + h'(T_\infty - T) + \sigma'(T_\infty^4 - T^4)
+```
+
+Let $`h' = 0.01`$, $`\sigma' = 5 \times 10^{-9}`$, $`T_\infty = 20`$, $`L = 10`$, $`T(0) = 40`$, and $`T(10) = 200`$. The radiation term requires absolute temperature, so all temperatures in this example are taken as absolute temperatures, with $`\sigma'`$ a model parameter chosen accordingly. The shooting method turns this problem into root finding for the residual function $`r(z_a) = T(L; z_a) - T_b`$, where $`T(L; z_a)`$ is the temperature at the right end obtained by integrating the IVP with initial slope $`z_a`$. The secant method of Chapter 6, $`z_{k+1} = z_k - r_k\frac{z_k - z_{k-1}}{r_k - r_{k-1}}`$, is applied to this residual. The linear interpolation formula of Section 3.3 is one step of this secant method.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+hp, sig, Tinf = 0.01, 5e-9, 20.0               # convection and radiation
+L, Ta, Tb = 10.0, 40.0, 200.0
+
+def rhs(x, w):
+    T, z = w                                     # z = dT/dx
+    return [z, -hp * (Tinf - T) - sig * (Tinf**4 - T**4)]
+
+def residual(za):
+    sol = solve_ivp(rhs, (0.0, L), [Ta, za], rtol=1e-10, atol=1e-10)
+    return sol.y[0, -1] - Tb                     # T(L) - Tb
+
+z0, z1 = 10.0, 20.0                              # two initial guesses
+r0, r1 = residual(z0), residual(z1)
+print(f"  k     z(0)          T(L) - Tb")
+print(f"  0  {z0:12.6f}  {r0:14.6f}")
+print(f"  1  {z1:12.6f}  {r1:14.6f}")
+for k in range(2, 9):                            # secant iteration on residual(z) = 0
+    z2 = z1 - r1 * (z1 - z0) / (r1 - r0)
+    r2 = residual(z2)
+    print(f"  {k}  {z2:12.6f}  {r2:14.6f}")
+    if abs(r2) < 1e-8:
+        break
+    z0, r0, z1, r1 = z1, r1, z2, r2
+```
+
+```text
+  k     z(0)          T(L) - Tb
+  0     10.000000      -11.264872
+  1     20.000000      310.481159
+  2     10.350117       -5.240232
+  3     10.510282       -2.433675
+  4     10.649168        0.026823
+  5     10.647654       -0.000137
+  6     10.647662       -0.000000
+```
+
+- `rhs` writes the second-order ODE as the first-order system $`T' = z`$, $`z' = -h'(T_\infty - T) - \sigma'(T_\infty^4 - T^4)`$, as in Section 3.2.
+- `residual` integrates the IVP to the end with the given initial slope and returns the mismatch of the right boundary condition. The integration uses tight tolerances because, if integration error enters the residual, root finding cannot become more accurate than that error.
+- The loop is the secant method and stops when the residual falls below $`10^{-8}`$.
+
+The residuals of the first two trials, $`-11.3`$ and $`+310.5`$, differ greatly in size. As $`z(0)`$ grows, the temperature rises and the effect of the radiation term $`-\sigma'T^4`$ grows rapidly, so $`T(L)`$ increases nonlinearly. The first secant step therefore falls short of the exact value, after which the superlinear convergence of the secant method shrinks the error quickly from the third iteration on, giving $`z(0) = 10.647662`$ at the sixth iteration (left panel of Figure 3). Solving the same problem with convection only gives $`z(0) \approx 12.6905`$, so radiation removes additional heat and a smaller initial slope suffices for the same end temperature.
+
+> **Caution:** The shooting method is hard to use when the IVP integration is unstable. For problems whose solution has an exponentially growing component (the $`e^{\lambda x}`$ component in this example), a long interval or a large $`\lambda`$ amplifies small differences in the initial slope enormously at $`T(L)`$, so the residual overflows or the root finding fails to converge. In such cases, multiple shooting over subintervals or the finite difference method of Section 4 is used.
+
+### 3.7 Shooting with Derivative Boundary Conditions
+
+The framework of the shooting method is the same when a boundary condition gives a derivative instead of a value; only which initial condition is unknown changes. If, as in Section 4.8, the left end is insulated so that $`T'(0) = 0`$ and the right end has $`T(10) = 200`$, the slope at $`x = 0`$ is known and the temperature $`T(0)`$ is not. Therefore $`T(0)`$ is guessed, the IVP is integrated from $`(T(0), T'(0)) = (\text{guess}, 0)`$, and $`T(10)`$ is compared with the target 200.
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+hp, Tinf, L, Tb = 0.01, 20.0, 10.0, 200.0          # T'(0) = 0 (insulated), T(L) = Tb
+
+def T_at_L(Ta):                                    # unknown left value is the shooting parameter
+    sol = solve_ivp(lambda x, w: [w[1], -hp * (Tinf - w[0])], (0.0, L), [Ta, 0.0],
+                    rtol=1e-10, atol=1e-10)
+    return sol.y[0, -1]
+
+g1, g2 = 100.0, 150.0
+r1, r2 = T_at_L(g1), T_at_L(g2)
+Ta = g1 + (Tb - r1) * (g2 - g1) / (r2 - r1)        # linear interpolation (Section 3.3)
+print(f"T(0) = {g1}: T(L) = {r1:.6f}")
+print(f"T(0) = {g2}: T(L) = {r2:.6f}")
+print(f"interpolated T(0) = {Ta:.6f}, check T(L) = {T_at_L(Ta):.6f}")
+lam = np.sqrt(hp)
+print(f"exact T(0) = {Tinf + (Tb - Tinf) / np.cosh(lam * L):.6f}")
+```
+
+```text
+T(0) = 100.0: T(L) = 143.446451
+T(0) = 150.0: T(L) = 220.600483
+interpolated T(0) = 136.649769, check T(L) = 200.000000
+exact T(0) = 136.649769
+```
+
+- In the initial condition `[Ta, 0.0]` of `T_at_L`, the second component 0 is the insulation condition $`T'(0) = 0`$ and the first component is the shooting parameter.
+- The problem is linear, so as in Section 3.3, linear interpolation of two trials immediately gives $`T(0) = 136.6498`$, which satisfies the boundary condition.
+- For the analytical solution, $`T'(0) = 0`$ gives $`C_1 = C_2`$, so $`T = T_\infty + (T_b - T_\infty)\frac{\cosh\lambda x}{\cosh\lambda L}`$ and $`T(0) = 20 + \frac{180}{\cosh 1} = 136.6498`$, the same as the numerical result.
+
+If both ends have derivative conditions (for example, $`T'(0) = q_0`$ and $`T'(L) = q_L`$), the temperature at one end is taken as the parameter and the slope at the other end is matched. In this case, however, the solution may not be unique, so care is needed. For example, if $`h' = 0`$ and both ends are insulated, adding any constant to a solution gives another solution.
+
 ---
 
 <br>
@@ -404,6 +515,8 @@ def shooting_method(h_prime, T_inf, Ta, Tb, L, n_steps=100, tol=1e-6, max_iter=5
 ### 4.1 Core Idea: Discretize the Domain
 
 Instead of converting the BVP into an IVP, the finite difference (FD) method **directly discretizes** the governing equation at a set of grid points, producing a system of algebraic equations that can be solved simultaneously.
+
+> **Definition:** The **finite difference method** replaces the derivatives of a differential equation with difference approximations at grid points, forms a system of algebraic equations for the unknown values at all grid points, and solves it all at once.
 
 Starting from:
 
@@ -626,6 +739,233 @@ plt.show()
 
 Running this example gives the analytical constants $`C_1 \approx 73.4523`$ and $`C_2 \approx -53.4523`$. The shooting method converges at the first interpolation with $`z(0) \approx 12.6905`$, and the finite difference solution with $`n = 10`$ gives $`108.6904`$ at $`x = 5`$ (analytical $`108.6819`$), with an error below $`0.009`$ at every node.
 
+### 4.8 Derivative Boundary Conditions and Ghost Nodes
+
+The boundary conditions so far have been Dirichlet conditions, which give the value at an end point. A condition that gives the derivative at an end point is called a Neumann condition; for example, if the right end of the rod is insulated, the heat flux is zero, so $`T'(L) = 0`$. Then $`T_n = T(L)`$ becomes an unknown, and there are $`n`$ unknowns $`T_1, \ldots, T_n`$.
+
+Using the difference equation of Section 4.3, $`T_{n-1} - GT_n + T_{n+1} = -h'(\Delta x)^2 T_\infty`$, at $`x_n`$ as well requires a **ghost node** $`T_{n+1}`$ outside the domain. Approximating the boundary condition by a second-order central difference gives
+
+```math
+T'(L) \approx \frac{T_{n+1} - T_{n-1}}{2\Delta x} \quad \Longrightarrow \quad T_{n+1} = T_{n-1} + 2\Delta x\,T'(L)
+```
+
+and substituting it gives the last equation below.
+
+```math
+2T_{n-1} - GT_n = -h'(\Delta x)^2 T_\infty - 2\Delta x\,T'(L)
+```
+
+Apart from the coefficient of $`T_{n-1}`$ in the last row changing from 1 to 2, the tridiagonal structure is unchanged. The one-sided difference $`T'(L) \approx (T_n - T_{n-1})/\Delta x`$ is simpler but only first-order accurate, and it spoils the second-order accuracy of the interior.
+
+For $`T(0) = 40`$, $`T'(10) = 0`$, $`h' = 0.01`$, and $`T_\infty = 20`$, applying $`C_1 + C_2 = 20`$ and $`\lambda(C_1e^{\lambda L} - C_2e^{-\lambda L}) = 0`$ to the general solution $`T = T_\infty + C_1e^{\lambda x} + C_2e^{-\lambda x}`$ of Section 2 gives the analytical solution with $`C_1 = 20/(1 + e^{2\lambda L})`$ and $`C_2 = 20 - C_1`$. The code below builds the system multiplied by $`-1`$ (diagonal entries $`G`$, off-diagonal entries $`-1`$).
+
+```python
+import numpy as np
+
+hp, Tinf, L, Ta = 0.01, 20.0, 10.0, 40.0          # T(0) = Ta, T'(L) = 0 (insulated)
+lam = np.sqrt(hp)
+C1 = (Ta - Tinf) / (1.0 + np.exp(2 * lam * L)); C2 = (Ta - Tinf) - C1
+exact = lambda x: Tinf + C1 * np.exp(lam * x) + C2 * np.exp(-lam * x)
+
+def fd_neumann(n):
+    dx = L / n
+    G = 2.0 + hp * dx**2
+    A = np.zeros((n, n)); b = np.full(n, hp * dx**2 * Tinf)   # unknowns T_1 .. T_n
+    for i in range(n):
+        A[i, i] = G
+        if i > 0: A[i, i - 1] = -1.0
+        if i < n - 1: A[i, i + 1] = -1.0
+    b[0] += Ta                                   # Dirichlet value at x = 0
+    A[n - 1, n - 2] = -2.0                       # ghost node: T_{n+1} = T_{n-1}
+    T = np.linalg.solve(A, b)
+    return np.linspace(dx, L, n), T
+
+print(f"exact T(10) = {exact(L):.6f}")
+prev = None
+for n in [5, 10, 20, 40]:
+    x, T = fd_neumann(n)
+    err = abs(T[-1] - exact(L))
+    ratio = f"{prev / err:6.2f}" if prev else "      "
+    print(f"n = {n:2d}, dx = {L / n:5.3f}: T(10) = {T[-1]:.6f}, error = {err:.2e}  ratio {ratio}")
+    prev = err
+```
+
+```text
+exact T(10) = 32.961085
+n =  5, dx = 2.000: T(10) = 32.977467, error = 1.64e-02  ratio       
+n = 10, dx = 1.000: T(10) = 32.965194, error = 4.11e-03  ratio   3.99
+n = 20, dx = 0.500: T(10) = 32.962113, error = 1.03e-03  ratio   4.00
+n = 40, dx = 0.250: T(10) = 32.961343, error = 2.57e-04  ratio   4.00
+```
+
+- `b[0] += Ta` is the left boundary value moved into the first equation. No value is given at the right, so there is no corresponding term.
+- `A[n - 1, n - 2] = -2.0` is the result of eliminating the ghost node. Since $`T'(L) = 0`$, the term $`2\Delta x\,T'(L)`$ to be added to the right-hand side is zero.
+- The temperature at the insulated end is about 32.96: heat escapes only to the air, so it falls toward the ambient temperature 20. The error ratio is 4, so the boundary treatment with a ghost node also preserves $`O(\Delta x^2)`$ accuracy.
+
+Working by hand on the smallest grid makes the structure clear. With $`n = 2`$ ($`\Delta x = 5`$), $`G = 2 + 0.01 \times 25 = 2.25`$, the right-hand constant is $`h'(\Delta x)^2T_\infty = 5`$, and the unknowns are $`T_1 = T(5)`$ and $`T_2 = T(10)`$. The equation at node 1 is $`40 - 2.25T_1 + T_2 = -5`$, and at node 2, after eliminating the ghost node, $`2T_1 - 2.25T_2 = -5`$.
+
+```math
+\begin{pmatrix} 2.25 & -1 \\ -2 & 2.25 \end{pmatrix}\begin{pmatrix} T_1 \\ T_2 \end{pmatrix} = \begin{pmatrix} 45 \\ 5 \end{pmatrix} \quad \Longrightarrow \quad T_1 = 34.6939, \quad T_2 = 33.0612
+```
+
+Substituting $`T_2 = (2T_1 + 5)/2.25`$ from the second equation into the first gives $`3.0625T_1 = 106.25`$, so $`T_1 = 34.6939`$. Compared with the analytical values $`T(5) = 34.6153`$ and $`T(10) = 32.9611`$, the errors are 0.08 and 0.10 even with the very wide spacing of 5. The difference from the Dirichlet problem is that only the last row of the coefficient matrix, $`(-2, 2.25)`$, is not symmetric; dividing that equation by 2 to make the last row $`(-1, 1.125)`$ restores a symmetric matrix.
+
+
+### 4.9 Grid Refinement and the Order of Convergence
+
+Halving the grid spacing $`\Delta x`$ repeatedly for the Dirichlet problem of Section 4.7 and the Neumann problem of Section 4.8 and measuring the maximum error over all nodes shows the error dropping to about a quarter each time in both cases (right panel of Figure 3). The maximum errors of the Dirichlet problem at $`\Delta x = 2, 1, 0.5, 0.25, 0.125`$ are $`3.47 \times 10^{-2}`$, $`8.70 \times 10^{-3}`$, $`2.18 \times 10^{-3}`$, $`5.46 \times 10^{-4}`$, and $`1.37 \times 10^{-4}`$. The error is proportional to $`\Delta x^2`$ because the truncation error of the second-derivative approximation of Section 4.2 is $`O(\Delta x^2)`$.
+
+![Figure 3. Shooting trajectories for the nonlinear rod problem and finite difference error for the linear rod problem](../../images/Ch24_Shooting-and-FD-Convergence.png)
+
+*Figure 3. Shooting trajectories for the nonlinear rod problem and finite difference error for the linear rod problem*
+
+Because the error is proportional to $`\Delta x^2`$, the Richardson extrapolation of Chapter 20 can also be used. With solutions $`T_{\Delta x}`$ and $`T_{\Delta x/2}`$ at the same node, $`\frac{4T_{\Delta x/2} - T_{\Delta x}}{3}`$ is $`O(\Delta x^4)`$ accurate. Using $`T(10)`$ for $`n = 20`$ and $`n = 40`$ from the table of Section 4.8 gives $`\frac{4(32.961343) - 32.962113}{3} = 32.961086`$, which agrees with the exact value 32.961085 almost to the sixth decimal place.
+
+> **Note:** **Eigenvalue problems.** For $`y'' + p^2y = 0`$, $`y(0) = y(L) = 0`$, which describes the vibration of a string fixed at both ends or the buckling of a column, $`y = 0`$ is always a solution, and a nonzero solution of the general solution $`y = A\sin px + B\cos px`$ exists only when $`B = 0`$ and $`\sin pL = 0`$, that is, only when $`p = k\pi/L`$ ($`k = 1, 2, \ldots`$). These values are called eigenvalues, and the corresponding solutions $`\sin(k\pi x/L)`$ eigenfunctions. What is sought is the parameter $`p`$ for which a solution exists, so with the shooting method the target of root finding becomes $`p`$ rather than the slope.
+>
+> Applying finite differences gives $`\frac{-y_{i-1} + 2y_i - y_{i+1}}{(\Delta x)^2} = p^2 y_i`$ at the interior nodes, which is the matrix eigenvalue problem $`A\mathbf{y} = p^2\mathbf{y}`$ of Chapter 13 for the symmetric tridiagonal matrix $`A`$ with diagonal entries $`2/(\Delta x)^2`$ and off-diagonal entries $`-1/(\Delta x)^2`$. With $`L = 1`$ and $`n = 10`$ (9 interior nodes), the lowest four eigenvalues $`p^2`$ from `np.linalg.eigvalsh` are 9.7887, 38.1966, 82.4429, and 138.1966, with relative errors of 0.82%, 3.25%, 7.19%, and 12.49% against the exact values $`(k\pi)^2`$. The eigenfunctions of higher modes oscillate faster, so fewer nodes fall within one wavelength and the error is larger. The error is $`O(\Delta x^2)`$, so bringing the error of the lowest eigenvalue below 0.1% requires reducing $`\Delta x`$ by a factor of about $`\sqrt{0.1/0.82} \approx 0.35`$, to about $`n \approx 29`$.
+
+### 4.10 SciPy's solve_bvp
+
+SciPy's `scipy.integrate.solve_bvp` solves boundary value problems for systems of ODEs. It controls the residual on each mesh interval with a fourth-order collocation algorithm and solves the collocation equations by a damped Newton method. The default tolerance `tol` is $`10^{-3}`$, and the `sol` of the result is a $`C^1`$ continuous cubic spline representing the solution [1]. Solving the nonlinear problem of Section 3.6 gives the following.
+
+```python
+import numpy as np
+from scipy.integrate import solve_bvp
+
+hp, sig, Tinf, L, Ta, Tb = 0.01, 5e-9, 20.0, 10.0, 40.0, 200.0
+
+def fun(x, w):                                   # w[0] = T, w[1] = dT/dx
+    T, z = w
+    return np.vstack([z, -hp * (Tinf - T) - sig * (Tinf**4 - T**4)])
+
+def bc(wa, wb):                                  # residuals of the boundary conditions
+    return np.array([wa[0] - Ta, wb[0] - Tb])
+
+x = np.linspace(0.0, L, 11)
+w0 = np.vstack([np.linspace(Ta, Tb, x.size), np.full(x.size, (Tb - Ta) / L)])
+res = solve_bvp(fun, bc, x, w0, tol=1e-6)
+print("status:", res.status, "| iterations:", res.niter, "| nodes:", res.x.size)
+print(f"dT/dx(0) = {res.sol(0.0)[1]:.6f}")
+print(f"T(5)     = {res.sol(5.0)[0]:.6f}")
+print(f"max rms residual = {res.rms_residuals.max():.1e}")
+```
+
+```text
+status: 0 | iterations: 5 | nodes: 94
+dT/dx(0) = 10.647662
+T(5)     = 99.029452
+max rms residual = 1.0e-06
+```
+
+- `fun(x, w)` receives the values at all mesh points at once. `w` is an array of shape `(2, m)`, and the return value must have the same shape, so the two rows are stacked with `np.vstack` [1].
+- `bc(wa, wb)` receives the state vectors at both ends and returns the residuals of the boundary conditions. The solver drives these residuals to zero, so $`T(0) - T_a`$ and $`T(L) - T_b`$ are used.
+- The initial guess `w0` takes the temperature as the straight line between the two boundary values and the slope as the slope of that line. For nonlinear problems, the closer the initial guess is to the solution, the better the Newton iteration converges.
+- `status` 0 means convergence to the requested accuracy [1]. The mesh was refined from the initial 11 nodes to 94 to reduce the residuals.
+
+The initial slope 10.647662 from `solve_bvp` agrees with the shooting result of Section 3.6. The shooting method combines an IVP solver with root finding, whereas `solve_bvp`, like the finite difference method, treats the solution over the whole interval as unknowns at once, so it can be used even for problems where shooting is unstable.
+
+### 4.11 Finite Differences for Nonlinear BVPs with Newton's Method
+
+Applying finite differences to the nonlinear problem with the radiation term of Section 3.6 gives the following equation at each interior node $`i = 1, \ldots, n-1`$.
+
+```math
+F_i(\mathbf{T}) = T_{i-1} - 2T_i + T_{i+1} + (\Delta x)^2\left[h'(T_\infty - T_i) + \sigma'(T_\infty^4 - T_i^4)\right] = 0
+```
+
+Because of $`T_i^4`$ this system is nonlinear, so it is not finished with a single linear solve as in Section 4.6. The Newton-Raphson method of Chapter 6 is extended to systems of equations: $`J\,\Delta\mathbf{T} = -\mathbf{F}`$ is solved and $`\mathbf{T} \leftarrow \mathbf{T} + \Delta\mathbf{T}`$ repeated. $`F_i`$ depends only on $`T_{i-1}, T_i, T_{i+1}`$, so the Jacobian $`J = \partial\mathbf{F}/\partial\mathbf{T}`$ is also tridiagonal.
+
+```math
+\frac{\partial F_i}{\partial T_{i \pm 1}} = 1, \qquad \frac{\partial F_i}{\partial T_i} = -2 - (\Delta x)^2\left(h' + 4\sigma' T_i^3\right)
+```
+
+```python
+import numpy as np
+
+hp, sig, Tinf, L, Ta, Tb = 0.01, 5e-9, 20.0, 10.0, 40.0, 200.0
+
+def fd_nonlinear(n, tol=1e-10, verbose=False):
+    dx = L / n
+    x = np.linspace(0.0, L, n + 1)
+    T = Ta + (Tb - Ta) * x / L                    # initial guess: straight line
+    for it in range(1, 30):
+        Ti = T[1:-1]
+        F = T[:-2] - 2 * Ti + T[2:] + dx**2 * (hp * (Tinf - Ti) + sig * (Tinf**4 - Ti**4))
+        J = (np.diag(-2.0 - dx**2 * (hp + 4 * sig * Ti**3))
+             + np.diag(np.ones(n - 2), 1) + np.diag(np.ones(n - 2), -1))
+        dT = np.linalg.solve(J, -F)               # Newton step on the interior nodes
+        T[1:-1] += dT
+        if verbose:
+            print(f"  iteration {it}: max |dT| = {np.max(np.abs(dT)):.3e}")
+        if np.max(np.abs(dT)) < tol:
+            return x, T
+
+x, T = fd_nonlinear(10, verbose=True)
+for n in [10, 20, 40]:
+    x, T = fd_nonlinear(n)
+    print(f"n = {n:2d}: T(5) = {T[n // 2]:.6f}")
+```
+
+```text
+  iteration 1: max |dT| = 2.086e+01
+  iteration 2: max |dT| = 1.353e+00
+  iteration 3: max |dT| = 4.171e-03
+  iteration 4: max |dT| = 3.808e-08
+  iteration 5: max |dT| = 2.684e-14
+n = 10: T(5) = 99.236347
+n = 20: T(5) = 99.082177
+n = 40: T(5) = 99.042700
+```
+
+- The initial guess is the straight line joining the two boundary values. The boundary nodes $`T_0 = 40`$ and $`T_n = 200`$ are fixed, and only the interior nodes are updated.
+- `F` computes the residuals of all interior equations at once with array operations, and `J` is the tridiagonal matrix built from the partial derivatives above. `np.linalg.solve` is used here for simplicity, but the Thomas algorithm of Chapter 9 makes each iteration $`O(n)`$.
+- The size of the update falls as $`20.9 \to 1.35 \to 4.2 \times 10^{-3} \to 3.8 \times 10^{-8}`$, roughly doubling the number of correct digits at each iteration: the quadratic convergence of Newton's method.
+
+$`T(5)`$ changes as $`99.2363 \to 99.0822 \to 99.0427`$ as $`n`$ doubles, and its difference from the `solve_bvp` value 99.029452 of Section 4.10, $`0.207, 0.053, 0.013`$, falls to about a quarter each time, so the method is $`O(\Delta x^2)`$ for the nonlinear problem too. Applying the Richardson extrapolation of Section 4.9 to $`n = 20, 40`$ gives $`\frac{4(99.042700) - 99.082177}{3} = 99.029541`$, which agrees with `solve_bvp` to four decimal places. Nonlinear shooting was a scalar root-finding problem for one boundary condition, whereas the nonlinear finite difference method is Newton's method for a system of $`n - 1`$ unknowns; in return, there is no concern that the IVP integration becomes unstable, as in shooting.
+
+### 4.12 Accuracy and Cost of Shooting and Finite Differences
+
+The linear rod problem ($`T(0) = 40`$, $`T(10) = 200`$) is solved by both methods with the same grid spacing, and the maximum errors over all nodes are compared. The shooting method uses fixed-step RK4 for two trials and integrates once more with the interpolated slope to obtain the nodal values.
+
+| $`n`$ | Shooting (RK4) max error | Shooting function evaluations | Finite difference max error | Finite difference unknowns |
+|:-----|:-----|:-----|:-----|:-----|
+| 5 | $`2.05 \times 10^{-4}`$ | 60 | $`3.47 \times 10^{-2}`$ | 4 |
+| 10 | $`1.51 \times 10^{-5}`$ | 120 | $`8.70 \times 10^{-3}`$ | 9 |
+| 20 | $`1.01 \times 10^{-6}`$ | 240 | $`2.18 \times 10^{-3}`$ | 19 |
+| 40 | $`6.59 \times 10^{-8}`$ | 480 | $`5.46 \times 10^{-4}`$ | 39 |
+
+*Table 4. Errors and costs of shooting (RK4) and finite differences for the linear rod problem*
+
+At the same spacing, shooting with RK4 reduces the error as $`O(h^4)`$ and is far more accurate than the second-order finite difference method. In cost, shooting integrates the IVP three times and needs $`12n`$ right-hand-side evaluations, while the finite difference method solves one tridiagonal system with $`n - 1`$ unknowns. The criteria for choosing between them are as follows.
+
+| Item | Shooting | Finite differences |
+|:-----|:-----|:-----|
+| Accuracy | Inherits the order of the IVP solver (fourth order with RK4; adaptive solvers can be used) | Order of the difference formula (usually second), raised by Richardson extrapolation or higher-order differences |
+| Nonlinear problems | Scalar root finding for one boundary condition | Newton iteration on $`n - 1`$ unknowns (sparse Jacobian) |
+| Stability | Integration becomes unstable if a component grows exponentially | No direction of integration, so no such instability |
+| Extensibility | Suited to one-dimensional problems | Extends directly to partial differential equations in two and three dimensions |
+
+*Table 5. Criteria for choosing between shooting and finite differences*
+
+In problems where $`h'`$ is large or the interval long, so that the $`e^{\lambda x}`$ component grows greatly, the accuracy advantage of shooting is lost to roundoff and instability, and global methods such as finite differences or `solve_bvp` are safer.
+
+---
+
+<br>
+
+## Concept Applications
+
+**True/False Check:**
+
+| Statement | Judgment and Reason |
+|:-----|:-----|
+| In shooting for a linear BVP, linear interpolation of two trials gives the exact initial slope apart from integration error. | **T.** For a linear problem, $`T(L)`$ is a linear function of the initial slope (Section 3.3). |
+| Nonlinear BVPs can be solved only by shooting. | **F.** The finite difference method also finds the solution by solving the discretized nonlinear system with Newton's method (Section 4.11). |
+| Shooting cannot be used when there is a derivative boundary condition. | **F.** The unknown initial condition simply becomes a value instead of a slope, and root finding proceeds in the same way (Section 3.7). |
+| With a ghost node, the finite difference method handles derivative boundary conditions with second-order accuracy. | **T.** The boundary condition is approximated by a central difference (Section 4.8). |
+| At the same grid spacing, shooting with RK4 is generally more accurate than second-order finite differences. | **T.** The errors are $`O(h^4)`$ and $`O(\Delta x^2)`$, of different orders; for the linear rod problem with $`n = 10`$ they were $`1.5 \times 10^{-5}`$ and $`8.7 \times 10^{-3}`$ (Section 4.12). |
+| `solve_bvp`, like the shooting method, finds the solution by integrating an initial value problem from one end. | **F.** `solve_bvp` is a collocation method that, like finite differences, treats the solution over the whole interval as unknowns at once, so it can be used even for problems where shooting is unstable (Section 4.10). |
+
 ---
 
 <br>
@@ -642,6 +982,13 @@ Running this example gives the analytical constants $`C_1 \approx 73.4523`$ and 
 | Finite Difference Method | It discretizes the domain into a grid, approximates $`d^2T/dx^2 \approx \frac{T_{i-1} - 2T_i + T_{i+1}}{(\Delta x)^2}`$, and solves the resulting tridiagonal linear system. |
 | FD Matrix Structure | The matrix is tridiagonal with diagonal entries $`-G = -(2 + (\Delta x)^2 h')`$ and off-diagonal entries $`1`$, and the Thomas algorithm solves it in $`O(n)`$. |
 | Key Difference | The shooting method iterates by guess and check, while the FD method builds an algebraic system directly and solves a linear BVP in one step. |
+| Nonlinear shooting | Root finding such as the secant method is applied to the residual $`r(z_a) = T(L; z_a) - T_b`$; the linear interpolation for linear problems is one secant step. |
+| Ghost node | The derivative boundary condition $`T'(L)`$ is approximated by a central difference to eliminate the outside value $`T_{n+1} = T_{n-1} + 2\Delta x\,T'(L)`$, preserving $`O(\Delta x^2)`$ accuracy. |
+| Order of convergence | The error of the finite difference solution is $`O(\Delta x^2)`$ and can be raised to $`O(\Delta x^4)`$ by Richardson extrapolation. |
+| solve_bvp | SciPy's fourth-order collocation BVP solver, which takes the right-hand side, the boundary residuals, and an initial mesh and guess, and refines the mesh as it solves. |
+| Shooting with derivative boundary conditions | When a slope is given at a boundary, the unknown value (for example $`T(0)`$) becomes the shooting parameter and the boundary condition at the other end is matched. |
+| Nonlinear finite differences | The discretized equations $`\mathbf{F}(\mathbf{T}) = \mathbf{0}`$ are solved by Newton's method with a tridiagonal Jacobian, which converges quadratically. |
+| Shooting versus finite differences | Shooting inherits the order of the IVP solver but can be unstable, while finite differences are second-order but stable and extend to several dimensions. |
 
 ---
 
@@ -693,3 +1040,39 @@ Running this example gives the analytical constants $`C_1 \approx 73.4523`$ and 
    $`T_0`$ and $`T_{10}`$ are known from the boundary conditions, so the unknowns are $`T_1, \ldots, T_9`$ and the system is $`9 \times 9`$. In each row, the magnitude of the diagonal entry is $`G = 2 + (\Delta x)^2 h'`$, which exceeds 2 when $`h' > 0`$, while the magnitudes of the off-diagonal entries sum to at most 2. The matrix is therefore strictly diagonally dominant, and a strictly diagonally dominant matrix is nonsingular, so the solution is unique and Gauss-Seidel iteration converges.
 
    </details>
+
+6. **Ghost node:** If $`T'(0) = q`$ is given at the left end $`x = 0`$ and $`T(L) = T_b`$ at the right end, write the finite difference equation at node $`x_0`$ after eliminating the ghost node $`T_{-1}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The central difference $`T'(0) \approx \frac{T_1 - T_{-1}}{2\Delta x} = q`$ gives $`T_{-1} = T_1 - 2\Delta x\,q`$. Substituting into the difference equation at $`x_0`$, $`T_{-1} - GT_0 + T_1 = -h'(\Delta x)^2T_\infty`$, gives $`-GT_0 + 2T_1 = -h'(\Delta x)^2T_\infty + 2\Delta x\,q`$. Now $`T_0`$ is also an unknown, so there are $`n`$ unknowns $`T_0, \ldots, T_{n-1}`$.
+
+   </details>
+
+7. **Grid refinement and Richardson extrapolation:** For the Dirichlet problem of Section 4.7, the maximum error was $`8.70 \times 10^{-3}`$ at $`\Delta x = 1`$. Estimate the maximum error at $`\Delta x = 0.25`$, and describe how the solutions on two grids can be combined at the same node to improve accuracy.
+
+   <details>
+   <summary>Answer</summary>
+
+   Since the error is $`O(\Delta x^2)`$, reducing the spacing to one quarter reduces the error to about one sixteenth, $`5.4 \times 10^{-4}`$; the actual value is $`5.46 \times 10^{-4}`$. Combining the solutions for $`\Delta x`$ and $`\Delta x/2`$ at the same node as $`\frac{4T_{\Delta x/2} - T_{\Delta x}}{3}`$ cancels the $`\Delta x^2`$ term and gives $`O(\Delta x^4)`$ accuracy (Section 4.9).
+
+   </details>
+
+8. **Jacobian of nonlinear finite differences:** For the equations of Section 4.11 with $`n = 4`$ ($`\Delta x = 2.5`$) and the current estimate $`T_1 = 80`$, $`T_2 = 120`$, $`T_3 = 160`$, find the diagonal entry $`\partial F_2/\partial T_2`$ of the Jacobian.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\frac{\partial F_2}{\partial T_2} = -2 - (\Delta x)^2(h' + 4\sigma'T_2^3) = -2 - 6.25(0.01 + 4 \times 5 \times 10^{-9} \times 120^3)`$. Since $`120^3 = 1728000`$, the parenthesis is $`0.01 + 0.03456 = 0.04456`$, and the diagonal entry is $`-2 - 0.2785 = -2.2785`$. All off-diagonal entries are 1. The higher the temperature, the larger the contribution $`4\sigma'T^3`$ of the radiation term.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. SciPy Developers, "scipy.integrate.solve_bvp," *SciPy Documentation*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_bvp.html
+
