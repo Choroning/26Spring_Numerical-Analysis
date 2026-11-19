@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-18
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 6
 
@@ -26,6 +26,8 @@
   - [3.6 Example 6.1: Convergent Case](#36-example-61-convergent-case)
   - [3.7 Example 6.1: Divergent Case](#37-example-61-divergent-case)
   - [3.8 Example 6.1: Cycling Case](#38-example-61-cycling-case)
+  - [3.9 Graphical Interpretation of Fixed-Point Iteration](#39-graphical-interpretation-of-fixed-point-iteration)
+  - [3.10 Rate of Convergence and Error Estimation](#310-rate-of-convergence-and-error-estimation)
 - [4. The Wegstein Method](#4-the-wegstein-method)
   - [4.1 Motivation from False Position](#41-motivation-from-false-position)
   - [4.2 Geometric Idea](#42-geometric-idea)
@@ -38,9 +40,15 @@
   - [5.4 Quadratic Convergence](#54-quadratic-convergence)
   - [5.5 Proof of Quadratic Convergence](#55-proof-of-quadratic-convergence)
   - [5.6 Example 6.5: Slowly Converging Function](#56-example-65-slowly-converging-function)
+  - [5.7 Numerical Confirmation of Quadratic Convergence](#57-numerical-confirmation-of-quadratic-convergence)
+  - [5.8 When the Newton-Raphson Method Fails](#58-when-the-newton-raphson-method-fails)
+  - [5.9 Slow Convergence at Multiple Roots](#59-slow-convergence-at-multiple-roots)
+  - [5.10 Newton-Raphson Method for Systems of Nonlinear Equations](#510-newton-raphson-method-for-systems-of-nonlinear-equations)
 - [6. Secant Method](#6-secant-method)
   - [6.1 Standard Secant Method](#61-standard-secant-method)
   - [6.2 Modified Secant Method](#62-modified-secant-method)
+  - [6.3 Order of Convergence of the Secant Method](#63-order-of-convergence-of-the-secant-method)
+  - [6.4 Comparing the Convergence of Open and Bracketing Methods](#64-comparing-the-convergence-of-open-and-bracketing-methods)
 - [7. Inverse Quadratic Interpolation](#7-inverse-quadratic-interpolation)
   - [7.1 Concept](#71-concept)
   - [7.2 Lagrange Polynomial Formulation](#72-lagrange-polynomial-formulation)
@@ -48,9 +56,13 @@
 - [8. Brent's Method](#8-brents-method)
   - [8.1 Overview](#81-overview)
   - [8.2 Python Implementation with SciPy](#82-python-implementation-with-scipy)
+  - [8.3 Steps of Brent's Method](#83-steps-of-brents-method)
+  - [8.4 Comparing SciPy Root-Finding Functions](#84-comparing-scipy-root-finding-functions)
 - [9. Summary Table](#9-summary-table)
+- [10. Roots of Polynomials](#10-roots-of-polynomials)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -277,6 +289,53 @@ Consider $`g(x) = \dfrac{1}{x}`$ with $`x_0 = 4`$.
 The iteration **cycles between two points** $`x_0`$ and $`x_1`$ indefinitely, never converging to the fixed point $`x^* = 1`$.
 
 **Why:** $`g'(x) = -1/x^2`$, so $`|g'(1)| = 1`$ (boundary case).
+
+### 3.9 Graphical Interpretation of Fixed-Point Iteration
+
+Fixed-point iteration can be pictured as a staircase or cobweb path on the graphs of $`y = g(x)`$ and $`y = x`$. Going vertically from $`x_i`$ to the curve $`y = g(x)`$ gives the height $`x_{i+1} = g(x_i)`$, and going horizontally to the line $`y = x`$ makes the horizontal coordinate $`x_{i+1}`$. If the path traced by repeating this approaches the intersection of the two graphs (the fixed point), the iteration converges; if it moves away, it diverges.
+
+![Figure 2. Paths of a converging and a diverging fixed-point iteration](../../images/Ch06_Fixed-Point-Cobweb.png)
+
+*Figure 2. Paths of a converging and a diverging fixed-point iteration*
+
+The left panel of Figure 2 is $`g(x) = e^{-x}`$ from Section 3.6, and the right panel is $`g(x) = -\ln x`$ from Section 3.7. Both curves meet $`y = x`$ at the same fixed point $`x^* \approx 0.5671`$, but on the left the magnitude of the slope near the intersection is $`0.567 < 1`$, so the path winds inward, while on the right it is $`1.763 > 1`$, so the path unwinds outward. The shape of the path is set by the sign of $`g'(x^*)`$.
+
+| Range of $`g'(x^*)`$ | Shape of the Path | Result |
+|:-----|:-----|:-----|
+| $`0 < g'(x^*) < 1`$ | Staircase approaching from one side | Monotone convergence |
+| $`-1 < g'(x^*) < 0`$ | Cobweb approaching from alternating sides | Oscillatory convergence |
+| $`g'(x^*) > 1`$ | Staircase moving away to one side | Monotone divergence |
+| $`g'(x^*) < -1`$ | Cobweb moving away on alternating sides | Oscillatory divergence |
+
+*Table 5. Shape of the fixed-point iteration path by the slope of g*
+
+### 3.10 Rate of Convergence and Error Estimation
+
+From the result of Section 3.5, $`|x_{i+1} - x^*| = |g'(\xi_i)| \cdot |x_i - x^*|`$, if $`x_i \to x^*`$ then $`\xi_i \to x^*`$, so the ratio of successive errors converges to $`|g'(x^*)|`$. A fixed-point iteration with $`0 < |g'(x^*)| < 1`$ therefore converges linearly with asymptotic error constant $`C = |g'(x^*)|`$ (Section 7.4 of Chapter 5). Applying $`g(x) = e^{-x}`$ of Section 3.6 with $`x_0 = 0`$ gives the following table.
+
+| $`i`$ | $`x_i`$ | $`\vert x_i - x^* \vert`$ | Error Ratio | $`\varepsilon_a`$ (%) |
+|-----:|-----:|-----:|-----:|-----:|
+| 1 | 1.000000 | $`4.329 \times 10^{-1}`$ | - | 100 |
+| 2 | 0.367879 | $`1.993 \times 10^{-1}`$ | 0.4603 | 172 |
+| 3 | 0.692201 | $`1.251 \times 10^{-1}`$ | 0.6276 | 46.9 |
+| 4 | 0.500474 | $`6.667 \times 10^{-2}`$ | 0.5331 | 38.3 |
+| 5 | 0.606244 | $`3.910 \times 10^{-2}`$ | 0.5865 | 17.4 |
+| 6 | 0.545396 | $`2.175 \times 10^{-2}`$ | 0.5562 | 11.2 |
+| 8 | 0.560115 | $`7.028 \times 10^{-3}`$ | 0.5636 | 3.48 |
+| 10 | 0.564879 | $`2.264 \times 10^{-3}`$ | 0.5660 | 1.11 |
+| 12 | 0.566415 | $`7.286 \times 10^{-4}`$ | 0.5668 | 0.356 |
+
+*Table 6. Fixed-point iteration of g(x) = exp(-x) and the ratio of errors*
+
+The error ratio approaches $`|g'(x^*)| = e^{-x^*} = x^* \approx 0.5671`$, and $`x_i`$ alternates between the two sides of the fixed point because $`g'(x^*) < 0`$. The error is multiplied by about 0.567 in each iteration, so each significant digit costs about $`1/\log_{10}(1/0.567) \approx 4`$ iterations. This is why the code of Section 3.6 took 26 iterations for a tolerance of $`10^{-6}`$.
+
+Even when the true value is unknown, the error can be estimated from the difference of two successive approximations. With contraction constant $`q`$, $`|x_{i+1} - x^*| \leq q|x_i - x^*|`$, and by the triangle inequality $`|x_i - x^*| \leq |x_i - x_{i+1}| + |x_{i+1} - x^*|`$; rearranging gives:
+
+```math
+|x_{i+1} - x^*| \leq \frac{q}{1 - q}\,|x_{i+1} - x_i|
+```
+
+With $`q = 0.567`$, $`q/(1 - q) \approx 1.31`$, so if the difference of two successive approximations is below the tolerance, the true error is at most 1.31 times that. If $`q`$ is close to 1, however, for example $`q = 0.99`$, the factor is 99, and the true error can be up to 99 times larger even when the approximation barely changes. Stopping a slowly converging iteration on $`|x_{i+1} - x_i|`$ alone overestimates its accuracy.
 
 ---
 
@@ -509,7 +568,7 @@ def newton_raphson(f, df, x0, tol=1e-6, max_iter=100):
         fx = f(x)
         dfx = df(x)
         if abs(dfx) < 1e-15:
-            print("Derivative near zero — method fails")
+            print("Derivative near zero, method fails")
             return x
         delta_x = -fx / dfx            # Step 1: Newton step
         x = x + delta_x                # Step 2: Update
@@ -533,6 +592,72 @@ This is a **slowly converging function**: for $`0 < x < 1`$, away from the root,
 > - $`f'(x_i) \approx 0`$: a nearly horizontal tangent causes overshooting.
 > - The initial guess is far from the root.
 > - The function is very flat near the root.
+
+### 5.7 Numerical Confirmation of Quadratic Convergence
+
+Apply the Newton-Raphson method to the same root as Section 3.6 with $`f(x) = e^{-x} - x`$. Since $`f'(x) = -e^{-x} - 1`$, the update is:
+
+```math
+x_{i+1} = x_i - \frac{e^{-x_i} - x_i}{-e^{-x_i} - 1}
+```
+
+Starting from $`x_0 = 0`$ gives $`x_1 = 0 - (1 - 0)/(-1 - 1) = 0.5`$ and $`x_2 = 0.5 - (0.606531 - 0.5)/(-1.606531) = 0.566311`$. Continuing gives the following table.
+
+| $`i`$ | $`x_i`$ | $`\vert e_i \vert = \vert x_i - x^* \vert`$ | $`\vert e_i \vert / \vert e_{i-1} \vert^2`$ |
+|-----:|-----:|-----:|-----:|
+| 0 | 0 | $`5.671 \times 10^{-1}`$ | - |
+| 1 | 0.5 | $`6.714 \times 10^{-2}`$ | 0.2087 |
+| 2 | 0.566311003197218 | $`8.323 \times 10^{-4}`$ | 0.1846 |
+| 3 | 0.567143165034862 | $`1.254 \times 10^{-7}`$ | 0.1810 |
+| 4 | 0.567143290409781 | $`2.776 \times 10^{-15}`$ | 0.1766 |
+
+*Table 7. Errors of the Newton-Raphson method for f(x) = exp(-x) - x*
+
+The exponents of the errors, $`-1, -2, -4, -7, -15`$, roughly double in each iteration, and four iterations reach the limit of double precision. The ratio in the last column approaches the constant of Section 5.4, $`|f''(x^*)|/(2|f'(x^*)|) = e^{-x^*}/(2(e^{-x^*} + 1)) = 0.5671/3.1343 \approx 0.1809`$, confirming quadratic convergence. For the same root, fixed-point iteration (Table 6) reached only an error of $`7.3 \times 10^{-4}`$ after 12 iterations.
+
+### 5.8 When the Newton-Raphson Method Fails
+
+The proof of Section 5.5 assumes that the initial guess is close enough to the root. When this assumption fails, the Newton-Raphson method can fail in the following ways.
+
+- **Cycling.** For $`f(x) = x^3 - 2x + 2`$ with $`x_0 = 0`$, $`x_1 = 0 - 2/(-2) = 1`$ and $`x_2 = 1 - 1/1 = 0`$, so the iteration alternates between 0 and 1 forever. The tangents at the two points point to each other.
+- **Divergence.** The root of $`f(x) = \tan^{-1} x`$ is 0, but starting from $`x_0 = 1.5`$ the iterates $`-1.694, 2.321, -5.114, 32.30, -1575, \ldots`$ grow in amplitude and diverge. Far from the root the tangent is nearly horizontal, so the step is too large. With $`x_0 = 1.3`$ the same function converges as $`-1.162, 0.859, -0.374, 0.034, \ldots`$, so convergence is sensitive to the initial guess.
+- **Near an extremum.** If $`f'(x_i) = 0`$ the step cannot be computed, and if $`f'(x_i) \approx 0`$ the iterate jumps far away as in Section 5.6. This often happens for functions with an extremum near the root.
+- **Near an inflection point.** If there is an inflection point ($`f''(x) = 0`$) near the root, the iteration can oscillate around the root and move away. The root 0 of $`\tan^{-1} x`$ is exactly an inflection point.
+
+In practice these failures are prevented by setting a maximum number of iterations, falling back to bisection when the step does not shrink or $`|f|`$ grows, and, where possible, first obtaining an initial guess close enough to the root with a plot or a bracketing method. Brent's method in Section 8 automates this strategy.
+
+### 5.9 Slow Convergence at Multiple Roots
+
+The proof of Section 5.5 assumes $`f'(x^*) \neq 0`$. At a **multiple root**, that is, a root with $`f(x^*) = f'(x^*) = 0`$, this assumption fails. A root $`x^*`$ has **multiplicity** $`m`$ if $`f(x) = (x - x^*)^m h(x)`$ with $`h(x^*) \neq 0`$. Then $`f(x)/f'(x) \approx (x - x^*)/m`$, so the Newton step gives:
+
+```math
+e_{i+1} \approx e_i - \frac{e_i}{m} = \frac{m - 1}{m}\,e_i
+```
+
+At a multiple root the Newton-Raphson method therefore drops to linear convergence with asymptotic error constant $`(m - 1)/m`$. For a double root ($`m = 2`$) the error is halved in each iteration, the same speed as bisection. $`f(x) = (x - 3)(x - 1)^2`$ has a double root at $`x = 1`$, and starting from $`x_0 = 0`$ proceeds as follows.
+
+| $`i`$ | Standard Newton $`x_i`$ | Error | Error Ratio | Modified Newton ($`m = 2`$) $`x_i`$ | Error |
+|-----:|-----:|-----:|-----:|-----:|-----:|
+| 1 | 0.428571 | $`5.714 \times 10^{-1}`$ | 0.5714 | 0.8571428571 | $`1.429 \times 10^{-1}`$ |
+| 2 | 0.685714 | $`3.143 \times 10^{-1}`$ | 0.5500 | 0.9953917051 | $`4.608 \times 10^{-3}`$ |
+| 3 | 0.832865 | $`1.671 \times 10^{-1}`$ | 0.5318 | 0.9999947092 | $`5.291 \times 10^{-6}`$ |
+| 4 | 0.913330 | $`8.667 \times 10^{-2}`$ | 0.5186 | 1.0000000000 | $`6.998 \times 10^{-12}`$ |
+| 5 | 0.955783 | $`4.422 \times 10^{-2}`$ | 0.5102 | - | - |
+| 6 | 0.977655 | $`2.234 \times 10^{-2}`$ | 0.5053 | - | - |
+
+*Table 8. Standard and modified Newton-Raphson methods at a double root*
+
+The error ratio of the standard Newton-Raphson method approaches the theoretical value $`(2 - 1)/2 = 0.5`$. If the multiplicity $`m`$ is known, the **modified Newton-Raphson method**, which multiplies the step by $`m`$, $`x_{i+1} = x_i - m f(x_i)/f'(x_i)`$, recovers quadratic convergence; in the table the exponents of the errors double as $`-1, -3, -6, -12`$. If the multiplicity is unknown, apply the Newton-Raphson method to $`u(x) = f(x)/f'(x)`$. Since $`u`$ has a simple root (multiplicity 1) at $`x^*`$, the following iteration converges quadratically.
+
+```math
+x_{i+1} = x_i - \frac{u(x_i)}{u'(x_i)} = x_i - \frac{f(x_i) f'(x_i)}{[f'(x_i)]^2 - f(x_i) f''(x_i)}
+```
+
+In the same example this method converges as $`1.105263, 1.003082, 1.0000024, 1.0000000000014`$, at the cost of a second derivative in each iteration. At a multiple root $`f`$ and $`f'`$ approach zero together, so both the numerator and the denominator are strongly affected by roundoff, and the attainable accuracy itself is lower than for a simple root. At a root of even multiplicity, $`f`$ also does not change sign, so bracketing methods cannot be used (Section 7.6 of Chapter 5).
+
+### 5.10 Newton-Raphson Method for Systems of Nonlinear Equations
+
+The Newton-Raphson method extends to systems of nonlinear equations $`\mathbf{F}(\mathbf{x}) = \mathbf{0}`$ in several unknowns. Two things change from the single-variable case. The derivative $`f'`$ is replaced by the **Jacobian matrix** $`\mathbf{J}`$, which collects the partial derivatives $`\partial F_i/\partial x_j`$, and instead of the division $`f/f'`$, each iteration solves the linear system $`\mathbf{J}(\mathbf{x}^{(k)})\,\Delta\mathbf{x} = -\mathbf{F}(\mathbf{x}^{(k)})`$ and updates $`\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \Delta\mathbf{x}`$. Quadratic convergence near a root and the need for an initial guess close to the root carry over from one variable, and when the number of unknowns $`n`$ is large, computing the Jacobian matrix and solving an $`n \times n`$ linear system in every iteration becomes costly. The derivation and an example are given in Section 9 of Chapter 12.
 
 ---
 
@@ -630,6 +755,44 @@ def modified_secant(f, x0, delta=1e-4, tol=1e-6, max_iter=100):
 
 For example, `modified_secant(lambda x: x - np.exp(-x), 1.0)` converges to the same root in 4 iterations.
 
+### 6.3 Order of Convergence of the Secant Method
+
+The order of convergence 1.618 of the secant method is derived as follows. Approximating $`f`$ near the root by its second-order Taylor polynomial and substituting into the secant formula gives the following relation between the errors.
+
+```math
+e_{i+1} \approx \frac{f''(x^*)}{2f'(x^*)}\,e_i\,e_{i-1}
+```
+
+This is the $`e_{i+1} \approx M e_i^2`$ of the Newton-Raphson method with $`e_i e_{i-1}`$ in place of $`e_i^2`$. The previous error $`e_{i-1}`$ is larger than $`e_i`$, so the method is slower than Newton-Raphson. Assuming $`|e_{i+1}| \approx C|e_i|^p`$ gives $`|e_i| \approx C|e_{i-1}|^p`$, that is, $`|e_{i-1}| \approx (|e_i|/C)^{1/p}`$; substituting this into the relation above and comparing the exponents of $`|e_i|`$ on both sides gives $`p = 1 + 1/p`$, that is, $`p^2 - p - 1 = 0`$. The positive root is the golden ratio $`p = (1 + \sqrt{5})/2 \approx 1.618`$.
+
+Applying the secant method to the same function as Section 5.7 with $`x_0 = 0`$ and $`x_1 = 1`$ gives the following table. The last column is the order estimated from three successive errors, $`p \approx \ln(|e_{i}|/|e_{i-1}|)/\ln(|e_{i-1}|/|e_{i-2}|)`$.
+
+| $`i`$ | $`x_i`$ | $`\vert e_i \vert`$ | Estimated Order $`p`$ |
+|-----:|-----:|-----:|-----:|
+| 0 | 0 | $`5.671 \times 10^{-1}`$ | - |
+| 1 | 1 | $`4.329 \times 10^{-1}`$ | - |
+| 2 | 0.612699836780282 | $`4.556 \times 10^{-2}`$ | - |
+| 3 | 0.563838389161074 | $`3.305 \times 10^{-3}`$ | 1.17 |
+| 4 | 0.567170358419745 | $`2.707 \times 10^{-5}`$ | 1.83 |
+| 5 | 0.567143306604963 | $`1.620 \times 10^{-8}`$ | 1.54 |
+| 6 | 0.567143290409705 | $`7.927 \times 10^{-14}`$ | 1.65 |
+
+*Table 9. Errors and estimated order of the secant method for f(x) = exp(-x) - x*
+
+The estimated order fluctuates at first and then gathers near 1.618, and the exponents of the errors grow as $`-2, -3, -5, -8, -13`$, roughly the sum of the previous two exponents. Taking logarithms of $`e_{i+1} \propto e_i e_{i-1}`$ makes the exponents add like a Fibonacci sequence, and this is the same principle by which the ratio of successive Fibonacci numbers converges to the golden ratio.
+
+### 6.4 Comparing the Convergence of Open and Bracketing Methods
+
+Figure 3 plots the true error against the number of iterations when the root $`x^* \approx 0.567143`$ is found by five methods. The bracketing methods start from $`[0, 1]`$, fixed-point iteration from $`g(x) = e^{-x}`$ and $`x_0 = 0`$, the Newton-Raphson method from $`x_0 = 0`$, and the secant method from $`x_0 = 0`$ and $`x_1 = 1`$.
+
+![Figure 3. Errors of five methods for the same root (semilog axes)](../../images/Ch06_Convergence-Comparison.png)
+
+*Figure 3. Errors of five methods for the same root (semilog axes)*
+
+On semilog axes a linearly converging method appears as a straight line whose slope reflects the asymptotic error constant $`C`$. Fixed-point iteration ($`C \approx 0.567`$) is the shallowest, bisection ($`C = 1/2`$, fluctuating) is similar, and false position, which for this nearly linear function has $`C \approx 0.11`$, is much steeper. The superlinear secant method and the quadratic Newton-Raphson method trace curves that grow steeper and bring the error below $`10^{-13}`$ in 5 and 4 iterations, respectively.
+
+Compared by the number of iterations alone, the Newton-Raphson method is the fastest, but cost must be counted in function evaluations. The Newton-Raphson method evaluates $`f`$ and $`f'`$ once each per iteration, while the secant method evaluates only $`f`$ once. If computing $`f'`$ costs the same as $`f`$, the exponent of the error grows by a factor of $`2^{1/2} \approx 1.414`$ per function evaluation for Newton-Raphson and $`1.618`$ for the secant method. When the derivative is expensive or no analytical derivative exists, the secant method can therefore be faster in practice. Bracketing methods, on the other hand, are slow but guaranteed to converge, so combining the two families, as Brent's method in Section 8 does, is the practical choice.
+
 ---
 
 <br>
@@ -681,7 +844,7 @@ The next root estimate is $`x_{i+1} = g(0)`$, i.e., we set $`y = 0`$ in the form
 | Convergence order | $`\approx 1.618`$ (golden ratio) | $`\approx 1.839`$ |
 | Robustness | More robust | Can fail if $`y`$-values coincide |
 
-*Table 5. Comparison of the secant method and inverse quadratic interpolation*
+*Table 10. Comparison of the secant method and inverse quadratic interpolation*
 
 ---
 
@@ -715,7 +878,7 @@ flowchart TD
     G -- yes --> H["Output the root"]
 ```
 
-*Figure 2. The strategy of Brent's method*
+*Figure 4. The strategy of Brent's method*
 
 > **Key Point:** Brent's method inherits the **guaranteed convergence** of bisection while achieving the **speed** of open methods in favorable cases. It is the default root-finding algorithm in many numerical libraries.
 
@@ -746,6 +909,50 @@ print(root)  # 1.0
 
 > **Note:** **Practical view.** In real-world applications where a sign-changing bracket is available, Brent's method is usually preferred over pure bisection, Newton-Raphson, or secant methods because of its combination of reliability and speed.
 
+### 8.3 Steps of Brent's Method
+
+The detailed rules of Brent's method differ slightly between implementations, but the skeleton is as follows.
+
+1. **Keeping three points.** Keep two points $`b`$ and $`c`$ that bracket the root, where $`b`$ is the best estimate so far ($`|f(b)| \leq |f(c)|`$). Remember the previous $`b`$ as $`a`$.
+2. **Computing a candidate.** If the function values at the three points $`a`$, $`b`$, and $`c`$ are all different, compute a candidate by inverse quadratic interpolation (Section 7); otherwise use the secant method (Section 6.1).
+3. **Testing the candidate.** Accept the candidate only if it lies within a prescribed range between $`b`$ and the opposite endpoint $`c`$ and the step has shrunk sufficiently compared with the previous steps. Otherwise use the bisection midpoint.
+4. **Updating the bracket.** Update the bracket according to the sign of the function value at the new point, and swap points by comparing the magnitudes of the function values so that $`b`$ is again the best estimate.
+5. **Stopping.** Stop when half the bracket, $`|c - b|/2`$, is below the tolerance (the sum of a relative and an absolute tolerance) or $`f(b) = 0`$.
+
+Thanks to the test in step 3, the method converges superlinearly near a root where interpolation works well, and when interpolation fails or the step does not shrink enough, the bisection midpoint is used instead, so the bracket around the root is kept and the convergence guarantee of bisection is not lost. For ordinary smooth functions it therefore converges in about as many steps as the secant method, yet it does not diverge on functions for which interpolation fits poorly.
+
+### 8.4 Comparing SciPy Root-Finding Functions
+
+`scipy.optimize.newton` uses the Newton-Raphson method when the derivative `fprime` is given and the secant method otherwise. `root_scalar` uses bracketing methods when a bracket (`bracket`) is given and open methods when initial guesses (`x0`, `x1`) are given, and the method can be named with `method` [1]. The following code finds the root of Section 5.7 with four methods and compares the numbers of iterations and function calls.
+
+```python
+import numpy as np
+from scipy import optimize
+
+f = lambda x: np.exp(-x) - x
+fprime = lambda x: -np.exp(-x) - 1
+
+print(optimize.newton(f, 0.0, fprime=fprime))     # Newton-Raphson
+print(optimize.newton(f, 0.0))                    # secant (no derivative)
+for method, kw in [('bisect', dict(bracket=[0, 1])),
+                   ('brentq', dict(bracket=[0, 1])),
+                   ('secant', dict(x0=0.0, x1=1.0)),
+                   ('newton', dict(x0=0.0, fprime=fprime))]:
+    sol = optimize.root_scalar(f, method=method, xtol=1e-12, **kw)
+    print(f"{method:7s} {sol.root:.15f} {sol.iterations:3d} {sol.function_calls:3d}")
+```
+
+```text
+0.567143290409784
+0.5671432904097838
+bisect  0.567143290410058  40  42
+brentq  0.567143290409784   6   7
+secant  0.567143290409784   6   7
+newton  0.567143290409784   5  10
+```
+
+For the same tolerance of $`10^{-12}`$, bisection needs 40 iterations and 42 function calls. Brent's method and the secant method each finish in 6 iterations and 7 function calls. The Newton-Raphson method needs the fewest iterations, 5, but evaluates $`f`$ and $`f'`$ in every iteration, so it makes 10 function calls. The efficiency comparison of Section 6.4 is confirmed by the actual call counts. When a bracket is known, `brentq`, which combines guaranteed convergence with speed, is the default choice; when no bracket is known but a good initial guess and a cheap derivative are available, the Newton-Raphson method is suitable.
+
 ---
 
 <br>
@@ -762,7 +969,55 @@ print(root)  # 1.0
 | **Inverse Quadratic Interp.** | 3 | No | $`\approx 1.839`$ | No | Lagrange inverse polynomial at $`y = 0`$ |
 | **Brent's Method** | 2 (bracket) | No | Superlinear (hybrid) | Yes (via bisection fallback) | Adaptive: bisection + secant + IQI |
 
-*Table 6. Comparison of the open methods and Brent's method*
+*Table 11. Comparison of the open methods and Brent's method*
+
+---
+
+<br>
+
+## 10. Roots of Polynomials
+
+Polynomials are a special case of nonlinear equations. A polynomial of degree $`n`$ is written as:
+
+```math
+f_n(x) = a_1 x^n + a_2 x^{n-1} + \cdots + a_n x + a_{n+1}
+```
+
+By the fundamental theorem of algebra, a polynomial of degree $`n`$ has exactly $`n`$ roots counted with multiplicity, and if all coefficients are real, the roots are real or occur in complex conjugate pairs. Polynomials appear often in curve fitting (Chapters 14-18) and in the characteristic equations of dynamic systems described by linear differential equations, and these applications often need all the roots (including complex ones) rather than a single root. The methods of this chapter are designed to find one real root, so all the roots of a polynomial are found with one of the following two families of methods.
+
+**One root at a time with deflation.** Find one root, divide the polynomial by the corresponding linear factor to reduce its degree by one (**deflation**), and find the next root in the reduced polynomial. For example, after finding the root 3 of $`x^3 - 6x^2 + 11x - 6`$, dividing by $`x - 3`$ gives $`x^2 - 3x + 2`$, and the remaining two roots follow from the quadratic formula. Repeated deflation accumulates the errors of the roots already found into the coefficients of the next polynomial, so roots obtained from deflated polynomials are polished with a few Newton-Raphson steps on the original polynomial. Finding complex roots as well requires methods that work in complex arithmetic (such as Muller's method, which uses quadratic interpolation).
+
+**Conversion to an eigenvalue problem.** Dividing by $`a_1 \neq 0`$ gives $`x^n = -\frac{a_2}{a_1}x^{n-1} - \cdots - \frac{a_{n+1}}{a_1}`$. The $`n \times n`$ matrix with $`-a_2/a_1, -a_3/a_1, \ldots, -a_{n+1}/a_1`$ in its first row, ones on the subdiagonal below it, and zeros elsewhere is called the **companion matrix**, and its eigenvalues equal the roots of the polynomial. All the roots can therefore be found at once with an eigenvalue algorithm (Chapter 13). NumPy's `np.roots` uses this approach [2].
+
+```python
+import numpy as np
+
+p = [1, -6, 11, -6]                 # x^3 - 6x^2 + 11x - 6
+print(np.roots(p))
+print(np.roots([1, 2, 5]))          # x^2 + 2x + 5
+print(np.poly([1, 2, 3]))           # coefficients from roots
+print(np.polyval(p, 2.5))           # p(2.5)
+
+C = np.array([[6.0, -11.0, 6.0],    # companion matrix of p
+              [1.0,   0.0, 0.0],
+              [0.0,   1.0, 0.0]])
+print(np.linalg.eigvals(C))
+```
+
+```text
+[3. 2. 1.]
+[-1.+2.j -1.-2.j]
+[ 1. -6. 11. -6.]
+-0.375
+[3. 2. 1.]
+```
+
+- The `p` of `np.roots(p)` holds the coefficients from the highest-degree term to the constant term. It returns the roots 3, 2, 1 of $`x^3 - 6x^2 + 11x - 6 = (x - 1)(x - 2)(x - 3)`$.
+- $`x^2 + 2x + 5`$ has discriminant $`4 - 20 < 0`$, so it has the complex conjugate roots $`-1 \pm 2i`$, and the result is a complex array.
+- `np.poly` conversely builds coefficients from roots, and `np.polyval(p, x)` evaluates the polynomial: $`p(2.5) = 15.625 - 37.5 + 27.5 - 6 = -0.375`$.
+- `C` is the companion matrix of this polynomial, whose first row is $`-(-6)/1, -11/1, -(-6)/1`$. That `np.linalg.eigvals(C)` gives the same values as `np.roots` confirms that the two approaches agree.
+
+> **Caution:** The roots of a polynomial can be very sensitive to small changes in the coefficients. Especially when roots are close together or multiple, roundoff error in the coefficients alone can move the roots considerably, and a real multiple root may even be computed as a nearby pair of complex roots. When finding the roots of high-degree polynomials, keep this ill-conditioning in mind and check the results by substituting them into the original polynomial.
 
 ---
 
@@ -774,12 +1029,17 @@ print(root)  # 1.0
 |:-----|:-----|
 | Open Methods | They start from one or two initial guesses without a bracket, are not guaranteed to converge, and are fast when they converge. |
 | Fixed-Point Iteration | It rewrites the equation as $`x = g(x)`$ and repeats $`x_{i+1} = g(x_i)`$, converging linearly if $`\vert g'\vert < 1`$ near the fixed point. |
+| Rate of Fixed-Point Iteration | It converges linearly with asymptotic error constant $`\vert g'(x^*) \vert`$, and the true error is at most $`q/(1-q)`$ times the difference of successive approximations. |
 | Wegstein Method | It uses the intersection of $`y = x`$ with the line through two points on $`y = g(x)`$ as the next estimate, which equals the secant method applied to $`x - g(x)`$. |
 | Newton-Raphson Method | It repeats the tangent's x-intercept $`x_{i+1} = x_i - f(x_i)/f'(x_i)`$ and converges quadratically near a root with $`f'(x^*) \neq 0`$. |
+| Multiple Roots | At a root of multiplicity $`m`$ the Newton-Raphson method drops to linear convergence with $`C = (m-1)/m`$, and multiplying the step by $`m`$ or applying it to $`f/f'`$ restores quadratic convergence. |
+| Newton-Raphson for Systems | Each iteration solves $`\mathbf{J}\Delta\mathbf{x} = -\mathbf{F}`$ and updates, converging quadratically near a root. |
 | Secant Method | It approximates the derivative by the difference of the two most recent points and converges superlinearly with order about 1.618. |
+| Computational Efficiency | Per function evaluation, the exponent of the error grows by about 1.414 for Newton-Raphson and about 1.618 for the secant method. |
 | Modified Secant Method | It approximates the derivative by a difference with a small perturbation of one point, so it works with a single initial guess. |
 | Inverse Quadratic Interpolation | It uses $`g(0)`$ of the quadratic $`x = g(y)`$ through three points as the next estimate and converges with order about 1.839. |
 | Brent's Method | It uses inverse quadratic interpolation or the secant step inside the bracket and falls back to bisection when needed, combining guaranteed convergence with speed. |
+| Roots of Polynomials | A polynomial of degree $`n`$ has $`n`$ roots, found one at a time with deflation and Newton-Raphson or all at once as eigenvalues of the companion matrix (`np.roots`). |
 
 ---
 
@@ -831,3 +1091,39 @@ print(root)  # 1.0
    Since $`f(0.9) \approx -0.9982`$ and $`f'(0.9) = 60 \cdot 0.9^{59} \approx 0.120`$, $`x_1 = 0.9 + 0.9982/0.120 \approx 9.23`$. For large $`x`$, $`x_{i+1} \approx (59/60)x_i`$, so each iteration reduces $`x`$ by only about 1.7%, and quadratic convergence begins only near the root. That is why 138 iterations are needed to reach the tolerance $`10^{-6}`$.
 
    </details>
+
+6. **Multiple roots and Newton-Raphson:** Apply the Newton-Raphson method to $`f(x) = (x - 2)^3`$ with $`x_0 = 3`$ and find $`x_1`$, $`x_2`$, and the error ratio. What happens with the modified Newton-Raphson method?
+
+   <details>
+   <summary>Answer</summary>
+
+   $`f/f' = (x - 2)^3/(3(x - 2)^2) = (x - 2)/3`$, so $`x_{i+1} = x_i - (x_i - 2)/3`$ and the error is multiplied by exactly $`2/3`$ in each iteration. $`x_1 = 3 - 1/3 \approx 2.6667`$ and $`x_2 = 2.6667 - 0.6667/3 \approx 2.4444`$. This equals the theoretical value $`(m - 1)/m = 2/3`$ for multiplicity $`m = 3`$. The modified Newton-Raphson method $`x_{i+1} = x_i - 3f/f'`$ gives $`x_1 = 3 - 3 \times 1/3 = 2`$, reaching the root in one step.
+
+   </details>
+
+7. **One Newton step for a system:** Update $`x^2 + y^2 = 2`$, $`x - y = 0`$ once by the Newton-Raphson method from $`\mathbf{x}^{(0)} = (2, 1)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\mathbf{F} = (x^2 + y^2 - 2,\ x - y) = (3, 1)`$ and $`\mathbf{J} = \begin{bmatrix} 2x & 2y \\ 1 & -1 \end{bmatrix} = \begin{bmatrix} 4 & 2 \\ 1 & -1 \end{bmatrix}`$. Solving $`4\Delta x + 2\Delta y = -3`$ and $`\Delta x - \Delta y = -1`$ gives $`\Delta y = 1/6`$ and $`\Delta x = -5/6`$, so $`\mathbf{x}^{(1)} = (2 - 5/6,\ 1 + 1/6) = (7/6, 7/6) \approx (1.1667, 1.1667)`$. It has moved closer to the true root $`(1, 1)`$.
+
+   </details>
+
+8. **Error estimate for fixed-point iteration:** In a fixed-point iteration with contraction constant $`q = 0.9`$, the difference of two successive approximations was $`10^{-4}`$. Find an upper bound on the true error, and find how small the successive difference must be to guarantee a true error of at most $`10^{-4}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   By the formula of Section 3.10, the true error is at most $`q/(1 - q) \times 10^{-4} = 9 \times 10^{-4}`$. Guaranteeing a true error of at most $`10^{-4}`$ requires $`9|x_{i+1} - x_i| \leq 10^{-4}`$, that is, a successive difference of at most about $`1.11 \times 10^{-5}`$. The closer $`q`$ is to 1, the smaller than the tolerance the successive difference must be.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. SciPy Developers, "scipy.optimize.root_scalar," *SciPy Reference Guide*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.root_scalar.html
+2. NumPy Developers, "numpy.roots," *NumPy Reference*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.roots.html
