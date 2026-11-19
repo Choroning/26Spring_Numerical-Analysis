@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **Last Updated:** 2026-11-18
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -11,6 +11,8 @@
 > 2. Determine the stability and oscillation of a linear ODE system from the location of its eigenvalues
 > 3. Formulate coupled oscillators and mass-spring systems as eigenvalue problems and find their natural frequencies and modes
 > 4. Find the largest and smallest eigenvalues with the power method and the inverse power method
+> 5. Derive the convergence of the power method from an eigenvector expansion and accelerate it with the Rayleigh quotient and shifts
+> 6. Prove that a symmetric matrix has real eigenvalues and orthogonal eigenvectors
 
 ---
 
@@ -54,13 +56,22 @@
   - [10.2 Algorithm](#102-algorithm)
   - [10.3 Iteration Walkthrough](#103-iteration-walkthrough)
   - [10.4 Convergence and Finding the Smallest Eigenvalue](#104-convergence-and-finding-the-smallest-eigenvalue)
+  - [10.5 Why the Power Method Converges](#105-why-the-power-method-converges)
+  - [10.6 Rayleigh Quotient](#106-rayleigh-quotient)
+  - [10.7 Shifted Inverse Power Method](#107-shifted-inverse-power-method)
+  - [10.8 Deflation](#108-deflation)
 - [11. Python Implementation](#11-python-implementation)
   - [11.1 Eigenvalue computation using NumPy](#111-eigenvalue-computation-using-numpy)
   - [11.2 Power Method implementation](#112-power-method-implementation)
   - [11.3 Mass-Spring System (Ex 13.4)](#113-mass-spring-system-ex-134)
   - [11.4 Inverse Power Method for smallest eigenvalue](#114-inverse-power-method-for-smallest-eigenvalue)
+- [12. Eigenvalue Problems of Symmetric Matrices](#12-eigenvalue-problems-of-symmetric-matrices)
+  - [12.1 Real Eigenvalues and Orthogonal Eigenvectors](#121-real-eigenvalues-and-orthogonal-eigenvectors)
+  - [12.2 Vibration Modes and Eigenvector Normalization](#122-vibration-modes-and-eigenvector-normalization)
+- [13. Common Mistakes](#13-common-mistakes)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
+- [References](#references)
 
 ---
 
@@ -905,6 +916,118 @@ This value equals $`40 + 20\sqrt{2}`$, and the angular frequency of the highest 
 
 Since the eigenvalue of $`A^{-1}`$ largest in absolute value is $`1/\lambda_{\min}`$, the power method applied to $`A^{-1}`$ converges to $`1/\lambda_{\min}`$, where $`\lambda_{\min}`$ is the eigenvalue smallest in absolute value. This is called the **inverse power method**.
 
+### 10.5 Why the Power Method Converges
+
+Suppose that the $`n \times n`$ matrix $`A`$ has linearly independent eigenvectors $`\mathbf{v}_1, \ldots, \mathbf{v}_n`$ and eigenvalues $`|\lambda_1| > |\lambda_2| \geq \cdots \geq |\lambda_n|`$. Expanding the initial vector in eigenvectors gives $`\mathbf{x}^{(0)} = c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + \cdots + c_n\mathbf{v}_n`$, and multiplying by $`A`$ $`k`$ times multiplies each component by the $`k`$th power of its eigenvalue.
+
+```math
+A^k\mathbf{x}^{(0)} = \sum_{i=1}^{n} c_i\lambda_i^k\mathbf{v}_i = \lambda_1^k\left[c_1\mathbf{v}_1 + \sum_{i=2}^{n} c_i\left(\frac{\lambda_i}{\lambda_1}\right)^k\mathbf{v}_i\right]
+```
+
+Since $`|\lambda_i/\lambda_1| < 1`$, the second term in the brackets tends to zero as $`k`$ grows, and the normalized vector converges to the direction of $`\mathbf{v}_1`$. The slowest-decaying remaining component is $`(\lambda_2/\lambda_1)^k`$, so the eigenvector error shrinks roughly by the factor $`|\lambda_2/\lambda_1|`$ per iteration, which is first-order convergence. Two conditions emerge from this derivation. First, $`c_1 \neq 0`$ is required. If the initial vector is orthogonal to $`\mathbf{v}_1`$ (for a symmetric matrix), it has no $`\mathbf{v}_1`$ component to begin with, and in theory the iteration never reaches $`\mathbf{v}_1`$. Second, $`|\lambda_1| > |\lambda_2|`$ is required. If two eigenvalues have the same absolute value (for example, $`\lambda`$ and $`-\lambda`$), the iterates do not settle in one direction but oscillate.
+
+The eigenvalues of Example 13.5 are $`40 + 20\sqrt{2} \approx 68.284`$, 40, and $`40 - 20\sqrt{2} \approx 11.716`$, and the dominant eigenvector is proportional to $`(-0.707,\ 1,\ -0.707)`$. Its dot product with the initial vector $`(1,\ 1,\ 1)`$ is $`-0.414`$, which is nonzero, so $`c_1 \neq 0`$. The convergence ratio is $`40/68.284 \approx 0.586`$, so the error becomes about 0.59 times as large per iteration. The large swings of the estimate in Section 10.3, such as 20, 40, $`-80`$, 70, came from the many other eigenvector components mixed into the initial vector and from the normalization that divides by the largest-magnitude component with its sign, which flips the sign of the vector. The table below continues the iteration.
+
+| $`k`$ | Normalization factor $`\lambda^{(k)}`$ | Error $`\vert\lambda^{(k)} - \lambda_1\vert`$ | Rayleigh quotient $`r(\mathbf{x}^{(k)})`$ | Error $`\vert r - \lambda_1\vert`$ |
+|-----:|-----:|-----:|-----:|-----:|
+| 1 | 20 | $`4.83 \times 10^{1}`$ | 40.000000 | $`2.83 \times 10^{1}`$ |
+| 2 | 40 | $`2.83 \times 10^{1}`$ | 66.666667 | $`1.62 \times 10^{0}`$ |
+| 3 | $`-80`$ | $`1.48 \times 10^{2}`$ | 68.235294 | $`4.90 \times 10^{-2}`$ |
+| 4 | 70 | $`1.72 \times 10^{0}`$ | 68.282828 | $`1.44 \times 10^{-3}`$ |
+| 5 | 68.57143 | $`2.87 \times 10^{-1}`$ | 68.284229 | $`4.25 \times 10^{-5}`$ |
+| 6 | 68.33333 | $`4.91 \times 10^{-2}`$ | 68.284270 | $`1.25 \times 10^{-6}`$ |
+| 7 | 68.29268 | $`8.41 \times 10^{-3}`$ | 68.284271 | $`3.68 \times 10^{-8}`$ |
+| 8 | 68.28571 | $`1.44 \times 10^{-3}`$ | 68.284271 | $`1.08 \times 10^{-9}`$ |
+
+*Table 3. Convergence of the normalization factor and the Rayleigh quotient in the power method for Example 13.5*
+
+After the fourth iteration the error of the normalization factor shrinks by about 0.17 per iteration, which is even smaller than $`0.586^2 \approx 0.34`$. Because the eigenvector components of this matrix mix symmetrically, the initial vector $`(1,\ 1,\ 1)`$ contains no component of the second eigenvector $`(1,\ 0,\ -1)`$, so the ratio to the third eigenvalue, $`11.716/68.284 \approx 0.172`$, actually governs the convergence.
+
+### 10.6 Rayleigh Quotient
+
+Instead of the normalization factor, the eigenvalue can be estimated by the following **Rayleigh quotient**.
+
+```math
+r(\mathbf{x}) = \frac{\mathbf{x}^TA\mathbf{x}}{\mathbf{x}^T\mathbf{x}}
+```
+
+If $`\mathbf{x}`$ is an eigenvector, $`A\mathbf{x} = \lambda\mathbf{x}`$, so $`r(\mathbf{x}) = \lambda`$. For a symmetric matrix, when $`\mathbf{x}`$ differs from an eigenvector by $`\varepsilon`$, the error of $`r(\mathbf{x})`$ is as small as $`\varepsilon^2`$. Writing $`\mathbf{x} = \mathbf{v}_1 + \varepsilon\mathbf{w}`$ with orthonormal eigenvectors ($`\mathbf{w}`$ a unit vector orthogonal to $`\mathbf{v}_1`$), the first-order terms in $`\varepsilon`$ of the numerator and denominator vanish by orthogonality.
+
+```math
+r(\mathbf{x}) = \frac{\lambda_1 + \varepsilon^2\,\mathbf{w}^TA\mathbf{w}}{1 + \varepsilon^2} = \lambda_1 + \varepsilon^2\left(\mathbf{w}^TA\mathbf{w} - \lambda_1\right) + O(\varepsilon^4)
+```
+
+Hence if the eigenvector is accurate to $`k`$ digits, the Rayleigh quotient is accurate to about $`2k`$ digits. In Table 3, the error of the Rayleigh quotient computed from the same iterates shrinks much faster than that of the normalization factor and reaches $`10^{-9}`$ at the eighth iteration. Computing directly with the second iterate $`(1,\ -1,\ 1)`$ gives $`A\mathbf{x} = (60,\ -80,\ 60)`$, so $`r = (60 + 80 + 60)/3 = 66.667`$, far closer to the true value 68.284 than the normalization factor 40 at the same step.
+
+### 10.7 Shifted Inverse Power Method
+
+The eigenvalues of $`A - \sigma I`$ are $`\lambda_i - \sigma`$ and its eigenvectors are those of $`A`$ ($`(A - \sigma I)\mathbf{v} = (\lambda - \sigma)\mathbf{v}`$). Hence the eigenvalues of $`(A - \sigma I)^{-1}`$ are $`1/(\lambda_i - \sigma)`$, and the one with the largest absolute value corresponds to the eigenvalue closest to $`\sigma`$. The **shifted inverse power method**, which applies the power method to $`(A - \sigma I)^{-1}`$, selectively finds the eigenvalue near $`\sigma`$. The inverse power method is the special case $`\sigma = 0`$, and the convergence ratio is the ratio of the distances from $`\sigma`$ to the closest and the second-closest eigenvalues.
+
+To find the middle eigenvalue of Example 13.5 with $`\sigma = 35`$, the eigenvalues of $`(A - 35I)^{-1}`$ are $`1/33.284 = 0.030`$, $`1/5 = 0.2`$, and $`1/(-23.284) = -0.043`$. The value 0.2 dominates and the convergence ratio is $`0.043/0.2 \approx 0.215`$. Each iteration solves $`(A - 35I)\mathbf{y} = \mathbf{x}`$, normalizes with the 2-norm, and estimates the eigenvalue with the Rayleigh quotient.
+
+```python
+import numpy as np
+
+A = np.array([[40, -20, 0], [-20, 40, -20], [0, -20, 40]], dtype=float)
+sigma = 35.0
+B = A - sigma * np.eye(3)
+x = np.array([1.0, 0.0, 0.0])
+for k in range(1, 7):
+    y = np.linalg.solve(B, x)          # y = (A - sigma I)^(-1) x
+    x = y / np.linalg.norm(y)          # 2-norm normalization
+    lam = x @ A @ x                    # Rayleigh quotient (x has unit length)
+    print(k, np.round(x, 6), round(lam, 8))
+```
+
+```text
+1 [ 0.672842 -0.179425 -0.717698] 39.67806841
+2 [ 0.730907  0.011765 -0.682376] 39.9771611
+3 [ 0.704785 -0.006646 -0.70939 ] 39.99877596
+4 [ 0.708038  0.000809 -0.706174] 39.99993973
+5 [ 7.06972e-01 -2.67000e-04 -7.07241e-01] 39.99999713
+6 [ 7.07146e-01  4.30000e-05 -7.07068e-01] 39.99999987
+```
+
+The vector converges to $`(1,\ 0,\ -1)/\sqrt{2}`$ and the eigenvalue to 40. The eigenvalue error shrinks by about 0.05 per iteration, the square of the vector's convergence ratio 0.215, in agreement with the property of the Rayleigh quotient. If the initial vector in this example were $`(1,\ 1,\ 1)`$, it would be orthogonal to the middle eigenvector $`(1,\ 0,\ -1)`$, so the iteration would miss 40 and head toward another eigenvalue; this is why the condition $`c_1 \neq 0`$ of Section 10.5 matters in practice. The normalization does not use the largest-magnitude component for the same reason. The two components 0.707 and $`-0.707`$ of the eigenvector have the same absolute value, so depending on which one is used for division the sign flips from iteration to iteration, and even the sign of the eigenvalue read from the normalization factor can be wrong.
+
+> **Note:** **Rayleigh quotient iteration.** If the shift $`\sigma`$ is replaced in every iteration by the latest Rayleigh quotient, the shift keeps approaching the eigenvalue and the convergence ratio approaches zero. This method is called Rayleigh quotient iteration, and for symmetric matrices it is known to converge cubically. The price is that the matrix $`A - \sigma_k I`$ changes in every iteration, so the LU factorization must be redone.
+
+### 10.8 Deflation
+
+After the power method has found the dominant eigenvalue $`\lambda_1`$ and its eigenvector, **deflation** is a way to find the second eigenvalue. For a symmetric matrix with unit eigenvector $`\mathbf{v}_1`$, the following matrix changes $`\lambda_1`$ to zero and keeps the other eigenvalues and eigenvectors unchanged.
+
+```math
+A_2 = A - \lambda_1\mathbf{v}_1\mathbf{v}_1^T
+```
+
+By the orthogonality proved in Section 12.1, $`A_2\mathbf{v}_1 = \lambda_1\mathbf{v}_1 - \lambda_1\mathbf{v}_1(\mathbf{v}_1^T\mathbf{v}_1) = \mathbf{0}`$, and for any other eigenvector $`\mathbf{v}_i`$, $`\mathbf{v}_1^T\mathbf{v}_i = 0`$, so $`A_2\mathbf{v}_i = \lambda_i\mathbf{v}_i`$. Applying the power method to $`A_2`$ therefore converges to the second-largest eigenvalue. For Example 13.5, $`\mathbf{v}_1 = (-1,\ \sqrt{2},\ -1)/2`$ is used.
+
+```python
+import numpy as np
+
+A = np.array([[40, -20, 0], [-20, 40, -20], [0, -20, 40]], dtype=float)
+v1 = np.array([-1.0, np.sqrt(2.0), -1.0]) / 2.0   # unit dominant eigenvector
+lam1 = v1 @ A @ v1                                # 68.28427...
+A2 = A - lam1 * np.outer(v1, v1)                  # deflated matrix
+print(np.round(np.linalg.eigvalsh(A2), 6))
+x = np.array([1.0, 0.0, 0.0])
+for k in range(1, 6):
+    y = A2 @ x
+    x = y / np.linalg.norm(y)
+    print(k, np.round(x, 6), round(x @ A2 @ x, 6))
+```
+
+```text
+[-0.       11.715729 40.      ]
+1 [ 0.793814  0.143403 -0.591011] 38.836694
+2 [ 0.736084  0.042815 -0.675535] 39.896305
+3 [ 0.715877  0.012561 -0.698113] 39.991074
+4 [ 0.709699  0.00368  -0.704495] 39.999234
+5 [ 0.707868  0.001078 -0.706344] 39.999934
+```
+
+`np.outer(v1, v1)` is $`\mathbf{v}_1\mathbf{v}_1^T`$. The eigenvalues of the deflated matrix are $`0,\ 11.716,\ 40`$, with only 68.284 changed to zero, and the power method converges to the Rayleigh quotient 40 and the eigenvector $`(1,\ 0,\ -1)/\sqrt{2}`$. The convergence ratio is $`11.716/40 \approx 0.29`$. Repeating deflation can find all eigenvalues in turn, but errors left in the eigenvalues and eigenvectors of earlier stages pass directly into later stages and accumulate, so it is used when only a few eigenvalues are needed; when all are needed, the QR algorithm described in the note at the end of Section 12.1 is used.
+
 ---
 
 <br>
@@ -1059,6 +1182,89 @@ print(f"Eigenvector: {x_min}")
 
 <br>
 
+## 12. Eigenvalue Problems of Symmetric Matrices
+
+All the matrices arising from the mass-spring systems of this chapter were real symmetric matrices. A stiffness matrix is symmetric because of the action-reaction relation that the force exerted on $`i`$ by a displacement of $`j`$ equals the force exerted on $`j`$ by a displacement of $`i`$. Eigenvalue problems of symmetric matrices have better properties than those of general matrices, and this section proves why.
+
+### 12.1 Real Eigenvalues and Orthogonal Eigenvectors
+
+**Theorem.** The eigenvalues of a real symmetric matrix $`A = A^T`$ are all real, and eigenvectors corresponding to distinct eigenvalues are orthogonal.
+
+**Proof that the eigenvalues are real.** Let $`A\mathbf{v} = \lambda\mathbf{v}`$ ($`\mathbf{v} \neq \mathbf{0}`$, possibly complex) and let $`\bar{\mathbf{v}}`$ be the conjugate vector. Multiplying both sides on the left by $`\bar{\mathbf{v}}^T`$ gives $`\bar{\mathbf{v}}^TA\mathbf{v} = \lambda\,\bar{\mathbf{v}}^T\mathbf{v}`$. Taking the conjugate of the left side, since $`A`$ is real and symmetric, gives $`\overline{\bar{\mathbf{v}}^TA\mathbf{v}} = \mathbf{v}^TA\bar{\mathbf{v}} = (\mathbf{v}^TA\bar{\mathbf{v}})^T = \bar{\mathbf{v}}^TA^T\mathbf{v} = \bar{\mathbf{v}}^TA\mathbf{v}`$, so the left side is real. $`\bar{\mathbf{v}}^T\mathbf{v} = \sum|v_i|^2 > 0`$ is also real, so $`\lambda`$ is real.
+
+**Proof of orthogonality.** Let $`A\mathbf{v}_1 = \lambda_1\mathbf{v}_1`$, $`A\mathbf{v}_2 = \lambda_2\mathbf{v}_2`$, and $`\lambda_1 \neq \lambda_2`$. Computing $`\mathbf{v}_2^TA\mathbf{v}_1`$ in two ways gives $`\mathbf{v}_2^T(A\mathbf{v}_1) = \lambda_1\mathbf{v}_2^T\mathbf{v}_1`$ and, since $`A = A^T`$, also $`(A\mathbf{v}_2)^T\mathbf{v}_1 = \lambda_2\mathbf{v}_2^T\mathbf{v}_1`$. Subtracting the two gives $`(\lambda_1 - \lambda_2)\mathbf{v}_2^T\mathbf{v}_1 = 0`$, and since $`\lambda_1 \neq \lambda_2`$, $`\mathbf{v}_2^T\mathbf{v}_1 = 0`$.
+
+The three eigenvectors of Example 13.5, $`(1,\ \sqrt{2},\ 1)`$, $`(1,\ 0,\ -1)`$, and $`(1,\ -\sqrt{2},\ 1)`$, indeed have zero mutual dot products; for example, the dot product of the first and third is $`1 - 2 + 1 = 0`$. Dividing each vector by its length and collecting them as columns of $`V`$, with $`\Lambda`$ the diagonal matrix of eigenvalues, gives $`V^TV = I`$ and the following **spectral decomposition**.
+
+```math
+A = V\Lambda V^T = \sum_{i=1}^{n}\lambda_i\,\mathbf{v}_i\mathbf{v}_i^T
+```
+
+Physically, this means that the modes of a vibrating system are mutually orthogonal, so any motion can be decomposed into a sum of independent modes. This property is also why the initial conditions in Section 7 could be split into mode coefficients. Numerically, the eigenvalues have no imaginary parts and the eigenvector matrix is orthogonal and therefore well-conditioned.
+
+> **Note:** **QR algorithm.** The power method finds eigenvalues one at a time, but libraries are based on the QR algorithm, which finds all eigenvalues at once. Starting from $`A_0 = A`$, it factors $`A_k`$ as the product $`A_k = Q_kR_k`$ of an orthogonal matrix and an upper triangular matrix and takes the product in reverse order, $`A_{k+1} = R_kQ_k`$, as the next matrix. Since $`A_{k+1} = Q_k^TA_kQ_k`$ is similar to $`A_k`$, it has the same eigenvalues, and under suitable conditions $`A_k`$ converges to an upper triangular matrix (a diagonal matrix if symmetric) with the eigenvalues on its diagonal. The process can be interpreted as applying the power method to several vectors simultaneously while keeping them orthogonal, and the entries below the diagonal shrink according to the ratios $`|\lambda_{i+1}/\lambda_i|`$ of adjacent eigenvalues. Twenty basic iterations on the matrix of Example 13.5 give the diagonal entries 68.2843, 40.0000, and 11.7157 and reduce the largest absolute off-diagonal entry to $`9.05 \times 10^{-4}`$. Practical implementations first reduce the matrix by orthogonal transformations to Hessenberg form (tridiagonal form if symmetric) and use shifts to accelerate convergence greatly.
+
+### 12.2 Vibration Modes and Eigenvector Normalization
+
+The textbook solves the eigenvalue problems of mass-spring systems with the `eig` function and interprets the vibration modes. NumPy's `np.linalg.eig` uses the LAPACK routines `_geev` for general square arrays and does not guarantee the order of the eigenvalues [1]. `np.linalg.eigh` uses the routines `_syevd` and `_heevd` for symmetric or Hermitian matrices, returns the eigenvalues in ascending order, and reads only one triangle of the matrix (the lower one by default) [2]. `eigh` is therefore the right choice for symmetric matrices. Solving the three-mass system of Example 13.5 ($`k/m = 20\ \text{s}^{-2}`$) with `eigh` gives the following.
+
+```python
+import numpy as np
+
+A = np.array([[40, -20, 0], [-20, 40, -20], [0, -20, 40]], dtype=float)  # k/m = 20 per s^2
+lam, V = np.linalg.eigh(A)              # ascending eigenvalues, unit eigenvectors
+omega = np.sqrt(lam)
+np.set_printoptions(precision=4, suppress=True)
+print(lam)
+print(omega, 2 * np.pi / omega)        # angular frequencies and periods
+print(V)
+print(V / np.abs(V).max(axis=0))       # each mode scaled so its largest entry is 1
+```
+
+```text
+[11.7157 40.     68.2843]
+[3.4228 6.3246 8.2634] [1.8357 0.9935 0.7604]
+[[-0.5     0.7071 -0.5   ]
+ [-0.7071 -0.      0.7071]
+ [-0.5    -0.7071 -0.5   ]]
+[[-0.7071  1.     -0.7071]
+ [-1.     -0.      1.    ]
+ [-0.7071 -1.     -0.7071]]
+```
+
+From the eigenvalues $`\lambda = \omega^2`$, the three natural angular frequencies are 3.4228, 6.3246, and 8.2634 rad/s, and the periods are 1.8357, 0.9935, and 0.7604 s. Each column of `V` is the shape of one mode.
+
+| Mode | $`\omega`$ (rad/s) | Shape with largest entry scaled to 1 | Character of the motion |
+|-----:|-----:|:-----|:-----|
+| 1 | 3.4228 | $`(0.707,\ 1,\ 0.707)`$ | All three masses move in the same direction, the middle one the most |
+| 2 | 6.3246 | $`(1,\ 0,\ -1)`$ | The middle mass stays still and the two ends move in opposite directions |
+| 3 | 8.2634 | $`(0.707,\ -1,\ 0.707)`$ | Neighboring masses move in opposite directions |
+
+*Table 4. Natural vibration modes of the three-mass system*
+
+The higher the frequency of a mode, the more often neighboring masses move oppositely, that is, the more sign changes its shape has. This is the same property as in the vibration of a string or rod, where higher harmonics have more nodes.
+
+An eigenvector is determined only up to a constant multiple, so a criterion for its size must be chosen. `eig` returns unit-length eigenvectors [1], and in the output above each column from `eigh` also has length 1 ($`0.5^2 + 0.7071^2 + 0.5^2 = 1`$). The sign is not determined, so the entries of column 1 all came out negative, but physically this is the same as the shape with all signs reversed. For comparing or plotting shapes, scaling the entry of largest absolute value to 1, as in Table 4, is common. In the generalized eigenvalue problem $`K\mathbf{v} = \omega^2M\mathbf{v}`$ of systems with different masses, mass normalization, which scales so that $`\mathbf{v}^TM\mathbf{v} = 1`$, is used, and the modes are then orthogonal with respect to $`M`$. When $`M`$ is a constant multiple of the identity, as in this example, mass normalization differs from length normalization only by a constant factor.
+
+---
+
+<br>
+
+## 13. Common Mistakes
+
+The following mistakes are common in eigenvalue problems.
+
+1. **Solving $`\det A = 0`$ instead of $`\det(A - \lambda I) = 0`$.** The characteristic equation is a polynomial of degree $`n`$ in $`\lambda`$.
+2. **Treating the length and sign of an eigenvector as part of the answer.** Any nonzero multiple of an eigenvector is an eigenvector, so $`(1,\ \sqrt{2},\ 1)`$ and $`(-0.5,\ -0.707,\ -0.5)`$ are the same eigenvector. When comparing with library results, compare only directions.
+3. **Confusing $`\lambda = \omega^2`$ with $`\omega`$.** The eigenvalues of a mass-spring system are squares of angular frequencies. The frequency is $`f = \omega/(2\pi)`$ and the period $`T = 2\pi/\omega`$.
+4. **Choosing an initial vector orthogonal to the desired eigenvector.** As in the example of Section 10.7, an initial vector whose component along the desired eigenvector is zero because of symmetry never reaches that eigenvector. A random vector practically removes this risk.
+5. **Computing the inverse explicitly in the inverse power method.** Solve $`A\mathbf{y} = \mathbf{x}`$ instead of forming $`A^{-1}\mathbf{x}`$, and since the same matrix is used repeatedly, factor it once by LU (Chapter 10).
+6. **Assuming that the result of `np.linalg.eig` is sorted.** `eig` does not guarantee the order, so sort the result if needed, and for symmetric matrices use `eigh`, which guarantees ascending order.
+
+---
+
+<br>
+
 ## Summary
 
 | Concept | Key Summary |
@@ -1077,6 +1283,12 @@ print(f"Eigenvector: {x_min}")
 | Power Method | Repeated multiplication and normalization compute the dominant eigenvalue, the one largest in absolute value. |
 | Inverse Power Method | Applying the power method to $`A^{-1}`$ finds the eigenvalue smallest in absolute value. |
 | Convergence rate | Convergence of the power method depends on $`\vert\lambda_2/\lambda_1\vert`$ and slows as this ratio approaches 1. |
+| Convergence principle | $`A^k\mathbf{x}^{(0)} = \lambda_1^k[c_1\mathbf{v}_1 + \sum_{i \geq 2}c_i(\lambda_i/\lambda_1)^k\mathbf{v}_i]`$, so the method converges when $`c_1 \neq 0`$ and $`\vert\lambda_1\vert > \vert\lambda_2\vert`$. |
+| Rayleigh quotient | For a symmetric matrix, $`r(\mathbf{x}) = \mathbf{x}^TA\mathbf{x}/\mathbf{x}^T\mathbf{x}`$ estimates the eigenvalue with an error of about the square of the eigenvector error. |
+| Shifted inverse power method | Applying the power method to $`(A - \sigma I)^{-1}`$ finds the eigenvalue closest to $`\sigma`$. |
+| Symmetric matrices | All eigenvalues are real, eigenvectors of distinct eigenvalues are orthogonal, and the matrix decomposes as $`A = V\Lambda V^T`$. |
+| Deflation | $`A_2 = A - \lambda_1\mathbf{v}_1\mathbf{v}_1^T`$ changes only $`\lambda_1`$ to zero, so the power method can find the second eigenvalue. |
+| Vibration modes | $`\omega = \sqrt{\lambda}`$, the eigenvectors are the mode shapes, and higher frequencies have more sign changes in their shapes. |
 
 ---
 
@@ -1119,3 +1331,48 @@ print(f"Eigenvector: {x_min}")
    The eigenvalues are $`40 - 20\sqrt{2} \approx 11.716`$, $`40`$, and $`40 + 20\sqrt{2} \approx 68.284`$, so the inverse power method converges to 11.716, the one smallest in absolute value. In this example $`\lambda = \omega^2`$, so the angular frequency of the lowest mode is $`\omega = \sqrt{11.716} \approx 3.423`$ rad/s, which is smaller than the angular frequency of the highest mode found by the power method, $`\sqrt{68.284} \approx 8.263`$ rad/s.
 
    </details>
+
+5. **Convergence ratio:** Find the convergence ratio of the power method for a matrix with eigenvalues 10, 9, 1 and for one with eigenvalues 10, 2, 1, and compare the approximate numbers of iterations needed to reduce the error of the dominant eigenvector by a factor of $`10^{-6}`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The convergence ratios are $`9/10 = 0.9`$ and $`2/10 = 0.2`$. The iteration counts are $`\log(10^{-6})/\log 0.9 \approx 131`$ and $`\log(10^{-6})/\log 0.2 \approx 8.6`$, that is, about 9. The closer the second-largest eigenvalue is to the dominant one, the slower the convergence.
+
+   </details>
+
+6. **Rayleigh quotient:** Compute the Rayleigh quotient for the matrix $`A`$ of Example 13.5 and the vector $`\mathbf{x} = (-0.75,\ 1,\ -0.75)`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`A\mathbf{x} = (-30 - 20,\ 15 + 40 + 15,\ -20 - 30) = (-50,\ 70,\ -50)`$. $`\mathbf{x}^TA\mathbf{x} = 37.5 + 70 + 37.5 = 145`$ and $`\mathbf{x}^T\mathbf{x} = 0.5625 + 1 + 0.5625 = 2.125`$, so $`r = 145/2.125 \approx 68.235`$. This matches the third row of Table 3 and is far closer to the true value 68.284 than the normalization factor of the same vector.
+
+   </details>
+
+7. **Orthogonality for symmetric matrices:** Find the eigenvalues and eigenvectors of $`A = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}`$ and verify that the eigenvectors are orthogonal.
+
+   <details>
+   <summary>Answer</summary>
+
+   The characteristic equation is $`(2 - \lambda)^2 - 1 = 0`$, so $`\lambda = 3, 1`$. The eigenvector for $`\lambda = 3`$ is $`(1,\ 1)`$ and that for $`\lambda = 1`$ is $`(1,\ -1)`$; their dot product is $`1 - 1 = 0`$, so they are orthogonal.
+
+   </details>
+
+8. **Deflation:** Using the dominant eigenvalue 3 and unit eigenvector $`(1,\ 1)/\sqrt{2}`$ of the symmetric matrix $`A = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}`$, find the deflated matrix $`A_2`$ and check its eigenvalues.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`\mathbf{v}_1\mathbf{v}_1^T = \frac{1}{2}\begin{bmatrix} 1 & 1 \\ 1 & 1 \end{bmatrix}`$, so $`A_2 = A - 3\mathbf{v}_1\mathbf{v}_1^T = \begin{bmatrix} 0.5 & -0.5 \\ -0.5 & 0.5 \end{bmatrix}`$. Its trace is 1 and determinant 0, so its eigenvalues are 1 and 0: the original eigenvalue 3 became 0 and 1 remained.
+
+   </details>
+
+---
+
+<br>
+
+## References
+
+1. NumPy Developers, "numpy.linalg.eig," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html
+2. NumPy Developers, "numpy.linalg.eigh," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
