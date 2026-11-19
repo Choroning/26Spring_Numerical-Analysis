@@ -1219,7 +1219,7 @@ RK4 on y' = -20y, h = 0.15: amplification +1.3750, y after ~2 s = 6.280e+01
    <details>
    <summary>정답</summary>
 
-   $`b_1 = 1 - b_2 = 1/3`$이고, $`c = a = \frac{1}{2b_2} = \frac{3}{4}`$이다. 따라서 $`k_2 = f\!\left(t_n + \frac{3}{4}h,\; y_n + \frac{3}{4}h\,k_1\right)`$이고 $`y_{n+1} = y_n + h\left(\frac{1}{3}k_1 + \frac{2}{3}k_2\right)`$이다. 이 선택은 랄스톤 방법(Ralston's method)이다.
+   $`b_1 = 1 - b_2 = 1/3`$이고, $`c = a = \frac{1}{2b_2} = \frac{3}{4}`$이다. 따라서 $`k_2 = f\!\left(t_n + \frac{3}{4}h,\; y_n + \frac{3}{4}h\,k_1\right)`$이고 $`y_{n+1} = y_n + h\left(\frac{1}{3}k_1 + \frac{2}{3}k_2\right)`$이다. 이 방법은 5.7절의 랄스턴 방법($`b_2 = \frac{3}{4}`$)과 가중치가 다른 2차 방법이다.
 
    </details>
 

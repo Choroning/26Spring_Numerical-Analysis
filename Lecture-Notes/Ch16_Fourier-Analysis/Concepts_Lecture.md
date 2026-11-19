@@ -861,19 +861,7 @@ Shifting the same square wave to the left by $`\pi/2`$ gives $`\sin\bigl(n(x + \
 
 ## 13. Fourier Integral and Fourier Transformation (Revisited)
 
-Transition from a periodic function to a non-periodic function by taking $`T \to \infty`$.
-
-**Fourier Integral (inverse transform):**
-
-```math
-f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega)\,e^{i\omega t}\,d\omega
-```
-
-**Fourier Transform:**
-
-```math
-F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt
-```
+Taking $`T \to \infty`$ turns a periodic function into a nonperiodic one and gives the Fourier transform of Section 8.1. Written in the time variable, the transform is $`F(\omega) = \int_{-\infty}^{\infty} f(t)\,e^{-i\omega t}\,dt`$, and the inverse transform, the Fourier integral, is $`f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega)\,e^{i\omega t}\,d\omega`$.
 
 The three representations differ in the functions they handle and the form of their results. The Fourier series (Section 11) turns a continuous periodic function into coefficients at the discrete frequencies $`k\omega_0`$, and the Fourier transform turns a continuous nonperiodic function into a function $`F(\omega)`$ of continuous frequency. $`e^{-|t|}`$ of Section 7 and its transform $`2/(1 + \omega^2)`$ are an example. Measured data are samples taken at regular intervals over a finite time, so neither can be used as is, and the DFT of Section 14 turns a finite number of discrete samples into a finite number of coefficients at discrete frequencies. The DFT is the discrete version of the Fourier series that treats the record as one period, and for a function that is zero outside $`[0, T)`$ it is also the approximation $`F(2\pi k/T) \approx \Delta t\,\hat{f}_k`$ of the transform integral by a sum over the samples. The $`k`$th bin of the DFT therefore represents the component at frequency $`k/T`$.
 

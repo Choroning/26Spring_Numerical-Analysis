@@ -781,29 +781,7 @@ $`A\mathbf{v} = \lambda\mathbf{v}`$($`\mathbf{v}`$는 고유벡터)이면 다음
 import numpy as np
 
 def gauss_seidel(A, b, x0=None, tol=1e-6, max_iter=100):
-    """
-    Gauss-Seidel iterative method for solving Ax = b.
-
-    Parameters
-    ----------
-    A : array_like, shape (n, n)
-        Coefficient matrix.
-    b : array_like, shape (n,)
-        Right-hand side vector.
-    x0 : array_like, shape (n,), optional
-        Initial guess (default: zeros).
-    tol : float
-        Stopping tolerance for approximate relative error (%).
-    max_iter : int
-        Maximum number of iterations.
-
-    Returns
-    -------
-    x : ndarray
-        Solution vector.
-    iterations : int
-        Number of iterations performed.
-    """
+    """Gauss-Seidel iterative method for solving Ax = b."""
     n = len(b)
     x = np.zeros(n) if x0 is None else np.array(x0, dtype=float)
 
@@ -840,29 +818,7 @@ print(f"Iterations: {iters}")
 
 ```python
 def jacobi(A, b, x0=None, tol=1e-6, max_iter=100):
-    """
-    Jacobi iterative method for solving Ax = b.
-
-    Parameters
-    ----------
-    A : array_like, shape (n, n)
-        Coefficient matrix.
-    b : array_like, shape (n,)
-        Right-hand side vector.
-    x0 : array_like, shape (n,), optional
-        Initial guess (default: zeros).
-    tol : float
-        Stopping tolerance for approximate relative error (%).
-    max_iter : int
-        Maximum number of iterations.
-
-    Returns
-    -------
-    x : ndarray
-        Solution vector.
-    iterations : int
-        Number of iterations performed.
-    """
+    """Jacobi iterative method for solving Ax = b."""
     n = len(b)
     x = np.zeros(n) if x0 is None else np.array(x0, dtype=float)
 
@@ -890,34 +846,7 @@ def jacobi(A, b, x0=None, tol=1e-6, max_iter=100):
 
 ```python
 def sor(A, b, lam=1.2, x0=None, tol=1e-6, max_iter=100):
-    """
-    Successive Over-Relaxation (SOR) method for solving Ax = b.
-
-    Parameters
-    ----------
-    A : array_like, shape (n, n)
-        Coefficient matrix.
-    b : array_like, shape (n,)
-        Right-hand side vector.
-    lam : float
-        Relaxation factor (0 < lam < 2).
-        lam = 1 => Gauss-Seidel,
-        lam < 1 => under-relaxation,
-        lam > 1 => over-relaxation.
-    x0 : array_like, shape (n,), optional
-        Initial guess (default: zeros).
-    tol : float
-        Stopping tolerance for approximate relative error (%).
-    max_iter : int
-        Maximum number of iterations.
-
-    Returns
-    -------
-    x : ndarray
-        Solution vector.
-    iterations : int
-        Number of iterations performed.
-    """
+    """Successive Over-Relaxation (SOR) method for solving Ax = b."""
     n = len(b)
     x = np.zeros(n) if x0 is None else np.array(x0, dtype=float)
 
@@ -954,19 +883,7 @@ print(f"Iterations: {iters2}")
 
 ```python
 def is_diagonally_dominant(A):
-    """
-    Check if a matrix is strictly diagonally dominant.
-
-    Parameters
-    ----------
-    A : array_like, shape (n, n)
-        Matrix to check.
-
-    Returns
-    -------
-    bool
-        True if the matrix is strictly diagonally dominant.
-    """
+    """Check if a matrix is strictly diagonally dominant."""
     n = len(A)
     for i in range(n):
         diag = abs(A[i][i])

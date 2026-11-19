@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-11-18
+> **Last Updated:** 2026-11-19
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -36,8 +36,7 @@
   - [3.4 Finding All Eigenvalues with Different Shifts](#34-finding-all-eigenvalues-with-different-shifts)
 - [4. Method Comparison and Practical Guidelines](#4-method-comparison-and-practical-guidelines)
   - [4.1 Method Comparison](#41-method-comparison)
-  - [4.2 Key Formulas](#42-key-formulas)
-  - [4.3 Practical Tips](#43-practical-tips)
+  - [4.2 Practical Tips](#42-practical-tips)
 - [5. Symmetric Matrices and Spectral Decomposition](#5-symmetric-matrices-and-spectral-decomposition)
   - [5.1 Special Properties](#51-special-properties)
   - [5.2 `np.linalg.eigh` and Reconstruction](#52-nplinalgeigh-and-reconstruction)
@@ -53,9 +52,8 @@
   - [7.3 Example: Problem 13.13](#73-example-problem-1313)
 - [8. Method Comparison and Engineering Context](#8-method-comparison-and-engineering-context)
   - [8.1 Methods Overview](#81-methods-overview)
-  - [8.2 Key Formulas](#82-key-formulas)
-  - [8.3 Engineering Context](#83-engineering-context)
-  - [8.4 Practical Tips](#84-practical-tips)
+  - [8.2 Engineering Context](#82-engineering-context)
+  - [8.3 Practical Tips](#83-practical-tips)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
 
@@ -437,15 +435,7 @@ The closer a shift is to an eigenvalue, the more $`|1/(\lambda_i - \sigma)|`$ do
 
 *Table 2. Comparison of eigenvalue computation methods*
 
-### 4.2 Key Formulas
-
-1. **Characteristic equation:** $`\det(A - \lambda I) = 0`$
-2. **Trace identity:** $`\text{tr}(A) = \sum_i \lambda_i`$ (use as sanity check)
-3. **Determinant identity:** $`\det(A) = \prod_i \lambda_i`$
-4. **Power step:** $`\lambda^{(k)} = y^{(k)}_{i^*}`$ (the entry of $`\mathbf{y}^{(k)} = A\mathbf{x}^{(k-1)}`$ with the largest absolute value, sign included), $`\mathbf{x}^{(k)} = A\mathbf{x}^{(k-1)} / \lambda^{(k)}`$
-5. **Shifted recovery:** $`\lambda = \sigma + 1/\mu`$ where $`\mu`$ is the dominant eigenvalue of $`(A - \sigma I)^{-1}`$
-
-### 4.3 Practical Tips
+### 4.2 Practical Tips
 
 - Always verify eigenpairs via the trace and determinant identities and the residual $`\|A\mathbf{v} - \lambda\mathbf{v}\|`$.
 - Factor $`(A - \sigma I)`$ once outside the iteration loop, and never invert it explicitly.
@@ -818,20 +808,7 @@ Both eigenvalues of this matrix are real, negative, and widely separated ($`\lam
 
 *Table 5. Overview of eigenvalue computation methods*
 
-### 8.2 Key Formulas
-
-| Concept | Formula |
-|:--------|:--------|
-| Spectral decomposition | $`A = V \Lambda V^T`$ (symmetric $`A`$, $`V^T V = I`$) |
-| Low-rank approximation | $`A_k = \sum_{i=1}^k \lambda_i\, \mathbf{v}_i \mathbf{v}_i^T`$ |
-| Frobenius error | $`\Vert A - A_k\Vert_F = \sqrt{\sum_{i=k+1}^n \lambda_i^2}`$ (eigenvalues sorted by decreasing absolute value) |
-| Natural frequency | $`\omega_i = \sqrt{\lambda_i}`$ from $`K\mathbf{v} = \lambda M\mathbf{v}`$ |
-| ODE solution | $`\mathbf{y}(t) = \sum_i c_i\, \mathbf{v}_i\, e^{\lambda_i t}, \quad \mathbf{c} = V^{-1}\mathbf{y}_0`$ |
-| Stability criterion | Asymptotically stable $`\Leftrightarrow`$ all $`\text{Re}(\lambda_i) < 0`$ |
-
-*Table 6. Key formulas for symmetric eigenproblems and applications*
-
-### 8.3 Engineering Context
+### 8.2 Engineering Context
 
 | Application | Eigenvalue meaning | Eigenvector meaning |
 |:------------|:-------------------|:--------------------|
@@ -840,9 +817,9 @@ Both eigenvalues of this matrix are real, negative, and widely separated ($`\lam
 | Iterative solvers (Chapter 12) | Spectral radius $`\rho(M)`$ of the iteration matrix $`M`$ | Convergence direction |
 | Condition number (Chapter 11) | $`\kappa_2 = \vert\lambda\vert_{\max} / \vert\lambda\vert_{\min}`$ (symmetric matrix, 2-norm) | Not applicable |
 
-*Table 7. Meaning of eigenvalues and eigenvectors in engineering applications*
+*Table 6. Meaning of eigenvalues and eigenvectors in engineering applications*
 
-### 8.4 Practical Tips
+### 8.3 Practical Tips
 
 1. Always prefer `eigh` over `eig` for symmetric matrices. It is faster, real-valued, and sorted.
 2. For large matrices where only a few eigenvalues are needed, use the power method (Section 2) or the shifted power method (Section 3) instead of the full `eig`.

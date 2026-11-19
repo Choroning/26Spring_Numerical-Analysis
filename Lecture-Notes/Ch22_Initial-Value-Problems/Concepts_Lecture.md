@@ -1219,7 +1219,7 @@ Problems in which the stability condition is far stricter than the accuracy cond
    <details>
    <summary>Answer</summary>
 
-   $`b_1 = 1 - b_2 = 1/3`$ and $`c = a = \frac{1}{2b_2} = \frac{3}{4}`$. Hence $`k_2 = f\!\left(t_n + \frac{3}{4}h,\; y_n + \frac{3}{4}h\,k_1\right)`$ and $`y_{n+1} = y_n + h\left(\frac{1}{3}k_1 + \frac{2}{3}k_2\right)`$. This choice is Ralston's method.
+   $`b_1 = 1 - b_2 = 1/3`$ and $`c = a = \frac{1}{2b_2} = \frac{3}{4}`$. Hence $`k_2 = f\!\left(t_n + \frac{3}{4}h,\; y_n + \frac{3}{4}h\,k_1\right)`$ and $`y_{n+1} = y_n + h\left(\frac{1}{3}k_1 + \frac{2}{3}k_2\right)`$. This is a second-order method whose weights differ from those of Ralston's method in Section 5.7 ($`b_2 = \frac{3}{4}`$).
 
    </details>
 

@@ -1234,16 +1234,7 @@ NumPy's `np.diff(y)` returns the differences of neighboring entries, $`y_{i+1} -
 
    </details>
 
-4. **Undetermined coefficients:** Find $`a`$, $`b`$, $`c`$ so that $`f'(x) \approx a\,f(x) + b\,f(x+h) + c\,f(x+2h)`$ is second-order accurate.
-
-   <details>
-   <summary>Answer</summary>
-
-   Substituting Taylor expansions and matching coefficients gives $`a + b + c = 0`$, $`(b + 2c)h = 1`$, and $`(b + 4c)\frac{h^2}{2} = 0`$. The third equation gives $`b = -4c`$; substituting into the second gives $`-2ch = 1`$, so $`c = -\frac{1}{2h}`$, $`b = \frac{2}{h}`$, and $`a = -\frac{3}{2h}`$. The result $`f'(x) \approx \frac{-3f(x) + 4f(x+h) - f(x+2h)}{2h}`$ is the second-order forward difference formula of Section 4.
-
-   </details>
-
-5. **Step size and error:** If the step size $`h`$ is halved, by roughly what factor does the truncation error of the forward difference, the central difference, and the first-level Richardson estimate change? What should one watch for when $`h`$ keeps decreasing?
+4. **Step size and error:** If the step size $`h`$ is halved, by roughly what factor does the truncation error of the forward difference, the central difference, and the first-level Richardson estimate change? What should one watch for when $`h`$ keeps decreasing?
 
    <details>
    <summary>Answer</summary>
@@ -1252,7 +1243,7 @@ NumPy's `np.diff(y)` returns the differences of neighboring entries, $`y_{i+1} -
 
    </details>
 
-6. **Optimal step size:** When the function values are computed in single precision ($`\varepsilon \approx 1.2 \times 10^{-7}`$), estimate the optimal step sizes of the forward and central differences for $`f(x) = e^x`$ at $`x = 1`$.
+5. **Optimal step size:** When the function values are computed in single precision ($`\varepsilon \approx 1.2 \times 10^{-7}`$), estimate the optimal step sizes of the forward and central differences for $`f(x) = e^x`$ at $`x = 1`$.
 
    <details>
    <summary>Answer</summary>
@@ -1261,7 +1252,7 @@ NumPy's `np.diff(y)` returns the differences of neighboring entries, $`y_{i+1} -
 
    </details>
 
-7. **Noise and spacing:** If data with noise of standard deviation 0.01 are differentiated by central differences with spacing $`h = 0.05`$, what is the standard deviation of the noise in the derivative? How large must the spacing be to reduce this noise to 0.02 or less?
+6. **Noise and spacing:** If data with noise of standard deviation 0.01 are differentiated by central differences with spacing $`h = 0.05`$, what is the standard deviation of the noise in the derivative? How large must the spacing be to reduce this noise to 0.02 or less?
 
    <details>
    <summary>Answer</summary>
@@ -1270,7 +1261,7 @@ NumPy's `np.diff(y)` returns the differences of neighboring entries, $`y_{i+1} -
 
    </details>
 
-8. **Non-centered stencil:** Derive the formula for $`f'(x)`$ on the stencil $`\{x, x+h, x+2h\}`$ (the three-point forward difference) by the method of undetermined coefficients, and state its order of accuracy.
+7. **Non-centered stencil:** Derive the formula for $`f'(x)`$ on the stencil $`\{x, x+h, x+2h\}`$ (the three-point forward difference) by the method of undetermined coefficients, and state its order of accuracy.
 
    <details>
    <summary>Answer</summary>
