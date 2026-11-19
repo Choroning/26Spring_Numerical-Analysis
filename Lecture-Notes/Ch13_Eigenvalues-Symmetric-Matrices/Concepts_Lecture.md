@@ -29,11 +29,13 @@
   - [2.1 The Characteristic Equation](#21-the-characteristic-equation)
   - [2.2 The 2x2 Case](#22-the-2x2-case)
   - [2.3 Example: Finding Eigenvalues and Eigenvectors](#23-example-finding-eigenvalues-and-eigenvectors)
+  - [2.4 Characteristic Polynomials of Larger Matrices](#24-characteristic-polynomials-of-larger-matrices)
 - [3. Applications: Differential Equations](#3-applications-differential-equations)
   - [3.1 First-Order ODE: Scalar Case](#31-first-order-ode-scalar-case)
   - [3.2 Converting 2nd-Order to 1st-Order System](#32-converting-2nd-order-to-1st-order-system)
   - [3.3 Matrix Exponential and Stability](#33-matrix-exponential-and-stability)
   - [3.4 Eigenvalue Location and System Behavior](#34-eigenvalue-location-and-system-behavior)
+  - [3.5 Complex Eigenvalues and Damped Oscillation](#35-complex-eigenvalues-and-damped-oscillation)
 - [4. Example 13.2: Stability of a First-Order System](#4-example-132-stability-of-a-first-order-system)
 - [5. Eigenvalues and Ordinary Differential Equations](#5-eigenvalues-and-ordinary-differential-equations)
   - [5.1 Pure Oscillations: Single 2nd-Order ODE](#51-pure-oscillations-single-2nd-order-ode)
@@ -50,6 +52,7 @@
 - [8. Physical Settings: Mass-Spring Systems](#8-physical-settings-mass-spring-systems)
   - [8.1 Two-Mass, Three-Spring System](#81-two-mass-three-spring-system)
   - [8.2 Eigenvalue Formula for the Mass-Spring System](#82-eigenvalue-formula-for-the-mass-spring-system)
+  - [8.3 Matrix Form of the Equations of Motion and Equilibrium](#83-matrix-form-of-the-equations-of-motion-and-equilibrium)
 - [9. Example 13.4: Mass-Spring System](#9-example-134-mass-spring-system)
 - [10. The Power Method](#10-the-power-method)
   - [10.1 Three-Mass, Four-Spring System (Ex 13.5)](#101-three-mass-four-spring-system-ex-135)
@@ -68,6 +71,8 @@
 - [12. Eigenvalue Problems of Symmetric Matrices](#12-eigenvalue-problems-of-symmetric-matrices)
   - [12.1 Real Eigenvalues and Orthogonal Eigenvectors](#121-real-eigenvalues-and-orthogonal-eigenvectors)
   - [12.2 Vibration Modes and Eigenvector Normalization](#122-vibration-modes-and-eigenvector-normalization)
+  - [12.3 Symmetrizing Systems with Unequal Masses](#123-symmetrizing-systems-with-unequal-masses)
+  - [12.4 Application: Natural Vibration of a Three-Story Building](#124-application-natural-vibration-of-a-three-story-building)
 - [13. Common Mistakes](#13-common-mistakes)
 - [Summary](#summary)
 - [Self-Check Questions](#self-check-questions)
@@ -242,6 +247,44 @@ Let $`x_1 = 1`$; then $`x_2 = -1`$ and the eigenvector is:
 \{x\}_2 = \begin{Bmatrix} 1 \\ -1 \end{Bmatrix}
 ```
 
+### 2.4 Characteristic Polynomials of Larger Matrices
+
+For $`n \geq 3`$, the characteristic polynomial is obtained by cofactor expansion of the determinant. Expanding the matrix of Example 13.5 (Section 10.1) along its first row gives the following.
+
+```math
+\det(A - \lambda I) = \begin{vmatrix} 40 - \lambda & -20 & 0 \\ -20 & 40 - \lambda & -20 \\ 0 & -20 & 40 - \lambda \end{vmatrix} = (40 - \lambda)\left[(40 - \lambda)^2 - 400\right] - (-20)\left[(-20)(40 - \lambda) - 0\right]
+```
+
+```math
+= (40 - \lambda)\left[(40 - \lambda)^2 - 800\right] = -\lambda^3 + 120\lambda^2 - 4000\lambda + 32000
+```
+
+The factor $`40 - \lambda`$ appears, so one root is $`\lambda = 40`$, and the other two follow from $`(40 - \lambda)^2 = 800`$ as $`\lambda = 40 \pm 20\sqrt{2}`$. The sum of the three roots, 120, equals the trace $`40 + 40 + 40`$, and their product $`40(1600 - 800) = 32000`$ equals the determinant. A factor rarely appears this readily; in general the coefficients of the characteristic polynomial are computed and the polynomial is solved with the root-finding methods of Chapter 6. Given a square matrix, `np.poly` returns the coefficients of $`\det(\lambda I - A)`$, highest power first [1].
+
+```python
+import numpy as np
+
+A = np.array([[40, -20, 0], [-20, 40, -20], [0, -20, 40]], dtype=float)
+c = np.poly(A)                    # coefficients of det(lambda I - A), highest power first
+print(c.round(6).tolist())
+print(np.roots(c))                # roots of the characteristic polynomial
+
+lam_true = np.arange(1.0, 21.0)   # 1, 2, ..., 20
+c20 = np.poly(lam_true)           # coefficients of (lambda - 1)(lambda - 2)...(lambda - 20)
+r = np.sort(np.roots(c20).real)
+print(f"largest coefficient = {np.abs(c20).max():.2e}")
+print(f"max root error = {np.abs(r - lam_true).max():.1e}")
+```
+
+```text
+[1.0, -120.0, 4000.0, -32000.0]
+[68.28427125 40.         11.71572875]
+largest coefficient = 1.38e+19
+max root error = 3.9e-02
+```
+
+The coefficients in the first line equal $`\lambda^3 - 120\lambda^2 + 4000\lambda - 32000`$, the hand-computed polynomial with its sign reversed, and `np.roots` returns the three eigenvalues. The last four lines show the limitation of this approach. The characteristic polynomial $`(\lambda - 1)(\lambda - 2)\cdots(\lambda - 20)`$ for the eigenvalues 1, 2, ..., 20 has coefficients whose sizes range from 1 to about $`1.4 \times 10^{19}`$, and its roots are extremely sensitive to them. Changing each coefficient by only the double-precision relative rounding error (about $`10^{-16}`$) can, to first order, move the roots 14 and 15 by up to about 0.08, and the roots that `np.roots` actually returns deviate from the true values by up to 0.039 (at the root 14). Although the eigenvalues of a symmetric matrix are insensitive to small changes in its entries (Section 12.1), passing through the coefficients of the characteristic polynomial turns the task into one whose roots are extremely sensitive to the coefficients. The characteristic equation is therefore used for hand calculation and theory, and numerical computation uses methods that act on the matrix directly, such as the iterative methods of Section 10 or the QR algorithm in the note at the end of Section 12.1.
+
 ---
 
 <br>
@@ -345,6 +388,28 @@ The complex plane provides an intuitive map for stability:
 
 *Table 2. Eigenvalue location in the complex plane and system behavior*
 
+### 3.5 Complex Eigenvalues and Damped Oscillation
+
+Dividing the oscillator $`m\ddot{y} + c\dot{y} + ky = 0`$ with mass $`m`$, damping coefficient $`c`$, and spring constant $`k`$ by $`m`$ and writing $`\omega_n = \sqrt{k/m}`$ and $`\zeta = c/(2\sqrt{km})`$ gives $`\ddot{y} + 2\zeta\omega_n\dot{y} + \omega_n^2y = 0`$. The matrix $`\begin{bmatrix} 0 & 1 \\ -\omega_n^2 & -2\zeta\omega_n \end{bmatrix}`$ obtained by the conversion of Section 3.2 has the characteristic equation $`\lambda^2 + 2\zeta\omega_n\lambda + \omega_n^2 = 0`$, so its eigenvalues are the following.
+
+```math
+\lambda = -\zeta\omega_n \pm \omega_n\sqrt{\zeta^2 - 1}
+```
+
+$`\omega_n`$ is called the **natural angular frequency** and $`\zeta`$ the **damping ratio**. If $`\zeta > 1`$, the two eigenvalues are distinct negative real numbers and the solution decays without oscillation (overdamped); if $`\zeta = 1`$, there is a double root $`-\omega_n`$ (critically damped); and if $`0 < \zeta < 1`$, the eigenvalues are a complex conjugate pair $`\lambda = \alpha \pm i\beta`$ with $`\alpha = -\zeta\omega_n`$ and $`\beta = \omega_n\sqrt{1 - \zeta^2}`$ (underdamped). $`\zeta = 0`$ is the pure oscillation of Section 5.1. The solution for a complex conjugate pair can be written in real form with Euler's formula.
+
+```math
+e^{(\alpha \pm i\beta)t} = e^{\alpha t}(\cos\beta t \pm i\sin\beta t) \quad\Longrightarrow\quad y(t) = e^{\alpha t}(C_1\cos\beta t + C_2\sin\beta t)
+```
+
+The real part $`\alpha`$ sets the decay rate of the envelope $`e^{\alpha t}`$, and the imaginary part $`\beta`$ sets the angular frequency of the oscillation. For example, $`\ddot{y} + 2\dot{y} + 5y = 0`$ has $`\omega_n = \sqrt{5} = 2.2361`$ and $`\zeta = 1/\sqrt{5} = 0.4472`$, and its eigenvalues are $`\lambda = -1 \pm 2i`$. With $`y(0) = 1`$ and $`\dot{y}(0) = 0`$, $`C_1 = 1`$, and $`\dot{y}(0) = \alpha C_1 + \beta C_2 = -1 + 2C_2 = 0`$ gives $`C_2 = 0.5`$, so $`y(t) = e^{-t}(\cos 2t + 0.5\sin 2t)`$. The period of the oscillation is $`2\pi/2 = 3.1416`$ s, and the envelope halves every $`\ln 2 = 0.693`$ s, giving $`y(1) = 0.0142`$, $`y(2) = -0.1397`$, and $`y(3) = 0.0408`$. Because of the damping, the angular frequency of the oscillation, $`\beta = 2`$, is slightly smaller than the natural angular frequency $`\omega_n = 2.2361`$, and $`\omega_n`$ equals the magnitude of the eigenvalue, $`|\lambda| = \sqrt{1 + 4}`$.
+
+![Figure 1. Eigenvalue locations and the corresponding solution shapes](../../images/Ch13_Eigenvalue-Locations.png)
+
+*Figure 1. Eigenvalue locations and the corresponding solution shapes*
+
+Figure 1 shows the solutions of four systems starting from $`y(0) = 1`$ and $`\dot{y}(0) = 0`$. In (a) the two negative real eigenvalues $`-0.5`$ and $`-3`$ produce decay without oscillation, in (b) $`-0.6 \pm 2i`$ produces a damped oscillation, in (c) $`\pm 2i`$ produces an oscillation of constant amplitude, and in (d) $`0.3 \pm 2i`$ produces an oscillation of growing amplitude. Cases (b), (c), and (d) share the same imaginary part, so they share the period $`\pi`$, and only the real part changes the envelope. The classification of Table 2 is confirmed directly in the shapes of the solutions.
+
 ---
 
 <br>
@@ -378,6 +443,38 @@ In matrix form:
 ```
 
 **Both eigenvalues are negative real numbers**, so the solutions will be **stable**, and since they have no imaginary part, the solutions die out to zero **without oscillation**.
+
+The behavior was judged from the eigenvalues alone, but the eigenvectors give the solution itself. The eigenvectors of $`A`$ are $`(1,\ 1)`$ ($`\lambda = -2`$) and $`(1,\ -1)`$ ($`\lambda = -4`$), as in Section 2.3, so by the diagonalization of Section 3.3 the solution is a sum in which the component along each eigenvector decays separately with its own eigenvalue, $`\mathbf{x}(t) = c_1e^{-2t}(1,\ 1) + c_2e^{-4t}(1,\ -1)`$. The initial condition $`\mathbf{x}(0) = (1,\ 0)`$ gives $`c_1 + c_2 = 1`$ and $`c_1 - c_2 = 0`$, so $`c_1 = c_2 = 1/2`$, and the result is the following.
+
+```math
+x_1(t) = \frac{1}{2}\left(e^{-2t} + e^{-4t}\right), \qquad x_2(t) = \frac{1}{2}\left(e^{-2t} - e^{-4t}\right)
+```
+
+$`x_2`$ starts at 0, reaches its maximum 0.125 at $`t = \ln 2/2 = 0.3466`$, where $`\dot{x}_2 = -e^{-2t} + 2e^{-4t} = 0`$, and then decays. The $`e^{-4t}`$ component disappears first, so after a while the solution follows the direction $`(1,\ 1)`$ of the slow mode and $`x_1 \approx x_2`$. The following code compares this eigenvector expansion with the matrix exponential $`e^{At}\mathbf{x}(0)`$ computed by `scipy.linalg.expm`. `expm` computes the matrix exponential with a Pade approximation whose order is chosen from the data [2].
+
+```python
+import numpy as np
+from scipy.linalg import expm
+
+A = np.array([[-3.0, 1.0], [1.0, -3.0]])
+x0 = np.array([1.0, 0.0])
+lam, V = np.linalg.eigh(A)             # eigenvalues -4, -2 and orthonormal eigenvectors
+c = V.T @ x0                           # coefficients of x0 along the eigenvectors
+for t in (0.0, 0.25, 0.5, 1.0, 2.0):
+    x_eig = V @ (c * np.exp(lam * t))  # sum of c_i e^(lambda_i t) v_i
+    x_expm = expm(A * t) @ x0          # matrix exponential
+    print(t, np.round(x_eig, 6), np.round(x_expm, 6))
+```
+
+```text
+0.0 [1. 0.] [1. 0.]
+0.25 [0.487205 0.119326] [0.487205 0.119326]
+0.5 [0.251607 0.116272] [0.251607 0.116272]
+1.0 [0.076825 0.05851 ] [0.076825 0.05851 ]
+2.0 [0.009326 0.00899 ] [0.009326 0.00899 ]
+```
+
+`np.linalg.eigh` returns the eigenvalues in ascending order, $`-4,\ -2`$, and the eigenvectors as orthonormal columns, so the expansion coefficients are obtained with the transpose instead of the inverse, as `V.T @ x0` (Section 12.1). `c * np.exp(lam * t)` multiplies the coefficient of each mode by $`e^{\lambda_it}`$, and `V @` recombines the modes. The two methods agree at every time, and $`(0.251607,\ 0.116272)`$ at $`t = 0.5`$ equals the formula above evaluated with $`e^{-1}`$ and $`e^{-2}`$. At $`t = 2`$ the ratio of the two components is nearly 1, showing that only the slow mode remains. The same computation for a nonsymmetric matrix is covered in Section 7 of the Chapter 13 Lab.
 
 ---
 
@@ -679,7 +776,7 @@ Consider a two-mass, three-spring system with frictionless rollers, vibrating be
 Wall ─[k]─ m₁ ─[k]─ m₂ ─[k]─ Wall
 ```
 
-*Figure 1. Two-mass, three-spring system between two walls*
+*Figure 2. Two-mass, three-spring system between two walls*
 
 Two masses $`m_1`$ and $`m_2`$ are connected by springs of stiffness $`k`$. Newton's second law for each mass:
 
@@ -718,6 +815,26 @@ Solving via the quadratic formula:
 ```math
 -\omega^2 = \lambda = -\frac{k}{m_1 m_2}(m_1 + m_2) \pm \frac{k}{m_1 m_2}\sqrt{m_2^2 + m_1^2 - m_1 m_2}
 ```
+
+### 8.3 Matrix Form of the Equations of Motion and Equilibrium
+
+In the general case of different spring constants ($`k_1, k_2, k_3`$ from the left), the two equations of Section 8.1 take the following matrix form.
+
+```math
+\underbrace{\begin{bmatrix} m_1 & 0 \\ 0 & m_2 \end{bmatrix}}_{M}\frac{d^2}{dt^2}\begin{Bmatrix} x_1 \\ x_2 \end{Bmatrix} + \underbrace{\begin{bmatrix} k_1 + k_2 & -k_2 \\ -k_2 & k_2 + k_3 \end{bmatrix}}_{K}\begin{Bmatrix} x_1 \\ x_2 \end{Bmatrix} = \begin{Bmatrix} 0 \\ 0 \end{Bmatrix}
+```
+
+$`M`$ is called the **mass matrix** and $`K`$ the **stiffness matrix**. The magnitude of the $`(i, j)`$ entry of $`K`$ is the restoring force on mass $`i`$ when only mass $`j`$ moves by a unit length, and the action-reaction relation makes $`K`$ symmetric (Section 12). The matrix of Section 8.1 is $`-M^{-1}K`$ with $`k_1 = k_2 = k_3 = k`$.
+
+The same $`K`$ appears in the statics problem of Section 2.11 of Chapter 8. Under a constant external force $`\mathbf{f}`$ such as gravity, the equilibrium position solves the linear system $`K\mathbf{x}_{eq} = \mathbf{f}`$. Substituting $`\mathbf{x} = \mathbf{x}_{eq} + \mathbf{u}`$ into the equation of motion $`M\ddot{\mathbf{x}} + K\mathbf{x} = \mathbf{f}`$ cancels $`K\mathbf{x}_{eq} = \mathbf{f}`$ and leaves only $`M\ddot{\mathbf{u}} + K\mathbf{u} = \mathbf{0}`$. A constant external force therefore only moves the center of the oscillation to the equilibrium position and changes neither the frequencies nor the modes. The equilibrium position is determined by the linear system of Chapter 8 and the oscillation about it by the eigenvalue problem of this chapter, and a motion starting from a position or velocity away from equilibrium is a sum of natural vibration modes.
+
+If the masses differ, $`M^{-1}K`$ is not symmetric. For example, with $`m_1 = 40`$ kg, $`m_2 = 20`$ kg, and $`k_1 = k_2 = k_3 = 200`$ N/m:
+
+```math
+M^{-1}K = \begin{bmatrix} 400/40 & -200/40 \\ -200/20 & 400/20 \end{bmatrix} = \begin{bmatrix} 10 & -5 \\ -10 & 20 \end{bmatrix}
+```
+
+The characteristic equation $`\lambda^2 - 30\lambda + 150 = 0`$ gives $`\omega^2 = \lambda = 15 \pm \sqrt{75}`$, that is, 6.3397 and 23.6603, so $`\omega = 2.5179`$ and $`4.8642`$ rad/s. The eigenvectors follow from $`(10 - \lambda)x_1 - 5x_2 = 0`$ as $`(1,\ 0.7321)`$ and $`(1,\ -2.7321)`$ (exactly, $`x_2/x_1 = \sqrt{3} - 1`$ and $`-(\sqrt{3} + 1)`$). Their dot product is $`1 - 0.7321 \times 2.7321 = -1`$, which is not zero, so unlike the equal-mass case the modes are not orthogonal in the ordinary sense. Section 12.3 shows that even in this case the eigenvalues are real and the modes are orthogonal in another sense.
 
 ---
 
@@ -817,7 +934,7 @@ Consider a three-mass, four-spring system between two walls, with $`m = m_1 = m_
 Wall ─[k]─ m₁ ─[k]─ m₂ ─[k]─ m₃ ─[k]─ Wall
 ```
 
-*Figure 2. Three-mass, four-spring system between two walls*
+*Figure 3. Three-mass, four-spring system between two walls*
 
 Newton's second law for each mass:
 
@@ -1050,6 +1167,15 @@ print("Eigenvalues:", eigenvalues)       # [4. 2.]
 print("Eigenvectors:\n", eigenvectors)   # columns are eigenvectors
 ```
 
+```text
+Eigenvalues: [4. 2.]
+Eigenvectors:
+ [[ 0.70710678 -0.70710678]
+ [ 0.70710678  0.70710678]]
+```
+
+The eigenvectors are the **columns** of the result. The first column $`(0.7071,\ 0.7071)`$ is $`(1,\ 1)`$ of Section 2.3 normalized to length 1, and the second column $`(-0.7071,\ 0.7071)`$ is $`(1,\ -1)`$ normalized with its sign reversed. When only the eigenvalues are needed, `np.linalg.eigvals` is used, and for symmetric matrices `eigh` of Section 12.2 or `eigvalsh`, which computes only the eigenvalues, is used.
+
 ### 11.2 Power Method implementation
 
 The function implements the algorithm of Section 10.2 directly, normalizing by the element largest in absolute value. Applied to the matrix of Example 13.5, it gives the dominant eigenvalue 68.28428 and the eigenvector $`[-0.70710681, 1, -0.70710681]`$ after 11 iterations.
@@ -1110,6 +1236,14 @@ print(f"Dominant eigenvalue: {lam:.5f}")
 print(f"Eigenvector: {x}")
 ```
 
+```text
+Converged in 11 iterations
+Dominant eigenvalue: 68.28428
+Eigenvector: [-0.70710681  1.         -0.70710681]
+```
+
+One pass of the loop is one step of Section 10.2. `A @ x` is the multiplication, `np.argmax(np.abs(y))` is the position of the largest-magnitude entry, `lam = y[idx]` is the normalization factor including its sign, and `x = y / lam` is the new vector with that entry equal to 1. `x0.copy().astype(float)` makes a floating-point copy of an initial vector entered as integers. The stopping condition is that the relative change of the normalization factor, $`|\lambda^{(k)} - \lambda^{(k-1)}|/|\lambda^{(k)}|`$, falls below `tol`. The actual error of the converged value 68.28428 is $`7.3 \times 10^{-6}`$, smaller than the bound on the last change, $`6.8 \times 10^{-5}`$, obtained by multiplying the relative-change limit $`10^{-6}`$ by the size of the eigenvalue. In first-order convergence where the error shrinks by the ratio $`\rho`$ per iteration, $`e_k = \rho e_{k-1}`$ and the last change is $`e_{k-1} - e_k = e_k(1 - \rho)/\rho`$, so the remaining error is $`\rho/(1 - \rho)`$ times the last change. With the effective convergence ratio 0.172 of Section 10.5 this factor is 0.21, so the error is expected to be at most $`0.21 \times 6.8 \times 10^{-5} \approx 1.4 \times 10^{-5}`$, and the actual error lies within this bound.
+
 ### 11.3 Mass-Spring System (Ex 13.4)
 
 The coefficient matrix of Section 9 gives the eigenvalues $`-5`$ and $`-15`$, and $`\omega = \sqrt{-\lambda}`$ gives the angular frequencies 2.23607 and 3.87298 rad/s and the frequencies 0.35588 and 0.61640 Hz.
@@ -1135,6 +1269,17 @@ print("Angular frequencies (omega):", omega)
 print("Frequencies (Hz):", freq)
 print("Eigenvectors:\n", eigenvectors)
 ```
+
+```text
+Eigenvalues (lambda): [ -5. -15.]
+Angular frequencies (omega): [2.23606798 3.87298335]
+Frequencies (Hz): [0.35588127 0.61640444]
+Eigenvectors:
+ [[ 0.70710678 -0.70710678]
+ [ 0.70710678  0.70710678]]
+```
+
+`np.sqrt(-eigenvalues)` applies the relation $`\omega^2 = -\lambda`$ of Section 6.2 to the whole array at once, and `omega / (2 * np.pi)` converts rad/s to Hz. The first eigenvector column is the direction of the in-phase mode $`(1,\ 1)`$, and the second that of the out-of-phase mode $`(1,\ -1)`$. This coefficient matrix is symmetric, so `eigh` can also be used, in which case the eigenvalues come out in ascending order, $`-15,\ -5`$.
 
 ### 11.4 Inverse Power Method for smallest eigenvalue
 
@@ -1178,6 +1323,14 @@ print(f"Smallest eigenvalue: {lam_min:.5f}")
 print(f"Eigenvector: {x_min}")
 ```
 
+```text
+Converged in 9 iterations
+Smallest eigenvalue: 11.71573
+Eigenvector: [0.70710681 1.         0.70710681]
+```
+
+`np.linalg.solve(A, x)` computes $`\mathbf{y} = A^{-1}\mathbf{x}`$, and the normalization factor `lam_inv` estimates the dominant eigenvalue $`1/\lambda_{\min}`$ of $`A^{-1}`$, so its reciprocal is $`\lambda_{\min}`$. The eigenvalues of $`A^{-1}`$ are $`1/11.716 = 0.0854`$, $`1/40 = 0.025`$, and $`1/68.284 = 0.0146`$, so the convergence ratio would be $`0.025/0.0854 = 0.293`$, but for the same reason as in Section 10.5 the initial vector $`(1,\ 1,\ 1)`$ has no $`(1,\ 0,\ -1)`$ component, and the effective convergence ratio is $`0.0146/0.0854 = 0.172`$. The resulting eigenvector has the same shape as mode 1 of Table 4.
+
 ---
 
 <br>
@@ -1206,7 +1359,7 @@ Physically, this means that the modes of a vibrating system are mutually orthogo
 
 ### 12.2 Vibration Modes and Eigenvector Normalization
 
-The textbook solves the eigenvalue problems of mass-spring systems with the `eig` function and interprets the vibration modes. NumPy's `np.linalg.eig` uses the LAPACK routines `_geev` for general square arrays and does not guarantee the order of the eigenvalues [1]. `np.linalg.eigh` uses the routines `_syevd` and `_heevd` for symmetric or Hermitian matrices, returns the eigenvalues in ascending order, and reads only one triangle of the matrix (the lower one by default) [2]. `eigh` is therefore the right choice for symmetric matrices. Solving the three-mass system of Example 13.5 ($`k/m = 20\ \text{s}^{-2}`$) with `eigh` gives the following.
+The textbook solves the eigenvalue problems of mass-spring systems with the `eig` function and interprets the vibration modes. NumPy's `np.linalg.eig` uses the LAPACK routines `_geev` for general square arrays and does not guarantee the order of the eigenvalues [3]. `np.linalg.eigh` uses the routines `_syevd` and `_heevd` for symmetric or Hermitian matrices, returns the eigenvalues in ascending order, and reads only one triangle of the matrix (the lower one by default) [4]. `eigh` is therefore the right choice for symmetric matrices. Solving the three-mass system of Example 13.5 ($`k/m = 20\ \text{s}^{-2}`$) with `eigh` gives the following.
 
 ```python
 import numpy as np
@@ -1244,7 +1397,78 @@ From the eigenvalues $`\lambda = \omega^2`$, the three natural angular frequenci
 
 The higher the frequency of a mode, the more often neighboring masses move oppositely, that is, the more sign changes its shape has. This is the same property as in the vibration of a string or rod, where higher harmonics have more nodes.
 
-An eigenvector is determined only up to a constant multiple, so a criterion for its size must be chosen. `eig` returns unit-length eigenvectors [1], and in the output above each column from `eigh` also has length 1 ($`0.5^2 + 0.7071^2 + 0.5^2 = 1`$). The sign is not determined, so the entries of column 1 all came out negative, but physically this is the same as the shape with all signs reversed. For comparing or plotting shapes, scaling the entry of largest absolute value to 1, as in Table 4, is common. In the generalized eigenvalue problem $`K\mathbf{v} = \omega^2M\mathbf{v}`$ of systems with different masses, mass normalization, which scales so that $`\mathbf{v}^TM\mathbf{v} = 1`$, is used, and the modes are then orthogonal with respect to $`M`$. When $`M`$ is a constant multiple of the identity, as in this example, mass normalization differs from length normalization only by a constant factor.
+An eigenvector is determined only up to a constant multiple, so a criterion for its size must be chosen. `eig` returns unit-length eigenvectors [3], and in the output above each column from `eigh` also has length 1 ($`0.5^2 + 0.7071^2 + 0.5^2 = 1`$). The sign is not determined, so the entries of column 1 all came out negative, but physically this is the same as the shape with all signs reversed. For comparing or plotting shapes, scaling the entry of largest absolute value to 1, as in Table 4, is common. In the generalized eigenvalue problem $`K\mathbf{v} = \omega^2M\mathbf{v}`$ of systems with different masses, mass normalization, which scales so that $`\mathbf{v}^TM\mathbf{v} = 1`$, is used, and the modes are then orthogonal with respect to $`M`$. When $`M`$ is a constant multiple of the identity, as in this example, mass normalization differs from length normalization only by a constant factor.
+
+### 12.3 Symmetrizing Systems with Unequal Masses
+
+$`M^{-1}K`$ of Section 8.3 is not symmetric, but the diagonal matrix $`M^{1/2} = \mathrm{diag}(\sqrt{m_1}, \ldots, \sqrt{m_n})`$ turns it into a symmetric matrix. Setting $`\mathbf{u} = M^{1/2}\mathbf{v}`$ in the eigenvalue problem $`K\mathbf{v} = \lambda M\mathbf{v}`$ and multiplying both sides on the left by $`M^{-1/2}`$ gives the following.
+
+```math
+\tilde{K}\mathbf{u} = \lambda\mathbf{u}, \qquad \tilde{K} = M^{-1/2}KM^{-1/2}, \qquad \tilde{K}_{ij} = \frac{K_{ij}}{\sqrt{m_im_j}}
+```
+
+Since $`\tilde{K}^T = M^{-1/2}K^TM^{-1/2} = \tilde{K}`$, $`\tilde{K}`$ is symmetric. Moreover $`M^{-1}K = M^{-1/2}\tilde{K}M^{1/2}`$, so the two matrices are similar and have the same eigenvalues. The theorem of Section 12.1 therefore applies directly.
+
+1. The eigenvalues $`\lambda = \omega^2`$ are all real. In addition, if $`K`$ is positive definite (Section 2.11 of Chapter 8), then $`\mathbf{u}^T\tilde{K}\mathbf{u} = \mathbf{v}^TK\mathbf{v} > 0`$, so $`\tilde{K}`$ is also positive definite and all its eigenvalues are positive. This is why the natural angular frequency $`\omega = \sqrt{\lambda}`$ is always a real number.
+2. Eigenvectors of $`\tilde{K}`$ for distinct eigenvalues are orthogonal, so $`\mathbf{u}_i^T\mathbf{u}_j = \mathbf{v}_i^TM\mathbf{v}_j = 0`$. The original modes $`\mathbf{v}_i`$ are thus orthogonal not in the ordinary inner product but in the mass-weighted inner product, a property called $`M`$-orthogonality. The mass normalization $`\mathbf{v}^TM\mathbf{v} = 1`$ of Section 12.2 scales the length measured in this inner product to 1.
+
+In the example of Section 8.3, $`\tilde{K}_{12} = -200/\sqrt{40 \times 20} = -7.0711`$, so $`\tilde{K} = \begin{bmatrix} 10 & -7.0711 \\ -7.0711 & 20 \end{bmatrix}`$. The trace 30 and the determinant $`200 - 50 = 150`$ equal those of $`M^{-1}K`$, so the eigenvalues are also 6.3397 and 23.6603. The mass-weighted inner product of the two modes is $`40(1)(1) + 20(0.7321)(-2.7321) = 40 - 40 = 0`$, which confirms $`M`$-orthogonality. In computation, instead of applying `eig` to the nonsymmetric $`M^{-1}K`$, `eigh` can be applied to $`\tilde{K}`$ to obtain the advantages of Section 12.2 (real results, sorting, orthonormal eigenvectors), followed by the back-transformation $`\mathbf{v} = M^{-1/2}\mathbf{u}`$. `scipy.linalg.eigh(K, M)` performs the same kind of reduction internally through the Cholesky factorization of $`M`$ (for a diagonal $`M`$ the Cholesky factor is $`M^{1/2}`$), and its use is covered in Sections 6.1-6.2 of the Chapter 13 Lab.
+
+### 12.4 Application: Natural Vibration of a Three-Story Building
+
+To estimate the response of a building when the ground shakes horizontally, as in an earthquake, the mass of each floor is lumped at a point and the columns and walls between floors are treated as horizontal springs. With floor masses $`m_1, m_2, m_3`$ from the bottom and $`k_i`$ the stiffness between floor $`i`$ and the floor below, the method of Section 8.3 gives $`M\ddot{\mathbf{x}} + K\mathbf{x} = \mathbf{0}`$. There is no spring above the top floor, so the last diagonal entry of $`K`$ is $`k_3`$ alone.
+
+```math
+K = \begin{bmatrix} k_1 + k_2 & -k_2 & 0 \\ -k_2 & k_2 + k_3 & -k_3 \\ 0 & -k_3 & k_3 \end{bmatrix}
+```
+
+For a building with floor masses $`m = (10000,\ 9000,\ 7000)`$ kg and story stiffnesses $`k = (5.0,\ 4.5,\ 3.0) \times 10^{6}`$ N/m, the natural frequencies and modes are computed, and each mode is scaled so that the displacement of the top floor is 1.
+
+```python
+import numpy as np
+
+m = np.array([10000.0, 9000.0, 7000.0])         # floor masses (kg)
+k = np.array([5.0e6, 4.5e6, 3.0e6])             # story stiffnesses (N/m)
+K = np.array([[k[0] + k[1], -k[1], 0.0],
+              [-k[1], k[1] + k[2], -k[2]],
+              [0.0, -k[2], k[2]]])
+A = K / m[:, None]                              # A = M^(-1) K (row i divided by m_i)
+lam, V = np.linalg.eig(A)
+order = np.argsort(lam)                         # lowest frequency first
+lam, V = lam[order], V[:, order]
+np.set_printoptions(precision=4, suppress=True)
+print(lam)
+print(np.sqrt(lam) / (2 * np.pi))               # natural frequencies (Hz)
+print(V / V[2, :])                              # scale each mode so the top floor is 1
+print(np.linalg.eigvalsh(K / np.sqrt(np.outer(m, m))))   # symmetric form M^(-1/2) K M^(-1/2)
+```
+
+```text
+[ 112.5724  662.3281 1437.0042]
+[1.6886 4.096  6.0332]
+[[ 0.3962 -0.8532  2.1742]
+ [ 0.7373 -0.5454 -2.353 ]
+ [ 1.      1.      1.    ]]
+[ 112.5724  662.3281 1437.0042]
+```
+
+`K / m[:, None]` divides row $`i`$ of $`K`$ by $`m_i`$, so it is $`M^{-1}K`$. Because `eig` does not guarantee the order (Section 12.2), `np.argsort` sorts the eigenvalues in ascending order and reorders the eigenvector columns accordingly. `V / V[2, :]` divides each column by its top-floor entry, and the last line applies `eigvalsh` to the symmetric matrix $`\tilde{K}`$ of Section 12.3, giving exactly the same eigenvalues. The results are summarized below.
+
+| Mode | $`\omega^2`$ | $`f`$ (Hz) | Period (s) | Floor 1 | Floor 2 | Floor 3 |
+|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
+| 1 | 112.57 | 1.689 | 0.592 | 0.396 | 0.737 | 1 |
+| 2 | 662.33 | 4.096 | 0.244 | -0.853 | -0.545 | 1 |
+| 3 | 1437.00 | 6.033 | 0.166 | 2.174 | -2.353 | 1 |
+
+*Table 5. Natural frequencies and mode shapes, scaled to 1 at the top floor, of the three-story building model*
+
+![Figure 4. Three vibration modes of the three-story building model](../../images/Ch13_Building-Modes.png)
+
+*Figure 4. Three vibration modes of the three-story building model*
+
+In the first mode the three floors move in the same direction, and higher floors move more. In the second mode floors 1 and 2 move opposite to floor 3, so the shape changes sign once, and in the third mode it changes sign twice. As with the three-mass system of Section 12.2, higher frequencies have more sign changes. The eigenvector columns returned by `eig` have length 1 but are not mutually orthogonal (the dot product of columns 1 and 2 is 0.14), while their mass-weighted inner product is zero, as Section 12.3 predicts.
+
+The general solution is a sum of the three modes, $`\mathbf{x}(t) = \sum_{i=1}^{3}\mathbf{v}_i(a_i\cos\omega_it + b_i\sin\omega_it)`$, as in Section 9, and the six coefficients are set by the initial displacement and velocity. If the initial displacement is proportional to the first mode shape and the initial velocity is zero, then $`a_2 = b_2 = a_3 = b_3 = 0`$, and the building vibrates at the single frequency 1.689 Hz while keeping the amplitude ratio 0.396 : 0.737 : 1 among the floors. The eigenvalue problem does not give the size of the response directly, but if the ground motion contains strong components near a natural frequency, resonance amplifies that mode greatly, so the natural frequencies serve as a design criterion. Multiplying $`K\mathbf{v} = \omega^2M\mathbf{v}`$ by $`\mathbf{v}^T`$ gives $`\omega^2 = \mathbf{v}^TK\mathbf{v}/\mathbf{v}^TM\mathbf{v}`$. That is, $`\omega^2`$ is the strain energy $`\frac{1}{2}\mathbf{v}^TK\mathbf{v}`$ of the mode shape divided by its mass-weighted squared amplitude $`\frac{1}{2}\mathbf{v}^TM\mathbf{v}`$, a generalized Rayleigh quotient that weights the denominator of the Rayleigh quotient of Section 10.6 by the masses, and its minimum is the smallest eigenvalue $`\omega_1^2`$. For a given mass-weighted size the first mode has the least strain energy and is the most easily excited, so its frequency and shape are usually examined first.
 
 ---
 
@@ -1260,6 +1484,9 @@ The following mistakes are common in eigenvalue problems.
 4. **Choosing an initial vector orthogonal to the desired eigenvector.** As in the example of Section 10.7, an initial vector whose component along the desired eigenvector is zero because of symmetry never reaches that eigenvector. A random vector practically removes this risk.
 5. **Computing the inverse explicitly in the inverse power method.** Solve $`A\mathbf{y} = \mathbf{x}`$ instead of forming $`A^{-1}\mathbf{x}`$, and since the same matrix is used repeatedly, factor it once by LU (Chapter 10).
 6. **Assuming that the result of `np.linalg.eig` is sorted.** `eig` does not guarantee the order, so sort the result if needed, and for symmetric matrices use `eigh`, which guarantees ascending order.
+7. **Computing the eigenvalues of a larger matrix as roots of the characteristic polynomial.** As in Section 2.4, rounding of the coefficients alone can shift the roots greatly, so matrix methods such as `eigvals` and `eigh` are used.
+8. **Expecting the eigenvectors from `eig` to be orthogonal in a system with unequal masses.** $`M^{-1}K`$ is not symmetric, so the modes are not orthogonal in the ordinary sense and are only $`M`$-orthogonal (Section 12.3).
+9. **Reading the imaginary part of the eigenvalue as the natural angular frequency in damped oscillation.** The imaginary part $`\beta`$ of the eigenvalues $`\alpha \pm i\beta`$ is the angular frequency of the damped oscillation and is smaller than the natural angular frequency $`\omega_n = |\lambda| = \sqrt{\alpha^2 + \beta^2}`$ (Section 3.5).
 
 ---
 
@@ -1289,6 +1516,11 @@ The following mistakes are common in eigenvalue problems.
 | Symmetric matrices | All eigenvalues are real, eigenvectors of distinct eigenvalues are orthogonal, and the matrix decomposes as $`A = V\Lambda V^T`$. |
 | Deflation | $`A_2 = A - \lambda_1\mathbf{v}_1\mathbf{v}_1^T`$ changes only $`\lambda_1`$ to zero, so the power method can find the second eigenvalue. |
 | Vibration modes | $`\omega = \sqrt{\lambda}`$, the eigenvectors are the mode shapes, and higher frequencies have more sign changes in their shapes. |
+| Characteristic polynomials of larger matrices | They can be obtained by cofactor expansion, but their roots are extremely sensitive to rounding of the coefficients, so numerical computation uses methods that act on the matrix directly. |
+| Damped oscillation | If the damping ratio satisfies $`\zeta < 1`$, the eigenvalues are $`\alpha \pm i\beta`$ and the solution is $`e^{\alpha t}(C_1\cos\beta t + C_2\sin\beta t)`$. |
+| Equilibrium and oscillation | A constant external force only moves the equilibrium position $`K\mathbf{x}_{eq} = \mathbf{f}`$, and the oscillation about it is determined by the eigenvalue problem of $`M\ddot{\mathbf{u}} + K\mathbf{u} = \mathbf{0}`$. |
+| Symmetrization and $`M`$-orthogonality | $`\tilde{K} = M^{-1/2}KM^{-1/2}`$ is symmetric and has the same eigenvalues as $`M^{-1}K`$, and the modes satisfy $`\mathbf{v}_i^TM\mathbf{v}_j = 0`$. |
+| Building vibration modes | The eigenvalues of $`M^{-1}K`$ built from floor masses and story stiffnesses give the natural frequencies, and the eigenvectors give the mode shape of each floor. |
 
 ---
 
@@ -1368,11 +1600,31 @@ The following mistakes are common in eigenvalue problems.
 
    </details>
 
+9. **Damped oscillation:** Find the eigenvalues, natural angular frequency, damping ratio, and period of oscillation of $`\ddot{y} + 4\dot{y} + 13y = 0`$.
+
+   <details>
+   <summary>Answer</summary>
+
+   The characteristic equation $`\lambda^2 + 4\lambda + 13 = 0`$ gives $`\lambda = -2 \pm 3i`$. $`\omega_n = \sqrt{13} = 3.606`$ rad/s, and $`2\zeta\omega_n = 4`$ gives $`\zeta = 2/\sqrt{13} = 0.555`$. The imaginary part 3 is the angular frequency of the oscillation, so the period is $`2\pi/3 = 2.094`$ s, and the amplitude decays as $`e^{-2t}`$.
+
+   </details>
+
+10. **Symmetrization:** For $`M = \mathrm{diag}(2,\ 1)`$ and $`K = \begin{bmatrix} 3 & -1 \\ -1 & 1 \end{bmatrix}`$, find $`M^{-1}K`$ and $`\tilde{K} = M^{-1/2}KM^{-1/2}`$, and verify that they have the same eigenvalues and that the eigenvectors of $`M^{-1}K`$ are $`M`$-orthogonal.
+
+   <details>
+   <summary>Answer</summary>
+
+   $`M^{-1}K = \begin{bmatrix} 1.5 & -0.5 \\ -1 & 1 \end{bmatrix}`$ and $`\tilde{K} = \begin{bmatrix} 1.5 & -1/\sqrt{2} \\ -1/\sqrt{2} & 1 \end{bmatrix}`$. Both matrices have trace 2.5 and determinant $`1.5 - 0.5 = 1`$, so their eigenvalues are the same roots 2 and 0.5 of $`\lambda^2 - 2.5\lambda + 1 = 0`$. The eigenvectors of $`M^{-1}K`$ are $`(1,\ -1)`$ for $`\lambda = 2`$ and $`(1,\ 2)`$ for $`\lambda = 0.5`$. Their ordinary dot product is $`1 - 2 = -1`$, but their mass-weighted inner product is $`2(1)(1) + 1(-1)(2) = 0`$.
+
+   </details>
+
 ---
 
 <br>
 
 ## References
 
-1. NumPy Developers, "numpy.linalg.eig," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html
-2. NumPy Developers, "numpy.linalg.eigh," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
+1. NumPy Developers, "numpy.poly," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.poly.html
+2. SciPy Developers, "scipy.linalg.expm," *SciPy Documentation*. [Online]. Available: https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.expm.html
+3. NumPy Developers, "numpy.linalg.eig," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html
+4. NumPy Developers, "numpy.linalg.eigh," *NumPy Documentation*. [Online]. Available: https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
