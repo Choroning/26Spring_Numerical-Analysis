@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 14 homework of Numerical Analysis. The task is to fill in the blank of the lab notebook `Lab13-diff.ipynb` distributed by the instructor and run it. The notebook has eight parts: the benchmark function and a review of Taylor expansion, the forward, backward, and central differences, higher-order stencils and Richardson extrapolation, second derivatives and mixed partial derivatives, step-size selection and the complex-step method, multivariate differentiation (Jacobians and Hessians), FEM derivative recovery, and engineering applications. All other code cells, including the cell of Section 7 marked `COMPLETE` and the Exercise cells, were distributed with their code filled in, and the only blank lies between the two comment lines marked `COMPLETE` in Section 2.1. The first code cell of the notebook imports `numpy` as `np` and `matplotlib.pyplot` as `plt`, imports `solve` from `scipy.linalg`, and turns off warning output.
 
 Each code block below reproduces a cell of the notebook, and the place where code is missing is the blank to fill. The distributed blank notebook is [Lab13-diff.ipynb](Lab13-diff.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blank and running it.
 
 ---
 

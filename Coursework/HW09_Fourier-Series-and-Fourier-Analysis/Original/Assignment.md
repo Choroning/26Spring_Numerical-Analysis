@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 11 homework of Numerical Analysis. The task is to fill in the blank of the lab notebook `Lab10-Fourier.ipynb` distributed by the instructor and run it. The notebook has six parts: time and frequency domains, Fourier series, the discrete Fourier transform (DFT), the power spectrum, signal filtering and noise removal, and an engineering application in vibration analysis. The other cells, including the other functions marked `COMPLETE` (`fourier_series_1`, `compute_dft`, and `lowpass_filter`) and the cells of Exercises 2.1, 4.1, and 5.1, were distributed with their code filled in, and the only blank is the function `power_spectrum` in Section 4. The first code cell of the notebook imports `numpy` as `np` and `matplotlib.pyplot` as `plt`, and imports `fft` and `ifft` from `scipy.fft`.
 
 The code blocks below reproduce cells of the notebook, and the place where code is missing is the blank to fill. The distributed blank notebook is [Lab10-Fourier.ipynb](Lab10-Fourier.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blank and running it.
 
 ---
 

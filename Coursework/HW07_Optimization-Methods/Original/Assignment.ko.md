@@ -2,14 +2,11 @@
 
 [레포지토리 안내](../../../README.ko.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-24
 
 수치해석 9주차 과제이다. 교수자가 배포한 실습 노트북 `Lab08-Optimization.ipynb`의 빈칸을 채워 실행한다. 노트북은 국소 최솟값과 전역 최솟값, 황금 분할 탐색, 포물선 보간, 최급 하강법, `scipy.optimize`와 공학 응용, 제약 최적화(선택)의 여섯 부분으로 이루어지며, 빈칸은 `COMPLETE`라고 적힌 두 주석 줄 사이에 모두 3곳 있다. 원기둥 설계 문제를 확장하는 5.4절의 Exercise 셀은 코드가 채워진 채 배포되었고, 코드가 비어 있는 두 Exercise 셀은 이 안내문 끝의 [노트북의 추가 연습 문제](#노트북의-추가-연습-문제)에 옮겼다. 노트북의 첫 코드 셀은 `numpy`를 `np`로, `matplotlib.pyplot`을 `plt`로 불러오고, `scipy.optimize`의 `minimize_scalar`와 `minimize`를 불러온다.
 
 아래 각 문제의 코드 블록은 노트북의 셀을 옮긴 것이며, 코드가 비어 있는 자리가 채울 곳이다. 배포된 빈 노트북은 [Lab08-Optimization.ipynb](Lab08-Optimization.ipynb)에 있다.
-
-- **제출 기한:** 배포 후 1주
-- **제출 방법:** 빈칸을 채워 실행한 노트북을 온라인으로 제출한다.
 
 ---
 

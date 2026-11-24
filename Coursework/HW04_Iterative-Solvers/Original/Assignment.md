@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 5 homework of Numerical Analysis. The task is to fill in the blanks of the lab notebook `Lab05-IterativeSolver.ipynb` distributed by the instructor and run it. The notebook has six parts: matrix splitting and the fixed-point framework, Jacobi iteration, the Gauss-Seidel method, convergence analysis, successive over-relaxation (SOR), and an application to 2D steady-state heat conduction. There are six blanks in total, each between two comment lines marked `COMPLETE`. The first code cell of the notebook imports `numpy` as `np`, `matplotlib.pyplot` as `plt`, and `time`.
 
 Each code block below reproduces a cell of the notebook, and the places where code is missing are the blanks to fill. The comments left next to the blanks are descriptions from the distributed notebook. The distributed blank notebook is [Lab05-IterativeSolver.ipynb](Lab05-IterativeSolver.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blanks and running it.
 
 ---
 

@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 10 homework of Numerical Analysis. The task is to fill in the blanks of the lab notebook `Lab09-Regression.ipynb` distributed by the instructor and run it. The notebook has six parts: why regression is needed, simple linear regression, linearizable nonlinear regression, general linear least squares, nonlinear regression with `scipy.optimize.curve_fit`, and model comparison and selection. There are five blanks in total, each between two comment lines marked `COMPLETE`. The first code cell of the notebook imports `numpy` as `np`, `matplotlib.pyplot` as `plt`, and `scipy.stats` as `stats`, and imports `curve_fit` from `scipy.optimize`.
 
 Each code block below reproduces a cell of the notebook, and the places where code is missing are the blanks to fill. The distributed blank notebook is [Lab09-Regression.ipynb](Lab09-Regression.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blanks and running it.
 
 The cell in Section 1.2 of the notebook defines the datasets used throughout the lab as follows and draws their scatter plots.
 

@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 13 homework of Numerical Analysis. The task is to fill in the blank of the lab notebook `Lab12-Int.ipynb` distributed by the instructor and run it. The notebook has eight parts: the benchmark function, the trapezoidal rule, Simpson's rules, Richardson extrapolation and Romberg integration, Gauss-Legendre quadrature, Gauss-Lobatto quadrature, `scipy.integrate`, and engineering applications. All other code cells, including the Exercise cells, were distributed with their code filled in, and the only blank lies between the two comment lines marked `COMPLETE`. The first code cell of the notebook imports `numpy` as `np` and `matplotlib.pyplot` as `plt`, as well as `integrate` from `scipy` and `leggauss` from `numpy.polynomial.legendre`.
 
 Each code block below reproduces a cell of the notebook, and the place where code is missing is the blank to fill. The distributed blank notebook is [Lab12-Int.ipynb](Lab12-Int.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blank and running it.
 
 ---
 

@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-17
+> **Last Updated:** 2026-11-24
 
 This is the Week 7 homework of Numerical Analysis. The task is to fill in the blanks of the lab notebook `Lab07-RootSolving.ipynb` distributed by the instructor and run it. The notebook has seven parts: motivation and the graphical approach, incremental search, bisection, false position, Newton-Raphson, the secant method, and `scipy.optimize` with a method comparison. There are five blanks in total, each between two comment lines marked `COMPLETE`. The two Exercise cells that apply bisection and Newton-Raphson to the savings problem were distributed with their code filled in. The first code cell of the notebook imports `numpy` as `np`, `matplotlib.pyplot` as `plt`, `brentq` and `root_scalar` from `scipy.optimize`, and `partial` from `functools`.
 
 Each code block below reproduces a cell of the notebook, and the places where code is missing are the blanks to fill. The distributed blank notebook is [Lab07-RootSolving.ipynb](Lab07-RootSolving.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blanks and running it.
 
 ---
 

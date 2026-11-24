@@ -23,7 +23,7 @@ This repository archives lecture notes and coursework for the Numerical Analysis
 ## 📝 About This Repository
 
 - `Lecture-Notes/` holds lecture notes that follow the textbook's chapter numbers (`Ch##`), and some chapters also hold lab notes.
-- `Coursework/` holds the handouts and explanations of the 12 weekly assignments, along with the distributed blank lab notebooks and the completed notebooks (Jupyter) submitted for them.
+- `Coursework/` holds the handouts and explanations of the 12 weekly assignments, along with the distributed blank lab notebooks and the completed notebooks (Jupyter).
 - Every note comes as an English (`.md`) and Korean (`.ko.md`) pair.
 
 > **🤖 Use of Generative AI Tools**

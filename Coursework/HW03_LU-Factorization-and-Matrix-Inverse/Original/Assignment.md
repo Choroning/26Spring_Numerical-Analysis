@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 4 homework of Numerical Analysis. The task is to fill in the blanks of the lab notebook `Lab04-LU.ipynb` distributed by the instructor and run it. The notebook has five parts: LU factorization, multiple right-hand sides, Cholesky factorization, the matrix inverse, and the condition number with ill-conditioning. There are six blanks in total, each between two comment lines marked `COMPLETE`. The first code cell of the notebook imports `numpy` as `np`, `scipy` as `sc`, `matplotlib.pyplot` as `plt`, and `time`.
 
 Each code block below reproduces a cell of the notebook, and the places where code is missing are the blanks to fill. The distributed blank notebook is [Lab04-LU.ipynb](Lab04-LU.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blanks and running it.
 
 ---
 

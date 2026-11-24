@@ -2,14 +2,11 @@
 
 [Repository Guide](../../../README.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **Last Updated:** 2026-11-16
+> **Last Updated:** 2026-11-24
 
 This is the Week 12 homework of Numerical Analysis. The task is to fill in the blank of the lab notebook `Lab11-Spline.ipynb` distributed by the instructor and run it. The notebook has seven parts: why interpolation is needed, Newton's divided differences, Lagrange interpolation, Runge's phenomenon, quadratic splines, cubic splines, and `scipy.interpolate.CubicSpline`. The other cells, including the cells of Exercises 2.1 and 3.1, were distributed with their code filled in, and the only blank is the one between the two comment lines marked `COMPLETE` in the function `lagrange_basis` of Section 3. The first code cell of the notebook imports `numpy` as `np` and `matplotlib.pyplot` as `plt`, and imports `CubicSpline` and `interp1d` from `scipy.interpolate`.
 
 The code blocks below reproduce cells of the notebook, and the place where code is missing is the blank to fill. The distributed blank notebook is [Lab11-Spline.ipynb](Lab11-Spline.ipynb).
-
-- **Deadline:** one week after distribution
-- **Submission:** Submit the notebook online after filling in the blank and running it.
 
 ---
 

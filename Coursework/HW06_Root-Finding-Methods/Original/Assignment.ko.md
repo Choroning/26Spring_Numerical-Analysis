@@ -2,14 +2,11 @@
 
 [레포지토리 안내](../../../README.ko.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-24
 
 수치해석 7주차 과제이다. 교수자가 배포한 실습 노트북 `Lab07-RootSolving.ipynb`의 빈칸을 채워 실행한다. 노트북은 동기와 그래프 방법, 증분 탐색, 이분법, 가위치법, 뉴턴-랩슨법, 할선법, `scipy.optimize`와 방법 비교의 일곱 부분으로 이루어지며, 빈칸은 `COMPLETE`라고 적힌 두 주석 줄 사이에 모두 5곳 있다. 이분법과 뉴턴-랩슨법을 적금 문제에 적용하는 두 Exercise 셀은 코드가 채워진 채 배포되었다. 노트북의 첫 코드 셀은 `numpy`를 `np`로, `matplotlib.pyplot`을 `plt`로 불러오고, `scipy.optimize`의 `brentq`, `root_scalar`와 `functools`의 `partial`을 불러온다.
 
 아래 각 문제의 코드 블록은 노트북의 셀을 옮긴 것이며, 코드가 비어 있는 자리가 채울 곳이다. 배포된 빈 노트북은 [Lab07-RootSolving.ipynb](Lab07-RootSolving.ipynb)에 있다.
-
-- **제출 기한:** 배포 후 1주
-- **제출 방법:** 빈칸을 채워 실행한 노트북을 온라인으로 제출한다.
 
 ---
 

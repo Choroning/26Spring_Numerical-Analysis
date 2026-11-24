@@ -2,7 +2,7 @@
 
 [Repository Guide](README.md) | [English](Course-Information.md) | [한국어](Course-Information.ko.md)
 
-> **Last Updated:** 2026-11-18
+> **Last Updated:** 2026-11-24
 
 ## Table of Contents
 
@@ -48,7 +48,7 @@
 
 - Assessment scores are disclosed.
 - **Exams:** The midterm covers the topics taught up to the exam date, and the final exam focuses mainly on the material learned after the midterm. Students who have a conflict with an in-class exam must notify the instructor immediately.
-- **Assignments:** There are twelve weekly homework assignments that combine programming tasks and problem-solving exercises. Each assignment has a one-week deadline and is submitted online.
+- **Assignments:** There are twelve weekly homework assignments that combine programming tasks and problem-solving exercises.
 
 ---
 
@@ -56,7 +56,6 @@
 
 ## 4. Course Policies
 
-- **Deadlines:** The submission deadline is strict, and late assignments are not accepted and are all graded zero. No exceptions are made without prior instructor approval, and medical exceptions require proper documentation.
 - **Collaboration:** Students are encouraged to discuss class topics among themselves, but each student must complete the assignments independently. Any sharing of code or plagiarism is considered academic dishonesty and results in strict disciplinary action.
 - **Attendance:** Regular attendance is expected. No grade may be assigned for absences of 1/3 or more of the class days, except for unavoidable absences deemed necessary by the instructor, and even with excused absences the actual attendance must be at least 1/2 of the classes.
 - **AI Use:** This course encourages the use of AI agents. Students must uphold academic integrity and follow the university's AI guideline.

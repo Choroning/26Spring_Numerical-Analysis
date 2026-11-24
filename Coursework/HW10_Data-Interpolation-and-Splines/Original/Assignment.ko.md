@@ -2,14 +2,11 @@
 
 [레포지토리 안내](../../../README.ko.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-24
 
 수치해석 12주차 과제이다. 교수자가 배포한 실습 노트북 `Lab11-Spline.ipynb`의 빈칸을 채워 실행한다. 노트북은 보간의 필요성, 뉴턴의 분할 차분, 라그랑주 보간, 룽게 현상, 이차 스플라인, 삼차 스플라인, `scipy.interpolate.CubicSpline`의 일곱 부분으로 이루어진다. Exercise 2.1과 3.1의 셀을 포함해 나머지 셀은 코드가 채워진 채로 배포되었으며, 빈칸은 3절의 함수 `lagrange_basis`에 `COMPLETE`라고 적힌 두 주석 줄 사이의 한 곳이다. 노트북의 첫 코드 셀은 `numpy`를 `np`로, `matplotlib.pyplot`을 `plt`로 불러오고 `scipy.interpolate`에서 `CubicSpline`과 `interp1d`를 불러온다.
 
 아래 코드 블록은 노트북의 셀을 옮긴 것이며, 코드가 비어 있는 자리가 채울 곳이다. 배포된 빈 노트북은 [Lab11-Spline.ipynb](Lab11-Spline.ipynb)에 있다.
-
-- **제출 기한:** 배포 후 1주
-- **제출 방법:** 빈칸을 채워 실행한 노트북을 온라인으로 제출한다.
 
 ---
 

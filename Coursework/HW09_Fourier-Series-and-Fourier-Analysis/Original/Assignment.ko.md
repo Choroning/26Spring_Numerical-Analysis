@@ -2,14 +2,11 @@
 
 [레포지토리 안내](../../../README.ko.md) | [English](Assignment.md) | [한국어](Assignment.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-24
 
 수치해석 11주차 과제이다. 교수자가 배포한 실습 노트북 `Lab10-Fourier.ipynb`의 빈칸을 채워 실행한다. 노트북은 시간 영역과 주파수 영역, 푸리에 급수, 이산 푸리에 변환(DFT), 파워 스펙트럼, 신호 필터링과 잡음 제거, 공학 응용인 진동 분석의 여섯 부분으로 이루어진다. `COMPLETE` 표시가 있는 다른 함수(`fourier_series_1`, `compute_dft`, `lowpass_filter`)와 Exercise 2.1, 4.1, 5.1의 셀을 포함해 나머지 셀은 코드가 채워진 채로 배포되었으며, 빈칸은 4절의 함수 `power_spectrum` 한 곳이다. 노트북의 첫 코드 셀은 `numpy`를 `np`로, `matplotlib.pyplot`을 `plt`로 불러오고 `scipy.fft`에서 `fft`와 `ifft`를 불러온다.
 
 아래 코드 블록은 노트북의 셀을 옮긴 것이며, 코드가 비어 있는 자리가 채울 곳이다. 배포된 빈 노트북은 [Lab10-Fourier.ipynb](Lab10-Fourier.ipynb)에 있다.
-
-- **제출 기한:** 배포 후 1주
-- **제출 방법:** 빈칸을 채워 실행한 노트북을 온라인으로 제출한다.
 
 ---
 
