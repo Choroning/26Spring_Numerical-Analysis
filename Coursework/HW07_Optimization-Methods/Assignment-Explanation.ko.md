@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 7
 
@@ -10,7 +10,7 @@
 > 1. 황금 분할 탐색에서 구간과 내부 점을 갱신하고, 이전 내부 점을 재사용할 수 있는 이유를 황금비의 성질로 설명할 수 있다
 > 2. 세 점을 지나는 포물선의 꼭짓점으로 최솟값을 추정하고 황금 분할 탐색과 수렴 속도를 비교할 수 있다
 > 3. 음의 기울기 방향으로 움직이는 최급 하강법의 갱신 식을 완성하고 반복이 멈추지 않은 원인을 부동 소수점 한계로 설명할 수 있다
-> 4. 고정 스텝 크기의 최급 하강법이 수렴하는 조건을 헤세 행렬의 고유값으로 설명할 수 있다
+> 4. 고정 스텝 크기의 최급 하강법이 수렴하는 조건을 Hessian 행렬의 고유값으로 설명할 수 있다
 
 ---
 
@@ -222,7 +222,7 @@ alpha = 0.1   iterations = 200  ||grad|| = 1.723e-07  |x - x*| = 2.255e-07
 alpha = 0.5   iterations = 200  ||grad|| = 2.038e+41  |x - x*| = 3.893e+40
 ```
 
-$`f`$는 이차 함수이고 헤세 행렬은 $`H = \begin{bmatrix} 4 & 2 \\ 2 & 2 \end{bmatrix}`$이므로, 고정 스텝 크기에서는 오차가 반복마다 $`I - \alpha H`$를 곱한 만큼 변한다. $`H`$의 고유값은 $`3 \pm \sqrt{5}`$, 곧 0.764와 5.236이므로 오차의 감소 비율은 $`\max_i |1 - \alpha\lambda_i|`$이다.
+$`f`$는 이차 함수이고 Hessian 행렬은 $`H = \begin{bmatrix} 4 & 2 \\ 2 & 2 \end{bmatrix}`$이므로, 고정 스텝 크기에서는 오차가 반복마다 $`I - \alpha H`$를 곱한 만큼 변한다. $`H`$의 고유값은 $`3 \pm \sqrt{5}`$, 곧 0.764와 5.236이므로 오차의 감소 비율은 $`\max_i |1 - \alpha\lambda_i|`$이다.
 
 | $`\alpha`$ | $`\max_i \vert 1 - \alpha\lambda_i \vert`$ | 결과 |
 |:-----|:-----|:-----|

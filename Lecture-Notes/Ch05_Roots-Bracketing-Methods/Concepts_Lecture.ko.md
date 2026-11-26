@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lecture.md) | [한국어](Concepts_Lecture.ko.md)
 
-> **최종 수정일:** 2026-11-19
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 5
 
@@ -198,7 +198,7 @@ flowchart TD
     B --> B3["가위치법"]
     B3 --> B4["수정 가위치법"]
     C --> C1["고정점 반복"]
-    C --> C2["뉴턴-랩슨법"]
+    C --> C2["Newton-Raphson법"]
     C --> C3["할선법"]
 ```
 
@@ -413,7 +413,7 @@ def bisection(f, a, b, tol=1e-6, max_iter=100):
 
 ### 6.4 SciPy의 구간법 함수
 
-SciPy의 `scipy.optimize`는 구간법 함수 `bisect`와 `brentq`(6장의 브렌트 방법), 그리고 여러 방법을 하나로 묶은 `root_scalar`를 제공한다. `root_scalar`는 `bracket`을 주면 `bisect`, `brentq`, `brenth`, `ridder`, `toms748` 같은 구간법을, 초기 추정값을 주면 `secant`, `newton`, `halley` 같은 개방법을 쓴다 [1].
+SciPy의 `scipy.optimize`는 구간법 함수 `bisect`와 `brentq`(6장의 Brent 방법), 그리고 여러 방법을 하나로 묶은 `root_scalar`를 제공한다. `root_scalar`는 `bracket`을 주면 `bisect`, `brentq`, `brenth`, `ridder`, `toms748` 같은 구간법을, 초기 추정값을 주면 `secant`, `newton`, `halley` 같은 개방법을 쓴다 [1].
 
 ```python
 from scipy import optimize
@@ -497,7 +497,7 @@ $`n`$번 반복한 후 오차의 상한은 다음과 같다.
 - **10번 반복 후**에는 원래 구간의 불확실성이 $`2^{10} = 1024`$배 줄어든다(약 3자리 정밀도).
 - **20번 반복 후**에는 $`2^{20} \approx 10^6`$배 줄어 약 6자리 정밀도를 얻는다. 약 백만 배의 개선이다.
 
-> **참고:** **선형 수렴.** 이분법의 수렴은 **선형(linear)** 이다. 각 반복이 대략 1비트의 정확도를 더한다. 이는 이차 수렴하는 고차 방법(예: 6장의 뉴턴-랩슨법)과 대조적이다.
+> **참고:** **선형 수렴.** 이분법의 수렴은 **선형(linear)** 이다. 각 반복이 대략 1비트의 정확도를 더한다. 이는 이차 수렴하는 고차 방법(예: 6장의 Newton-Raphson법)과 대조적이다.
 
 ### 7.3 필요한 반복 횟수
 
@@ -547,7 +547,7 @@ print(f"Iterations needed: {n}")  # Output: 17
 
 > **용어 정의:** **수렴 차수(order of convergence)** 는 근 $`x^*`$에 수렴하는 수열 $`x_k`$의 오차 $`e_k = x_k - x^*`$가 $`\lim_{k \to \infty} |e_{k+1}|/|e_k|^p = C`$ ($`0 < C < \infty`$)를 만족할 때의 지수 $`p`$이며, 상수 $`C`$를 점근 오차 상수라고 한다.
 
-$`p = 1`$이고 $`0 < C < 1`$이면 **선형 수렴(linear convergence)** 이라고 하며, 오차가 매 반복 대략 $`C`$배가 된다. $`p = 2`$이면 **이차 수렴**이며 정확한 자릿수가 매 반복 대략 두 배가 된다(6장의 뉴턴-랩슨법). $`1 < p < 2`$이면 **초선형 수렴**이라고 한다(6장의 할선법).
+$`p = 1`$이고 $`0 < C < 1`$이면 **선형 수렴(linear convergence)** 이라고 하며, 오차가 매 반복 대략 $`C`$배가 된다. $`p = 2`$이면 **이차 수렴**이며 정확한 자릿수가 매 반복 대략 두 배가 된다(6장의 Newton-Raphson법). $`1 < p < 2`$이면 **초선형 수렴**이라고 한다(6장의 할선법).
 
 이분법에서는 근을 포함하는 구간의 폭이 매 반복 정확히 절반이 되므로, 오차의 상한 $`\Delta x/2^n`$은 $`C = 1/2`$인 선형 수렴을 한다. 다만 6.3절에서 본 것처럼 참 오차 자체는 매 반복 줄지 않을 수 있으므로, 이분법의 선형 수렴은 오차의 상한에 대한 성질이다. 그림 4는 표 2의 반복을 24번까지 이어 가며 참 오차와 사전 한계를 반로그 축에 그린 것이다.
 

@@ -2,14 +2,14 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10, 11
 
 > **학습 목표:**
 > 1. Doolittle 알고리즘으로 $`L`$과 $`U`$를 계산하고 SciPy의 피봇팅 LU 분해와 비교할 수 있다
 > 2. 전진 대입과 후진 대입으로 LU 분해된 시스템을 풀고, 한 번의 분해로 여러 우변을 풀 수 있다
-> 3. 촐레스키 분해로 대칭 양정치 시스템을 풀고 결과를 직접 풀이와 비교해 검증할 수 있다
+> 3. Cholesky 분해로 대칭 양정치 시스템을 풀고 결과를 직접 풀이와 비교해 검증할 수 있다
 > 4. LU 분해로 역행렬의 열을 하나씩 구할 수 있다
 > 5. 조건수로 악조건 시스템을 진단하고 잃는 유효 숫자의 개수를 어림할 수 있다
 
@@ -31,7 +31,7 @@
   - [5.1 풀이 방법](#51-풀이-방법)
   - [5.2 작성한 코드](#52-작성한-코드)
   - [5.3 실행 결과와 검증](#53-실행-결과와-검증)
-- [6. 문제 4: 촐레스키 분해를 이용한 풀이](#6-문제-4-촐레스키-분해를-이용한-풀이)
+- [6. 문제 4: Cholesky 분해를 이용한 풀이](#6-문제-4-cholesky-분해를-이용한-풀이)
   - [6.1 풀이 방법](#61-풀이-방법)
   - [6.2 작성한 코드](#62-작성한-코드)
   - [6.3 실행 결과와 검증](#63-실행-결과와-검증)
@@ -54,20 +54,20 @@
 
 > **풀어 보기:** 이 문서는 정답과 풀이를 담고 있다. 먼저 [과제 안내문](Original/Assignment.ko.md)의 문제를 직접 풀어 본 뒤 읽는다.
 
-과제는 교수자가 배포한 실습 노트북 `Lab04-LU.ipynb`의 빈칸 6곳을 채워 실행하는 것이다. 노트북은 LU 분해, 다중 우변, 촐레스키 분해, 역행렬, 조건수와 악조건의 다섯 부분으로 이루어진다. 문제 원문은 [과제 안내문](Original/Assignment.ko.md)에, 배포된 빈 노트북은 [Original/Lab04-LU.ipynb](Original/Lab04-LU.ipynb)에, 빈칸을 채워 실행한 노트북은 [Solution/Lab04-LU_Completed.ipynb](Solution/Lab04-LU_Completed.ipynb)에 있다.
+과제는 교수자가 배포한 실습 노트북 `Lab04-LU.ipynb`의 빈칸 6곳을 채워 실행하는 것이다. 노트북은 LU 분해, 다중 우변, Cholesky 분해, 역행렬, 조건수와 악조건의 다섯 부분으로 이루어진다. 문제 원문은 [과제 안내문](Original/Assignment.ko.md)에, 배포된 빈 노트북은 [Original/Lab04-LU.ipynb](Original/Lab04-LU.ipynb)에, 빈칸을 채워 실행한 노트북은 [Solution/Lab04-LU_Completed.ipynb](Solution/Lab04-LU_Completed.ipynb)에 있다.
 
 | 문제 | 노트북 절 | 채울 빈칸 |
 |:-----|:-----|:-----|
 | 문제 1 | 1.2 Doolittle 알고리즘 | 함수 `lu_doolittle`의 `U[k, j]`, `L[i, k]` |
 | 문제 2 | 1.4 $`L`$과 $`U`$를 이용한 풀이 | 함수 `forward_sub`의 `d[i]`, 함수 `backward_sub`의 `x[i]` |
 | 문제 3 | 2.2 다중 하중 케이스 | `x_gravity`, `x_wind`, `x_combined` |
-| 문제 4 | 3.2 촐레스키 분해 | 함수 `cholesky_solve`의 `d`, `x` |
+| 문제 4 | 3.2 Cholesky 분해 | 함수 `cholesky_solve`의 `d`, `x` |
 | 문제 5 | 4.2 LU 분해를 이용한 역행렬 | 함수 `lu_inverse`의 `A_inv[:, j]` |
 | 문제 6 | 5.4 악조건 시스템의 진단 | `kappa`, `digits_lost`, `x_susp` |
 
 *표 1. 과제를 이루는 여섯 빈칸*
 
-LU 분해와 전진 대입, 후진 대입, 피봇팅을 적용한 LU, 촐레스키 분해는 [10장 강의 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.ko.md)와 [10장 실습 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md)에, 역행렬과 조건수는 [11장 강의 노트](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lecture.ko.md)와 [11장 실습 노트](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
+LU 분해와 전진 대입, 후진 대입, 피봇팅을 적용한 LU, Cholesky 분해는 [10장 강의 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.ko.md)와 [10장 실습 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md)에, 역행렬과 조건수는 [11장 강의 노트](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lecture.ko.md)와 [11장 실습 노트](../../Lecture-Notes/Ch11_Matrix-Inverse-and-Condition/Concepts_Lab.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
 
 ---
 
@@ -214,11 +214,11 @@ Superposition check ||x_comb - (x_grav + x_wind)||: 4.97e-16
 
 <br>
 
-## 6. 문제 4: 촐레스키 분해를 이용한 풀이
+## 6. 문제 4: Cholesky 분해를 이용한 풀이
 
 ### 6.1 풀이 방법
 
-$`A = LL^T`$이면 $`A\mathbf{x} = \mathbf{b}`$는 $`L\mathbf{d} = \mathbf{b}`$와 $`L^T\mathbf{x} = \mathbf{d}`$의 두 삼각 시스템이 된다. 빈칸 위의 주석은 첫 시스템에 노트북 1절에서 정의한 `forward_sub`를 쓰고 둘째 시스템에서는 $`L^T`$가 상삼각 행렬임에 주목하라고 지시하며, 작성한 코드는 이에 따라 `forward_sub(L, b)`와 `backward_sub(L.T, d)`를 쓴다. 촐레스키 분해는 [10장 강의 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.ko.md)의 9절과 [10장 실습 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md)의 5절에서 다룬다.
+$`A = LL^T`$이면 $`A\mathbf{x} = \mathbf{b}`$는 $`L\mathbf{d} = \mathbf{b}`$와 $`L^T\mathbf{x} = \mathbf{d}`$의 두 삼각 시스템이 된다. 빈칸 위의 주석은 첫 시스템에 노트북 1절에서 정의한 `forward_sub`를 쓰고 둘째 시스템에서는 $`L^T`$가 상삼각 행렬임에 주목하라고 지시하며, 작성한 코드는 이에 따라 `forward_sub(L, b)`와 `backward_sub(L.T, d)`를 쓴다. Cholesky 분해는 [10장 강의 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lecture.ko.md)의 9절과 [10장 실습 노트](../../Lecture-Notes/Ch10_LU-Factorization/Concepts_Lab.ko.md)의 5절에서 다룬다.
 
 ### 6.2 작성한 코드
 
@@ -248,9 +248,9 @@ Solve time (n=500):  Cholesky = 0.0063s,  LU = 0.0012s,  speedup = 0.2x
 
 변위가 수백 m에 이르고 `np.linalg.solve`와의 최대 차이가 885 m이므로 이 결과는 틀렸다. 정확한 변위는 $`[150, 300, 450, 550]`$ mm이며, $`10^4 (2 \cdot 0.15 - 0.3) = 0`$, $`10^4(-0.3 + 0.9 - 0.55) = 500`$처럼 각 식에 대입해 확인할 수 있다.
 
-원인은 `forward_sub`의 가정에 있다. 문제 2의 `forward_sub`는 독스트링에 적힌 대로 대각 성분이 1인 단위 하삼각 행렬을 가정하여 `d[i] = b[i] - L[i, :i] @ d[:i]`로 끝나고 $`\ell_{ii}`$로 나누지 않는다. LU 분해의 $`L`$은 이 가정을 만족하지만, 촐레스키 인수 $`L`$의 대각 성분은 이 행렬에서 $`141.42, 122.47, 115.47, 50`$이어서 1이 아니다. 따라서 첫 단계의 $`\mathbf{d}`$가 틀리고, 그 뒤의 후진 대입은 올바르게 동작해도 결과가 틀린다. `backward_sub`는 `U[i, i]`로 나누므로 대각 성분이 1이 아닌 $`L^T`$에 그대로 쓸 수 있다.
+원인은 `forward_sub`의 가정에 있다. 문제 2의 `forward_sub`는 독스트링에 적힌 대로 대각 성분이 1인 단위 하삼각 행렬을 가정하여 `d[i] = b[i] - L[i, :i] @ d[:i]`로 끝나고 $`\ell_{ii}`$로 나누지 않는다. LU 분해의 $`L`$은 이 가정을 만족하지만, Cholesky 인수 $`L`$의 대각 성분은 이 행렬에서 $`141.42, 122.47, 115.47, 50`$이어서 1이 아니다. 따라서 첫 단계의 $`\mathbf{d}`$가 틀리고, 그 뒤의 후진 대입은 올바르게 동작해도 결과가 틀린다. `backward_sub`는 `U[i, i]`로 나누므로 대각 성분이 1이 아닌 $`L^T`$에 그대로 쓸 수 있다.
 
-> **참고:** 빈칸 위의 주석이 지시한 대로 노트북 1절의 `forward_sub`를 써서 `forward_sub(L, b)`로 풀면 촐레스키 인수에서는 성립하지 않는다. 대각 성분으로 나누는 전진 대입을 쓰면 정확한 변위 $`[150, 300, 450, 550]`$ mm가 나오고, `np.linalg.solve`와의 차이는 $`3.3 \times 10^{-16}`$ m이다. 아래는 그렇게 고친 구현이며, 제출한 노트북의 코드가 아니다.
+> **참고:** 빈칸 위의 주석이 지시한 대로 노트북 1절의 `forward_sub`를 써서 `forward_sub(L, b)`로 풀면 Cholesky 인수에서는 성립하지 않는다. 대각 성분으로 나누는 전진 대입을 쓰면 정확한 변위 $`[150, 300, 450, 550]`$ mm가 나오고, `np.linalg.solve`와의 차이는 $`3.3 \times 10^{-16}`$ m이다. 아래는 그렇게 고친 구현이며, 제출한 노트북의 코드가 아니다.
 
 ```python
 def forward_sub_general(L, b):
@@ -264,7 +264,7 @@ def forward_sub_general(L, b):
 
 빈칸 한 줄만 바꾼다면 `d = sc.linalg.solve_triangular(L, b, lower=True)`처럼 일반 하삼각 시스템을 푸는 SciPy 함수를 써도 같은 결과를 얻는다.
 
-마지막 줄의 시간 비교에서는 SPD 전용 풀이가 오히려 느리게 측정되었다. 한 번의 측정은 함수 호출 부담과 실행 환경의 영향을 크게 받으므로, 이 결과로 촐레스키 분해의 이론적 비용 이점(약 $`n^3/6`$ 대 $`n^3/3`$)을 판단하기는 어렵다.
+마지막 줄의 시간 비교에서는 SPD 전용 풀이가 오히려 느리게 측정되었다. 한 번의 측정은 함수 호출 부담과 실행 환경의 영향을 크게 받으므로, 이 결과로 Cholesky 분해의 이론적 비용 이점(약 $`n^3/6`$ 대 $`n^3/3`$)을 판단하기는 어렵다.
 
 ---
 
@@ -367,7 +367,7 @@ The solution in the first two DOFs is unreliable.
 | 피봇팅과 비교 | 각 단계의 피봇이 이미 열에서 가장 크면 부분 피봇팅도 행을 바꾸지 않으므로 피봇팅 없는 Doolittle 분해와 SciPy의 분해가 같아진다. |
 | 전진 대입과 후진 대입 | $`L\mathbf{d} = P^T\mathbf{b}`$를 위에서부터, $`U\mathbf{x} = \mathbf{d}`$를 아래에서부터 풀며, 대각 성분이 1이 아닌 삼각 행렬은 대각 성분으로 나누어야 한다. |
 | 다중 우변 | `lu_factor`로 한 번 분해하고 `lu_solve`로 우변마다 $`O(n^2)`$에 풀며, 선형 시스템이므로 해는 중첩 원리를 만족한다. |
-| 촐레스키 분해를 이용한 풀이 | $`A = LL^T`$이면 두 삼각 시스템을 풀지만, 촐레스키 인수의 대각 성분은 1이 아니므로 단위 대각을 가정한 전진 대입을 쓰면 틀린 해가 나온다. |
+| Cholesky 분해를 이용한 풀이 | $`A = LL^T`$이면 두 삼각 시스템을 풀지만, Cholesky 인수의 대각 성분은 1이 아니므로 단위 대각을 가정한 전진 대입을 쓰면 틀린 해가 나온다. |
 | LU 분해를 이용한 역행렬 | 한 번 분해한 뒤 단위 행렬의 각 열을 우변으로 풀어 역행렬의 열을 얻으며, 시스템을 풀 때는 역행렬을 만들지 않는 편이 낫다. |
 | 조건수 진단 | $`\kappa(A) \approx 10^k`$이면 약 $`k`$자리를 잃으며, 거의 같은 두 행은 두 미지수의 차를 거의 정할 수 없게 만든다. |
 
@@ -395,12 +395,12 @@ The solution in the first two DOFs is unreliable.
 
    </details>
 
-3. **촐레스키 풀이의 오류:** 문제 4의 결과가 틀린 원인과 고치는 방법을 설명하라.
+3. **Cholesky 풀이의 오류:** 문제 4의 결과가 틀린 원인과 고치는 방법을 설명하라.
 
    <details>
    <summary>정답</summary>
 
-   `forward_sub`는 단위 하삼각 행렬을 가정해 대각 성분으로 나누지 않는데, 촐레스키 인수 $`L`$의 대각 성분은 $`141.42, 122.47, 115.47, 50`$이다. 전진 대입에서 `L[i, i]`로 나누거나 `sc.linalg.solve_triangular(L, b, lower=True)`를 쓰면 정확한 변위 $`[150, 300, 450, 550]`$ mm가 나온다.
+   `forward_sub`는 단위 하삼각 행렬을 가정해 대각 성분으로 나누지 않는데, Cholesky 인수 $`L`$의 대각 성분은 $`141.42, 122.47, 115.47, 50`$이다. 전진 대입에서 `L[i, i]`로 나누거나 `sc.linalg.solve_triangular(L, b, lower=True)`를 쓰면 정확한 변위 $`[150, 300, 450, 550]`$ mm가 나온다.
 
    </details>
 

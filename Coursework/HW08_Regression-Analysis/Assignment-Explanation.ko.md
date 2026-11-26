@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 14, 15
 
@@ -35,7 +35,7 @@
   - [6.1 풀이 방법](#61-풀이-방법)
   - [6.2 작성한 코드](#62-작성한-코드)
   - [6.3 실행 결과와 검증](#63-실행-결과와-검증)
-- [7. 문제 5: 앙투안 방정식의 비선형 회귀](#7-문제-5-앙투안-방정식의-비선형-회귀)
+- [7. 문제 5: Antoine 방정식의 비선형 회귀](#7-문제-5-antoine-방정식의-비선형-회귀)
   - [7.1 풀이 방법](#71-풀이-방법)
   - [7.2 작성한 코드](#72-작성한-코드)
   - [7.3 실행 결과와 검증](#73-실행-결과와-검증)
@@ -58,7 +58,7 @@
 | 문제 2 | 2.2 적합도 통계량 | 함수 `goodness_of_fit`의 `SST`, `SSE`, `SSR`, `R2` |
 | 문제 3 | 3.1 거듭제곱 모델 | 함수 `power_fit`의 `X`, `Y`, `alpha`, `beta` |
 | 문제 4 | 4.1 정규 방정식 | 함수 `poly_lstsq`의 `X[:, j]`, `c` |
-| 문제 5 | 5.1 선형화할 수 없는 모델 | 앙투안 방정식 셀의 `popt_ant`, `pcov_ant` |
+| 문제 5 | 5.1 선형화할 수 없는 모델 | Antoine 방정식 셀의 `popt_ant`, `pcov_ant` |
 
 *표 1. 과제를 이루는 다섯 빈칸*
 
@@ -76,7 +76,7 @@
 2. **문제 2:** `goodness_of_fit`은 표 1의 정의대로 `SST`, `SSE`, `SSR`, `R2`를 계산해야 하며, 빈칸 뒤의 코드가 이 값으로 `se`와 `R2adj`를 계산한다.
 3. **문제 3:** `power_fit`은 자료를 상용로그 공간으로 변환하고, `linreg`로 구한 로그 공간의 절편과 기울기에서 `alpha`와 `beta`를 되찾아야 한다.
 4. **문제 4:** `poly_lstsq`는 $`j`$번째 열이 $`x^j`$인 설계 행렬을 만들고 정규 방정식 $`\mathbf{X}^T\mathbf{X}\mathbf{c} = \mathbf{X}^T\mathbf{y}`$를 풀어 계수 `c`를 돌려주어야 한다. 이 함수는 노트북 6절의 모델 비교에도 쓰인다.
-5. **문제 5:** 주어진 초기 추정값 `p0_ant`에서 시작하는 `curve_fit`으로 앙투안 방정식의 최적 매개변수와 공분산 행렬을 구해야 한다.
+5. **문제 5:** 주어진 초기 추정값 `p0_ant`에서 시작하는 `curve_fit`으로 Antoine 방정식의 최적 매개변수와 공분산 행렬을 구해야 한다.
 
 ---
 
@@ -279,11 +279,11 @@ Observation: Adj. R² peaks around degree 4-5, then decreases -> overfitting!
 
 <br>
 
-## 7. 문제 5: 앙투안 방정식의 비선형 회귀
+## 7. 문제 5: Antoine 방정식의 비선형 회귀
 
 ### 7.1 풀이 방법
 
-노트북 5.1절이 제시한 형식대로 `curve_fit(모델 함수, x 데이터, y 데이터, p0=초기 추정값)`을 호출한다. 모델 함수 `antoine_model(T, A, B, C)`는 첫 인자가 독립 변수이고 나머지가 추정할 매개변수이므로 `curve_fit`이 요구하는 형식과 맞는다. 비선형 최소제곱은 반복법이므로 초기 추정값이 필요하며, 셀이 준 `p0_ant = [8.0, 1500.0, 200.0]`을 넘긴다. 돌려받는 `popt_ant`는 최적 매개변수, `pcov_ant`는 그 공분산 행렬이다. 비선형 회귀와 앙투안 방정식은 [15장 강의 노트](../../Lecture-Notes/Ch15_Nonlinear-Regression/Concepts_Lecture.ko.md)의 6절에서 다룬다.
+노트북 5.1절이 제시한 형식대로 `curve_fit(모델 함수, x 데이터, y 데이터, p0=초기 추정값)`을 호출한다. 모델 함수 `antoine_model(T, A, B, C)`는 첫 인자가 독립 변수이고 나머지가 추정할 매개변수이므로 `curve_fit`이 요구하는 형식과 맞는다. 비선형 최소제곱은 반복법이므로 초기 추정값이 필요하며, 셀이 준 `p0_ant = [8.0, 1500.0, 200.0]`을 넘긴다. 돌려받는 `popt_ant`는 최적 매개변수, `pcov_ant`는 그 공분산 행렬이다. 비선형 회귀와 Antoine 방정식은 [15장 강의 노트](../../Lecture-Notes/Ch15_Nonlinear-Regression/Concepts_Lecture.ko.md)의 6절에서 다룬다.
 
 ### 7.2 작성한 코드
 

@@ -1,15 +1,15 @@
-# 10장 실습 — LU 분해와 촐레스키 분해
+# 10장 실습 — LU 분해와 Cholesky 분해
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-11-17
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 10
 
 > **학습 목표:**
 > 1. 행렬을 L과 U 인수로 분해할 수 있다
 > 2. 효율적인 다중 풀이를 위해 LU 분해를 적용할 수 있다
-> 3. 대칭 양정치 행렬에 대해 촐레스키 분해를 구현할 수 있다
+> 3. 대칭 양정치 행렬에 대해 Cholesky 분해를 구현할 수 있다
 
 ---
 
@@ -28,9 +28,9 @@
 - [4. 다중 우변: LU 분해의 이점](#4-다중-우변-lu-분해의-이점)
   - [4.1 성능 비교](#41-성능-비교)
   - [4.2 다중 하중 케이스의 질량-스프링 시스템](#42-다중-하중-케이스의-질량-스프링-시스템)
-- [5. 촐레스키 분해(Cholesky Factorization)](#5-촐레스키-분해cholesky-factorization)
+- [5. Cholesky 분해(Cholesky Factorization)](#5-cholesky-분해cholesky-factorization)
   - [5.1 SPD 확인](#51-spd-확인)
-  - [5.2 촐레스키 분해 및 풀이](#52-촐레스키-분해-및-풀이)
+  - [5.2 Cholesky 분해 및 풀이](#52-cholesky-분해-및-풀이)
   - [5.3 FEM 스프링 네트워크 응용](#53-fem-스프링-네트워크-응용)
 - [6. 방법 선택 지침](#6-방법-선택-지침)
 - [요약](#요약)
@@ -290,11 +290,11 @@ print(f'||x_comb - (x_grav + x_wind)|| = {np.linalg.norm(x_comb - (x_grav + x_wi
 
 <br>
 
-## 5. 촐레스키 분해(Cholesky Factorization)
+## 5. Cholesky 분해(Cholesky Factorization)
 
 ### 5.1 SPD 확인
 
-촐레스키 분해를 적용하기 전에 행렬이 대칭 양정치(SPD)인지 확인해야 한다. 행렬이 대칭($`A = A^T`$)이고 모든 고유값이 양수이면 SPD이다.
+Cholesky 분해를 적용하기 전에 행렬이 대칭 양정치(SPD)인지 확인해야 한다. 행렬이 대칭($`A = A^T`$)이고 모든 고유값이 양수이면 SPD이다.
 
 ```python
 def is_spd(A):
@@ -309,11 +309,11 @@ A_spd = np.array([[6, 15, 55], [15, 55, 225], [55, 225, 979]], dtype=float)
 print(f'Is SPD: {is_spd(A_spd)}')
 ```
 
-`np.linalg.eigvalsh`는 대칭 행렬에 최적화된 함수이므로(`h`는 에르미트(Hermitian)를 뜻한다) `np.linalg.eigvals` 대신 사용한다. 실수 고유값만 반환하며, 이 목적에서는 더 빠르고 수치적으로 더 안정하다.
+`np.linalg.eigvalsh`는 대칭 행렬에 최적화된 함수이므로(`h`는 Hermitian을 뜻한다) `np.linalg.eigvals` 대신 사용한다. 실수 고유값만 반환하며, 이 목적에서는 더 빠르고 수치적으로 더 안정하다.
 
-### 5.2 촐레스키 분해 및 풀이
+### 5.2 Cholesky 분해 및 풀이
 
-SciPy는 `sc.linalg.cholesky`로 촐레스키 분해를 제공한다. 기본적으로 상삼각 인자를 반환하고, `lower=True`를 전달하면 하삼각 인자를 반환한다.
+SciPy는 `sc.linalg.cholesky`로 Cholesky 분해를 제공한다. 기본적으로 상삼각 인자를 반환하고, `lower=True`를 전달하면 하삼각 인자를 반환한다.
 
 ```python
 # Cholesky
@@ -331,7 +331,7 @@ def cholesky_solve(A, b):
 
 풀이 절차는 일반 LU와 같다. 먼저 전진 대입으로 $`Ld = b`$를 풀고, 이어서 후진 대입으로 $`L^T x = d`$를 푼다. 핵심 차이는 $`U = L^T`$이므로 삼각 인자 하나만 계산하면 된다는 점이며, 그 결과 계산량과 저장 공간이 모두 절반으로 줄어든다.
 
-> **참고:** 2절에서 정의한 `forward_sub` 함수는 단위 하삼각 행렬(대각 성분이 1)을 가정한다. 촐레스키 인자 $`L`$의 대각 성분은 1이 아니므로 전진 대입 공식은 $`d_i = (b_i - \sum_{j=1}^{i-1} L_{ij} d_j) / L_{ii}`$가 되어야 한다. 위의 `cholesky_solve`는 이 나눗셈을 하지 않는 `forward_sub`를 그대로 호출하므로 틀린 $`d`$를 만들고, 따라서 틀린 해를 반환한다. 실무에서는 SciPy의 `cho_factor`와 `cho_solve`가 이를 자동으로 처리한다.
+> **참고:** 2절에서 정의한 `forward_sub` 함수는 단위 하삼각 행렬(대각 성분이 1)을 가정한다. Cholesky 인자 $`L`$의 대각 성분은 1이 아니므로 전진 대입 공식은 $`d_i = (b_i - \sum_{j=1}^{i-1} L_{ij} d_j) / L_{ii}`$가 되어야 한다. 위의 `cholesky_solve`는 이 나눗셈을 하지 않는 `forward_sub`를 그대로 호출하므로 틀린 $`d`$를 만들고, 따라서 틀린 해를 반환한다. 실무에서는 SciPy의 `cho_factor`와 `cho_solve`가 이를 자동으로 처리한다.
 
 대각 성분으로 나누도록 고친 전진 대입은 다음과 같다. `cholesky_solve`에서 `forward_sub` 대신 이 함수를 호출하면 올바른 해를 얻는다.
 
@@ -348,7 +348,7 @@ def forward_sub_general(L, b):
 
 ### 5.3 FEM 스프링 네트워크 응용
 
-유한요소법(FEM)으로 조립한 스프링 네트워크의 강성 행렬은 시스템이 올바르게, 완전히 구속되어 있으면 항상 SPD이므로 촐레스키 분해가 이상적이다.
+유한요소법(FEM)으로 조립한 스프링 네트워크의 강성 행렬은 시스템이 올바르게, 완전히 구속되어 있으면 항상 SPD이므로 Cholesky 분해가 이상적이다.
 
 ```mermaid
 flowchart LR
@@ -394,7 +394,7 @@ print(f'Displacements: {x_fem}')
 | Doolittle LU | `lu_doolittle(A)` | 알고리즘 이해 |
 | SciPy LU | `sc.linalg.lu(A)` | 일반 분해 |
 | LU 분해 + 풀이 | `lu_factor(A)` + `lu_solve(lu, b)` | 다중 우변 (한 번만 분해) |
-| 촐레스키(Cholesky) | `sc.linalg.cholesky(A)` | SPD 행렬 (약 2배 빠름) |
+| Cholesky | `sc.linalg.cholesky(A)` | SPD 행렬 (약 2배 빠름) |
 | `np.linalg.solve` | 직접 풀이 | 단일 우변, 실무 사용 |
 
 *표 1. 분해 방법별 함수와 사용 시기*
@@ -403,7 +403,7 @@ print(f'Displacements: {x_fem}')
 
 1. 우변이 하나이면 항상 `np.linalg.solve`를 사용하고, 역행렬을 직접 계산하지 않는다.
 2. 같은 $`A`$로 여러 우변을 풀 때는 `lu_factor`와 `lu_solve`를 사용한다.
-3. $`A`$가 SPD이면 촐레스키 분해를 사용한다(더 빠르고 더 안정적이다).
+3. $`A`$가 SPD이면 Cholesky 분해를 사용한다(더 빠르고 더 안정적이다).
 4. 결과를 신뢰하기 전에 조건수(11장)를 확인한다.
 5. 잔차 $`\|Ax - b\|`$로 해를 검증한다.
 
@@ -422,7 +422,7 @@ print(f'Displacements: {x_fem}')
 | 열저항 네트워크 | 각 내부 노드의 에너지 평형에서 전도도를 계수로 하는 연립방정식을 얻는다. |
 | 중첩 원리 | 선형 시스템에서 결합 하중에 대한 해는 개별 하중에 대한 해의 합과 같다. |
 | SPD 판정 | 대칭이고 모든 고유값이 양수이면 SPD이며, `np.linalg.eigvalsh`로 고유값을 구해 판정한다. |
-| 촐레스키 풀이 | $`A = LL^T`$로 분해한 뒤 대각 성분으로 나누는 전진 대입과 후진 대입으로 푼다. |
+| Cholesky 풀이 | $`A = LL^T`$로 분해한 뒤 대각 성분으로 나누는 전진 대입과 후진 대입으로 푼다. |
 
 ---
 
@@ -448,7 +448,7 @@ print(f'Displacements: {x_fem}')
 
    </details>
 
-3. **촐레스키 풀이의 전진 대입:** $`A = \begin{bmatrix} 4 & 2 \\ 2 & 5 \end{bmatrix}`$의 촐레스키 인자는 $`L = \begin{bmatrix} 2 & 0 \\ 1 & 2 \end{bmatrix}`$이다. $`b = (4, 7)^T`$에 대해 올바른 해를 구하고, 대각 성분으로 나누지 않는 `forward_sub`를 쓰면 어떤 해가 나오는지 비교하라.
+3. **Cholesky 풀이의 전진 대입:** $`A = \begin{bmatrix} 4 & 2 \\ 2 & 5 \end{bmatrix}`$의 Cholesky 인자는 $`L = \begin{bmatrix} 2 & 0 \\ 1 & 2 \end{bmatrix}`$이다. $`b = (4, 7)^T`$에 대해 올바른 해를 구하고, 대각 성분으로 나누지 않는 `forward_sub`를 쓰면 어떤 해가 나오는지 비교하라.
 
    <details>
    <summary>정답</summary>

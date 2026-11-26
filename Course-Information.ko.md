@@ -2,7 +2,7 @@
 
 [레포지토리 안내](README.ko.md) | [English](Course-Information.md) | [한국어](Course-Information.ko.md)
 
-> **최종 수정일:** 2026-11-24
+> **최종 수정일:** 2026-11-27
 
 ## 목차
 
@@ -70,14 +70,14 @@
 |:---:|:-----|:-----|:-----|
 | 1주차 | 3/3 | Python 기초 (1~3장) | N00_Orientation<br>N01_Ch1 (모델링)<br>N02_Ch2 (Python 기초)<br>N03_Ch3 (Python 프로그래밍) |
 | 2주차 | 3/10 | 오차의 원인 (4장) | N04_Ch4 (반올림 오차와 절단 오차) |
-| 3주차 | 3/17 | 선형 연립방정식 (8~9장) | N05_Ch8 (선형 시스템)<br>N06_Ch9 (가우스 소거법) |
+| 3주차 | 3/17 | 선형 연립방정식 (8~9장) | N05_Ch8 (선형 시스템)<br>N06_Ch9 (Gauss 소거법) |
 | 4주차 | 3/24 | 선형 연립방정식 (10~11장) | N07_Ch10 (LU 분해)<br>N08_Ch11 (역행렬 및 조건수) |
 | 5주차 | 3/31 | 고유값과 고유벡터 (13장) | N09_Ch12 (선형계의 반복법)<br>N10_Ch13 (고유값) |
 | 6주차 | 4/7 | 비선형 방정식 (5~6장) | N11_Ch5 (근 탐색: 구간법)<br>N12_Ch6 (근 탐색: 개방법) |
 | 7주차 | 4/14 | 최적화 (7장) | N13_Ch7-Optimization-1<br>N14_Ch7-Optimization-2 |
 | 8주차 | 4/21 | 중간고사 | - |
 | 9주차 | 4/28 | 선형 및 비선형 회귀 (14~15장) | N15_Ch14-Regression<br>N16_Ch15-NonLinearRegression |
-| 10주차 | 5/5 | 푸리에 해석 (16장) | 공휴일 (5/5 어린이날)<br>N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
+| 10주차 | 5/5 | Fourier 해석 (16장) | 공휴일 (5/5 어린이날)<br>N17_Ch16-FourierSeries<br>N18_Ch16-FourierAnalysis |
 | 11주차 | 5/12 | 데이터 보간 (17~18장) | N19_Ch17-Interpolation<br>N20_Ch18-Spline |
 | 12주차 | 5/19 | 수치 적분 (19~20장) | N21_Ch19-Integration-1<br>N22_Ch20-Integration-2 |
 | 13주차 | 5/26 | 수치 미분 (21장) | N23_Ch21-Differentiation<br>N24_Ch22-IVP |

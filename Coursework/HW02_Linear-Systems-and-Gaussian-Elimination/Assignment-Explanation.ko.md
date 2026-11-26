@@ -1,8 +1,8 @@
-# HW2 과제 해설 — 연립방정식과 가우스 소거법
+# HW2 과제 해설 — 연립방정식과 Gauss 소거법
 
 [레포지토리 안내](../../README.ko.md) | [English](Assignment-Explanation.md) | [한국어](Assignment-Explanation.ko.md)
 
-> **최종 수정일:** 2026-11-16
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 8, 9
 
@@ -10,7 +10,7 @@
 > 1. 힘의 평형식에서 연립방정식의 우변 벡터를 행의 순서에 맞게 구성하고 잔차로 해를 검증할 수 있다
 > 2. 확대 행렬에서 전진 소거와 후진 대입을 구현하고 손으로 추적한 결과와 비교할 수 있다
 > 3. 피봇이 0인 시스템에서 단순 소거법이 실패하는 과정을 설명하고 행 교환을 구현할 수 있다
-> 4. 삼중대각 시스템을 푸는 토마스 알고리즘의 전진 소거를 구현하고 열전도 문제로 검증할 수 있다
+> 4. 삼중대각 시스템을 푸는 Thomas 알고리즘의 전진 소거를 구현하고 열전도 문제로 검증할 수 있다
 
 ---
 
@@ -22,7 +22,7 @@
   - [3.1 풀이 방법](#31-풀이-방법)
   - [3.2 작성한 코드](#32-작성한-코드)
   - [3.3 실행 결과와 검증](#33-실행-결과와-검증)
-- [4. 문제 2: 단순 가우스 소거법](#4-문제-2-단순-가우스-소거법)
+- [4. 문제 2: 단순 Gauss 소거법](#4-문제-2-단순-gauss-소거법)
   - [4.1 풀이 방법](#41-풀이-방법)
   - [4.2 작성한 코드](#42-작성한-코드)
   - [4.3 실행 결과와 검증](#43-실행-결과와-검증)
@@ -30,7 +30,7 @@
   - [5.1 풀이 방법](#51-풀이-방법)
   - [5.2 작성한 코드](#52-작성한-코드)
   - [5.3 실행 결과와 검증](#53-실행-결과와-검증)
-- [6. 문제 4: 토마스 알고리즘](#6-문제-4-토마스-알고리즘)
+- [6. 문제 4: Thomas 알고리즘](#6-문제-4-thomas-알고리즘)
   - [6.1 풀이 방법](#61-풀이-방법)
   - [6.2 작성한 코드](#62-작성한-코드)
   - [6.3 실행 결과와 검증](#63-실행-결과와-검증)
@@ -45,18 +45,18 @@
 
 > **풀어 보기:** 이 문서는 정답과 풀이를 담고 있다. 먼저 [과제 안내문](Original/Assignment.ko.md)의 문제를 직접 풀어 본 뒤 읽는다.
 
-과제는 교수자가 배포한 실습 노트북 `Lab03-LinearSystem.ipynb`의 빈칸 4곳을 채워 실행하는 것이다. 노트북은 $`A\mathbf{x} = \mathbf{b}`$의 설정과 풀이, 단순 가우스 소거법, 부분 피봇팅, 삼중대각 시스템과 토마스 알고리즘의 네 부분으로 이루어지며, 각 부분에 빈칸이 하나씩 있다. 문제 원문은 [과제 안내문](Original/Assignment.ko.md)에, 배포된 빈 노트북은 [Original/Lab03-LinearSystem.ipynb](Original/Lab03-LinearSystem.ipynb)에, 빈칸을 채워 실행한 노트북은 [Solution/Lab03-LinearSystem_Completed.ipynb](Solution/Lab03-LinearSystem_Completed.ipynb)에 있다.
+과제는 교수자가 배포한 실습 노트북 `Lab03-LinearSystem.ipynb`의 빈칸 4곳을 채워 실행하는 것이다. 노트북은 $`A\mathbf{x} = \mathbf{b}`$의 설정과 풀이, 단순 Gauss 소거법, 부분 피봇팅, 삼중대각 시스템과 Thomas 알고리즘의 네 부분으로 이루어지며, 각 부분에 빈칸이 하나씩 있다. 문제 원문은 [과제 안내문](Original/Assignment.ko.md)에, 배포된 빈 노트북은 [Original/Lab03-LinearSystem.ipynb](Original/Lab03-LinearSystem.ipynb)에, 빈칸을 채워 실행한 노트북은 [Solution/Lab03-LinearSystem_Completed.ipynb](Solution/Lab03-LinearSystem_Completed.ipynb)에 있다.
 
 | 문제 | 노트북 절 | 채울 빈칸 |
 |:-----|:-----|:-----|
 | 문제 1 | 1.3 질량-스프링 시스템 | 우변 벡터 `b` |
-| 문제 2 | 2.4 단순 가우스 소거법의 구현 | 함수 `gauss_naive`의 `factor`, 행 갱신, `x[n-1]`, `x[i]` |
+| 문제 2 | 2.4 단순 Gauss 소거법의 구현 | 함수 `gauss_naive`의 `factor`, 행 갱신, `x[n-1]`, `x[i]` |
 | 문제 3 | 3.2 부분 피봇팅 | 함수 `gauss_pivot`의 행 교환 |
-| 문제 4 | 4.2 토마스 알고리즘 | 함수 `thomas`의 `factor`, `f[k]`, `r[k]` |
+| 문제 4 | 4.2 Thomas 알고리즘 | 함수 `thomas`의 `factor`, `f[k]`, `r[k]` |
 
 *표 1. 과제를 이루는 네 빈칸*
 
-확대 행렬, 질량-스프링 시스템의 강성 행렬, 단순 가우스 소거법은 [8장 강의 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lecture.ko.md)와 [8장 실습 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md)에, 부분 피봇팅과 토마스 알고리즘은 [9장 강의 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lecture.ko.md)와 [9장 실습 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lab.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
+확대 행렬, 질량-스프링 시스템의 강성 행렬, 단순 Gauss 소거법은 [8장 강의 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lecture.ko.md)와 [8장 실습 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md)에, 부분 피봇팅과 Thomas 알고리즘은 [9장 강의 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lecture.ko.md)와 [9장 실습 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lab.ko.md)에 정리되어 있다. 이 문서는 풀이에 필요한 범위만 다시 설명한다.
 
 ---
 
@@ -114,7 +114,7 @@ Max |residual|   = 2.84e-14  (machine precision: ~2e-16)
 
 <br>
 
-## 4. 문제 2: 단순 가우스 소거법
+## 4. 문제 2: 단순 Gauss 소거법
 
 ### 4.1 풀이 방법
 
@@ -126,7 +126,7 @@ $$
 
 그런 다음 행 `i`에서 행 `k`의 $`f_{ik}`$배를 빼서 $`(i, k)`$ 성분을 0으로 만든다. 행 `i`의 앞쪽 열 `0`부터 `k-1`까지는 이전 단계에서 이미 0이 되었으므로, 갱신은 열 `k`부터 마지막 열 `nb-1`까지의 슬라이스 `k:nb`에만 하면 된다. 마지막 열에는 우변이 들어 있으므로 같은 갱신이 우변에도 적용된다. 계수를 먼저 변수 `factor`에 저장해야 한다는 점도 중요하다. 행 갱신이 `Aug[i, k]`를 덮어쓰기 때문이다.
 
-**후진 대입:** 전진 소거가 끝나면 확대 행렬의 마지막 열(`nb-1`)에 변형된 우변이 남는다. 마지막 행은 미지수가 하나뿐이므로 `x[n-1]`을 바로 구하고, 그 위의 행은 이미 구한 미지수들을 대입해 푼다. 노트북 2.3절의 합 $`\sum_{j=i+1}^{n-1} a_{ij} x_j`$는 행 벡터 `Aug[i, i+1:n]`과 `x[i+1:n]`의 내적 `@`으로 한 번에 계산된다. 단순 가우스 소거법은 [8장 강의 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lecture.ko.md)의 6절과 [8장 실습 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md)의 3절에서 다룬다.
+**후진 대입:** 전진 소거가 끝나면 확대 행렬의 마지막 열(`nb-1`)에 변형된 우변이 남는다. 마지막 행은 미지수가 하나뿐이므로 `x[n-1]`을 바로 구하고, 그 위의 행은 이미 구한 미지수들을 대입해 푼다. 노트북 2.3절의 합 $`\sum_{j=i+1}^{n-1} a_{ij} x_j`$는 행 벡터 `Aug[i, i+1:n]`과 `x[i+1:n]`의 내적 `@`으로 한 번에 계산된다. 단순 Gauss 소거법은 [8장 강의 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lecture.ko.md)의 6절과 [8장 실습 노트](../../Lecture-Notes/Ch08_Linear-Algebraic-Equations/Concepts_Lab.ko.md)의 3절에서 다룬다.
 
 ### 4.2 작성한 코드
 
@@ -223,17 +223,17 @@ $`k = 1`$의 피봇 2.4는 0이 아닌데도 교환이 일어난다. 부분 피�
 
 <br>
 
-## 6. 문제 4: 토마스 알고리즘
+## 6. 문제 4: Thomas 알고리즘
 
 ### 6.1 풀이 방법
 
-삼중대각 행렬에서는 피봇 행 $`k-1`$의 0이 아닌 성분이 대각 성분 $`f_{k-1}`$과 위 대각 성분 $`g_{k-1}`$뿐이다. 따라서 행 $`k`$의 아래 대각 성분 $`e_k`$를 소거하는 가우스 소거는 소거 계수 $`e_k / f_{k-1}`$를 구한 뒤 대각 성분과 우변 두 곳만 갱신하면 된다.
+삼중대각 행렬에서는 피봇 행 $`k-1`$의 0이 아닌 성분이 대각 성분 $`f_{k-1}`$과 위 대각 성분 $`g_{k-1}`$뿐이다. 따라서 행 $`k`$의 아래 대각 성분 $`e_k`$를 소거하는 Gauss 소거는 소거 계수 $`e_k / f_{k-1}`$를 구한 뒤 대각 성분과 우변 두 곳만 갱신하면 된다.
 
 $$
 f_k \leftarrow f_k - \frac{e_k}{f_{k-1}} g_{k-1}, \qquad r_k \leftarrow r_k - \frac{e_k}{f_{k-1}} r_{k-1}
 $$
 
-루프가 $`k`$ 순서로 진행되므로 `f[k-1]`과 `r[k-1]`은 앞 반복에서 이미 갱신된 값이며, 이것이 가우스 소거의 $`a_{kk}^{(k)}`$에 해당한다. 함수는 처음에 `f`와 `r`의 복사본을 만들어 호출자의 배열을 바꾸지 않는다. 토마스 알고리즘은 [9장 강의 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lecture.ko.md)의 5절과 [9장 실습 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lab.ko.md)의 3절에서 다룬다.
+루프가 $`k`$ 순서로 진행되므로 `f[k-1]`과 `r[k-1]`은 앞 반복에서 이미 갱신된 값이며, 이것이 Gauss 소거의 $`a_{kk}^{(k)}`$에 해당한다. 함수는 처음에 `f`와 `r`의 복사본을 만들어 호출자의 배열을 바꾸지 않는다. Thomas 알고리즘은 [9장 강의 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lecture.ko.md)의 5절과 [9장 실습 노트](../../Lecture-Notes/Ch09_Gauss-Elimination/Concepts_Lab.ko.md)의 3절에서 다룬다.
 
 ### 6.2 작성한 코드
 
@@ -257,7 +257,7 @@ $$
 
 내부 절점이 6개, 15개인 경우도 선형 분포와의 차이가 $`3 \times 10^{-14}`$ 이하이다. 선형 함수는 2계 차분 $`T_{i-1} - 2T_i + T_{i+1}`$을 정확히 0으로 만들므로, 이 문제에서는 이산화 오차 없이 절점 값이 엄밀해와 같아야 하고 실제로 그렇다. 또한 이 행렬은 내부 행에서 $`|f_i| = |e_i| + |g_i|`$여서 엄격한 대각 우위가 아니지만, 전진 소거 뒤의 대각 성분은 $`f_k = -(k+2)/(k+1)`$, 곧 $`-2, -1.5, -1.333, \ldots`$로 0이 되지 않으므로 피봇팅 없이 풀 수 있다.
 
-노트북 4.3절 다음의 셀은 같은 삼중대각 시스템을 토마스 알고리즘과 `np.linalg.solve`로 풀어 시간을 비교한다. 완성한 노트북의 출력은 다음과 같다.
+노트북 4.3절 다음의 셀은 같은 삼중대각 시스템을 Thomas 알고리즘과 `np.linalg.solve`로 풀어 시간을 비교한다. 완성한 노트북의 출력은 다음과 같다.
 
 ```text
      n    Thomas (s)    Full Gauss (s)     Speedup
@@ -268,7 +268,7 @@ $$
   5000      0.003320          0.553740       166.8x
 ```
 
-시간은 실행 환경에 따라 달라지지만, $`n`$이 커질수록 속도 차이가 벌어진다. 토마스 알고리즘의 시간은 $`n`$에 거의 비례해 늘고, 밀집 행렬을 푸는 쪽은 $`O(n^3)`$이어서 훨씬 빠르게 늘기 때문이다.
+시간은 실행 환경에 따라 달라지지만, $`n`$이 커질수록 속도 차이가 벌어진다. Thomas 알고리즘의 시간은 $`n`$에 거의 비례해 늘고, 밀집 행렬을 푸는 쪽은 $`O(n^3)`$이어서 훨씬 빠르게 늘기 때문이다.
 
 ---
 
@@ -283,7 +283,7 @@ $$
 | 후진 대입 | 마지막 미지수부터 구하고, 이미 구한 미지수와의 합은 행 슬라이스와 해 벡터의 내적으로 계산한다. |
 | 피봇이 0인 시스템 | 단순 소거법은 0으로 나누어 `inf`와 `nan`이 퍼지며 해를 내지 못한다. |
 | 부분 피봇팅 | 각 단계에서 열의 절댓값이 가장 큰 행을 피봇 행으로 올리며, NumPy에서는 정수 배열 인덱싱의 복사본으로 행을 안전하게 맞바꾼다. |
-| 토마스 알고리즘 | 삼중대각 구조에서는 단계마다 대각 성분과 우변만 갱신하면 되어 $`O(n)`$에 풀리며, 선형 온도 분포를 정확히 재현한다. |
+| Thomas 알고리즘 | 삼중대각 구조에서는 단계마다 대각 성분과 우변만 갱신하면 되어 $`O(n)`$에 풀리며, 선형 온도 분포를 정확히 재현한다. |
 
 ---
 
@@ -318,7 +318,7 @@ $$
 
    </details>
 
-4. **토마스 알고리즘의 피봇:** 문제 4의 열전도 행렬은 엄격한 대각 우위가 아닌데도 피봇팅 없이 풀린다. 그 이유를 전진 소거 뒤의 대각 성분으로 설명하라.
+4. **Thomas 알고리즘의 피봇:** 문제 4의 열전도 행렬은 엄격한 대각 우위가 아닌데도 피봇팅 없이 풀린다. 그 이유를 전진 소거 뒤의 대각 성분으로 설명하라.
 
    <details>
    <summary>정답</summary>
