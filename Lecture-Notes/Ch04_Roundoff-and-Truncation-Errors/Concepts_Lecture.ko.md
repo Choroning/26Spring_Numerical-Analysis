@@ -753,13 +753,13 @@ v'(t_i) = \underbrace{\frac{v(t_{i+1}) - v(t_i)}{h}}_{\text{first-order approxim
 ```text
 x_{i-2}   x_{i-1}    x_i     x_{i+1}   x_{i+2}
    |         |        |         |         |
-                      ●─────────●              전진 차분         O(h)
-             ●────────●                        후진 차분         O(h)
-             ●────────○─────────●              중심 차분         O(h^2)
-             ●────────●─────────●              2계도함수         O(h^2)
-                      ●─────────●─────────●    고차 전진 차분    O(h^2)
+                      ●─────────●              forward difference      O(h)
+             ●────────●                        backward difference     O(h)
+             ●────────○─────────●              central difference      O(h^2)
+             ●────────●─────────●              second derivative       O(h^2)
+                      ●─────────●─────────●    higher-order forward    O(h^2)
 
-● 공식에 쓰이는 점    ○ 공식에 쓰이지 않는 점
+● point used by the formula    ○ point not used by the formula
 ```
 
 *그림 3. 유한 차분 공식별로 사용하는 격자점*

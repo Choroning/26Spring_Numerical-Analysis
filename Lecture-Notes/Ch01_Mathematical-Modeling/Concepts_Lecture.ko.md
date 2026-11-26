@@ -144,13 +144,13 @@ V\frac{dc}{dt} = Qc_{\text{in}} - Qc \quad\Longrightarrow\quad \frac{dc}{dt} = \
    - **이차 항력 모델**: $`F_U = c_d\, v|v|`$이다. 여기서 $`c_d`$는 이차 저항의 항력 계수(kg/m)이다.
 
 ```text
-              ▲  F_U = cv   (공기 저항, 위 방향)
+              ▲  F_U = cv   (air resistance, upward)
               │
            ┌──┴──┐
-           │  m  │          점프 선수
+           │  m  │          jumper
            └──┬──┘
               │
-              ▼  F_D = mg   (중력, 아래 방향)
+              ▼  F_D = mg   (gravity, downward)
 ```
 
 *그림 1. 번지 점프 선수에 작용하는 중력과 공기 저항*

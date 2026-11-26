@@ -139,7 +139,7 @@ print(f'Eigenvalues: {eigvals_geo}')
 `numpy.linalg.eig(A)`는 $`n`$개의 고유쌍을 모두 $`O(n^3)`$ 시간에 반환한다. 반환된 고유벡터 행렬의 열은 순서대로 고유값 배열의 항목에 대응한다.
 
 ```python
-# 강의노트 예제 (13장, 문제 13.1)
+# Lecture-notes example  (Ch. 13, Problem 13.1)
 A = np.array([[20.0,  3.0,  2.0],
               [ 3.0,  9.0,  4.0],
               [ 2.0,  4.0, 12.0]])
@@ -153,7 +153,7 @@ for i, lam in enumerate(eigvals):
 print('\nEigenvectors (columns):')
 print(np.round(eigvecs, 6))
 
-# A v = lambda v 검증
+# Verify  A v = lambda v
 print('\nVerification  max|A v - lambda v|:')
 for i in range(len(eigvals)):
     res = A @ eigvecs[:, i] - eigvals[i] * eigvecs[:, i]
@@ -169,7 +169,7 @@ print(f'sum of eigenvalues     = {np.sum(eigvals):.6f}   <- must match')
 print(f'det(A)                 = {np.linalg.det(A):.6f}')
 print(f'product of eigenvalues = {np.prod(eigvals):.6f}   <- must match')
 
-# 대칭 행렬의 경우 고유벡터는 정규직교
+# For a symmetric matrix, eigenvectors are orthonormal
 VTV = eigvecs.T @ eigvecs
 print('\nV^T V (= I for symmetric A):')
 print(np.round(VTV, 8))
@@ -257,8 +257,8 @@ def power_method(A, x0=None, tol=1e-8, max_iter=500):
 
     for _ in range(max_iter):
         y   = A @ x
-        lam = y[np.argmax(np.abs(y))]   # 절댓값이 가장 큰 원소
-        x   = y / lam                    # 정규화
+        lam = y[np.argmax(np.abs(y))]   # element with largest |value|
+        x   = y / lam                    # normalize
 
         lam_hist.append(float(lam))
         if abs(lam - lam_old) / abs(lam) < tol:
@@ -292,7 +292,7 @@ rate = sorted_lam[1] / sorted_lam[0]
 print(f'\nTheoretical convergence rate |λ₂/λ₁| = {rate:.6f}')
 print(f'  -> error halves every {-np.log(2)/np.log(rate):.1f} iterations')
 
-# 수렴 그래프
+# Plot convergence
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
 iters = range(1, len(hist_pm) + 1)
 
@@ -485,14 +485,14 @@ A = np.array([[20.0,  3.0,  2.0],
               [ 3.0,  9.0,  4.0],
               [ 2.0,  4.0, 12.0]])
 
-# eigh: 정렬됨, 실수, 정규직교
-eigvals_h, V = np.linalg.eigh(A)   # 오름차순
+# eigh: sorted, real, orthonormal
+eigvals_h, V = np.linalg.eigh(A)   # ascending order
 print('eigh eigenvalues (ascending):', np.round(eigvals_h, 8))
 
 print('\nOrthonormality check  V^T V:')
 print(np.round(V.T @ V, 10))
 
-# 스펙트럼 분해  A = V Lambda V^T
+# Spectral decomposition  A = V Lambda V^T
 Lambda = np.diag(eigvals_h)
 A_reconstructed = V @ Lambda @ V.T
 print(f'\nmax|A - V Lambda V^T| = {np.max(np.abs(A - A_reconstructed)):.2e}')
@@ -538,7 +538,7 @@ $`k`$가 커질수록 크기가 작은 고유값만 버리게 되어 근사 오�
 세 개의 질량이 네 개의 스프링으로 연결되고 양쪽 끝이 벽에 고정된 시스템을 생각한다.
 
 ```text
-벽 ─[k₁]─ m₁ ─[k₂]─ m₂ ─[k₃]─ m₃ ─[k₄]─ 벽
+Wall ─[k₁]─ m₁ ─[k₂]─ m₂ ─[k₃]─ m₃ ─[k₄]─ Wall
 ```
 
 *그림 1. 양쪽 벽에 고정된 세 질량, 네 스프링 시스템*
@@ -576,7 +576,7 @@ $`\omega^2`$로부터 각주파수 $`\omega = \sqrt{\lambda}`$ (rad/s), 주파�
 ```python
 import scipy as sc
 
-# 시스템 매개변수
+# System parameters
 k1, k2, k3, k4 = 40.0, 30.0, 20.0, 10.0   # N/m
 m1, m2, m3     =  2.0,  1.5,  1.0          # kg
 
@@ -587,8 +587,8 @@ K_vib = np.array([
 ])
 M_vib = np.diag([m1, m2, m3])
 
-# K v = omega^2 M v 풀이
-omega_sq, modes = sc.linalg.eigh(K_vib, M_vib)   # 고유값 오름차순
+# Solve  K v = omega^2 M v
+omega_sq, modes = sc.linalg.eigh(K_vib, M_vib)   # eigenvalues ascending
 
 omega_n = np.sqrt(omega_sq)
 freq_hz = omega_n / (2 * np.pi)
@@ -599,7 +599,7 @@ print('-' * 60)
 for i in range(3):
     print(f'{i+1:>5}  {omega_sq[i]:>14.4f}  {omega_n[i]:>14.4f}  {freq_hz[i]:>10.4f}  {1/freq_hz[i]:>10.4f}')
 
-# 일반화 고유값 방정식 검증
+# Verify generalized eigenvalue equation
 print('\nVerification  max|K v - omega^2 M v|:')
 for i in range(3):
     v   = modes[:, i]
@@ -628,13 +628,13 @@ x_masses = [1, 2, 3]
 
 for i, ax in enumerate(axes):
     v      = modes[:, i]
-    v_norm = v / np.max(np.abs(v))   # 최대 진폭 = 1로 스케일
+    v_norm = v / np.max(np.abs(v))   # scale to max amplitude = 1
     disp   = np.array([0.0, v_norm[0], v_norm[1], v_norm[2], 0.0])
 
     ax.axhline(0, color='gray', ls='--', lw=1)
     ax.plot(x_pos, disp, 'b-o', ms=13, lw=2,
             markerfacecolor='steelblue', markeredgecolor='navy')
-    ax.plot([0, 4], [0, 0], 'ks', ms=14)   # 벽
+    ax.plot([0, 4], [0, 0], 'ks', ms=14)   # walls
 
     ax.set(xlim=[-0.5, 4.5], ylim=[-1.7, 1.7],
            title=f'Mode {i+1}\nω = {omega_n[i]:.2f} rad/s  ({freq_hz[i]:.3f} Hz)',
@@ -664,7 +664,7 @@ plt.show()
 모드 진폭은 초기 조건을 모드 형상에 $`M`$-사영하여 $`c_i = \boldsymbol\phi_i^T M \mathbf{x}_0`$, $`s_i = \boldsymbol\phi_i^T M \mathbf{v}_0 / \omega_i`$로 얻는다.
 
 ```python
-# 초기 조건: m1을 50 mm 변위시킨 뒤 정지 상태에서 놓기
+# Initial condition: displace m1 by 50 mm, release from rest
 x0_vib  = np.array([0.05, 0.0, 0.0])
 dx0_vib = np.zeros(3)
 
@@ -755,11 +755,11 @@ for i, lam in enumerate(lam_ode):
 stable = np.all(np.real(lam_ode) < 0)
 print(f'System is {"STABLE" if stable else "UNSTABLE"}')
 
-# 모드 상수  c = V^{-1} y0
+# Modal constants  c = V^{-1} y0
 c_ode = np.linalg.solve(V_ode, y0)
 print(f'\nModal constants: c1 = {c_ode[0]:.4f},  c2 = {c_ode[1]:.4f}')
 
-# 시간 해
+# Time solution
 t = np.linspace(0, 1.5, 800)
 y_t = np.zeros((2, len(t)))
 for i in range(2):
@@ -770,7 +770,7 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 ax = axes[0]
 ax.plot(t, y_t[0], 'b-', lw=2, label='y₁(t)')
 ax.plot(t, y_t[1], 'r-', lw=2, label='y₂(t)')
-ax.set(xlabel='Time t', ylabel='y', title='ODE Solution  ẏ = A y')
+ax.set(xlabel='Time t', ylabel='y', title='ODE Solution  dy/dt = A y')
 ax.legend(); ax.grid(True, alpha=0.4)
 
 ax = axes[1]

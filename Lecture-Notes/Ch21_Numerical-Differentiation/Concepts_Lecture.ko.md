@@ -425,11 +425,11 @@ f'(x_i) = \frac{f(x_{i+1}) - f(x_i)}{h} - \frac{f(x_{i+2}) - 2f(x_{i+1}) + f(x_i
 ```text
          x_{i-1}     x_i     x_{i+1}   x_{i+2}
   ──────────┼─────────┼─────────┼─────────┼────
-            ●─────────●                          후진 차분: f'(x_i), O(h)
-                      ●─────────●                전진 차분: f'(x_i), O(h)
-            ●───────────────────●                중심 차분: f'(x_i), O(h^2)
-            ●─────────●─────────●                중심 차분: f''(x_i), O(h^2)
-                      ●─────────●─────────●      전진 차분: f''(x_i), O(h); 2차 전진 차분: f'(x_i), O(h^2)
+            ●─────────●                          backward difference: f'(x_i), O(h)
+                      ●─────────●                forward difference: f'(x_i), O(h)
+            ●───────────────────●                central difference: f'(x_i), O(h^2)
+            ●─────────●─────────●                central difference: f''(x_i), O(h^2)
+                      ●─────────●─────────●      forward difference: f''(x_i), O(h); second-order forward: f'(x_i), O(h^2)
 ```
 
 *그림 2. 유한 차분 공식이 사용하는 점(스텐실)*

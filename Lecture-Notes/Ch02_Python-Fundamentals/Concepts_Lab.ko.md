@@ -2,7 +2,7 @@
 
 [레포지토리 안내](../../README.ko.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **최종 수정일:** 2026-11-18
+> **최종 수정일:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 2
 
@@ -419,11 +419,11 @@ print(y.base is None)  # True — no base array, it's independent
 ```
 
 ```text
-x          [ 1 | 2 | 3 | 4 | 5 ]   원본 데이터 버퍼
+x          [ 1 | 2 | 3 | 4 | 5 ]   original data buffer
                  └─┬─┘
-x[1:3]             │               뷰: 같은 버퍼의 인덱스 1, 2를 가리킨다
+x[1:3]             │               view: refers to indices 1 and 2 of the same buffer
 
-x[[1, 2]]  [ 2 | 3 ]               복사본: 값을 새 버퍼에 복사한다
+x[[1, 2]]  [ 2 | 3 ]               copy: values are copied into a new buffer
 ```
 
 *그림 1. 기본 슬라이싱으로 만든 뷰와 팬시 인덱싱으로 만든 복사본*

@@ -2,7 +2,7 @@
 
 [Repository Guide](../../README.md) | [English](Concepts_Lab.md) | [한국어](Concepts_Lab.ko.md)
 
-> **Last Updated:** 2026-11-19
+> **Last Updated:** 2026-11-27
 >
 > Applied Numerical Methods with Python for Engineers and Scientists, Chapra and Clough, Ch 13
 
@@ -770,7 +770,7 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 ax = axes[0]
 ax.plot(t, y_t[0], 'b-', lw=2, label='y₁(t)')
 ax.plot(t, y_t[1], 'r-', lw=2, label='y₂(t)')
-ax.set(xlabel='Time t', ylabel='y', title='ODE Solution  ẏ = A y')
+ax.set(xlabel='Time t', ylabel='y', title='ODE Solution  dy/dt = A y')
 ax.legend(); ax.grid(True, alpha=0.4)
 
 ax = axes[1]
